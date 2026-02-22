@@ -53,7 +53,12 @@ export default auth(async (req) => {
   if (isAuthenticated && isProtectedRoute && !isOnboardingPage) {
     try {
       const userId = req.auth?.user?.id;
-      if (userId) {
+      const userEmail = req.auth?.user?.email || '';
+      const ADMIN_EMAILS = ['contact@outfity.fr', 'johanrudyb@gmail.com'];
+      const isAdmin = ADMIN_EMAILS.includes(userEmail) || userEmail.endsWith('@biangory.com');
+
+      // Les admins passent toujours — pas de gate onboarding
+      if (!isAdmin && userId) {
         const user = await prisma.user.findUnique({
           where: { id: userId },
           select: { onboardingCompleted: true },

@@ -1,11 +1,7 @@
-/**
- * GET /api/usage/quota — Usage par feature pour le pack Fashion Launch.
- * Retourne pour chaque feature : limit, used, remaining.
- * Inclut les crédits surplus achetés via Stripe.
- */
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { getFeatureCountThisMonth } from '@/lib/ai-usage';
+import { isAdminUser } from '@/lib/ai-usage';
 import type { AIFeatureKey } from '@/lib/ai-usage-config';
 import {
   QUOTA_LIMITS,
@@ -26,6 +22,23 @@ export async function GET() {
     const user = await getCurrentUser();
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+
+    // 🔑 ADMIN BYPASS — toutes les features illimitées
+    if (await isAdminUser(user.id)) {
+      const features = Object.keys(QUOTA_LIMITS) as QuotaFeatureKey[];
+      const usage: any = {};
+      for (const key of features) {
+        usage[key] = { limit: 9999, used: 0, remaining: 9999, label: QUOTA_LABELS[key], isUnlimited: true };
+      }
+      return NextResponse.json({
+        usage,
+        categories: QUOTA_CATEGORIES,
+        categoryLabels: CATEGORY_LABELS,
+        tryonPremiumPrice: TRYON_PREMIUM_PRICE,
+        packId: 'admin',
+        isAdmin: true,
+      });
     }
 
     const packId: PackId = user.plan === 'free' ? 'free' : 'fashion_launch';

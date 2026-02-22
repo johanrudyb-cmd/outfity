@@ -20,6 +20,21 @@ import {
 import { QUOTA_LIMITS, type QuotaFeatureKey } from './quota-config';
 import { getSurplusAddedToLimit, getSurplusRemaining } from './surplus-credits';
 
+/** Emails admin — accès illimité à toutes les fonctionnalités */
+const ADMIN_EMAILS = ['contact@outfity.fr', 'johanrudyb@gmail.com'];
+
+export async function isAdminUser(userId: string): Promise<boolean> {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true },
+    });
+    return !!user?.email && (ADMIN_EMAILS.includes(user.email) || user.email.endsWith('@biangory.com'));
+  } catch {
+    return false;
+  }
+}
+
 /** Début du mois courant (UTC) — fallback si pas de subscribedAt */
 function getCalendarMonthStart(): Date {
   const now = new Date();
@@ -107,6 +122,11 @@ export async function checkAIUsageLimit(
   plan: string,
   feature: AIFeatureKey
 ): Promise<{ allowed: boolean; remaining: number; message?: string }> {
+  // 🔑 ADMIN BYPASS — accès illimité sans quota
+  if (await isAdminUser(userId)) {
+    return { allowed: true, remaining: Number.POSITIVE_INFINITY };
+  }
+
   // Pack Fashion Launch : quotas par feature (priorité)
   if (feature in QUOTA_LIMITS) {
     const quotaLimit = QUOTA_LIMITS[feature as QuotaFeatureKey];
@@ -195,6 +215,8 @@ export async function recordAIUsage(
   feature: AIFeatureKey,
   metadata?: Record<string, unknown>
 ): Promise<void> {
+  // 🔑 ADMIN BYPASS — pas d'enregistrement de consommation
+  if (await isAdminUser(userId)) return;
   try {
     // ugc_virtual_tryon : consommer 1 surplus (payé via pack) au lieu d'enregistrer AIUsage
     if (feature === 'ugc_virtual_tryon') {
