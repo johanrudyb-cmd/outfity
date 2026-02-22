@@ -34,6 +34,8 @@ jobs:
       - name: 🌪️ ETAPE 1 : Radar de Viralité (Social Scan)
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: npm run radar:viral
 
       - name: 📊 ETAPE 2 : Scoring & Tagging Fashion
