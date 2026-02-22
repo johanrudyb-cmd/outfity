@@ -1,6 +1,8 @@
 name: 🧠 OUTFITY - Intelligence Quotidienne
 
 on:
+  push:
+    branches: [ main ]
   schedule:
     - cron: '0 5 * * *' # Tous les jours à 5h00 UTC (6h00 Heure FR)
   workflow_dispatch: # Permet de lancer manuellement
