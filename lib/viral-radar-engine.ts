@@ -25,45 +25,133 @@ export class ViralRadarEngine {
      * On va directement sur le Creative Center, comme un utilisateur normal.
      */
     async getTikTokTrends(): Promise<ViralSignal[]> {
-        console.log('[ViralRadar] 🤖 Scan TikTok (Zero Budget) en cours...');
+        console.log('[ViralRadar] 🤖 Scan TikTok (Multi-Strategy) en cours...');
+
+        // --- STRATÉGIE 1 : API JSON directe du TikTok Creative Center ---
+        try {
+            const url = 'https://ads.tiktok.com/creative_radar_api/v1/popular_trend/hashtag/list?page=1&limit=20&period=7&country_code=FR&industry_id=';
+            const response = await fetch(url, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                    'Referer': 'https://ads.tiktok.com/business/creativecenter/inspiration/popular/hashtag/pc/en',
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const json = await response.json();
+                const items = json?.data?.list || json?.data?.hashtag_list || [];
+                if (items.length > 0) {
+                    console.log(`[ViralRadar] ✅ API TikTok OK — ${items.length} hashtags récupérés`);
+                    return items.slice(0, 10).map((item: any) => ({
+                        term: item.hashtag_name || item.name || item.title,
+                        platform: 'TikTok' as const,
+                        score: 80 + Math.random() * 15,
+                        growthPercent: item.publish_cnt ? Math.min(50, item.publish_cnt / 10000) : 20 + Math.random() * 20,
+                        region: 'FR'
+                    })).filter((s: any) => !!s.term);
+                }
+            }
+        } catch (err) {
+            console.log('[ViralRadar] API TikTok inaccessible, passage au scraping DOM...');
+        }
+
+        // --- STRATÉGIE 2 : Scraping DOM avec sélecteurs multiples ---
         const browser = await puppeteer.launch({
             headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
+            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled']
         });
 
         try {
             const page = await browser.newPage();
-            // On va sur la page d'inspiration TikTok
+            await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
+            await page.setExtraHTTPHeaders({ 'Accept-Language': 'fr-FR,fr;q=0.9' });
+
             await page.goto('https://ads.tiktok.com/business/creativecenter/inspiration/popular/hashtag/pc/en', {
-                waitUntil: 'networkidle2',
-                timeout: 60000
+                waitUntil: 'domcontentloaded',
+                timeout: 30000
             });
 
-            // Attendre que les cartes de trends chargent
-            await page.waitForSelector('span[class*="CardTitle"]', { timeout: 10000 });
+            // Attente courte pour le JS dynamique
+            await new Promise(r => setTimeout(r, 5000));
 
             const hashtags = await page.evaluate(() => {
-                const elements = Array.from(document.querySelectorAll('span[class*="CardTitle"]'));
-                return elements.slice(0, 10).map(el => el.textContent?.trim());
+                // Essayer plusieurs sélecteurs courants selon les versions du DOM TikTok
+                const selectors = [
+                    'span[class*="CardTitle"]',
+                    'p[class*="title"]',
+                    'div[class*="hashtag-name"]',
+                    'span[class*="trend-title"]',
+                    '.trend-item-title',
+                    'h3[class*="title"]',
+                    'a[class*="hashtag"]',
+                ];
+                for (const sel of selectors) {
+                    const els = Array.from(document.querySelectorAll(sel));
+                    const texts = els.map(el => el.textContent?.trim()).filter(Boolean);
+                    if (texts.length >= 3) return texts.slice(0, 10);
+                }
+                // Dernier fallback : tous les éléments avec "#"
+                const allTexts = Array.from(document.querySelectorAll('span, p, a'))
+                    .map(el => el.textContent?.trim() || '')
+                    .filter(t => t.startsWith('#') && t.length > 2);
+                return [...new Set(allTexts)].slice(0, 10);
             });
 
             await browser.close();
 
-            return hashtags.filter(Boolean).map(tag => ({
-                term: tag!,
-                platform: 'TikTok',
-                score: 85 + Math.random() * 10,
-                growthPercent: 20 + Math.random() * 30,
+            if (hashtags.length > 0) {
+                // Filtre : on ne garde que les hashtags liés à la mode/style
+                const FASHION_KEYWORDS = [
+                    'fashion', 'style', 'outfit', 'ootd', 'mode', 'look', 'tenue',
+                    'veste', 'hoodie', 'jean', 'robe', 'sweat', 'dress', 'coat',
+                    'vintage', 'streetwear', 'luxury', 'chic', 'trend', 'clothes',
+                    'wear', 'core', 'aesthetic', 'siren', 'coquette', 'quiet', 'money'
+                ];
+                const fashionHashtags = hashtags.filter((tag: string) =>
+                    FASHION_KEYWORDS.some(kw => tag.toLowerCase().includes(kw))
+                );
+
+                if (fashionHashtags.length >= 2) {
+                    console.log(`[ViralRadar] ✅ ${fashionHashtags.length} hashtags mode filtrés.`);
+                    return fashionHashtags.map((tag: string) => ({
+                        term: tag.replace(/^#/, ''),
+                        platform: 'TikTok' as const,
+                        score: 80 + Math.random() * 15,
+                        growthPercent: 15 + Math.random() * 30,
+                        region: 'FR'
+                    }));
+                }
+                console.log('[ViralRadar] ⚠️ Hashtags TikTok non-mode détectés, passage au fallback curé...');
+            }
+
+            throw new Error('Aucun hashtag mode trouvé');
+
+        } catch (e) {
+            console.error('[ViralRadar] ⚠️ Scraping TikTok échoué:', (e as Error).message);
+            if (browser) await browser.close().catch(() => { });
+
+            // --- STRATÉGIE 3 : Fallback Curated Fashion Trends ---
+            // Ces termes sont mis à jour manuellement selon les tendances du moment (Fév 2026)
+            console.log('[ViralRadar] 🔄 Utilisation du fallback mode/tendances curées...');
+            const curatedFashionTrends = [
+                'Gorpcore',         // Outdoor-chic, mont ascendant
+                'Office Siren',     // Mode bureau sexy, toujours fort
+                'Quiet Luxury',     // Old Money revisité
+                'Boho Revival',     // Retour du bohème
+                'Moto Girl',        // Vestes cuir, tendance 2026
+                'Coastal Grandmother', // Pièces intemporelles lin
+                'Coquette',         // Rubans, dentelle, très TikTok
+                'Ballet Core',      // Chaussons, chic, très FR
+            ];
+
+            return curatedFashionTrends.map(term => ({
+                term,
+                platform: 'TikTok' as const,
+                score: 75 + Math.random() * 20,
+                growthPercent: 10 + Math.random() * 35,
                 region: 'FR'
             }));
-        } catch (e) {
-            console.error('[ViralRadar] Erreur scan TikTok:', (e as Error).message);
-            if (browser) await browser.close();
-            // Fallback si TikTok bloque (on garde une base de données vivante)
-            return [
-                { term: 'Blockette Core', platform: 'TikTok', score: 88, growthPercent: 40, region: 'FR' },
-                { term: 'Office Siren', platform: 'TikTok', score: 82, growthPercent: 15, region: 'FR' }
-            ];
         }
     }
 
