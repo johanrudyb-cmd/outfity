@@ -3,7 +3,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Globe, Zap, Upload, Loader2, AlertTriangle, Sparkles, Eye, ChevronDown, ChevronUp } from 'lucide-react';
+import { Globe, Zap, Upload, Loader2, AlertTriangle, Sparkles, Eye, ChevronDown, ChevronUp, TrendingUp, Shirt, ArrowRight, Tag, Layers } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import { GenerationCostBadge } from '@/components/ui/generation-cost-badge';
 import { GenerationLoadingPopup } from '@/components/ui/generation-loading-popup';
 import { getProductBrand } from '@/lib/brand-utils';
@@ -21,6 +23,16 @@ interface HybridTrend {
   isGlobalTrendAlert: boolean;
   businessAnalysis: string | null;
 }
+
+const CATEGORY_LABELS: Record<string, string> = {
+  'TSHIRT': 'T-Shirts & Tops',
+  'SWEAT': 'Sweats & Pulls',
+  'JACKEX': 'Vestes & Manteaux',
+  'PANT': 'Pantalons & Bas',
+  'JEAN': 'Denim & Jeans',
+  'DRESS': 'Robes & Ensembles',
+  'AUTRE': 'Autres Styles'
+};
 
 export function HybridRadarDashboard() {
   const [trends, setTrends] = useState<HybridTrend[]>([]);
@@ -418,79 +430,174 @@ export function HybridRadarDashboard() {
       </Card>
 
       {/* Liste des tendances */}
-      <div>
-        <h2 className="text-lg font-semibold mb-4">Tendances de la semaine</h2>
+      {/* Liste des tendances groupées par catégorie */}
+      <div className="space-y-12">
+        <h2 className="text-xl font-black uppercase tracking-tighter text-black flex items-center gap-3">
+          <TrendingUp className="w-6 h-6 text-[#007AFF]" />
+          Tendances de la semaine
+        </h2>
+
         {loading ? (
-          <div className="flex items-center gap-2 text-muted-foreground py-8">
-            <Loader2 className="w-5 h-5 animate-spin" />
-            Chargement…
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <Loader2 className="w-10 h-10 animate-spin text-[#007AFF]" />
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Synchronisation globale...</p>
           </div>
         ) : trends.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
-              <AlertTriangle className="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p>Aucune marque configurée. Les marques (marché français d&apos;abord, homme/femme) seront ajoutées une par une.</p>
+          <Card className="border-2 border-dashed border-gray-100 bg-white/50 backdrop-blur-sm">
+            <CardContent className="py-20 text-center space-y-4">
+              <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto">
+                <AlertTriangle className="w-10 h-10 text-gray-200" />
+              </div>
+              <p className="text-xs font-bold text-gray-400 max-w-sm mx-auto">
+                Aucun flux détecté. Lancez un scan pour peupler votre radar de potentiel.
+              </p>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {trends.map((t) => (
-              <Card key={t.id} className="overflow-hidden flex flex-col">
-                <div className="aspect-[3/4] bg-muted relative shrink-0">
-                  {t.imageUrl ? (
-                    <img
-                      src={t.imageUrl}
-                      alt={t.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                      <Globe className="w-12 h-12 opacity-40" />
+          <div className="space-y-16">
+            {Object.entries(
+              trends.reduce((acc: Record<string, HybridTrend[]>, t) => {
+                const cat = t.category || 'AUTRE';
+                if (!acc[cat]) acc[cat] = [];
+                acc[cat].push(t);
+                return acc;
+              }, {})
+            )
+              .sort(([a], [b]) => {
+                const order = ['TSHIRT', 'SWEAT', 'JACKEX', 'PANT', 'JEAN', 'DRESS', 'AUTRE'];
+                const idxA = order.indexOf(a);
+                const idxB = order.indexOf(b);
+                if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+                if (idxA !== -1) return -1;
+                if (idxB !== -1) return 1;
+                return a.localeCompare(b);
+              })
+              .map(([category, catTrends]) => (
+                <div key={category} className="space-y-8">
+                  <div className="flex items-center gap-4">
+                    <div className="h-0.5 flex-1 bg-gradient-to-r from-transparent to-gray-200" />
+                    <div className="bg-white px-6 py-2 rounded-full border border-gray-100 shadow-sm flex items-center gap-3">
+                      {(() => {
+                        const Icon = category === 'TSHIRT' ? Shirt :
+                          category === 'SWEAT' ? Tag :
+                            category === 'JACKEX' ? Layers :
+                              category === 'PANT' ? Tag :
+                                category === 'JEAN' ? Layers :
+                                  category === 'DRESS' ? Sparkles : Shirt;
+                        return <Icon className="w-3.5 h-3.5 text-[#007AFF]" />;
+                      })()}
+                      <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-black">
+                        {CATEGORY_LABELS[category] || category}
+                      </h3>
                     </div>
-                  )}
-                  <div className="absolute top-2 left-2 flex flex-wrap gap-1">
-                    <span className="px-2 py-0.5 rounded-md bg-background/90 text-xs font-medium">
-                      {t.marketZone || '—'}
-                    </span>
-                    {t.isGlobalTrendAlert && (
-                      <span className="px-2 py-0.5 rounded-md bg-amber-500/90 text-white text-xs font-medium">
-                        Potentiel Global
-                      </span>
-                    )}
+                    <div className="h-0.5 flex-1 bg-gradient-to-l from-transparent to-gray-200" />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {catTrends.map((t) => (
+                      <motion.div
+                        key={t.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="group"
+                      >
+                        <Card className="overflow-hidden flex flex-col h-full bg-white border-black/[0.03] hover:border-[#007AFF]/30 transition-all duration-700 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] rounded-[32px]">
+                          <div className="aspect-[3/4] bg-[#F5F5F7] relative shrink-0 overflow-hidden">
+                            {t.imageUrl ? (
+                              <img
+                                src={t.imageUrl}
+                                alt={t.name}
+                                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-gray-200">
+                                <Globe className="w-16 h-16 opacity-10" />
+                              </div>
+                            )}
+
+                            {/* Badges Apple Style */}
+                            <div className="absolute top-4 left-4 flex flex-col gap-2">
+                              <div className="px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/20 shadow-xl">
+                                <span className="text-[8px] font-black text-white uppercase tracking-widest">
+                                  {t.marketZone || 'GLOBAL'}
+                                </span>
+                              </div>
+                              {t.isGlobalTrendAlert && (
+                                <div className="px-3 py-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-lg shadow-orange-500/30 border border-white/20">
+                                  <span className="text-[8px] font-black text-white uppercase tracking-widest flex items-center gap-1">
+                                    <Sparkles className="w-2.5 h-2.5" /> POTENTIEL GLOBAL
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Potential Overlay on Hover */}
+                            <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500 bg-gradient-to-t from-black/80 to-transparent">
+                              <Button className="w-full h-10 bg-white text-black hover:bg-white/90 rounded-2xl font-black text-[10px] uppercase tracking-widest gap-2">
+                                VOIR L'ANALYSE <ArrowRight className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+                          </div>
+
+                          <CardContent className="p-6 flex-1 flex flex-col">
+                            <div className="mb-4">
+                              <h3 className="text-base font-black text-black uppercase tracking-tight leading-tight line-clamp-2">{t.name}</h3>
+                              <div className="flex items-center gap-2 mt-2">
+                                <span className="text-[9px] font-black text-[#007AFF] uppercase tracking-widest">{t.cut || 'REGULAR'}</span>
+                                <div className="w-1 h-1 rounded-full bg-gray-200" />
+                                <span className="text-[9px] font-bold text-gray-400 truncate uppercase">
+                                  {safeDisplayBrand((t as { productBrand?: string | null }).productBrand ?? getProductBrand(t.name, t.sourceBrand))}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="mt-auto">
+                              <div className="flex items-center justify-between py-3 border-y border-black/[0.03] mb-4">
+                                <span className="text-[9px] font-black uppercase text-gray-400 tracking-wider">Indice Virality</span>
+                                <div className="flex items-center gap-2">
+                                  <span className={cn(
+                                    "text-lg font-black",
+                                    (t.trendScoreVisual || 0) >= 80 ? "text-[#34C759]" : (t.trendScoreVisual || 0) > 50 ? "text-amber-500" : "text-red-500"
+                                  )}>
+                                    {t.trendScoreVisual ?? '—'}
+                                  </span>
+                                  <div className="h-4 w-px bg-gray-100" />
+                                  <span className="text-[10px] font-black text-gray-400">100</span>
+                                </div>
+                              </div>
+
+                              {t.businessAnalysis ? (
+                                <div className="bg-[#F5F5F7] rounded-2xl p-4 border border-black/[0.03]">
+                                  <p className="text-[10px] text-gray-600 font-bold leading-relaxed italic">
+                                    &quot;{t.businessAnalysis}&quot;
+                                  </p>
+                                </div>
+                              ) : (
+                                <motion.div whileTap={{ scale: 0.98 }}>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-full h-12 gap-2 text-[10px] font-black uppercase tracking-widest rounded-2xl border border-black/[0.05] hover:bg-[#007AFF] hover:text-white transition-all duration-300"
+                                    disabled={generatingAnalysis === t.id}
+                                    onClick={() => generateBusinessAnalysis(t.id)}
+                                  >
+                                    {generatingAnalysis === t.id ? (
+                                      <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                      <Sparkles className="w-4 h-4" />
+                                    )}
+                                    Générer analyse business
+                                  </Button>
+                                </motion.div>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))}
                   </div>
                 </div>
-                <CardContent className="p-4 flex-1 flex flex-col">
-                  <h3 className="font-semibold line-clamp-2 leading-tight">{t.name}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {t.category} · {t.cut || '—'} · {safeDisplayBrand((t as { productBrand?: string | null }).productBrand ?? getProductBrand(t.name, t.sourceBrand))}
-                  </p>
-                  <p className="text-sm font-medium mt-1">
-                    Score de Tendance : {t.trendScoreVisual ?? '—'}/100
-                  </p>
-                  {t.businessAnalysis ? (
-                    <p className="text-xs text-muted-foreground mt-2 line-clamp-3 border-t pt-2">
-                      {t.businessAnalysis}
-                    </p>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="mt-2 gap-1 text-xs"
-                      disabled={generatingAnalysis === t.id}
-                      onClick={() => generateBusinessAnalysis(t.id)}
-                    >
-                      {generatingAnalysis === t.id ? (
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                      ) : (
-                        <Sparkles className="w-3 h-3" />
-                      )}
-                      Générer analyse business
-                      <GenerationCostBadge feature="trends_analyse" />
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+              ))}
           </div>
         )}
       </div>

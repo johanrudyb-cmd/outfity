@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import type { BrandIdentity } from './LaunchMapStepper';
 import { useToast } from '@/components/ui/toast';
+import { ALL_FASHION_CUTS } from '@/lib/constants/fashion-cuts';
 
 const ACCENT = '#8B5CF6';
 const COGS_COLORS = [ACCENT, '#0EA5E9', '#10B981', '#F59E0B', '#EC4899'];
@@ -85,11 +86,14 @@ const WEIGHT_OPTIONS_BY_PRODUCT: Record<string, { value: string; label: string }
 function getDropSuggestion(
   productKey: string,
   styleLabel: string,
-  weightLabel?: string
+  weightLabel?: string,
+  signatureLabel?: string
 ): { cogs: number; suggestedPrice: number; label: string } {
   const style = styleLabel.toLowerCase();
+  const signature = signatureLabel?.toLowerCase() || '';
   const isGorpcore = /gorpcore|techwear|outdoor|technique/i.test(style);
   const isLuxe = /luxe|premium|quiet/i.test(style);
+
   const defaults: Record<string, { cogs: number; price: number }> = {
     hoodie: isGorpcore ? { cogs: 22, price: 85 } : isLuxe ? { cogs: 35, price: 140 } : { cogs: 18, price: 65 },
     veste: isGorpcore ? { cogs: 45, price: 180 } : isLuxe ? { cogs: 80, price: 320 } : { cogs: 28, price: 95 },
@@ -98,9 +102,16 @@ function getDropSuggestion(
   };
   const d = defaults[productKey] ?? defaults.tshirt;
   const factor = weightLabel ? getWeightFactor(weightLabel) : 1;
+
+  // Ajustement par signature (Complexité/Volume)
+  let signatureMultiplier = 1;
+  if (signature.includes('oversize') || signature.includes('boxy') || signature.includes('wide')) signatureMultiplier = 1.15;
+  if (signature.includes('premium')) signatureMultiplier = 1.25;
+  if (signature.includes('cuir') || signature.includes('racing')) signatureMultiplier = 1.6;
+
   return {
-    cogs: Math.round(d.cogs * factor),
-    suggestedPrice: Math.round(d.price * factor),
+    cogs: Math.round(d.cogs * factor * signatureMultiplier),
+    suggestedPrice: Math.round(d.price * factor * signatureMultiplier),
     label: productKey,
   };
 }
@@ -166,6 +177,7 @@ function styleGuideField(sg: Record<string, unknown> | null | undefined, key: st
 export function Phase1Calculator({ brandId, brand, initialData, onComplete }: Phase1CalculatorProps) {
   const router = useRouter();
   const { toast } = useToast();
+  const sg = brand?.styleGuide && typeof brand.styleGuide === 'object' ? (brand.styleGuide as Record<string, unknown>) : null;
   const [sellingPrice, setSellingPrice] = useState(String(initialData?.sellingPrice ?? ''));
   const [productionCost, setProductionCost] = useState(String(initialData?.productionCost ?? ''));
   const [marketingCost, setMarketingCost] = useState(String(initialData?.marketingCost ?? ''));
@@ -190,6 +202,7 @@ export function Phase1Calculator({ brandId, brand, initialData, onComplete }: Ph
   const [isCompleted, setIsCompleted] = useState(initialData?.completed ?? false);
   const [dropProduct, setDropProduct] = useState<string>(initialData?.productType ?? 'tshirt');
   const [dropWeight, setDropWeight] = useState<string>(initialData?.weight ?? '180 g/m²');
+  const [productSignature, setProductSignature] = useState(styleGuideField(sg, 'productSignature'));
   const [dropQty, setDropQty] = useState<number>(100);
   const hasPrefilledPriceFromStrategy = useRef(false);
   // Enregistrer dans un fichier (collection)
@@ -425,7 +438,6 @@ export function Phase1Calculator({ brandId, brand, initialData, onComplete }: Ph
     }
   };
 
-  const sg = brand?.styleGuide && typeof brand.styleGuide === 'object' ? (brand.styleGuide as Record<string, unknown>) : null;
   const identityPositioning = styleGuideField(sg, 'preferredStyle') || styleGuideField(sg, 'positioning') || '';
   const identityTarget = styleGuideField(sg, 'targetAudience') || '';
   const identityProduct = styleGuideField(sg, 'mainProduct') || '';
@@ -439,7 +451,7 @@ export function Phase1Calculator({ brandId, brand, initialData, onComplete }: Ph
   const styleForDrop = identityPositioning || strategyContext?.positioning || 'Streetwear';
   const weightOptions = WEIGHT_OPTIONS_BY_PRODUCT[dropProduct] ?? WEIGHT_OPTIONS_BY_PRODUCT.tshirt;
   const applyDropScenario = () => {
-    const suggestion = getDropSuggestion(dropProduct, styleForDrop, dropWeight);
+    const suggestion = getDropSuggestion(dropProduct, styleForDrop, dropWeight, productSignature);
     setQuantity(String(dropQty));
     if (!useBreakdown) {
       setProductionCost(String(suggestion.cogs));
@@ -615,6 +627,19 @@ export function Phase1Calculator({ brandId, brand, initialData, onComplete }: Ph
                 >
                   {DROP_QUANTITIES.map((q) => (
                     <option key={q} value={q}>{q} pièces</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">Coupe / Signature</label>
+                <select
+                  value={productSignature}
+                  onChange={(e) => setProductSignature(e.target.value)}
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                >
+                  <option value="">Sélectionner</option>
+                  {ALL_FASHION_CUTS.map((cut) => (
+                    <option key={cut} value={cut}>{cut}</option>
                   ))}
                 </select>
               </div>

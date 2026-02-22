@@ -1,0 +1,45 @@
+name: 🧠 OUTFITY - Intelligence Quotidienne
+
+on:
+  schedule:
+    - cron: '0 5 * * *' # Tous les jours à 5h00 UTC (6h00 Heure FR)
+  workflow_dispatch: # Permet de lancer manuellement
+
+jobs:
+  daily-pulse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: 📥 Récupération du code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Configuration de Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Installation des dépendances
+        run: npm ci || npm install
+
+      - name: 🌐 Installation du Navigateur (Puppeteer)
+        run: npx puppeteer browsers install chrome
+
+      - name: 🧪 Génération Prisma
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npx prisma generate
+
+      - name: 🌪️ ETAPE 1 : Radar de Viralité (Social Scan)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npm run radar:viral
+
+      - name: 📊 ETAPE 2 : Scoring & Tagging Fashion
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npm run trends:update
+
+      - name: ✨ Mission Accomplie
+        run: echo "Le radar quotidien a été mis à jour avec succès."

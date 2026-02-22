@@ -108,5 +108,38 @@
     "avgSaturability": 80,
     "signal": "SELL",
     "growthPercent": -4
+  },
+  {
+    "weekStart": "2026-02-16",
+    "category": "JACKEX",
+    "segment": "homme",
+    "marketZone": "EU",
+    "articleCount": 2,
+    "avgTrendScore": 95,
+    "avgSaturability": 26.5,
+    "signal": "HOLD",
+    "growthPercent": -2
+  },
+  {
+    "weekStart": "2026-02-16",
+    "category": "SHIRT",
+    "segment": "homme",
+    "marketZone": "FR",
+    "articleCount": 1,
+    "avgTrendScore": 90,
+    "avgSaturability": 28,
+    "signal": "HOLD",
+    "growthPercent": -4
+  },
+  {
+    "weekStart": "2026-02-16",
+    "category": "VIRAL",
+    "segment": "femme",
+    "marketZone": "EU",
+    "articleCount": 5,
+    "avgTrendScore": 88,
+    "avgSaturability": 20,
+    "signal": "HOLD",
+    "growthPercent": 0
   }
 ]

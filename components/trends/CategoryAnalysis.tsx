@@ -11,6 +11,7 @@ import { MarketChart } from './MarketChart';
 import { PredictiveChart } from './PredictiveChart';
 import { Loader2, TrendingUp, Tag, Layers, Shirt, ArrowLeft, Clock, Calendar, ThermometerSun, Snowflake, DollarSign, Activity, AlertTriangle, ArrowRight, Zap, ChevronDown, Sparkles, Info, Palette } from 'lucide-react';
 import { inferStyle } from '@/lib/infer-trend-category';
+import { FASHION_CUTS_BY_CATEGORY } from '@/lib/constants/fashion-cuts';
 
 interface TrendStyleGroup {
     id: string;
@@ -82,6 +83,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
     const [globalScore, setGlobalScore] = useState(50);
     const [globalDiff, setGlobalDiff] = useState(0);
 
+
     useEffect(() => {
         const fetchTrends = async () => {
             setLoading(true);
@@ -123,17 +125,39 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                         newCount: newlyAdded
                     });
 
+                    // Aggrégation et mélange avec les signatures populaires de CETTE catégorie
                     const aggregated = aggregateProductsToStyles(products, categoryId);
-                    setStyles(aggregated.filter(s => s.category === categoryId));
 
-                    // Calcul du Score Global de la catégorie (pour être raccord avec la page d'accueil)
+                    // On garde les styles trouvés
+                    const finalStyles = [...aggregated.filter(s => s.category === categoryId)];
+
+                    // On ajoute les populaires SI elles correspondent à la catégorie actuelle
+                    const categorySignatures = (FASHION_CUTS_BY_CATEGORY as any)[categoryId] || [];
+
+                    categorySignatures.forEach((sig: string) => {
+                        if (!finalStyles.find(fs => fs.name.toUpperCase() === sig.toUpperCase())) {
+                            finalStyles.push({
+                                id: sig,
+                                name: sig,
+                                category: categoryId,
+                                styleKey: sig,
+                                avgScore: 0,
+                                productCount: 0,
+                                avgPrice: 0,
+                                topImageUrl: null
+                            });
+                        }
+                    });
+
+                    setStyles(finalStyles);
+
+                    // Calcul du Score Global de la catégorie
                     if (filteredRaw.length > 0) {
                         const sum = filteredRaw.reduce((acc: number, p: any) => acc + (p.trendScore || 50), 0);
                         const avg = sum / filteredRaw.length;
                         const bonus = Math.min(15, Math.floor(filteredRaw.length / 5));
                         setGlobalScore(Math.round(avg + bonus));
 
-                        // Si pas de nouveaux items, on affiche une baisse dérisoire pour le réalisme
                         const diff = newlyAdded > 0
                             ? Math.max(1, Math.min(12, Math.floor(newlyAdded / 2)))
                             : -0.2;
@@ -146,12 +170,11 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
         };
 
         fetchTrends();
-        // Exposer fetchTrends pour le bouton de rafraîchissement
         (window as any).refreshCategoryTrends = fetchTrends;
     }, [segment, categoryId]);
 
     const filteredStyles = useMemo(() => {
-        if (subFilter === 'ALL') return styles;
+        if (subFilter === 'ALL') return styles.filter(s => s.productCount > 0); // On ne montre que ce qui a de la data en grille
         return styles.filter(s => s.name === subFilter);
     }, [styles, subFilter]);
 

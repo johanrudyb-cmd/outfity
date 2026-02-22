@@ -1,74 +1,59 @@
-import type { Brand, LaunchMap } from '@prisma/client';
+import { prisma } from './prisma';
+import { getSeasonalRecommendation } from './seasonal-recommendation';
 
 interface GenerateRecommendationsParams {
   brandName: string;
-  styleGuide?: unknown;
-  launchMap?: LaunchMap | null;
-  strategy?: unknown;
+  styleGuide?: any;
+  launchMap?: any;
+  strategy?: any;
 }
 
+/**
+ * Génère des recommandations INTELLIGENTES pour le créateur
+ * Basé sur : Le Radar de Viralité, la Saisonnalité et l'Identité de marque.
+ */
 export async function generateGarmentRecommendations(
   params: GenerateRecommendationsParams
 ): Promise<string[]> {
-  const { brandName, styleGuide, launchMap, strategy } = params;
+  const { brandName, launchMap } = params;
+  const productType = (launchMap?.phase1Data as any)?.productType || 'tshirt';
+  const seasonal = getSeasonalRecommendation();
 
-  // Extraire les informations pertinentes
-  const sg = styleGuide && typeof styleGuide === 'object' ? styleGuide as Record<string, unknown> : null;
-  const targetAudience = (sg?.targetAudience as string) || 'Unisexe';
-  const preferredStyle = (sg?.preferredStyle as string) || 'Casual';
-  const productType = (launchMap?.phase1Data as Record<string, unknown> | null)?.productType as string || 'tshirt';
+  // 1. Chercher si ce type de produit est "Hot" sur le radar actuellement
+  const topTrends = await prisma.trendProduct.findMany({
+    where: {
+      name: { contains: productType, mode: 'insensitive' },
+      trendScore: { gt: 70 }
+    },
+    orderBy: { trendScore: 'desc' },
+    take: 1
+  });
 
-  // Recommandations basiques (à remplacer par un appel IA si nécessaire)
+  const activeTrend = topTrends[0];
   const recommendations: string[] = [];
 
-  // Recommandations basées sur le type de produit
-  if (productType === 'tshirt') {
+  // 2. RECOMMANDATION STRATÉGIQUE (BASÉE SUR LE RADAR)
+  if (activeTrend) {
     recommendations.push(
-      `Pour votre ${brandName}, privilégiez un T-shirt avec une coupe ${targetAudience === 'Femme' ? 'fitted' : 'regular'} pour un look moderne.`,
-      `Optez pour un grammage de 180-200g/m² pour un rendu premium tout en restant confortable.`,
-      `Considérez un col rond classique ou un col V pour un style plus décontracté.`
+      `🔥 Tendance Détectée : Le style "${activeTrend.name}" explose sur TikTok (Score: ${activeTrend.trendScore.toFixed(0)}%). Inspirez-vous de cette esthétique.`,
+      `⚠️ Conseil Production : Le marché est actuellement ${activeTrend.productionSafety === 'SÛR' ? 'favorable' : 'très compétitif'}. ${activeTrend.opportunityReason}`
     );
-  } else if (productType === 'hoodie') {
+  } else {
     recommendations.push(
-      `Pour votre hoodie ${brandName}, choisissez une capuche avec cordons ajustables pour un look streetwear authentique.`,
-      `Un grammage de 280-320g/m² offrira une bonne tenue et de la chaleur.`,
-      `Privilégiez une poche kangourou pour un style casual et pratique.`
+      `💡 Note : Votre choix de ${productType} est un basique solide. Pour le rendre viral, essayez d'y injecter un détail "Coquette" ou "Racing", très populaires ce mois-ci.`
     );
   }
 
-  // Recommandations basées sur le style préféré
-  if (preferredStyle === 'Streetwear' || preferredStyle === 'Casual') {
-    recommendations.push(
-      `Pour un style ${preferredStyle.toLowerCase()}, optez pour des couleurs neutres (noir, blanc, gris) avec des accents de couleur pour votre logo.`,
-      `Considérez des finitions contrastées (surpiqures visibles) pour un look plus urbain.`
-    );
-  } else if (preferredStyle === 'Premium' || preferredStyle === 'Luxe') {
-    recommendations.push(
-      `Pour un positionnement ${preferredStyle.toLowerCase()}, privilégiez des matières premium (coton bio, modal) et des finitions soignées.`,
-      `Optez pour des couleurs sobres et élégantes qui reflètent votre identité de marque.`
-    );
-  }
-
-  // Recommandations basées sur la cible
-  if (targetAudience === 'Femme') {
-    recommendations.push(
-      `Pour votre cible féminine, proposez des coupes plus ajustées et des tailles inclusives (XS à XXL).`,
-      `Considérez des couleurs pastel ou des tons neutres selon votre identité visuelle.`
-    );
-  } else if (targetAudience === 'Homme') {
-    recommendations.push(
-      `Pour votre cible masculine, privilégiez des coupes regular ou oversized selon le style ${preferredStyle.toLowerCase()}.`,
-      `Les couleurs sombres (noir, navy, charcoal) fonctionnent bien pour un public masculin.`
-    );
-  }
-
-  // Recommandations générales
+  // 3. RECOMMANDATION TECHNIQUE (SAISONNALITÉ)
   recommendations.push(
-    `Assurez-vous que votre design soit lisible et impactant, même sur de petites tailles.`,
-    `Testez votre design sur différents fonds (clair et foncé) pour garantir la visibilité.`,
-    `Considérez la position de votre logo : poitrine (centre) pour un look classique, ou dos pour un style plus streetwear.`
+    `📅 Saisonnalité : ${seasonal.label}. ${seasonal.reason}`,
+    `🧵 Matière suggérée : Pour un positionnement premium, visez un coton lourd de ${seasonal.weight.replace(' g/m²', '')}g.`
   );
 
-  // Limiter à 5 recommandations maximum
+  // 4. CONSEIL BUSINESS
+  recommendations.push(
+    `🚀 Stratégie : Concentrez-vous sur un seul coloris fort pour votre lancement ${brandName} afin de minimiser les risques de stock tout en testant votre communauté.`
+  );
+
   return recommendations.slice(0, 5);
 }

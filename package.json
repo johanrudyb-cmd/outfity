@@ -37,7 +37,9 @@
     "scrape:zalando:quick": "npx tsx scripts/scrape-zalando-save.ts --quick",
     "enrich:trend": "npx tsx scripts/enrich-one-trend.ts",
     "seed:production": "npx tsx scripts/seed-production.ts",
-    "auto-push": "node scripts/auto-push.js"
+    "auto-push": "node scripts/auto-push.js",
+    "radar:viral": "npx tsx scripts/run-viral-radar.ts",
+    "trends:update": "npx tsx scripts/calculate-daily-trends.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.72.1",

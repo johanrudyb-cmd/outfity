@@ -1,17 +1,16 @@
-
-name: OUTFITY - Radar Hybride Automatique
+name: OUTFITY - Radar Viral 24/7
 
 on:
   schedule:
-    - cron: '0 6 * * *' # Tourne tous les jours à 6h00 UTC (7h00 heure française)
-  workflow_dispatch: # Permet de le lancer manuellement depuis GitHub
+    - cron: '0 6 * * *' # Tous les jours à 7h00 (Heure FR)
+  workflow_dispatch: # Permet de le lancer à la main pour tester
 
 jobs:
   scrape-trends:
     runs-on: ubuntu-latest
     
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }} # Votre URL Supabase stockée dans GitHub Secrets
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
     steps:
       - name: 🛰️ Récupération du code
@@ -26,8 +25,12 @@ jobs:
       - name: 📦 Installation des dépendances
         run: npm install
 
-      - name: 🧪 Génération du client Prisma
+      - name: 🌐 Installation du Navigateur (pour TikTok/Pinterest)
+        run: npx puppeteer install
+
+      - name: 🧪 Génération Prisma
         run: npx prisma generate
 
-      - name: 🚀 Lancement du Scrape Radar Hybride
+      - name: 🚀 Lancement du Radar Viral (0€)
         run: npx ts-node scripts/radar-hybride.ts
+

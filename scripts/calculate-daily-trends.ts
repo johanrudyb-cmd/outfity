@@ -89,20 +89,32 @@ async function calculateDailyTrends() {
             const details = []; // Pour le debug
 
             // --- AUTO-TAGGING (Détérminer le style dominant & la coupe) ---
-            let maxStylePoints = 0;
-            let detectedStyle = product.category || 'AUTRE';
+            let rawCat = (product.category || 'AUTRE').toUpperCase();
+
+            // Normalisation des anciennes catégories vers les nouveaux IDs techniques
+            let normalizedCat = rawCat;
+            if (/VESTE|JACKET|MANTEAU|BLOUSON/.test(rawCat)) normalizedCat = 'JACKEX';
+            else if (/SWEAT|HOODIE|PULL|KNIT/.test(rawCat)) normalizedCat = 'SWEAT';
+            else if (/PANTALON|PANT|CARGO|SHORT/.test(rawCat)) {
+                if (/JEAN|DENIM/.test(nameLower)) normalizedCat = 'JEAN';
+                else normalizedCat = 'PANT';
+            }
+            else if (/T-SHIRT|TSHIRT|TOP/.test(rawCat)) normalizedCat = 'TSHIRT';
+            else if (/ROBE|DRESS|SKIRT|JUPE/.test(rawCat)) normalizedCat = 'DRESS';
+
+            let detectedStyle = normalizedCat;
             let detectedCut = 'STANDARD'; // Coupe par défaut
 
             // A. DÉTECTION DE LA COUPE (Cut)
             for (const cutRule of SCORING_RULES.CUT_KEYWORDS) {
                 if (nameLower.includes(cutRule.word)) {
                     detectedCut = cutRule.tag;
-                    // On priorise Oversize/Boxy/Baggy sur simple "Large"
                     if (['OVERSIZE', 'BOXY', 'BAGGY'].includes(detectedCut)) break;
                 }
             }
 
             // B. ANALYSE SÉMANTIQUE (Score & Style)
+            let maxStylePoints = 0;
 
             // Bonus Keywords
             for (const rule of SCORING_RULES.BONUS_KEYWORDS) {
@@ -110,17 +122,28 @@ async function calculateDailyTrends() {
                     score += rule.points;
                     details.push(`+${rule.points} (${rule.word})`);
 
-                    // Le Style est défini par le mot clé le plus "fort" (ex: CARGO > LARGE)
-                    // On essaie d'éviter de mettre une coupe dans le style si possible
                     const isPureCut = ['large', 'ample', 'oversize', 'slim', 'skinny', 'boxy'].includes(rule.word);
-
-                    // Si c'est un mot de Style (pas juste une coupe) et qu'il est fort -> On le prend
                     if (!isPureCut && rule.points >= maxStylePoints) {
-                        detectedStyle = rule.word.toUpperCase();
+                        // On prend le terme le plus précis pour le style (ex: CARPENTER)
+                        detectedStyle = rule.word.charAt(0).toUpperCase() + rule.word.slice(1);
                         maxStylePoints = rule.points;
                     }
                 }
             }
+
+            // Overrides spécifiques pour des signatures Premium
+            if (nameLower.includes('bomber')) detectedStyle = 'Bomber';
+            else if (nameLower.includes('blazer')) detectedStyle = 'Blazer Premium';
+            else if (nameLower.includes('varsity') || nameLower.includes('racing')) detectedStyle = 'Racing Jacket';
+            else if (nameLower.includes('cargo')) detectedStyle = 'Cargo Wide';
+            else if (nameLower.includes('carpenter')) detectedStyle = 'Carpenter';
+            else if (nameLower.includes('baggy')) detectedStyle = 'Baggy Denim';
+            else if (nameLower.includes('puffer')) detectedStyle = 'Puffer';
+            else if (nameLower.includes('trench')) detectedStyle = 'Trench';
+            else if (nameLower.includes('t-shirt') && nameLower.includes('boxy')) detectedStyle = 'Boxy';
+            else if (nameLower.includes('hoodie')) detectedStyle = 'Hoodie Oversize';
+            else if (nameLower.includes('imprimé') && nameLower.includes('dos')) detectedStyle = 'Back Print';
+            else if (nameLower.includes('ensemble') || nameLower.includes('co-ord')) detectedStyle = 'Ensemble';
 
             // Malus Keywords
             for (const rule of SCORING_RULES.MALUS_KEYWORDS) {
@@ -148,16 +171,6 @@ async function calculateDailyTrends() {
                 details.push('-10 (Prix Suspect/Faible)');
             }
 
-            // Si on a pas trouvé de style spécifique mais qu'on a une coupe forte, le style devient la coupe
-            // Ex: "T-shirt Oversize" -> Style "OVERSIZE" (Faute de mieux comme "Graphic" ou "Vintage")
-            if (detectedStyle === (product.category || 'AUTRE') && detectedCut !== 'STANDARD') {
-                detectedStyle = detectedCut;
-            }
-
-            // Cas Particuliers de STYLE (Overrides)
-            if (nameLower.includes('imprimé') && nameLower.includes('dos')) detectedStyle = 'BACK PRINT';
-            if (nameLower.includes('ensemble') || nameLower.includes('co-ord')) detectedStyle = 'ENSEMBLE';
-
 
             // E. Bornage du Score (Min 10 pts, pas de max pour le momentum)
             score = Math.max(10, score);
@@ -180,15 +193,17 @@ async function calculateDailyTrends() {
             // On vérifie si qqch a changé
             const currentCut = (product as any).cut || 'STANDARD';
 
-            if (Math.abs((product.trendScore || 0) - finalScore) > 0.01 || product.style !== detectedStyle || currentCut !== detectedCut) {
+            if (Math.abs((product.trendScore || 0) - finalScore) > 0.01 || product.style !== detectedStyle || currentCut !== detectedCut || product.category !== normalizedCat) {
                 await (prisma.trendProduct as any).update({
                     where: { id: product.id },
                     data: {
+                        category: normalizedCat, // Normalisation (ex: Veste -> JACKEX)
                         trendScore: finalScore,
                         trendScoreVisual: finalScore,
                         trendGrowthPercent: hoursSinceUpdate > 22 ? -0.2 : product.trendGrowthPercent,
-                        style: detectedStyle,
-                        cut: detectedCut // On sauvegarde la coupe séparément !
+                        style: detectedStyle, // La signature (ex: Bomber)
+                        productSignature: detectedStyle, // Doublon par sécurité pour les composants qui utilisent l'un ou l'autre
+                        cut: detectedCut // La coupe (ex: OVERSIZE)
                     }
                 });
                 updatedCount++;

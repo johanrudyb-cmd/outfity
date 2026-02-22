@@ -16,6 +16,7 @@ import {
   PRODUCT_TYPE_IDS,
   type ProductTypeId,
 } from '@/lib/seasonal-recommendation';
+import { ALL_FASHION_CUTS } from '@/lib/constants/fashion-cuts';
 import type { BrandIdentity } from './LaunchMapStepper';
 
 interface Phase0IdentityProps {
@@ -63,6 +64,7 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
   const [tagline, setTagline] = useState('');
   const [description, setDescription] = useState('');
   const [productType, setProductType] = useState<ProductTypeId>('tshirt');
+  const [productSignature, setProductSignature] = useState('');
   const [productWeight, setProductWeight] = useState('180 g/m²');
 
   const recommendation = useMemo(() => getSeasonalRecommendation(), []);
@@ -88,9 +90,11 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
       setProductType(pt);
       const w = styleGuideField(sg, 'productWeight');
       if (w) setProductWeight(w);
+      setProductSignature(styleGuideField(sg, 'productSignature'));
     } else {
       setProductType(recommendation.productType);
       setProductWeight(recommendation.weight);
+      setProductSignature('');
     }
   }, [brand, recommendation.productType, recommendation.weight]);
 
@@ -125,6 +129,7 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
       if (description.trim()) styleGuide.description = description.trim();
       styleGuide.productType = productType;
       styleGuide.productWeight = productWeight;
+      styleGuide.productSignature = productSignature;
       styleGuide.noLogo = noLogo;
 
       const res = await fetch(`/api/brands/${brandId}`, {
@@ -362,7 +367,7 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-3">
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Type</label>
             <select
@@ -377,6 +382,19 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
             >
               {PRODUCT_TYPE_IDS.map((id) => (
                 <option key={id} value={id}>{getProductTypeLabel(id)}</option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Coupe / Signature</label>
+            <select
+              value={productSignature}
+              onChange={(e) => setProductSignature(e.target.value)}
+              className="w-full h-10 px-3 text-xs bg-white border-none rounded-xl focus:ring-1 focus:ring-primary shadow-apple-sm font-semibold"
+            >
+              <option value="">Sélectionner</option>
+              {ALL_FASHION_CUTS.map((cut) => (
+                <option key={cut} value={cut}>{cut}</option>
               ))}
             </select>
           </div>

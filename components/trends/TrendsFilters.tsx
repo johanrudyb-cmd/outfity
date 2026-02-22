@@ -2,10 +2,12 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { FASHION_STYLES } from '@/lib/constants/fashion-styles';
+import { ALL_FASHION_CUTS as FASHION_CUTS } from '@/lib/constants/fashion-cuts';
 
 interface Filters {
   category: string;
   style: string;
+  cut: string;
   material: string;
   sortBy: string;
 }
@@ -18,6 +20,7 @@ interface TrendsFiltersProps {
 export function TrendsFilters({ filters, onFiltersChange }: TrendsFiltersProps) {
   const categories = ['', 'Hoodie', 'T-shirt', 'Cargo', 'Accessoires', 'Pantalon', 'Short', 'Veste', 'Sweat'];
   const styles = ['', ...FASHION_STYLES];
+  const cuts = ['', ...FASHION_CUTS];
   const materials = ['', 'Coton GSM élevé', 'Denim', 'Synthétique', 'Coton', 'Laine', 'Lin', 'Cachemire'];
   const sortOptions = [
     { value: 'saturability', label: 'Moins saturé (meilleur)' },
@@ -31,7 +34,7 @@ export function TrendsFilters({ filters, onFiltersChange }: TrendsFiltersProps) 
   return (
     <Card>
       <CardContent className="pt-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           {/* Catégorie */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
@@ -53,7 +56,7 @@ export function TrendsFilters({ filters, onFiltersChange }: TrendsFiltersProps) 
           {/* Style */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Style
+              Style (Niche)
             </label>
             <select
               value={filters.style}
@@ -63,6 +66,24 @@ export function TrendsFilters({ filters, onFiltersChange }: TrendsFiltersProps) 
               {styles.map((style) => (
                 <option key={style} value={style}>
                   {style || 'Tous'}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Coupe / Détail */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Coupe / Signature
+            </label>
+            <select
+              value={filters.cut}
+              onChange={(e) => updateFilter('cut', e.target.value)}
+              className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+            >
+              {cuts.map((cut) => (
+                <option key={cut} value={cut}>
+                  {cut || 'Toutes'}
                 </option>
               ))}
             </select>

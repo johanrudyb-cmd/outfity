@@ -1,98 +1,54 @@
 
 import { PrismaClient } from '@prisma/client';
-import axios from 'axios';
+import { ViralRadarEngine } from '../lib/viral-radar-engine';
+import { updateMarketSnapshot } from '../lib/market-stock-exchange';
 
 const prisma = new PrismaClient();
 
-const SOURCES = [
-    {
-        name: 'asos-homme-fr',
-        url: 'https://www.asos.com/api/product/search/v2/categories/27110?offset=0&limit=72&country=FR&currency=EUR&lang=fr-FR&rowlength=4&sort=freshness',
-        brand: 'ASOS',
-        segment: 'homme'
-    },
-    {
-        name: 'asos-femme-fr',
-        url: 'https://www.asos.com/api/product/search/v2/categories/27108?offset=0&limit=72&country=FR&currency=EUR&lang=fr-FR&rowlength=4&sort=freshness',
-        brand: 'ASOS',
-        segment: 'femme'
-    }
-];
-
-// Liste de mots-clés à exclure (Exemple : accessoires, chaussettes...)
-const EXCLUSIONS = ['chaussettes', 'pack de', 'lot de', 'gift card', 'cadeau', 'caleçons', 'boxer', 'underwear'];
-
 async function runRadar() {
-    console.log('--- 🚀 DEBUT DU RADAR HYBRIDE ---');
+    console.log('\n--- 🚀 DEBUT DU RADAR DE VIRALITÉ OUTFITY 360 ---');
+    console.log('Objectif : Croiser TikTok, Pinterest et Google Trends\n');
 
-    // 1. NETTOYAGE (Optionnel : supprimer les tendances de plus de 7 jours)
-    const oldDate = new Date();
-    oldDate.setDate(oldDate.getDate() - 7);
-    const deleted = await prisma.trendProduct.deleteMany({
-        where: { updatedAt: { lt: oldDate } }
-    });
-    console.log(`[Refresh All Trends] ${deleted.count} ancienne(s) tendance(s) supprimée(s)`);
+    const engine = new ViralRadarEngine();
 
-    for (const source of SOURCES) {
-        try {
-            const response = await axios.get(source.url, {
-                headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36' }
-            });
+    try {
+        // 1. Lancement du Radar Viral (TikTok/Pinterest/Google)
+        await engine.runFullViralRadar();
 
-            const rawProducts = response.data.products || [];
-            let keptCount = 0;
-            let excludedCount = 0;
+        // 2. Synchronisation vers l'Index de Marché (Pour les graphiques)
+        console.log('🔄 Synchronisation vers l\'index de marché...');
 
-            for (const p of rawProducts) {
-                const name = p.name;
-                const nameLower = name.toLowerCase();
-
-                // LOGIQUE D'EXCLUSION
-                const isExcluded = EXCLUSIONS.some(word => nameLower.includes(word)) || !p.imageUrl || p.price?.current?.value < 5;
-
-                if (isExcluded) {
-                    excludedCount++;
-                    continue;
-                }
-
-                const sourceUrl = `https://www.asos.com/${p.url}`;
-                const imageUrl = `https://${p.imageUrl}`;
-
-                await (prisma.trendProduct as any).upsert({
-                    where: { sourceUrl: sourceUrl },
-                    update: {
-                        averagePrice: p.price.current.value,
-                        updatedAt: new Date()
-                    },
-                    create: {
-                        name: name,
-                        category: 'AUTRE',
-                        style: 'Emergent',
-                        material: 'Coton',
-                        averagePrice: p.price.current.value,
-                        trendScore: 75,
-                        trendScoreVisual: 75,
-                        saturability: 0,
-                        imageUrl: imageUrl,
-                        sourceUrl: sourceUrl,
-                        productBrand: p.brandName || source.brand,
-                        sourceBrand: source.brand,
-                        marketZone: 'EUROPE',
-                        segment: source.segment
-                    }
-                });
-                keptCount++;
+        const trends = await (prisma.trendProduct as any).findMany({
+            where: {
+                OR: [
+                    { category: 'VIRAL' },
+                    { trendScore: { gt: 80 } }
+                ]
             }
+        });
 
-            console.log(`[Hybrid Radar] ${source.brand}: ${rawProducts.length} bruts -> ${keptCount} après exclusions (${excludedCount} exclus)`);
-            console.log(`[Refresh All Trends] ${source.name}: ${keptCount} produits enregistrés`);
-
-        } catch (error: any) {
-            console.error(`❌ Erreur sur ${source.name}:`, error.message);
+        const groups: Record<string, any[]> = {};
+        for (const t of trends) {
+            const key = `${t.category}|${t.segment || 'homme'}|${t.marketZone || 'EU'}`;
+            if (!groups[key]) groups[key] = [];
+            groups[key].push(t);
         }
+
+        for (const [key, items] of Object.entries(groups)) {
+            const [cat, seg, zone] = key.split('|');
+            const avgScore = items.reduce((acc, t) => acc + t.trendScore, 0) / items.length;
+            const avgSaturability = items.reduce((acc, t) => acc + (t.saturability || 0), 0) / items.length;
+
+            updateMarketSnapshot(cat, seg, zone, items.length, avgScore, avgSaturability);
+        }
+
+        console.log('✅ Synchronisation de l\'index terminée.');
+
+    } catch (error: any) {
+        console.error('❌ Erreur critique lors du radar:', error.message);
     }
 
-    console.log('--- ✨ RADAR TERMINE ---');
+    console.log('\n--- ✨ RADAR TERMINE ---');
 }
 
 runRadar()
@@ -103,3 +59,4 @@ runRadar()
     .finally(async () => {
         await prisma.$disconnect();
     });
+
