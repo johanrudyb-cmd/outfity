@@ -16,11 +16,12 @@ model User {
   emailVerified DateTime?
   name          String?
   password      String?   // Pour auth email/password
-  plan            String    @default("free") // free, pro, enterprise
+  plan            String    @default("free") // free, creator
   
-  // Relations Clean (Retour aux bases)
-  // referredByCode  String?   // Code du parrain (Optionnel, on peut le garder sans risque)
-  
+  // Onboarding
+  onboardingCompleted Boolean  @default(false)
+  onboardingData      Json?    // stocke les réponses de l'onboarding (univers, produit, nom, pitch)
+
   subscribedAt    DateTime? 
   stripeCustomerId String?   @unique
   image         String?

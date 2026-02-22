@@ -1,7 +1,8 @@
-import { getCurrentUser, getIsAdmin } from '@/lib/auth-helpers';
+import { Suspense } from 'react';
+import { getCurrentUser } from '@/lib/auth-helpers';
 import { redirect } from 'next/navigation';
-import { OnboardingView } from '@/components/onboarding/OnboardingView';
 import { prisma } from '@/lib/prisma';
+import { ImmersiveOnboarding } from '@/components/onboarding/ImmersiveOnboarding';
 
 export default async function OnboardingPage() {
   const authUser = await getCurrentUser();
@@ -9,18 +10,23 @@ export default async function OnboardingPage() {
     redirect('/auth/signin?redirect=/onboarding');
   }
 
-  const isAdmin = await getIsAdmin();
-
   const user = await prisma.user.findUnique({
     where: { id: authUser.id },
-    select: { plan: true }
+    select: { plan: true, onboardingCompleted: true },
   });
 
+  // Si l'onboarding est déjà complété, rediriger vers le dashboard
+  if (user?.onboardingCompleted) {
+    redirect('/dashboard');
+  }
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-background">
-        <OnboardingView userPlan={user?.plan || 'free'} isAdmin={isAdmin} />
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
       </div>
-    </div>
+    }>
+      <ImmersiveOnboarding initialPlan={user?.plan || 'free'} />
+    </Suspense>
   );
 }
