@@ -39,6 +39,7 @@ export function TrendsGallery({ userId, favoriteIds, preferences }: TrendsGaller
   const [filters, setFilters] = useState({
     category: preferences?.preferredCategories?.[0] || '',
     style: preferences?.preferredStyles?.[0] || '',
+    cut: '',
     material: '',
     sortBy: 'saturability', // saturability, trendScore, price
   });
