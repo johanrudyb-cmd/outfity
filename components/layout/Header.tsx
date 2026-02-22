@@ -4,7 +4,6 @@ import { useSession } from 'next-auth/react';
 import { Menu } from 'lucide-react';
 import { NotificationsDropdown } from '@/components/notifications/NotificationsDropdown';
 import { SearchBar } from './SearchBar';
-import { TokenDisplay } from './TokenDisplay';
 import Link from 'next/link';
 
 interface HeaderProps {
@@ -35,9 +34,8 @@ export function Header({ onMenuClick }: HeaderProps) {
           <SearchBar />
         </div>
 
-        {/* À droite : Illimité (crédits), cloche, mon nom */}
+        {/* À droite : cloche, mon nom */}
         <div className="flex items-center gap-2 sm:gap-4 lg:gap-6 shrink-0 ml-auto">
-          <TokenDisplay />
           <NotificationsDropdown />
           <div className="hidden sm:flex items-center gap-4 pl-2 lg:pl-6 lg:border-l border-black/5">
             {user && (

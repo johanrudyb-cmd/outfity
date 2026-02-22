@@ -55,7 +55,7 @@ export function PaywallGate({ children }: { children: React.ReactNode }) {
           </p>
           <Link
             href="/auth/choose-plan"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-[#000000] text-white rounded-full font-semibold hover:bg-[#1D1D1F] transition-colors"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-[#007AFF] text-white rounded-full font-bold hover:bg-[#0056CC] transition-all shadow-lg shadow-blue-500/25 active:scale-[0.98]"
           >
             <Sparkles className="w-5 h-5" />
             Passer au plan Créateur

@@ -19,7 +19,7 @@ export const viewport = {
   initialScale: 1,
   maximumScale: 5,
   viewportFit: 'cover' as const,
-  themeColor: '#000000',
+  themeColor: '#F5F5F7',
 };
 
 export const metadata: Metadata = {
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'default',
+    statusBarStyle: 'black-translucent',
     title: 'OUTFITY',
   },
   title: {

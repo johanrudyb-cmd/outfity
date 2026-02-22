@@ -79,7 +79,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                 >
                   <span>{item.name}</span>
                   {item.badge && (
-                    <Badge variant="secondary" className="ml-2 text-xs bg-[#007AFF] text-white hover:bg-[#007AFF]/90 border-none">
+                    <Badge variant="secondary" className="ml-2 text-[10px] font-bold bg-[#007AFF] text-white hover:bg-[#007AFF]/90 border-none px-2 py-0">
                       {item.badge}
                     </Badge>
                   )}
@@ -118,45 +118,51 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
           </div>
         </div>
 
-        <div className="lg:mt-auto pt-8 border-t border-black/5 space-y-1 pb-4">
-          <Link
-            href="/usage"
-            onClick={handleNav}
-            className={cn(
-              'min-h-[44px] px-4 py-3 rounded-2xl text-base font-medium transition-all duration-200 flex items-center gap-3',
-              pathname === '/usage'
-                ? 'bg-black/5 text-[#007AFF]'
-                : 'text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#007AFF]'
-            )}
-            title="Gérer mes quotas et crédits"
-          >
-            <Zap className="w-5 h-5" />
-            <span>Mes quotas</span>
-          </Link>
-          <Link
-            href="/settings"
-            onClick={handleNav}
-            className={cn(
-              'min-h-[44px] px-4 py-3 rounded-2xl text-base font-medium transition-all duration-200 flex items-center gap-3',
-              pathname === '/settings'
-                ? 'bg-black/5 text-[#007AFF]'
-                : 'text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#007AFF]'
-            )}
-          >
-            <Settings className="w-5 h-5" />
-            <span>Paramètres</span>
-          </Link>
-          <button
-            type="button"
-            className="min-h-[44px] w-full text-left px-4 py-3 rounded-2xl text-base font-medium text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#007AFF] transition-all duration-200 flex items-center gap-3 active:bg-black/10"
-            onClick={() => {
-              onClose?.();
-              signOut({ callbackUrl: '/' });
-            }}
-          >
-            <LogOut className="w-5 h-5" />
-            <span>Déconnexion</span>
-          </button>
+        {/* Section Compte */}
+        <div className="lg:mt-auto pt-4 space-y-1 pb-4">
+          <h2 className="px-4 mb-3 text-xs font-semibold text-[#1D1D1F]/40 uppercase tracking-wider">
+            Votre Compte
+          </h2>
+          <div className="pt-2 border-t border-black/5 space-y-1">
+            <Link
+              href="/usage"
+              onClick={handleNav}
+              className={cn(
+                'min-h-[44px] px-4 py-3 rounded-2xl text-base font-medium transition-all duration-200 flex items-center gap-3',
+                pathname === '/usage'
+                  ? 'bg-black/5 text-[#007AFF]'
+                  : 'text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#007AFF]'
+              )}
+              title="Gérer mes quotas et crédits"
+            >
+              <Zap className="w-5 h-5" />
+              <span>Mes quotas</span>
+            </Link>
+            <Link
+              href="/settings"
+              onClick={handleNav}
+              className={cn(
+                'min-h-[44px] px-4 py-3 rounded-2xl text-base font-medium transition-all duration-200 flex items-center gap-3',
+                pathname === '/settings'
+                  ? 'bg-black/5 text-[#007AFF]'
+                  : 'text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#007AFF]'
+              )}
+            >
+              <Settings className="w-5 h-5" />
+              <span>Paramètres</span>
+            </Link>
+            <button
+              type="button"
+              className="min-h-[44px] w-full text-left px-4 py-3 rounded-2xl text-base font-medium text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#007AFF] transition-all duration-200 flex items-center gap-3 active:bg-black/10"
+              onClick={() => {
+                onClose?.();
+                signOut({ callbackUrl: '/' });
+              }}
+            >
+              <LogOut className="w-5 h-5" />
+              <span>Déconnexion</span>
+            </button>
+          </div>
         </div>
       </nav>
     </aside>

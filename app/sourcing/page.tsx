@@ -4,6 +4,7 @@ import { getCurrentUser } from '@/lib/auth-helpers';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { ShoppingBag } from 'lucide-react';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 export default async function SourcingPage({
   searchParams,
@@ -80,21 +81,11 @@ export default async function SourcingPage({
   return (
     <DashboardLayout>
       <div className="p-8 max-w-7xl mx-auto space-y-8">
-        <div className="space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-lg bg-accent flex items-center justify-center">
-              <ShoppingBag className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex-1">
-              <h1 className="text-3xl font-semibold tracking-tight text-foreground mb-1">
-                Sourcing
-              </h1>
-              <p className="text-muted-foreground text-sm">
-                Trouvez les meilleures usines pour produire vos créations
-              </p>
-            </div>
-          </div>
-        </div>
+        <PageHeader
+          title="Sourcing"
+          description="Trouvez les meilleures usines pour produire vos créations"
+          icon={ShoppingBag}
+        />
 
         <SourcingHub
           brandId={brand.id}

@@ -9,6 +9,7 @@ import { PageTransition } from './PageTransition';
 import { PaywallGate } from '@/components/paywall/PaywallGate';
 import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 import { ChatAssistant } from './ChatAssistant';
+import { MobileNav } from './MobileNav';
 
 function DashboardTutorialGate() {
   const pathname = usePathname();
@@ -70,6 +71,7 @@ export function DashboardLayout({
       <Suspense fallback={null}>
         <DashboardTutorialGate />
       </Suspense>
+      <MobileNav onMenuClick={() => setSidebarOpen(true)} />
       <ChatAssistant />
     </div>
   );

@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { USAGE_REFRESH_EVENT } from '@/lib/hooks/useAIUsage';
+import { Sparkles } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface UsageData {
   tokens: number;
@@ -33,7 +35,7 @@ export function TokenDisplay({ compact = false, showGauge = true }: TokenDisplay
           setData({ ...d, generationsRemaining: gen, generationsBudget: budget });
         }
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, []);
 
@@ -48,49 +50,44 @@ export function TokenDisplay({ compact = false, showGauge = true }: TokenDisplay
 
   if (loading) {
     return (
-      <div className="px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-apple">
-        <span className="text-sm font-medium text-[#1D1D1F]/40">—</span>
+      <div className="px-4 py-2 bg-white/80 backdrop-blur-sm rounded-2xl shadow-apple border border-black/5 animate-pulse">
+        <div className="flex items-center gap-2">
+          <div className="w-5 h-5 rounded-md bg-black/5 shrink-0" />
+          <div className="w-12 h-4 bg-black/5 rounded" />
+        </div>
       </div>
     );
   }
 
   if (!data) return null;
 
-  // Illimité (plan enterprise)
-  if (data.generationsRemaining < 0 || data.generationsBudget === null) {
-    return (
-      <div className="px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-apple">
-        <span className="text-sm font-medium text-[#1D1D1F]">Illimité</span>
+  const content = (
+    <div className="flex items-center gap-2">
+      <div className="w-5 h-5 rounded-md bg-[#007AFF]/10 flex items-center justify-center shrink-0">
+        <Sparkles className="w-3 h-3 text-[#007AFF]" />
       </div>
-    );
-  }
-
-  // Navbar : Badge Apple avec espace
-  if (showGauge && !compact && data.generationsBudget) {
-    return (
-      <div
-        className="px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-apple"
-        title={`${data.generationsRemaining} générations restantes sur ${data.generationsBudget}`}
-      >
-        <span className="text-sm font-medium text-[#1D1D1F] tabular-nums">
-          {data.generationsRemaining} / {data.generationsBudget}
+      <div className="flex flex-col">
+        <span className="text-[10px] uppercase font-bold text-[#86868B] leading-none mb-0.5">
+          IA Crédits
+        </span>
+        <span className="text-sm font-semibold text-[#1D1D1F] tabular-nums leading-none">
+          {data.generationsRemaining < 0 || data.generationsBudget === null
+            ? 'Illimité'
+            : `${data.generationsRemaining} ${!compact ? `/ ${data.generationsBudget}` : ''}`}
         </span>
       </div>
-    );
-  }
+    </div>
+  );
 
-  // Sidebar compacte
   return (
     <div
-      className="px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-apple"
-      title={`${data.generationsRemaining} générations restantes sur ${data.generationsBudget}`}
-    >
-      <span className="text-sm font-medium text-[#1D1D1F] tabular-nums">
-        {data.generationsRemaining}
-      </span>
-      {compact && data.generationsBudget && (
-        <span className="text-xs text-[#1D1D1F]/60"> / {data.generationsBudget}</span>
+      className={cn(
+        "bg-white/80 backdrop-blur-sm rounded-2xl shadow-apple border border-black/5 flex items-center gap-3 transition-all",
+        compact ? "py-1.5 px-3" : "py-2 px-4"
       )}
+      title={`${data.generationsRemaining} générations IA restantes`}
+    >
+      {content}
     </div>
   );
 }

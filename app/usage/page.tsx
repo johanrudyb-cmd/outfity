@@ -9,6 +9,9 @@ import { Button } from '@/components/ui/button';
 import { UsageTracker } from '@/components/usage/UsageTracker';
 import { useSurplusModal } from '@/components/usage/SurplusModalContext';
 import { USAGE_REFRESH_EVENT } from '@/lib/hooks/useAIUsage';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { Zap, CheckCircle2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 function UsagePageContent() {
   const { data: session } = useSession();
@@ -43,35 +46,33 @@ function UsagePageContent() {
   return (
     <div className="px-4 sm:px-6 lg:px-12 py-8 sm:py-12 lg:py-16 max-w-4xl mx-auto space-y-8 sm:space-y-12 lg:space-y-16">
       {showSuccess && (
-        <div className="flex items-center gap-4 border-b border-[#E5E5E1] border-b-[1px] pb-6">
+        <div className="flex items-center gap-4 bg-green-50 border border-green-100 p-4 rounded-2xl mb-8">
+          <CheckCircle2 className="w-5 h-5 text-green-500" />
           <div>
-            <p className="font-light text-sm text-[#1A1A1A] mb-1">Paiement validé</p>
-            <p className="font-light text-xs text-[#1A1A1A] opacity-70">Vos crédits ont bien été ajoutés. Merci pour votre achat.</p>
+            <p className="font-semibold text-sm text-green-800">Paiement validé</p>
+            <p className="text-xs text-green-700 opacity-80">Vos crédits ont bien été ajoutés. Merci pour votre achat.</p>
           </div>
         </div>
       )}
 
       {/* Header */}
-      <div className="space-y-4 border-b border-[#E5E5E1] border-b-[1px] pb-12">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-normal text-[#1A1A1A]">
-          Mes quotas
-        </h1>
-        <p className="font-light text-sm text-[#1A1A1A] opacity-70">
-          {isFree
-            ? 'Suivez votre utilisation du plan Gratuit et découvrez nos offres'
-            : 'Pack Fashion Launch — suivez vos utilisations et rechargez si besoin'}
-        </p>
-      </div>
-
-      {/* Bouton Acheter des crédits / Upgrade */}
-      <div className="flex justify-end">
+      <PageHeader
+        title="Mes quotas"
+        description={isFree
+          ? 'Suivez votre utilisation du plan Gratuit et découvrez nos offres'
+          : 'Pack Fashion Launch — suivez vos utilisations et rechargez si besoin'}
+        icon={Zap}
+      >
         <Button
           onClick={isFree ? () => router.push('/auth/choose-plan') : openSurplusModal}
-          className={isFree ? "bg-[#007AFF] hover:bg-[#007AFF]/90" : ""}
+          className={cn(
+            "rounded-full px-6 font-semibold shadow-md active:scale-[0.98] transition-all",
+            isFree ? "bg-[#007AFF] hover:bg-[#0056CC]" : "bg-[#1D1D1F] hover:bg-black"
+          )}
         >
-          {isFree ? 'Passer au Plan Créateur' : 'Acheter des crédits supplémentaires'}
+          {isFree ? 'Passer au Plan Créateur' : 'Acheter des crédits'}
         </Button>
-      </div>
+      </PageHeader>
 
       {/* Usage Tracker par catégories */}
       <Card>

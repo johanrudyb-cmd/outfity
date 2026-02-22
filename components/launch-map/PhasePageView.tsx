@@ -15,13 +15,14 @@ import {
   FileText,
   Truck,
   Store,
+  Lock,
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { StrategyPresentationView } from './StrategyPresentationView';
 import { LaunchMapStepper, type BrandIdentity } from './LaunchMapStepper';
 import { LAUNCH_MAP_PHASES } from '@/lib/launch-map-constants';
 import type { LaunchMapData } from './LaunchMapStepper';
-import { PhaseRecap, PHASE_PRESENTATIONS, PHASE_ICONS } from './BrandDashboardView';
-import type { SupplierRecap } from './BrandDashboardView';
+import { PhaseRecap, PHASE_PRESENTATIONS, PHASE_ICONS, type SupplierRecap } from './PhaseShared';
 
 export interface PhasePageViewProps {
   phaseId: number;
@@ -101,50 +102,117 @@ export function PhasePageView({
     );
   }
 
-  return (
-    <div className="min-h-screen bg-[#F5F5F7]">
-      <div className="px-4 sm:px-6 lg:px-12 py-6 max-w-[96rem] mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <Link href="/launch-map" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+  // Mode messagerie/immersif full width (Shopify Phase 5 & Identité Phase 0)
+  if ((phaseId === 5 || phaseId === 0) && !isLocked) {
+    return (
+      <div className={cn(
+        "flex flex-col w-full m-0 p-0 bg-white relative",
+        phaseId === 5 ? "h-[calc(100dvh-64px)] overflow-hidden" : "min-h-[calc(100dvh-64px)] overflow-y-auto"
+      )}>
+        <div className="px-4 py-2 sm:py-3 flex items-center justify-between shrink-0 relative z-30 border-b border-black/5 bg-white sticky top-0">
+          <Link href="/launch-map" className="inline-flex items-center gap-2 text-sm font-medium text-[#86868B] hover:text-[#1D1D1F] transition-colors rounded-full px-3 py-1.5 hover:bg-[#F5F5F7]">
             <ArrowLeft className="w-4 h-4" />
-            Retour à la vue d&apos;ensemble
+            <span className="hidden sm:inline">Retour à la vue d'ensemble</span>
+            <span className="sm:hidden">Retour</span>
           </Link>
-          {isLocked && <div className="text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">Plan Créateur requis</div>}
+        </div>
+        <div className="flex-1 w-full bg-white relative">
+          <LaunchMapStepper brandId={brand.id} launchMap={launchMap} brand={brandFull} hasIdentity={hasIdentity} focusedPhase={phaseId} userPlan={userPlan} />
+        </div>
+      </div>
+    );
+  }
+
+  // Colors for icons to match overview
+  const PHASE_COLOR: Record<number, { bg: string; text: string }> = {
+    0: { bg: 'bg-violet-50', text: 'text-violet-500' },
+    1: { bg: 'bg-blue-50', text: 'text-blue-500' },
+    2: { bg: 'bg-orange-50', text: 'text-orange-500' },
+    3: { bg: 'bg-emerald-50', text: 'text-emerald-500' },
+    4: { bg: 'bg-amber-50', text: 'text-amber-500' },
+    5: { bg: 'bg-[#95BF47]/10', text: 'text-[#5E8E3E]' },
+  };
+
+  const currentColor = PHASE_COLOR[phaseId] || { bg: 'bg-[#007AFF]/10', text: 'text-[#007AFF]' };
+
+  return (
+    <div className="min-h-screen bg-[#F5F5F7] font-sans">
+      <div className="px-4 sm:px-6 lg:px-12 py-8 max-w-5xl mx-auto space-y-6">
+
+        {/* Navigation */}
+        <div className="flex items-center justify-between">
+          <Link href="/launch-map" className="inline-flex items-center gap-2 text-[13px] font-bold text-[#86868B] hover:text-[#1D1D1F] transition-colors bg-white/50 hover:bg-white px-4 py-2 rounded-full border border-black/5 shadow-sm">
+            <ArrowLeft className="w-4 h-4" />
+            Retour à la vue d'ensemble
+          </Link>
+          {isLocked && (
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-600 bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200 shadow-sm uppercase tracking-widest">
+              <Lock className="w-3.5 h-3.5" />
+              Plan Créateur requis
+            </div>
+          )}
         </div>
 
-        <div className="rounded-xl border border-border bg-card overflow-hidden">
-          <div className="p-6 border-b border-border bg-muted/30">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <PhaseIcon className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold">{phase.title}</h2>
-                <p className="text-sm text-muted-foreground">{presentation.intro}</p>
-              </div>
+        {/* Main Card */}
+        <div className="rounded-[32px] border border-black/[0.06] bg-white shadow-apple overflow-hidden">
+
+          {/* Header */}
+          <div className="p-6 sm:p-8 border-b border-black/[0.06] bg-gradient-to-b from-[#F5F5F7]/50 to-white flex flex-col sm:flex-row gap-5 items-start sm:items-center">
+            <div className={`w-14 h-14 rounded-[18px] flex items-center justify-center shrink-0 ${currentColor.bg}`}>
+              <PhaseIcon className={`w-7 h-7 ${currentColor.text}`} />
+            </div>
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-[#1D1D1F] leading-tight mb-1">{phase.title}</h1>
+              <p className="text-[#86868B] text-[15px]">{presentation.intro}</p>
             </div>
           </div>
 
-          {!isLocked && (
-            <div className="p-6 bg-background">
-              {(phaseId === 0 || phaseId === 1) && !isShowingDetail ? (
-                <>
-                  <PhaseRecap phaseId={phaseId} brandFull={brandFull} launchMap={launchMap} designCount={designCount} quoteCount={quoteCount} ugcCount={ugcCount} progress={progress} suppliers={suppliers} />
-                  <Button onClick={() => setShowingDetail(true)} className="mt-4">Modifier</Button>
-                </>
+          {!isLocked ? (
+            <div className="bg-white">
+              {(phaseId === 1) && !isShowingDetail ? (
+                <div className="p-8">
+                  <div className="bg-[#F5F5F7] rounded-[24px] p-6 mb-6 border border-black/5">
+                    <PhaseRecap phaseId={phaseId} brandFull={brandFull} launchMap={launchMap} designCount={designCount} quoteCount={quoteCount} ugcCount={ugcCount} progress={progress} suppliers={suppliers} />
+                  </div>
+                  <Button
+                    onClick={() => setShowingDetail(true)}
+                    className="bg-[#007AFF] hover:bg-[#0056CC] text-white font-bold rounded-full px-8 h-12 shadow-md shadow-blue-500/20 transition-all active:scale-[0.98]"
+                  >
+                    Modifier mes réponses
+                  </Button>
+                </div>
               ) : (
-                <div ref={detailSectionRef}>
+                <div ref={detailSectionRef} className="p-6 sm:p-8">
                   <LaunchMapStepper brandId={brand.id} launchMap={launchMap} brand={brandFull} hasIdentity={hasIdentity} focusedPhase={phaseId} userPlan={userPlan} />
                 </div>
               )}
             </div>
-          )}
+          ) : (
+            /* Locked State UI */
+            <div className="relative p-12 sm:p-20 text-center overflow-hidden bg-white">
+              {/* Fake blurred background elements */}
+              <div className="absolute inset-0 opacity-20 pointer-events-none select-none overflow-hidden flex flex-col items-center justify-center gap-4 blur-[4px]">
+                <div className="w-2/3 h-12 bg-gray-200 rounded-xl" />
+                <div className="w-1/2 h-8 bg-gray-100 rounded-lg" />
+                <div className="w-3/4 h-32 bg-gray-50 rounded-2xl border" />
+              </div>
 
-          {isLocked && (
-            <div className="p-12 text-center space-y-4">
-              <h3 className="text-lg font-bold">Cette phase est réservée aux membres Créateurs</h3>
-              <p className="text-sm text-muted-foreground">Passez au plan Créateur pour débloquer cet outil.</p>
-              <Link href="/auth/choose-plan"><Button>Débloquer maintenant</Button></Link>
+              <div className="relative z-10 max-w-md mx-auto space-y-6">
+                <div className="w-20 h-20 mx-auto bg-gradient-to-br from-amber-400 to-amber-600 rounded-[24px] shadow-lg flex items-center justify-center rotate-3 transform hover:rotate-6 transition-transform">
+                  <Lock className="w-10 h-10 text-white" />
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-[#1D1D1F]">Fonctionnalité Premium</h3>
+                  <p className="text-[15px] text-[#86868B] leading-relaxed">
+                    Cette phase nécessite un compte Créateur. Débloquez la création de Tech Packs, le Sourcing d'Usines et la configuration Shopify IA.
+                  </p>
+                </div>
+
+                <Link href="/auth/choose-plan" className="inline-flex w-full items-center justify-center bg-[#1D1D1F] hover:bg-black text-white font-bold rounded-full h-14 px-8 shadow-xl shadow-black/10 transition-all active:scale-[0.98]">
+                  Passer au Plan Créateur
+                </Link>
+              </div>
             </div>
           )}
         </div>

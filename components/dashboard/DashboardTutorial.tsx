@@ -1,9 +1,56 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, ArrowRight, Compass, Sparkles, Zap, TrendingUp, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { X, ArrowRight, Compass } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+const STORAGE_KEY = 'dashboard_tutorial_done';
+
+const TUTORIAL_STEPS = [
+  {
+    target: 'tour-dashboard',
+    title: 'Tableau de Bord',
+    body: 'Votre centre de commande central. Suivez l\'activité de votre marque et gérez vos priorités au quotidien.',
+    icon: Zap,
+    color: 'text-yellow-500',
+    bg: 'bg-yellow-50'
+  },
+  {
+    target: 'tour-journey',
+    title: 'Votre Progression',
+    body: 'Suivez en temps réel l\'avancée de votre marque. Complétez chaque phase pour débloquer de nouvelles fonctionnalités.',
+    icon: Rocket,
+    color: 'text-green-500',
+    bg: 'bg-green-50'
+  },
+  {
+    target: 'tour-trends',
+    title: 'Radar de Tendances',
+    body: 'Captez les signaux faibles et les micro-tendances avant tout le monde pour garder une longueur d\'avance sur le marché.',
+    icon: TrendingUp,
+    color: 'text-blue-500',
+    bg: 'bg-blue-50'
+  },
+  {
+    target: 'tour-spy',
+    title: 'Scanner IVS IA',
+    body: 'Importez n\'importe quel visuel. Notre IA analyse instantanément son potentiel de viralité et sa compatibilité avec votre audience.',
+    icon: Sparkles,
+    color: 'text-purple-500',
+    bg: 'bg-purple-50'
+  },
+  {
+    target: 'tour-launch-map',
+    title: 'Navigation Pro',
+    body: 'Accédez à vos outils experts : Sourcing, Design Studio, et Stratégie Marketing personnalisée.',
+    icon: Compass,
+    color: 'text-orange-500',
+    bg: 'bg-orange-50'
+  },
+];
 
 function getTutorialDone(): boolean {
   if (typeof window === 'undefined') return false;
@@ -14,46 +61,21 @@ function getTutorialDone(): boolean {
   }
 }
 
-const TUTORIAL_STEPS: { target: string; title: string; body: string }[] = [
-  {
-    target: 'tour-dashboard',
-    title: 'Tableau de Bord',
-    body: 'Votre centre de commande pour suivre l\'évolution de votre marque et accéder à tous vos outils.'
-  },
-  {
-    target: 'tour-trends',
-    title: 'Radar',
-    body: 'C\'est ici que vous captez les tendances virales avant tout le monde pour créer des produits qui se vendent.'
-  },
-  {
-    target: 'tour-spy',
-    title: 'Scanner IVS IA',
-    body: 'Utilisez la puissance de notre IA pour analyser la viralité de n\'importe quel vêtement en une seconde.'
-  },
-  {
-    target: 'tour-launch-map',
-    title: 'Guide de Lancement',
-    body: 'Votre mentor pas à pas : de l\'idée au design, du sourcing à la première vente. Tout est ici.'
-  },
-];
-
-const STORAGE_KEY = 'dashboard_tutorial_done';
-
 export function DashboardTutorial() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [mounted, setMounted] = useState(false);
-  const [skipRender, setSkipRender] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (getTutorialDone()) {
-      router.replace('/dashboard');
-      setSkipRender(true);
+    setMounted(true);
+    if (!getTutorialDone()) {
+      setIsVisible(true);
     }
-  }, [router]);
+  }, []);
 
-  const currentStep = TUTORIAL_STEPS[step];
+  const currentStep = useMemo(() => TUTORIAL_STEPS[step], [step]);
   const isLast = step === TUTORIAL_STEPS.length - 1;
 
   const updateTargetRect = useCallback(() => {
@@ -62,91 +84,140 @@ export function DashboardTutorial() {
     if (el) {
       const rect = el.getBoundingClientRect();
       setTargetRect(rect);
-      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      // On évite le scroll auto agressif si l'élément est déjà visible
+      const isVisibleInViewport = rect.top >= 0 && rect.bottom <= window.innerHeight;
+      if (!isVisibleInViewport) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     } else {
       setTargetRect(null);
     }
   }, [currentStep]);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted || !currentStep) return;
+    if (!mounted || !isVisible) return;
     updateTargetRect();
-    const resizeObserver = new ResizeObserver(updateTargetRect);
-    const el = document.querySelector(`[data-tour="${currentStep.target}"]`);
-    if (el) resizeObserver.observe(el);
-    window.addEventListener('scroll', updateTargetRect, true);
+    const handleResize = () => updateTargetRect();
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('scroll', handleResize, true);
     return () => {
-      resizeObserver.disconnect();
-      window.removeEventListener('scroll', updateTargetRect, true);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleResize, true);
     };
-  }, [mounted, step, currentStep, updateTargetRect]);
+  }, [mounted, isVisible, step, updateTargetRect]);
 
   const handleNext = () => {
     if (isLast) {
-      try {
-        localStorage.setItem(STORAGE_KEY, '1');
-      } catch (_) { }
-      router.replace('/dashboard');
+      handleComplete();
       return;
     }
     setStep((s) => s + 1);
   };
 
-  const handleSkip = () => {
+  const handleComplete = () => {
     try {
       localStorage.setItem(STORAGE_KEY, '1');
     } catch (_) { }
-    router.replace('/dashboard');
+    setIsVisible(false);
+    setTimeout(() => router.replace('/dashboard'), 500);
   };
 
-  if (skipRender || !mounted || !currentStep) return null;
+  if (!mounted || !isVisible || !currentStep) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] pointer-events-none [&>*]:pointer-events-auto">
-      {/* Fond sombre */}
-      <div className="absolute inset-0 bg-black/95 transition-opacity" aria-hidden />
-      {/* Anneau de focus autour de la cible */}
-      {targetRect && (
-        <div
-          className="absolute border-2 border-primary rounded-xl ring-4 ring-primary/30 pointer-events-none transition-all duration-200"
-          style={{
-            left: Math.max(0, targetRect.left - 4),
-            top: Math.max(0, targetRect.top - 4),
-            width: targetRect.width + 8,
-            height: targetRect.height + 8,
-          }}
-        />
-      )}
-      {/* Tooltip fixe en bas au centre */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-full max-w-md px-4">
-        <div className="bg-card border-2 border-primary rounded-xl shadow-modern-lg p-4 space-y-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-2 text-primary">
-              <Compass className="w-5 h-5 shrink-0" />
-              <span className="text-xs font-semibold uppercase tracking-wide">Visite guidée</span>
+    <div className="fixed inset-0 z-[100] pointer-events-none flex flex-col justify-end">
+      {/* Overlay avec "Spotlight" via SVG Mask ou Radial Gradient */}
+      <div
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px] pointer-events-auto transition-opacity duration-500"
+        style={{
+          maskImage: targetRect ? `radial-gradient(circle ${Math.max(targetRect.width, targetRect.height) * 0.8}px at ${targetRect.left + targetRect.width / 2}px ${targetRect.top + targetRect.height / 2}px, transparent 100%, black 100%)` : 'none',
+          WebkitMaskImage: targetRect ? `radial-gradient(circle ${Math.max(targetRect.width, targetRect.height) * 0.8}px at ${targetRect.left + targetRect.width / 2}px ${targetRect.top + targetRect.height / 2}px, transparent 100%, black 100%)` : 'none',
+        }}
+        onClick={handleComplete}
+      />
+
+      {/* Anneau de focus élégant */}
+      <AnimatePresence mode="wait">
+        {targetRect && (
+          <motion.div
+            key={`ring-${step}`}
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="absolute rounded-2xl border-2 border-[#007AFF] shadow-[0_0_20px_rgba(0,122,255,0.4)] pointer-events-none"
+            style={{
+              left: targetRect.left - 6,
+              top: targetRect.top - 6,
+              width: targetRect.width + 12,
+              height: targetRect.height + 12,
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Tooltip Card Apple Style */}
+      <div className="relative pointer-events-auto flex justify-center pb-12 px-6">
+        <motion.div
+          key={`card-${step}`}
+          initial={{ opacity: 0, y: 30, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 20, scale: 0.95 }}
+          className="w-full max-w-md bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] overflow-hidden border border-[#E5E5EA]"
+        >
+          {/* Header */}
+          <div className="p-6 flex items-start justify-between gap-4">
+            <div className="flex gap-4">
+              <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-inner", currentStep.bg)}>
+                <currentStep.icon className={cn("w-6 h-6", currentStep.color)} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#86868B]">Visite Guidée</span>
+                  <div className="w-1 h-1 rounded-full bg-[#E5E5EA]" />
+                  <span className="text-[10px] font-bold text-[#007AFF]">Étape {step + 1}/{TUTORIAL_STEPS.length}</span>
+                </div>
+                <h3 className="text-xl font-bold text-[#1D1D1F] leading-tight">{currentStep.title}</h3>
+              </div>
             </div>
-            <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8" onClick={handleSkip} aria-label="Passer">
-              <X className="w-4 h-4" />
-            </Button>
+            <button
+              onClick={handleComplete}
+              className="p-2 hover:bg-[#F2F2F7] rounded-full transition-colors text-[#86868B] hover:text-[#1D1D1F]"
+              aria-label="Fermer"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
-          <div>
-            <h3 className="font-bold text-foreground mb-1">{currentStep.title}</h3>
-            <p className="text-sm text-muted-foreground">{currentStep.body}</p>
+
+          {/* Body */}
+          <div className="px-6 pb-6">
+            <p className="text-[#424245] leading-relaxed text-[15px]">
+              {currentStep.body}
+            </p>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">
-              {step + 1} / {TUTORIAL_STEPS.length}
-            </span>
-            <Button onClick={handleNext} className="gap-2">
+
+          {/* Footer */}
+          <div className="px-6 py-4 bg-[#F2F2F7]/50 border-t border-[#E5E5EA] flex items-center justify-between">
+            {/* Progress dots */}
+            <div className="flex gap-1.5">
+              {TUTORIAL_STEPS.map((_, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    "h-1.5 rounded-full transition-all duration-300",
+                    i === step ? "w-4 bg-[#007AFF]" : "w-1.5 bg-[#E5E5EA]"
+                  )}
+                />
+              ))}
+            </div>
+
+            <Button
+              onClick={handleNext}
+              className="bg-[#007AFF] hover:bg-[#0056CC] text-white rounded-full px-6 h-10 font-semibold gap-2 border-none shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all"
+            >
               {isLast ? 'Terminer' : 'Suivant'}
               <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

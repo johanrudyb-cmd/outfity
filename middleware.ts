@@ -1,6 +1,5 @@
 import { auth } from '@/lib/auth';
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 
 export default auth(async (req) => {
   const { nextUrl } = req;
@@ -9,8 +8,6 @@ export default auth(async (req) => {
   const isAuthPage = nextUrl.pathname.startsWith('/auth');
   const isApiRoute = nextUrl.pathname.startsWith('/api');
   const isPublicAsset = nextUrl.pathname.startsWith('/_next') || nextUrl.pathname.startsWith('/favicon');
-  const isOnboardingPage = nextUrl.pathname.startsWith('/onboarding');
-  const isPartnerJoin = nextUrl.pathname === '/partners/join';
 
   const isProtectedRoute = [
     '/dashboard',
@@ -23,21 +20,21 @@ export default auth(async (req) => {
     '/design-studio',
     '/onboarding',
     '/settings',
+    '/usage',
     '/hub',
-    '/academy',
-    '/partners'
-  ].some(route => {
-    if (isPartnerJoin) return false;
-    return nextUrl.pathname.startsWith(route);
-  });
+    '/academy'
+  ].some(route => nextUrl.pathname.startsWith(route));
 
-  // 1. Pages publiques => laisser passer
+  // 1. Pages publiques ou API => laisser passer
   if (isPublicAsset || isApiRoute) {
     return NextResponse.next();
   }
 
-  // 2. Pages auth => laisser passer (pas de redirect si connecté pour éviter boucle)
+  // 2. Pages d'auth => laisser passer
   if (isAuthPage) {
+    if (isAuthenticated && nextUrl.pathname !== '/auth/signout') {
+      return NextResponse.redirect(new URL('/dashboard', nextUrl));
+    }
     return NextResponse.next();
   }
 
@@ -45,32 +42,13 @@ export default auth(async (req) => {
   if (isProtectedRoute && !isAuthenticated) {
     let callbackUrl = nextUrl.pathname;
     if (nextUrl.search) callbackUrl += nextUrl.search;
-    const encodedCallbackUrl = encodeURIComponent(callbackUrl);
-    return NextResponse.redirect(new URL(`/auth/signin?callbackUrl=${encodedCallbackUrl}`, nextUrl));
+    return NextResponse.redirect(
+      new URL(`/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`, nextUrl)
+    );
   }
 
-  // 4. Connecté sur une route protégée (autre qu'onboarding) => vérifier onboarding
-  if (isAuthenticated && isProtectedRoute && !isOnboardingPage) {
-    try {
-      const userId = req.auth?.user?.id;
-      const userEmail = req.auth?.user?.email || '';
-      const ADMIN_EMAILS = ['contact@outfity.fr', 'johanrudyb@gmail.com'];
-      const isAdmin = ADMIN_EMAILS.includes(userEmail) || userEmail.endsWith('@biangory.com');
-
-      // Les admins passent toujours — pas de gate onboarding
-      if (!isAdmin && userId) {
-        const user = await prisma.user.findUnique({
-          where: { id: userId },
-          select: { onboardingCompleted: true },
-        });
-        if (user && !user.onboardingCompleted) {
-          return NextResponse.redirect(new URL('/onboarding', nextUrl));
-        }
-      }
-    } catch {
-      // En cas d'erreur DB, on laisse passer (fail-open)
-    }
-  }
+  // On laisse le soin aux layouts/pages de gérer la redirection onboarding
+  // pour éviter les crashs de Prisma dans le middleware (Edge Runtime).
 
   return NextResponse.next();
 });

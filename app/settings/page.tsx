@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { Settings as SettingsIcon, User, Mail, Lock, Image as ImageIcon } from 'lucide-react';
 import { SettingsForm } from '@/components/settings/SettingsForm';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 export default async function SettingsPage() {
   const currentUser = await getCurrentUser();
@@ -35,21 +36,11 @@ export default async function SettingsPage() {
     <DashboardLayout>
       <div className="px-4 sm:px-6 lg:px-12 py-8 sm:py-12 lg:py-16 max-w-4xl mx-auto space-y-8 sm:space-y-12 lg:space-y-16">
         {/* Header */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center">
-              <SettingsIcon className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-semibold tracking-tight text-foreground mb-1">
-                Paramètres
-              </h1>
-              <p className="text-muted-foreground text-sm">
-                Gérez votre profil et vos préférences
-              </p>
-            </div>
-          </div>
-        </div>
+        <PageHeader
+          title="Paramètres"
+          description="Gérez votre profil et vos préférences"
+          icon={SettingsIcon}
+        />
 
         {/* Settings Form */}
         <SettingsForm user={user} />

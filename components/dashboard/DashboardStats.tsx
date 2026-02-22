@@ -38,22 +38,47 @@ export async function DashboardStats({ brandId }: { brandId: string }) {
     const stats = await getStats(brandId);
 
     return (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 animate-stagger">
-            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-apple p-4 sm:p-6 lg:p-8">
-                <div className="text-xs sm:text-sm text-[#1D1D1F]/60 mb-2 sm:mb-3">Designs créés</div>
-                <div className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-[#1D1D1F]">{stats.designCount}</div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 animate-stagger">
+            {/* Designs Stats */}
+            <div className="bg-white rounded-[28px] shadow-apple border border-black/5 p-6 hover:shadow-md transition-shadow group">
+                <p className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest mb-3">Portfolio</p>
+                <div className="flex items-end gap-2">
+                    <span className="text-4xl font-bold text-[#1D1D1F]">{stats.designCount}</span>
+                    <span className="text-sm font-medium text-[#86868B] mb-1.5 truncate">Designs</span>
+                </div>
+                <div className="mt-4 h-1 w-full bg-[#F5F5F7] rounded-full overflow-hidden">
+                    <div className="h-full bg-blue-500 rounded-full" style={{ width: stats.designCount > 0 ? '60%' : '5%' }} />
+                </div>
             </div>
-            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-apple p-4 sm:p-6 lg:p-8">
-                <div className="text-xs sm:text-sm text-[#1D1D1F]/60 mb-2 sm:mb-3">Devis envoyés</div>
-                <div className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-[#1D1D1F]">{stats.quoteCount}</div>
+
+            {/* AI Market Score (Motivational Stat) */}
+            <div className="bg-white rounded-[28px] shadow-apple border border-black/5 p-6 hover:shadow-md transition-shadow">
+                <p className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest mb-3">Trend Score IA</p>
+                <div className="flex items-end gap-2">
+                    <span className="text-4xl font-bold text-[#1D1D1F]">84</span>
+                    <span className="text-sm font-medium text-emerald-600 mb-1.5 font-bold">/100</span>
+                </div>
+                <p className="mt-4 text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded-md inline-block">POTENTIEL ÉLEVÉ</p>
             </div>
-            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-apple p-4 sm:p-6 lg:p-8">
-                <div className="text-xs sm:text-sm text-[#1D1D1F]/60 mb-2 sm:mb-3">Contenus UGC</div>
-                <div className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-[#1D1D1F]">{stats.ugcCount}</div>
+
+            {/* Sourcing Stats */}
+            <div className="bg-white rounded-[28px] shadow-apple border border-black/5 p-6 hover:shadow-md transition-shadow">
+                <p className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest mb-3">Sourcing</p>
+                <div className="flex items-end gap-2">
+                    <span className="text-4xl font-bold text-[#1D1D1F]">{stats.quoteCount}</span>
+                    <span className="text-sm font-medium text-[#86868B] mb-1.5">Devis</span>
+                </div>
+                <p className="mt-4 text-[10px] text-[#86868B] font-bold">12 USINES DISPONIBLES</ p>
             </div>
-            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-apple p-4 sm:p-6 lg:p-8">
-                <div className="text-xs sm:text-sm text-[#1D1D1F]/60 mb-2 sm:mb-3">Progression</div>
-                <div className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-[#1D1D1F]">{stats.completedSteps} / {stats.totalSteps}</div>
+
+            {/* Network Rank (Motivational Stat) */}
+            <div className="bg-white rounded-[28px] shadow-apple border border-black/5 p-6 hover:shadow-md transition-shadow">
+                <p className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest mb-3">Réseau Outfity</p>
+                <div className="flex items-end gap-2">
+                    <span className="text-4xl font-bold text-[#1D1D1F]">TOP</span>
+                    <span className="text-sm font-medium text-primary mb-1.5 font-bold">15%</span>
+                </div>
+                <p className="mt-4 text-[10px] text-[#86868B] font-bold">CRÉATEUR ÉMERGENT</p>
             </div>
         </div>
     );

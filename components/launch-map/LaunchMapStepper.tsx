@@ -202,31 +202,31 @@ export function LaunchMapStepper({
   const onlyPhaseContent = typeof focusedPhase === 'number';
 
   return (
-    <div className={cn("space-y-6 w-full", !onlyPhaseContent && "max-w-4xl mx-auto")}>
+    <div className={cn("w-full", !onlyPhaseContent ? "space-y-6 max-w-4xl mx-auto" : "h-full flex flex-col")}>
       {!onlyPhaseContent && (
-        <Card className="border-border shadow-md overflow-hidden bg-card">
-          <CardHeader className="bg-muted/30 border-b border-border py-4">
+        <Card className="border border-black/[0.06] shadow-apple overflow-hidden bg-white rounded-[28px]">
+          <CardHeader className="bg-gradient-to-b from-[#F5F5F7]/50 to-white border-b border-black/[0.06] py-5 px-6 sm:px-8">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <BarChart3 className="w-5 h-5 text-primary" />
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-[16px] bg-[#007AFF]/10 flex items-center justify-center">
+                  <BarChart3 className="w-6 h-6 text-[#007AFF]" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg">Votre Progression</CardTitle>
-                  <CardDescription>Étape {currentPhase + 1} sur {LAUNCH_MAP_PHASES.length}</CardDescription>
+                  <CardTitle className="text-xl font-bold text-[#1D1D1F]">Votre Progression</CardTitle>
+                  <CardDescription className="text-sm text-[#86868B]">Étape {currentPhase + 1} sur {LAUNCH_MAP_PHASES.length}</CardDescription>
                 </div>
               </div>
               <div className="hidden sm:block text-right">
-                <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider">
+                <p className="text-[11px] text-[#86868B] font-bold uppercase tracking-widest bg-[#F5F5F7] px-3 py-1.5 rounded-full">
                   {completedPhases}/{LAUNCH_MAP_PHASES.length} Phases
                 </p>
               </div>
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="w-full bg-muted h-1.5 overflow-hidden">
+            <div className="w-full bg-black/5 h-2 overflow-hidden">
               <div
-                className="bg-primary h-full transition-all duration-700 ease-in-out"
+                className="bg-[#007AFF] h-full transition-all duration-1000 ease-out"
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>
@@ -234,31 +234,34 @@ export function LaunchMapStepper({
         </Card>
       )}
 
-      <div ref={phaseContentRef} className="w-full">
+      <div ref={phaseContentRef} className={cn("w-full", onlyPhaseContent && "flex-1 flex flex-col relative")}>
         {!onlyPhaseContent && (
-          <div className="flex items-center gap-3 mb-6 bg-card border border-border rounded-xl p-4 shadow-sm">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <span className="text-primary font-bold text-sm">{currentPhase + 1}</span>
+          <div className="flex items-center gap-4 mb-8 bg-white border border-black/[0.06] rounded-[24px] p-5 shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-[#007AFF] flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">
+              <span className="text-white font-bold text-sm">{currentPhase + 1}</span>
             </div>
-            <h2 className="text-base font-bold text-foreground">
+            <h2 className="text-lg font-bold text-[#1D1D1F]">
               {LAUNCH_MAP_PHASES[currentPhase]?.title}
             </h2>
-            <div className="ml-auto h-px flex-1 bg-border/50 max-w-[100px] hidden sm:block" />
-            <div className="flex gap-1">
-              <div className={cn("w-2 h-2 rounded-full", currentPhase === 0 ? "bg-primary" : "bg-muted")} />
-              <div className={cn("w-2 h-2 rounded-full", currentPhase === 1 ? "bg-primary" : "bg-muted")} />
-              <div className={cn("w-2 h-2 rounded-full", currentPhase === 2 ? "bg-primary" : "bg-muted")} />
-              <div className={cn("w-2 h-2 rounded-full", currentPhase === 3 ? "bg-primary" : "bg-muted")} />
-              <div className={cn("w-2 h-2 rounded-full", currentPhase === 4 ? "bg-primary" : "bg-muted")} />
-              <div className={cn("w-2 h-2 rounded-full", currentPhase === 5 ? "bg-primary" : "bg-muted")} />
+            <div className="ml-auto h-px flex-1 bg-black/5 max-w-[150px] hidden sm:block" />
+            <div className="flex gap-1.5">
+              {[0, 1, 2, 3, 4, 5].map((idx) => (
+                <div
+                  key={idx}
+                  className={cn(
+                    "w-2.5 h-2.5 rounded-full transition-colors duration-500",
+                    currentPhase === idx ? "bg-[#007AFF] scale-110" : "bg-black/10"
+                  )}
+                />
+              ))}
             </div>
           </div>
         )}
 
         <Card className={cn(
-          "border-border shadow-xl transform transition-all duration-300 bg-card overflow-hidden",
-          isTransitioning ? "opacity-0 translate-y-4 scale-95" : "opacity-100 translate-y-0 scale-100",
-          onlyPhaseContent && "border-none shadow-none bg-transparent rounded-none"
+          "transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] overflow-hidden",
+          isTransitioning ? "opacity-0 translate-y-8 scale-[0.98] blur-[2px]" : "opacity-100 translate-y-0 scale-100 blur-0",
+          onlyPhaseContent ? "border-none shadow-none bg-transparent rounded-none flex-1 flex flex-col" : "border border-black/[0.06] shadow-apple bg-white rounded-[32px]"
         )}>
           {!isTransitioning && phaseToRender === 0 && (
             <Phase0Identity
@@ -301,7 +304,7 @@ export function LaunchMapStepper({
           {!isTransitioning && phaseToRender === 5 && (
             <Phase6Shopify
               brandId={brandId}
-              brand={brand ? { id: brand.id, name: brand.name, logo: brand.logo, colorPalette: brand.colorPalette, typography: brand.typography } : null}
+              brand={brand ? { id: brand.id, name: brand.name } : null}
               shopifyShopDomain={launchMap?.shopifyShopDomain ?? null}
               siteCreationTodo={(launchMap?.siteCreationTodo as { steps: { id: string; label: string; done: boolean }[] } | null | undefined) ?? null}
               onComplete={() => handlePhaseComplete(5)}
