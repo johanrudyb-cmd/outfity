@@ -92,6 +92,10 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
     if (hasInitialized.current) return;
     hasInitialized.current = true;
 
+    // Aggressive reset per user request to force clear locked state.
+    localStorage.removeItem(`mockup-chat-${brandId}`);
+    localStorage.removeItem(`pharell-chat-${brandId}`);
+
     try {
       const saved = localStorage.getItem(`pharell-chat-${brandId}`);
       if (saved) {
