@@ -115,9 +115,15 @@ export function PhasePageView({
 
   const currentColor = PHASE_COLOR[phaseId] || { bg: 'bg-[#007AFF]/10', text: 'text-[#007AFF]' };
 
+  const isCompleted = (phaseId === 0 && hasIdentity) ||
+    (phaseId === 1 && strategyText) ||
+    (phaseId === 2 && launchMap?.phase2) ||
+    (phaseId === 3 && launchMap?.phase3) ||
+    (phaseId === 4 && launchMap?.phase4) ||
+    (phaseId === 5 && launchMap?.phase5);
+
   // Mode messagerie/immersif full width (Atelier phases & Shopify)
   if ([0, 1, 2, 5].includes(phaseId) && !isLocked) {
-    const isCompleted = (phaseId === 0 && hasIdentity) || (phaseId === 1 && strategyText) || (phaseId === 2 && launchMap?.phase2) || (phaseId === 5 && launchMap?.phase5);
 
     // Si la phase est complétée et qu'on n'est pas en mode édition, on affiche le RECAP
     if (isCompleted && !isEditing) {
@@ -250,9 +256,43 @@ export function PhasePageView({
 
           {!isLocked ? (
             <div className="bg-white">
-              <div ref={detailSectionRef} className="p-6 sm:p-8">
-                <LaunchMapStepper brandId={brand.id} launchMap={launchMap} brand={brandFull} hasIdentity={hasIdentity} focusedPhase={phaseId} userPlan={userPlan} />
-              </div>
+              {isCompleted && !isEditing ? (
+                <div className="p-12 sm:p-16 flex flex-col items-center space-y-10">
+                  <div className="text-center space-y-4">
+                    <div className={cn("w-16 h-16 rounded-[22px] mx-auto flex items-center justify-center shadow-lg", currentColor.bg, currentColor.text)}>
+                      <PhaseIcon size={28} />
+                    </div>
+                    <h3 className="text-2xl font-bold text-[#1D1D1F]">Étape Validée</h3>
+                    <p className="text-[#86868B] max-w-sm mx-auto">Vous avez complété cette phase. Voici vos informations enregistrées.</p>
+                  </div>
+
+                  <div className="w-full max-w-md bg-[#F5F5F7]/50 border border-black/5 rounded-[32px] p-8">
+                    <PhaseRecap
+                      phaseId={phaseId}
+                      brandFull={brandFull}
+                      launchMap={launchMap}
+                      designCount={designCount}
+                      quoteCount={quoteCount}
+                      ugcCount={ugcCount}
+                      progress={progress}
+                    />
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => setIsEditing(true)}
+                    className="rounded-full border-black/10 hover:bg-black/5 h-14 px-8 gap-2 font-bold"
+                  >
+                    <Pencil className="w-4 h-4" />
+                    Modifier les informations
+                  </Button>
+                </div>
+              ) : (
+                <div ref={detailSectionRef} className="p-6 sm:p-8">
+                  <LaunchMapStepper brandId={brand.id} launchMap={launchMap} brand={brandFull} hasIdentity={hasIdentity} focusedPhase={phaseId} userPlan={userPlan} />
+                </div>
+              )}
             </div>
           ) : (
             /* Locked State UI */

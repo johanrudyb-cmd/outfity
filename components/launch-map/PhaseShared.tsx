@@ -135,6 +135,14 @@ export function PhaseRecap({
         );
     }
 
+    if (phaseId === 3) {
+        return (
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {item('Statut Tech Pack', launchMap?.phase3 ? 'Généré et validé' : 'En attente')}
+            </dl>
+        );
+    }
+
     if (phaseId === 4) {
         return (
             <div className="space-y-4">
@@ -152,6 +160,14 @@ export function PhaseRecap({
                     </ul>
                 )}
             </div>
+        );
+    }
+
+    if (phaseId === 5) {
+        return (
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {item('Boutique connectée', launchMap?.shopifyShopDomain || 'Boutique Shopify')}
+            </dl>
         );
     }
 
