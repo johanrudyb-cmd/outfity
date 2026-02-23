@@ -200,10 +200,12 @@ export function LaunchMapStepper({
   const progressPercentage = (completedPhases / LAUNCH_MAP_PHASES.length) * 100;
 
   const onlyPhaseContent = typeof focusedPhase === 'number';
+  const isAtelierPhase = currentPhase <= 2;
+  const isFullPage = onlyPhaseContent || isAtelierPhase;
 
   return (
-    <div className={cn("w-full", !onlyPhaseContent ? "space-y-6 max-w-4xl mx-auto" : "h-full flex flex-col")}>
-      {!onlyPhaseContent && (
+    <div className={cn("w-full", !isFullPage ? "space-y-6 max-w-4xl mx-auto" : "h-full flex flex-col")}>
+      {!isFullPage && (
         <Card className="border border-black/[0.06] shadow-apple overflow-hidden bg-white rounded-[28px]">
           <CardHeader className="bg-gradient-to-b from-[#F5F5F7]/50 to-white border-b border-black/[0.06] py-5 px-6 sm:px-8">
             <div className="flex items-center justify-between">
@@ -234,8 +236,8 @@ export function LaunchMapStepper({
         </Card>
       )}
 
-      <div ref={phaseContentRef} className={cn("w-full", onlyPhaseContent && "flex-1 flex flex-col relative")}>
-        {!onlyPhaseContent && (
+      <div ref={phaseContentRef} className={cn("w-full", isFullPage && "flex-1 flex flex-col relative")}>
+        {!isFullPage && (
           <div className="flex items-center gap-4 mb-8 bg-white border border-black/[0.06] rounded-[24px] p-5 shadow-sm">
             <div className="w-10 h-10 rounded-xl bg-[#007AFF] flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">
               <span className="text-white font-bold text-sm">{currentPhase + 1}</span>
@@ -265,7 +267,7 @@ export function LaunchMapStepper({
         <Card className={cn(
           "transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] overflow-hidden",
           isTransitioning ? "opacity-0 translate-y-8 scale-[0.98] blur-[2px]" : "opacity-100 translate-y-0 scale-100 blur-0",
-          onlyPhaseContent ? "border-none shadow-none bg-transparent rounded-none flex-1 flex flex-col" : "border border-black/[0.06] shadow-apple bg-white rounded-[32px]"
+          isFullPage ? "border-none shadow-none bg-transparent rounded-none flex-1 flex flex-col" : "border border-black/[0.06] shadow-apple bg-white rounded-[32px]"
         )}>
           {!isTransitioning && phaseToRender === 0 && (
             <Phase0Identity
