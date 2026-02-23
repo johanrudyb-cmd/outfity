@@ -734,54 +734,55 @@ export function StrategyPresentationView({
           </header>
         )}
 
-        {/* Progress Tracker : ancres de navigation vers chaque section */}
-        <nav className="mb-8 rounded-3xl bg-white shadow-apple overflow-hidden" aria-label="Sections de la stratégie">
-          <div className="flex items-center gap-1 p-2 overflow-x-auto no-scrollbar sm:flex-wrap sm:justify-between sm:p-4">
+        {/* Premium Navigation Dock - Floating Island Style */}
+        <div className="flex justify-center mb-16 sticky top-8 z-30">
+          <nav className="bg-white/70 backdrop-blur-3xl rounded-full border border-black/[0.03] shadow-apple-lg px-3 py-2.5 flex items-center gap-1 overflow-x-auto no-scrollbar max-w-full" aria-label="Sections de la stratégie">
             {sectionPreviews.map((sec, i) => (
               <div key={i} className="flex items-center shrink-0">
                 <button
                   type="button"
                   onClick={() => scrollToSection(i)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-2xl bg-white min-w-0 hover:bg-black/5 transition-colors text-left group whitespace-nowrap"
+                  className="flex items-center gap-3 px-4 py-2 rounded-full hover:bg-black/[0.02] transition-all group whitespace-nowrap"
                   aria-label={`Aller à la section ${sec.meta.label}`}
                 >
-                  <sec.meta.Icon className="w-3.5 h-3.5 text-[#007AFF] shrink-0 group-hover:text-[#0056CC]" aria-hidden />
-                  <span className="text-xs sm:text-sm font-medium text-[#1D1D1F]/60 group-hover:text-[#007AFF]">{sec.meta.label}</span>
+                  <div className="w-9 h-9 rounded-full bg-white border border-black/5 flex items-center justify-center text-[#007AFF] group-hover:bg-[#007AFF] group-hover:text-white transition-all duration-500 shadow-sm group-hover:shadow-blue-500/20">
+                    <sec.meta.Icon className="w-4.5 h-4.5" />
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1D1D1F]/40 group-hover:text-[#007AFF] transition-colors">
+                    {sec.meta.label}
+                  </span>
                 </button>
                 {i < sectionPreviews.length - 1 && (
-                  <div className="w-3 h-px bg-[#1D1D1F]/10 mx-1 shrink-0 hidden lg:block" aria-hidden />
+                  <div className="w-px h-6 bg-black/[0.06] mx-1 shrink-0 hidden lg:block" aria-hidden />
                 )}
               </div>
             ))}
-          </div>
-        </nav>
+          </nav>
+        </div>
 
-        {/* Ma marque / Marque de référence — pastilles */}
-        <div className="flex flex-wrap gap-2 mb-8">
+        {/* Status Pills */}
+        <div className="flex flex-wrap gap-3 mb-12">
           {isTemplateView ? (
             brandName && (
-              <span className="px-3 py-1.5 rounded-full bg-[#007AFF]/10 text-[11px] sm:text-sm font-medium text-[#007AFF] break-words">
-                Marque de référence : {brandName}
+              <span className="px-5 py-2.5 rounded-full bg-[#007AFF]/10 text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-[#007AFF] border border-[#007AFF]/20">
+                Inspiration : {brandName}
               </span>
             )
           ) : (
             <>
               {brandName && (
-                <span className="px-3 py-1.5 rounded-full bg-[#007AFF]/10 text-[11px] sm:text-sm font-medium text-[#007AFF] break-words">{brandName}</span>
+                <span className="px-5 py-2.5 rounded-full bg-white text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-[#1D1D1F] border border-black/5 shadow-apple-sm">{brandName}</span>
               )}
               {positioning && (
-                <span className="px-3 py-1.5 rounded-full bg-[#1D1D1F]/5 text-[11px] sm:text-sm text-[#1D1D1F]/60 break-words">{positioning}</span>
+                <span className="px-5 py-2.5 rounded-full bg-white text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-black/40 border border-black/5 shadow-apple-sm">{positioning}</span>
               )}
               {targetAudience && (
-                <span className="px-3 py-1.5 rounded-full bg-[#1D1D1F]/5 text-[11px] sm:text-sm text-[#1D1D1F]/60 break-words">{targetAudience}</span>
-              )}
-              {templateBrandName && (
-                <span className="px-3 py-1.5 rounded-full bg-[#1D1D1F]/5 text-[11px] sm:text-sm text-[#1D1D1F]/60 break-words">Inspiré de {templateBrandName}</span>
+                <span className="px-5 py-2.5 rounded-full bg-white text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-black/40 border border-black/5 shadow-apple-sm">{targetAudience}</span>
               )}
               {lastAIUpdate && !isNaN(new Date(lastAIUpdate).getTime()) && (
-                <span className="px-3 py-1.5 rounded-full bg-primary/10 text-[11px] sm:text-sm font-medium text-primary flex items-center gap-2 animate-pulse break-words">
+                <span className="px-5 py-2.5 rounded-full bg-emerald-50 text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-emerald-600 flex items-center gap-2 border border-emerald-100 italic">
                   <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                  Dernière mise à jour IA : {new Date(lastAIUpdate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  Forgé par l&apos;IA • {new Date(lastAIUpdate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
                 </span>
               )}
             </>
@@ -790,157 +791,166 @@ export function StrategyPresentationView({
 
         {/* Identité visuelle — logo (template) + explication + couleurs + polices */}
         {(visualIdentityProp?.colorPalette || visualIdentityProp?.typography || visualIdentityProp?.logoRecommendation || visualIdentityProp?.logoRationale || (isTemplateView && brandName)) && (
-          <Card className="mb-8 rounded-3xl bg-white shadow-apple">
-            <CardContent className="pt-8 pb-8 px-8">
-              <h2 className="text-2xl font-semibold tracking-tight text-[#1D1D1F] mb-6">
-                {isTemplateView ? 'Identité visuelle (marque de référence)' : 'Recommandations identité visuelle'}
-              </h2>
-              {isTemplateView && brandName && (
-                <div className="mb-6 flex flex-col sm:flex-row gap-6 items-start">
-                  <div className="w-32 h-32 rounded-3xl bg-white shadow-apple overflow-hidden shrink-0 flex items-center justify-center p-4">
-                    <BrandLogo logoUrl={logoUrlProp ?? getBrandLogoUrl(brandName)} brandName={brandName} className="w-full h-full object-contain" />
+          <div className="mb-20 space-y-8">
+            <div className="space-y-1">
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF]">Direction Artistique</p>
+              <h2 className="text-3xl font-bold tracking-tight text-[#1D1D1F]">L&apos;ADN Visuel</h2>
+            </div>
+            <Card className="rounded-[40px] bg-white shadow-apple-lg border-black/[0.03] overflow-hidden">
+              <CardContent className="p-8 sm:p-12">
+                {isTemplateView && brandName && (
+                  <div className="mb-6 flex flex-col sm:flex-row gap-6 items-start">
+                    <div className="w-32 h-32 rounded-3xl bg-white shadow-apple overflow-hidden shrink-0 flex items-center justify-center p-4">
+                      <BrandLogo logoUrl={logoUrlProp ?? getBrandLogoUrl(brandName)} brandName={brandName} className="w-full h-full object-contain" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-semibold text-[#1D1D1F]/60 uppercase tracking-wider mb-2">Pourquoi cette identité</p>
+                      <p className="text-base text-[#1D1D1F] leading-relaxed">
+                        {visualIdentityProp?.logoRationale || visualIdentityProp?.logoRecommendation || 'Identité visuelle alignée avec le positionnement et la cible de la marque.'}
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-[#1D1D1F]/60 uppercase tracking-wider mb-2">Pourquoi cette identité</p>
-                    <p className="text-base text-[#1D1D1F] leading-relaxed">
-                      {visualIdentityProp?.logoRationale || visualIdentityProp?.logoRecommendation || 'Identité visuelle alignée avec le positionnement et la cible de la marque.'}
-                    </p>
-                  </div>
-                </div>
-              )}
-              <p className="text-sm text-[#1D1D1F]/60 mb-6">
-                {visualIdentityLocked
-                  ? 'Couleurs et polices de votre stratégie (identité visuelle verrouillée).'
-                  : isTemplateView
-                    ? 'Couleurs et polices de la marque. Au calquage, l\'IA proposera une identité inspirée (même style, couleurs et polices différentes) et une recommandation pour votre logo.'
-                    : 'Couleurs et polices inspirées de la marque de référence (même style, pas de copie). Vous pouvez les modifier et les appliquer à votre identité.'}
-              </p>
-              {(visualIdentityProp?.colorPalette || visualIdentityProp?.typography) && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-6">
-                  <div>
-                    <p className="text-xs font-semibold text-[#1D1D1F]/60 uppercase tracking-wider mb-4">Palette couleurs</p>
-                    <div className="space-y-3">
-                      {[
-                        { label: 'Primaire', value: primaryColor, set: setPrimaryColor },
-                        { label: 'Secondaire', value: secondaryColor, set: setSecondaryColor },
-                        { label: 'Accent', value: accentColor, set: setAccentColor },
-                      ].map(({ label, value, set }) => (
-                        <div key={label} className="flex items-center gap-3">
-                          <div
-                            className="w-12 h-12 rounded-3xl shadow-apple shrink-0"
-                            style={{ backgroundColor: value }}
-                            title={value}
-                          />
+                )}
+                <p className="text-sm text-[#1D1D1F]/60 mb-6">
+                  {visualIdentityLocked
+                    ? 'Couleurs et polices de votre stratégie (identité visuelle verrouillée).'
+                    : isTemplateView
+                      ? 'Couleurs et polices de la marque. Au calquage, l\'IA proposera une identité inspirée (même style, couleurs et polices différentes) et une recommandation pour votre logo.'
+                      : 'Couleurs et polices inspirées de la marque de référence (même style, pas de copie). Vous pouvez les modifier et les appliquer à votre identité.'}
+                </p>
+                {(visualIdentityProp?.colorPalette || visualIdentityProp?.typography) && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-6">
+                    <div>
+                      <p className="text-xs font-semibold text-[#1D1D1F]/60 uppercase tracking-wider mb-4">Palette couleurs</p>
+                      <div className="space-y-3">
+                        {[
+                          { label: 'Primaire', value: primaryColor, set: setPrimaryColor },
+                          { label: 'Secondaire', value: secondaryColor, set: setSecondaryColor },
+                          { label: 'Accent', value: accentColor, set: setAccentColor },
+                        ].map(({ label, value, set }) => (
+                          <div key={label} className="flex items-center gap-3">
+                            <div
+                              className="w-12 h-12 rounded-3xl shadow-apple shrink-0"
+                              style={{ backgroundColor: value }}
+                              title={value}
+                            />
+                            {visualIdentityLocked ? (
+                              <span className="font-mono text-sm text-[#1D1D1F]/60" aria-label={`Couleur ${label}`}>{value}</span>
+                            ) : (
+                              <Input
+                                value={value}
+                                onChange={(e) => set(e.target.value)}
+                                className="font-mono text-sm h-11 max-w-[140px]"
+                                placeholder="#000000"
+                                aria-label={`Couleur ${label}`}
+                              />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-[#1D1D1F]/60 uppercase tracking-wider mb-4">Typographie</p>
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-sm text-[#1D1D1F]/60 block mb-2">Titres</label>
                           {visualIdentityLocked ? (
-                            <span className="font-mono text-sm text-[#1D1D1F]/60" aria-label={`Couleur ${label}`}>{value}</span>
+                            <p className="text-base text-[#1D1D1F] py-2">{headingFont || '—'}</p>
                           ) : (
                             <Input
-                              value={value}
-                              onChange={(e) => set(e.target.value)}
-                              className="font-mono text-sm h-11 max-w-[140px]"
-                              placeholder="#000000"
-                              aria-label={`Couleur ${label}`}
+                              value={headingFont}
+                              onChange={(e) => setHeadingFont(e.target.value)}
+                              className="text-base h-11"
+                              placeholder="Ex. Inter, Playfair Display"
+                              aria-label="Police titres"
                             />
                           )}
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-[#1D1D1F]/60 uppercase tracking-wider mb-4">Typographie</p>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="text-sm text-[#1D1D1F]/60 block mb-2">Titres</label>
-                        {visualIdentityLocked ? (
-                          <p className="text-base text-[#1D1D1F] py-2">{headingFont || '—'}</p>
-                        ) : (
-                          <Input
-                            value={headingFont}
-                            onChange={(e) => setHeadingFont(e.target.value)}
-                            className="text-base h-11"
-                            placeholder="Ex. Inter, Playfair Display"
-                            aria-label="Police titres"
-                          />
-                        )}
-                      </div>
-                      <div>
-                        <label className="text-sm text-[#1D1D1F]/60 block mb-2">Corps</label>
-                        {visualIdentityLocked ? (
-                          <p className="text-base text-[#1D1D1F] py-2">{bodyFont || '—'}</p>
-                        ) : (
-                          <Input
-                            value={bodyFont}
-                            onChange={(e) => setBodyFont(e.target.value)}
-                            className="text-base h-11"
-                            placeholder="Ex. Inter, Open Sans"
-                            aria-label="Police corps"
-                          />
-                        )}
+                        <div>
+                          <label className="text-sm text-[#1D1D1F]/60 block mb-2">Corps</label>
+                          {visualIdentityLocked ? (
+                            <p className="text-base text-[#1D1D1F] py-2">{bodyFont || '—'}</p>
+                          ) : (
+                            <Input
+                              value={bodyFont}
+                              onChange={(e) => setBodyFont(e.target.value)}
+                              className="text-base h-11"
+                              placeholder="Ex. Inter, Open Sans"
+                              aria-label="Police corps"
+                            />
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
-              {visualIdentityProp?.logoRecommendation && (
-                <div className="rounded-3xl bg-white shadow-apple p-6">
-                  <p className="text-xs font-semibold text-[#1D1D1F]/60 uppercase tracking-wider mb-3">Recommandation logo</p>
-                  <p className="text-base text-[#1D1D1F] leading-relaxed">{visualIdentityProp.logoRecommendation}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                )}
+                {visualIdentityProp?.logoRecommendation && (
+                  <div className="rounded-3xl bg-white shadow-apple p-6">
+                    <p className="text-xs font-semibold text-[#1D1D1F]/60 uppercase tracking-wider mb-3">Recommandation logo</p>
+                    <p className="text-base text-[#1D1D1F] leading-relaxed">{visualIdentityProp.logoRecommendation}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         )}
 
-        <h2 className="text-3xl font-semibold tracking-tight text-[#1D1D1F] mb-8">Stratégie par thème</h2>
-        <div className="space-y-8">
+        <div className="mb-12 space-y-1">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF]">Exploration Profonde</p>
+          <h2 className="text-3xl font-bold tracking-tight text-[#1D1D1F]">Plan d&apos;Action Stratégique</h2>
+        </div>
+
+        <div className="space-y-16 lg:space-y-24 pb-32">
           {sectionPreviews.map((sec, i) => {
             const schematic = renderSectionSchematic(sec, i);
             return (
-              <Card key={i} id={`strategy-section-${i}`} className="rounded-3xl bg-white shadow-apple overflow-hidden scroll-mt-4">
-                <div className="flex items-center gap-3 sm:gap-4 px-5 sm:px-8 py-4 sm:py-6 border-b border-black/5">
-                  <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-2xl bg-[#007AFF]/10 flex items-center justify-center shrink-0">
-                    <sec.meta.Icon className="w-4.5 h-4.5 sm:w-6 sm:h-6 text-[#007AFF]" />
+              <div key={i} id={`strategy-section-${i}`} className="space-y-8 scroll-mt-24 animate-in slide-in-from-bottom-8 duration-700 fill-mode-both">
+                <div className="flex items-center gap-6">
+                  <div className="w-16 h-16 rounded-[24px] bg-white shadow-apple-sm border border-black/5 flex items-center justify-center shrink-0">
+                    <sec.meta.Icon className="w-7 h-7 text-[#007AFF]" />
                   </div>
-                  <CardTitle className="text-base sm:text-xl font-semibold tracking-tight text-[#1D1D1F] break-words flex-1 min-w-0">{sec.title}</CardTitle>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[#007AFF]">Section 0{i + 1}</p>
+                    <h3 className="text-3xl font-bold tracking-tight text-[#1D1D1F]">{sec.title}</h3>
+                  </div>
                 </div>
-                <CardContent className="px-4 sm:px-8 py-5 sm:py-8">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                    <div className="rounded-3xl bg-white shadow-apple p-6 min-h-[280px] lg:min-h-[320px] flex flex-col">
-                      <div className="flex-1 min-h-[260px] lg:min-h-[300px] flex items-center justify-center w-full min-w-0 overflow-auto">
-                        {schematic || (
-                          <div className="w-full p-6 text-center">
-                            <p className="text-sm text-[#1D1D1F]/60 leading-relaxed break-words px-2">{sec.preview}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="rounded-3xl bg-white shadow-apple p-4 sm:p-6 min-h-[140px]">
-                      <p className="text-[10px] sm:text-xs font-semibold text-[#1D1D1F]/60 uppercase tracking-wider mb-4">Contenu détaillé</p>
-                      <div className="text-xs sm:text-sm leading-relaxed space-y-3 max-h-[400px] overflow-y-auto pr-1">
-                        {sec.isTimingSection && sec.bullets.length > 0 ? (
-                          <>
-                            <ol className="relative border-l border-[#007AFF]/40 pl-6 space-y-3">
-                              {sec.bullets.map((step, j) => (
-                                <li key={j} className="relative flex gap-3">
-                                  <span className="absolute -left-7 w-6 h-6 rounded-full bg-[#007AFF] flex items-center justify-center font-mono text-xs font-semibold text-white">
-                                    {j + 1}
-                                  </span>
-                                  <span className="text-[#1D1D1F]">{sanitizeDisplayText(step)}</span>
-                                </li>
-                              ))}
-                            </ol>
-                            {sec.content.replace(new RegExp('\n[-*]\\s+', 'g'), '\n').trim().length > sec.bullets.join(' ').length && (
-                              <div className="mt-4 pt-4 border-t border-black/5">{renderContent(sec.content)}</div>
-                            )}
-                          </>
-                        ) : (
-                          renderContent(sec.content)
-                        )}
-                      </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                  <div className="rounded-[40px] bg-white shadow-apple p-8 flex flex-col justify-center border border-black/[0.03]">
+                    <div className="w-full min-w-0">
+                      {schematic || (
+                        <div className="w-full text-left space-y-4">
+                          <p className="text-xl font-medium text-[#1D1D1F] leading-relaxed italic opacity-80">&quot;{sec.preview}&quot;</p>
+                        </div>
+                      )}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="rounded-[40px] bg-white border border-black/[0.03] shadow-apple p-8 sm:p-10">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#007AFF] mb-8">Détails de l&apos;Anatomie</p>
+                    <div className="text-sm sm:text-base leading-relaxed space-y-4 text-[#1D1D1F]/70">
+                      {sec.isTimingSection && sec.bullets.length > 0 ? (
+                        <>
+                          <ol className="relative border-l-2 border-[#007AFF]/20 pl-8 space-y-6">
+                            {sec.bullets.map((step, j) => (
+                              <li key={j} className="relative flex flex-col gap-1">
+                                <span className="absolute -left-[45px] w-8 h-8 rounded-full bg-[#007AFF] flex items-center justify-center font-bold text-xs text-white shadow-lg shadow-blue-500/20">
+                                  {j + 1}
+                                </span>
+                                <span className="text-lg font-bold text-[#1D1D1F]">{sanitizeDisplayText(step)}</span>
+                              </li>
+                            ))}
+                          </ol>
+                          {sec.content.replace(new RegExp('\n[-*]\\s+', 'g'), '\n').trim().length > sec.bullets.join(' ').length && (
+                            <div className="mt-8 pt-8 border-t border-black/5 leading-loose">{renderContent(sec.content)}</div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="leading-loose font-medium">{renderContent(sec.content)}</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
             );
           })}
         </div>
