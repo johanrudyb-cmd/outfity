@@ -16,6 +16,7 @@ import {
   Truck,
   Store,
   Lock,
+  Fingerprint,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { StrategyPresentationView } from './StrategyPresentationView';
