@@ -30,7 +30,7 @@ import {
   PRODUCT_TYPE_IDS,
   type ProductTypeId,
 } from '@/lib/seasonal-recommendation';
-import { ALL_FASHION_CUTS } from '@/lib/constants/fashion-cuts';
+import { ALL_FASHION_CUTS, FASHION_CUTS_BY_CATEGORY } from '@/lib/constants/fashion-cuts';
 import type { BrandIdentity } from './LaunchMapStepper';
 
 interface Phase0IdentityProps {
@@ -80,6 +80,18 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
 
   const recommendation = useMemo(() => getSeasonalRecommendation(), []);
   const weightOptions = useMemo(() => getWeightOptions(productType), [productType]);
+
+  const signatureOptions = useMemo(() => {
+    let cuts: readonly string[] = [];
+    switch (productType) {
+      case 'tshirt': cuts = FASHION_CUTS_BY_CATEGORY.TSHIRT; break;
+      case 'hoodie': cuts = FASHION_CUTS_BY_CATEGORY.SWEAT; break;
+      case 'veste': cuts = FASHION_CUTS_BY_CATEGORY.JACKEX; break;
+      case 'pantalon': cuts = FASHION_CUTS_BY_CATEGORY.PANT; break;
+      default: cuts = ALL_FASHION_CUTS;
+    }
+    return [{ v: '', l: 'Classique' }, ...cuts.map(c => ({ v: c, l: c }))];
+  }, [productType]);
 
   const steps = useMemo(() => {
     const allSteps = [
@@ -422,8 +434,18 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
               {currentStep.id === 'product' && (
                 <div className="space-y-8 sm:space-y-12 w-full animate-in fade-in duration-1000">
                   {[
-                    { label: 'Vêtement Phare', val: productType, opt: PRODUCT_TYPE_IDS.map(id => ({ v: id, l: getProductTypeLabel(id) })), set: setProductType },
-                    { label: 'Signature Visuelle', val: productSignature, opt: [{ v: '', l: 'Classique' }, ...ALL_FASHION_CUTS.map(c => ({ v: c, l: c }))], set: setProductSignature },
+                    {
+                      label: 'Vêtement Phare',
+                      val: productType,
+                      opt: PRODUCT_TYPE_IDS.map(id => ({ v: id, l: getProductTypeLabel(id) })),
+                      set: (val: ProductTypeId) => {
+                        setProductType(val);
+                        const newWeights = getWeightOptions(val);
+                        if (newWeights.length > 0) setProductWeight(newWeights[0].value);
+                        setProductSignature('');
+                      }
+                    },
+                    { label: 'Signature Visuelle', val: productSignature, opt: signatureOptions, set: setProductSignature },
                     { label: 'Texile (GSM)', val: productWeight, opt: weightOptions.map(w => ({ v: w.value, l: w.label })), set: setProductWeight },
                   ].map((field, idx) => (
                     <div key={idx} className="space-y-3 sm:space-y-5">
