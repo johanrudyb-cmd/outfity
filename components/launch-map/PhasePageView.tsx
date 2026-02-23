@@ -296,7 +296,7 @@ export function PhasePageView({
           </Link>
         </div>
         <div className="flex-1 w-full bg-white relative flex flex-col min-h-0">
-          <LaunchMapStepper brandId={brand.id} launchMap={launchMap} brand={brandFull} hasIdentity={hasIdentity} focusedPhase={phaseId} userPlan={userPlan} />
+          <LaunchMapStepper brandId={brand.id} launchMap={launchMap} brand={brandFull} hasIdentity={hasIdentity} focusedPhase={phaseId} userPlan={userPlan} strategyText={strategyText} />
         </div>
       </div>
     );

@@ -73,6 +73,7 @@ interface LaunchMapStepperProps {
   hasIdentity: boolean;
   focusedPhase?: number | null;
   userPlan?: string;
+  strategyText?: string | null;
 }
 
 export function LaunchMapStepper({
@@ -82,6 +83,7 @@ export function LaunchMapStepper({
   hasIdentity,
   focusedPhase = null,
   userPlan = 'free',
+  strategyText,
 }: LaunchMapStepperProps) {
   const { toast } = useToast();
 
@@ -279,9 +281,11 @@ export function LaunchMapStepper({
           {!isTransitioning && phaseToRender === 1 && (
             <Phase1Strategy
               brandId={brandId}
+              brand={brand}
               brandName={brand?.name ?? ''}
               onComplete={() => handlePhaseComplete(1)}
               userPlan={userPlan}
+              strategyText={strategyText}
             />
           )}
           {!isTransitioning && phaseToRender === 2 && (

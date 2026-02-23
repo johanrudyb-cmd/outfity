@@ -31,6 +31,7 @@ import {
   getTargetAudienceOptionsForPositioning,
 } from '@/lib/constants/audience-reference-brands';
 import { BrandLogo } from '@/components/brands/BrandLogo';
+import { Phase1StrategyChat } from './Phase1StrategyChat';
 import { StrategyPresentationView } from './StrategyPresentationView';
 import type { BrandIdentity } from './LaunchMapStepper';
 import { cn } from '@/lib/utils';
@@ -47,6 +48,7 @@ interface Phase1StrategyProps {
   onComplete: () => void;
   demoMode?: boolean;
   userPlan?: string;
+  strategyText?: string | null;
 }
 
 function styleGuideField(sg: Record<string, unknown> | null | undefined, key: string): string {
@@ -55,13 +57,14 @@ function styleGuideField(sg: Record<string, unknown> | null | undefined, key: st
   return typeof v === 'string' ? v : '';
 }
 
-export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode = false, userPlan = 'free' }: Phase1StrategyProps) {
+export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode = false, userPlan = 'free', strategyText }: Phase1StrategyProps) {
   const router = useRouter();
   const { toast } = useToast();
   const openSurplusModal = useSurplusModal();
   const sg = brand?.styleGuide && typeof brand.styleGuide === 'object' ? brand.styleGuide as Record<string, unknown> : null;
 
   // --- States ---
+  const [viewMode, setViewMode] = useState<'chat' | 'classic'>('chat');
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [positioning, setPositioning] = useState(() => styleGuideField(sg, 'preferredStyle') || styleGuideField(sg, 'positioning') || '');
   const [targetAudience, setTargetAudience] = useState(() => styleGuideField(sg, 'targetAudience') || '');
@@ -307,6 +310,18 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
 
   if (showLogoStep) return renderLogoStep();
 
+  if (viewMode === 'chat') {
+    return (
+      <Phase1StrategyChat
+        brandId={brandId}
+        brand={brand}
+        onComplete={onComplete}
+        userPlan={userPlan}
+        onShowClassic={() => setViewMode('classic')}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen w-full bg-[#F5F5F7] flex flex-col items-center relative overflow-hidden text-[#1D1D1F] selection:bg-[#007AFF]/20 pb-32 sm:pb-0">
 
@@ -323,12 +338,12 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
       </div>
 
       {/* Atelier Header */}
-      <div className="w-full max-w-7xl px-6 sm:px-8 pt-6 sm:pt-10 z-20 flex justify-between items-end">
+      <div className="w-full max-w-7xl px-6 sm:px-8 pt-6 sm:pt-10 z-20 flex justify-between items-start">
         <div className="space-y-1">
           <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF]">Phase 1 : La Stratégie</p>
           <h2 className="text-2xl font-bold tracking-tight">Atelier <span className="text-[#007AFF]">Marketing</span></h2>
         </div>
-        <div className="flex gap-4 items-center">
+        <div className="flex gap-3 items-center flex-wrap justify-end">
           <div className="hidden sm:flex gap-1.5 bg-white/40 p-1.5 rounded-full backdrop-blur-xl border border-black/5 shadow-sm">
             {steps.map((_, i) => (
               <div
@@ -340,6 +355,13 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
               />
             ))}
           </div>
+          <button
+            onClick={() => setViewMode('chat')}
+            className="flex items-center gap-2 text-[11px] font-bold text-[#007AFF] bg-white/80 border border-[#007AFF]/20 px-4 py-2 rounded-full shadow-sm hover:bg-white transition-all active:scale-95"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Virgil
+          </button>
         </div>
       </div>
 
@@ -564,12 +586,12 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
             </div>
           </div>
 
-          <div className="p-6 sm:p-8 border-t border-black/5 flex justify-center bg-white/60 backdrop-blur-3xl relative z-50">
+          <div className="p-6 sm:p-8 border-t border-black/5 flex gap-4 justify-center bg-white/60 backdrop-blur-3xl relative z-50">
             <Button
-              onClick={() => setStrategyModalOpen(false)}
+              onClick={() => { setStrategyModalOpen(false); setViewMode('chat'); }}
               className="h-14 sm:h-16 px-12 sm:px-20 rounded-full bg-[#007AFF] hover:bg-[#0056CC] text-white font-bold uppercase tracking-widest shadow-xl shadow-blue-500/20 transition-all active:scale-[0.98]"
             >
-              Continuer au Studio
+              Continuer avec Virgil
             </Button>
           </div>
         </div>
