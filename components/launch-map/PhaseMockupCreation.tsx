@@ -222,9 +222,11 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
       <div className="bg-white/80 backdrop-blur-xl border-b border-black/[0.06] px-4 sm:px-6 py-3 flex items-center justify-between shrink-0 sticky top-0 z-20">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#007AFF] to-[#5856D6] flex items-center justify-center shadow-md">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
+            <img
+              src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+              alt="Pharell"
+              className="w-10 h-10 rounded-full object-cover shadow-md border border-black/5"
+            />
             <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
           </div>
           <div>
@@ -254,9 +256,11 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
           return (
             <div key={msg.id} className={cn("flex items-end gap-2 max-w-[90%] sm:max-w-[75%] group", isUser ? 'self-end flex-row-reverse' : 'self-start')}>
               {!isUser && (
-                <div className="w-7 h-7 shrink-0 rounded-full bg-gradient-to-br from-[#007AFF] to-[#5856D6] flex items-center justify-center shadow-sm">
-                  <Sparkles className="w-3.5 h-3.5 text-white" />
-                </div>
+                <img
+                  src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                  alt="Pharell"
+                  className="w-7 h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5"
+                />
               )}
               <div
                 className={cn(
@@ -266,7 +270,7 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
                     : "bg-white text-[#1D1D1F] border border-black/[0.04] rounded-bl-[8px]"
                 )}
               >
-                <div className="prose prose-sm max-w-none">
+                <div className="max-w-none">
                   <MessageContent content={msg.content} isUser={isUser} brandId={brandId} brandName={brand?.name} userPlan={userPlan} />
                 </div>
                 <div className={cn(
@@ -282,9 +286,11 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
 
         {isTyping && (
           <div className="flex items-end gap-2 self-start max-w-[85%] sm:max-w-[75%]">
-            <div className="w-7 h-7 shrink-0 rounded-full bg-gradient-to-br from-[#007AFF] to-[#5856D6] flex items-center justify-center shadow-sm">
-              <Sparkles className="w-3.5 h-3.5 text-white" />
-            </div>
+            <img
+              src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+              alt="Pharell"
+              className="w-7 h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5"
+            />
             <div className="px-5 py-3.5 rounded-[24px] rounded-bl-[8px] bg-white border border-black/[0.04] shadow-sm">
               <div className="flex items-center gap-1.5 h-4">
                 <div className="w-2 h-2 bg-[#86868B]/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
