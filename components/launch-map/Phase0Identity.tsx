@@ -88,42 +88,42 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
         title: 'Baptême.',
         subtitle: 'Le nom est l\'âme de votre projet. Manifestez-le.',
         icon: <Fingerprint className="w-6 h-6" />,
-        accent: 'bg-blue-600'
+        accent: 'bg-[#007AFF]'
       },
       {
         id: 'logo',
         title: 'L\'Emblème.',
         subtitle: 'Un symbole pour rallier votre communauté.',
         icon: <Wind className="w-6 h-6" />,
-        accent: 'bg-indigo-600'
+        accent: 'bg-indigo-500'
       },
       {
         id: 'story',
         title: 'Le Manifeste.',
         subtitle: 'Pourquoi ce projet ? Pourquoi maintenant ?',
         icon: <Feather className="w-6 h-6" />,
-        accent: 'bg-slate-800'
+        accent: 'bg-slate-700'
       },
       {
         id: 'stage',
         title: 'L\'Étape.',
         subtitle: 'Situons votre marque sur la carte du temps.',
         icon: <Compass className="w-6 h-6" />,
-        accent: 'bg-emerald-600'
+        accent: 'bg-emerald-500'
       },
       {
         id: 'product',
         title: 'La Pièce.',
         subtitle: 'Le premier contact physique avec votre univers.',
         icon: <Layers className="w-6 h-6" />,
-        accent: 'bg-rose-600'
+        accent: 'bg-rose-500'
       },
       {
         id: 'socials',
         title: 'Le Réseau.',
         subtitle: 'Où le monde pourra-t-il vous rencontrer ?',
         icon: <Globe className="w-6 h-6" />,
-        accent: 'bg-sky-600'
+        accent: 'bg-sky-500'
       }
     ];
     return hideNameField ? allSteps.slice(1) : allSteps;
@@ -263,74 +263,72 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
   const isLastStep = currentStepIndex === steps.length - 1;
 
   return (
-    <div className="min-h-screen w-full bg-[#0a0a0b] flex flex-col items-center relative overflow-hidden text-white selection:bg-blue-500/30">
+    <div className="min-h-screen w-full bg-[#F5F5F7] flex flex-col items-center relative overflow-hidden text-[#1D1D1F] selection:bg-[#007AFF]/20">
 
-      {/* Cinematic Background */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[70%] bg-blue-900/20 rounded-full blur-[160px] animate-pulse duration-[8s]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[60%] bg-slate-800/20 rounded-full blur-[140px] animate-pulse duration-[6s] delay-1000" />
+      {/* Immersive Apple-Pro Background */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[70%] bg-[#007AFF]/5 rounded-full blur-[160px] animate-pulse duration-[8s]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[60%] bg-slate-200/40 rounded-full blur-[140px] animate-pulse duration-[6s] delay-1000" />
 
-        {/* Huge Background Text Overlay */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] select-none pointer-events-none overflow-hidden">
-          <h1 className="text-[30vw] font-black tracking-tighter uppercase whitespace-nowrap leading-none">
+        {/* Huge Background Text Overlay (Very Subtle Light Mode) */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] select-none pointer-events-none">
+          <h1 className="text-[30vw] font-black tracking-tighter uppercase whitespace-nowrap leading-none text-black">
             {name || 'OUTFITY'}
           </h1>
         </div>
       </div>
 
-      {/* Persistent Atelier Header */}
+      {/* Premium Navigation Bridge */}
       <div className="w-full max-w-7xl px-8 pt-12 z-20 flex justify-between items-end">
-        <div className="space-y-2">
-          <p className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-400">Phase 0 : L&apos;Origine</p>
-          <h2 className="text-2xl font-light tracking-widest uppercase">Atelier <span className="font-bold">Créatif</span></h2>
+        <div className="space-y-1">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF]">Mise en place de l&apos;identité</p>
+          <h2 className="text-2xl font-semibold tracking-tight">Atelier <span className="text-[#007AFF]">Numérique</span></h2>
         </div>
         <div className="flex gap-4 items-center">
-          <div className="hidden sm:flex gap-1.5">
+          <div className="hidden sm:flex gap-1.5 bg-white/40 p-1.5 rounded-full backdrop-blur-xl border border-black/5 shadow-sm">
             {steps.map((_, i) => (
               <div
                 key={i}
                 className={cn(
-                  "h-1 rounded-full transition-all duration-1000",
-                  i <= currentStepIndex ? "w-12 bg-white" : "w-2 bg-white/10"
+                  "h-2 rounded-full transition-all duration-700",
+                  i <= currentStepIndex ? "w-10 bg-[#007AFF]" : "w-2 bg-black/5"
                 )}
               />
             ))}
           </div>
-          <div className="px-4 py-2 rounded-full border border-white/5 bg-white/5 backdrop-blur-3xl text-[12px] font-mono tracking-tighter">
-            {Math.round(((currentStepIndex + 1) / steps.length) * 100)}%
-          </div>
         </div>
       </div>
 
-      {/* Immersive Main Stage */}
+      {/* Immersive Stage - Light & Airy */}
       <div className="flex-1 w-full max-w-6xl px-8 flex flex-col z-20 py-12">
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
 
-          {/* Left Side: Information & Context */}
-          <div className="space-y-8 animate-in fade-in slide-in-from-left-8 duration-1000">
-            <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center shadow-2xl text-white transition-all duration-700", currentStep.accent)}>
-              {currentStep.icon}
+          {/* Left Side: Context & Philosophy */}
+          <div className="space-y-10 animate-in fade-in slide-in-from-left-8 duration-1000">
+            <div className={cn("w-20 h-20 rounded-[28px] flex items-center justify-center shadow-xl text-white transition-all duration-700 bg-white border border-black/5", currentStep.accent.replace('bg-', 'text-'))}>
+              <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-white", currentStep.accent)}>
+                {currentStep.icon}
+              </div>
             </div>
             <div className="space-y-4">
-              <h3 className="text-6xl sm:text-7xl font-bold tracking-tighter leading-[0.95]">{currentStep.title}</h3>
-              <p className="text-xl text-white/40 max-w-md font-medium leading-relaxed">{currentStep.subtitle}</p>
+              <h3 className="text-6xl sm:text-7xl font-bold tracking-tight leading-[1] text-[#1D1D1F]">{currentStep.title}</h3>
+              <p className="text-2xl text-[#86868B] max-w-md font-medium leading-relaxed">{currentStep.subtitle}</p>
             </div>
 
-            {/* Step Hint / Mini-Dashboard */}
-            <div className="pt-8 border-t border-white/5 grid grid-cols-2 gap-8">
+            <div className="pt-10 border-t border-black/5 grid grid-cols-2 gap-8">
               <div className="space-y-1">
-                <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Focus Actuel</p>
-                <p className="text-sm font-semibold">{currentStep.id.toUpperCase()}</p>
+                <p className="text-[10px] font-bold text-black/20 uppercase tracking-widest">Étape en cours</p>
+                <p className="text-sm font-bold text-[#1D1D1F]">{(currentStepIndex + 1).toString().padStart(2, '0')} / {steps.length.toString().padStart(2, '0')}</p>
               </div>
               <div className="space-y-1">
-                <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Collection</p>
-                <p className="text-sm font-semibold">ESSENTIALS V1</p>
+                <p className="text-[10px] font-bold text-black/20 uppercase tracking-widest">Destination</p>
+                <p className="text-sm font-bold text-[#1D1D1F]">DROP ZERO</p>
               </div>
             </div>
           </div>
 
-          {/* Right Side: Editorial Interaction Area */}
-          <div className="relative min-h-[400px] flex flex-col justify-center">
+          {/* Right Side: High-End Interactive Workspace */}
+          <div className="relative min-h-[450px] flex flex-col justify-center">
             <div className="max-w-xl w-full mx-auto">
 
               {currentStep.id === 'name' && (
@@ -340,10 +338,10 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
                     onChange={(e) => { setName(e.target.value); setError(''); }}
                     placeholder="Écrivez ici..."
                     autoFocus
-                    className="w-full bg-transparent border-none text-5xl sm:text-7xl font-bold text-white placeholder:text-white/5 focus:outline-none focus:ring-0 transition-all caret-blue-500 text-right uppercase tracking-tighter"
+                    className="w-full bg-transparent border-none text-5xl sm:text-7xl font-bold text-[#1D1D1F] placeholder:text-black/[0.04] focus:outline-none focus:ring-0 transition-all caret-[#007AFF] text-right uppercase tracking-tighter"
                   />
-                  <div className="h-0.5 w-full bg-white/5 mt-6 relative overflow-hidden">
-                    <div className={cn("absolute inset-0 bg-blue-500 transition-all duration-1000", name.length >= 2 ? "translate-x-0" : "-translate-x-full")} />
+                  <div className="h-1 w-full bg-black/5 mt-6 relative overflow-hidden rounded-full">
+                    <div className={cn("absolute inset-0 bg-[#007AFF] transition-all duration-1000", name.length >= 2 ? "translate-x-0" : "-translate-x-full")} />
                   </div>
                 </div>
               )}
@@ -353,29 +351,29 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
                   <div
                     onClick={() => logoFileInputRef.current?.click()}
                     className={cn(
-                      "w-64 h-64 rounded-[48px] border-2 flex flex-col items-center justify-center cursor-pointer transition-all duration-700 group relative overflow-hidden shadow-2xl shadow-blue-500/0 hover:shadow-blue-500/20",
-                      logo ? "border-white/20 bg-white/5 backdrop-blur-3xl scale-[1.05]" : "border-dashed border-white/10 hover:border-white/30 hover:bg-white/5"
+                      "w-64 h-64 rounded-[56px] border-2 flex flex-col items-center justify-center cursor-pointer transition-all duration-700 group relative overflow-hidden shadow-2xl",
+                      logo ? "border-black/5 bg-white scale-[1.05]" : "border-dashed border-black/10 hover:border-[#007AFF]/30 hover:bg-white"
                     )}
                   >
                     <input ref={logoFileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadLogoFile(f); }} />
                     {logo ? (
-                      <BrandLogo logoUrl={logo} brandName={name} className="w-full h-full object-contain p-8 filter brightness-110 contrast-125" />
+                      <BrandLogo logoUrl={logo} brandName={name} className="w-full h-full object-contain p-10" />
                     ) : logoUploading ? (
-                      <Loader2 className="w-10 h-10 animate-spin text-white/20" />
+                      <Loader2 className="w-10 h-10 animate-spin text-[#007AFF]/20" />
                     ) : (
                       <div className="text-center space-y-4">
-                        <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mx-auto transition-all group-hover:bg-white group-hover:text-black">
-                          <Upload className="w-6 h-6" />
+                        <div className="w-16 h-16 bg-[#F5F5F7] rounded-3xl flex items-center justify-center mx-auto transition-all group-hover:bg-[#007AFF] group-hover:text-white">
+                          <Upload className="w-7 h-7" />
                         </div>
-                        <span className="text-[12px] font-black text-white/30 uppercase tracking-[0.3em]">Drop Image</span>
+                        <span className="text-[12px] font-bold text-black/20 uppercase tracking-[0.3em]">Déposer Logo</span>
                       </div>
                     )}
                   </div>
-                  <button onClick={() => setNoLogo(!noLogo)} className="text-[14px] font-bold text-white/30 hover:text-white transition-colors flex items-center gap-3">
-                    <div className={cn("w-5 h-5 rounded-full border-2 border-white/10 flex items-center justify-center transition-all", noLogo && "bg-white border-white")}>
-                      {noLogo && <Check className="w-3 h-3 text-black font-black" />}
+                  <button onClick={() => setNoLogo(!noLogo)} className="text-[14px] font-bold text-[#86868B] hover:text-[#1D1D1F] transition-colors flex items-center gap-3">
+                    <div className={cn("w-6 h-6 rounded-full border-2 border-black/10 flex items-center justify-center transition-all", noLogo && "bg-[#007AFF] border-[#007AFF]")}>
+                      {noLogo && <Check className="w-4 h-4 text-white font-black" />}
                     </div>
-                    Je n&apos;ai pas de logo pour l&apos;instant
+                    Je n&apos;ai pas encore de logo
                   </button>
                 </div>
               )}
@@ -385,8 +383,8 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
                   <Textarea
                     value={story}
                     onChange={(e) => setStory(e.target.value)}
-                    placeholder="Racontez-nous la genèse..."
-                    className="w-full bg-white/5 backdrop-blur-3xl border border-white/10 focus:border-white/30 focus:ring-0 rounded-[40px] text-2xl text-white p-10 min-h-[300px] placeholder:text-white/5 shadow-2xl transition-all resize-none font-light leading-relaxed"
+                    placeholder="Plongez-nous dans votre vision..."
+                    className="w-full bg-white/80 backdrop-blur-2xl border border-black/5 focus:border-[#007AFF]/30 focus:ring-0 rounded-[48px] text-2xl text-[#1D1D1F] p-12 min-h-[350px] placeholder:text-black/[0.04] shadow-2xl transition-all resize-none leading-relaxed font-normal"
                   />
                 </div>
               )}
@@ -394,28 +392,28 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
               {currentStep.id === 'stage' && (
                 <div className="grid grid-cols-1 gap-4 w-full">
                   {[
-                    { id: 'ideation', label: 'Inspiration', icon: <Sparkles className="w-5 h-5" />, desc: 'La graine vient d\'être plantée.' },
-                    { id: 'prelaunch', label: 'Conception', icon: <Fingerprint className="w-5 h-5" />, desc: 'Les premiers prototypes prennent vie.' },
-                    { id: 'launch', label: 'Manifestation', icon: <Zap className="w-5 h-5" />, desc: 'Prêt à bousculer le marché.' },
+                    { id: 'ideation', label: 'Simple Idée', icon: <Sparkles className="w-5 h-5" />, desc: 'Vous démarrez tout juste le voyage.' },
+                    { id: 'prelaunch', label: 'En Conception', icon: <Fingerprint className="w-5 h-5" />, desc: 'Les prototypes sont en cours de création.' },
+                    { id: 'launch', label: 'Prêt au Décollage', icon: <Zap className="w-5 h-5" />, desc: 'Tout est prêt pour le premier drop.' },
                   ].map((s) => (
                     <button
                       key={s.id}
                       onClick={() => setStage(s.id)}
                       className={cn(
-                        "p-8 rounded-[32px] flex items-center gap-6 transition-all duration-700 text-left border relative overflow-hidden group",
+                        "p-8 rounded-[36px] flex items-center gap-8 transition-all duration-700 text-left border relative overflow-hidden group",
                         stage === s.id
-                          ? "bg-white border-white text-black shadow-2xl scale-[1.02]"
-                          : "bg-white/5 border-white/5 text-white hover:bg-white/10 hover:border-white/20"
+                          ? "bg-white border-white text-[#1D1D1F] shadow-2xl scale-[1.02]"
+                          : "bg-white/40 border-black/5 text-[#86868B] hover:bg-white hover:border-black/10"
                       )}
                     >
-                      <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center transition-all", stage === s.id ? "bg-black text-white" : "bg-white/10 text-white")}>
+                      <div className={cn("w-14 h-14 rounded-[22px] flex items-center justify-center transition-all shadow-sm", stage === s.id ? "bg-[#007AFF] text-white" : "bg-white text-black/20")}>
                         {s.icon}
                       </div>
                       <div className="space-y-1">
-                        <span className="text-[16px] font-black uppercase tracking-widest">{s.label}</span>
-                        <p className={cn("text-xs transition-colors", stage === s.id ? "text-black/50" : "text-white/30")}>{s.desc}</p>
+                        <span className="text-[17px] font-bold tracking-tight text-[#1D1D1F]">{s.label}</span>
+                        <p className="text-sm opacity-60 leading-tight">{s.desc}</p>
                       </div>
-                      {stage === s.id && <div className="ml-auto animate-in zoom-in duration-500"><Check className="w-6 h-6" /></div>}
+                      {stage === s.id && <div className="ml-auto animate-in zoom-in duration-500"><div className="w-8 h-8 rounded-full bg-[#007AFF]/10 flex items-center justify-center"><Check className="w-5 h-5 text-[#007AFF]" /></div></div>}
                     </button>
                   ))}
                 </div>
@@ -424,22 +422,22 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
               {currentStep.id === 'product' && (
                 <div className="space-y-12 w-full animate-in fade-in duration-1000">
                   {[
-                    { label: 'Catégorie', val: productType, opt: PRODUCT_TYPE_IDS.map(id => ({ v: id, l: getProductTypeLabel(id) })), set: setProductType },
-                    { label: 'Signature', val: productSignature, opt: [{ v: '', l: 'Standard' }, ...ALL_FASHION_CUTS.map(c => ({ v: c, l: c }))], set: setProductSignature },
-                    { label: 'Grammage', val: productWeight, opt: weightOptions.map(w => ({ v: w.value, l: w.label })), set: setProductWeight },
+                    { label: 'Vêtement Phare', val: productType, opt: PRODUCT_TYPE_IDS.map(id => ({ v: id, l: getProductTypeLabel(id) })), set: setProductType },
+                    { label: 'Signature Visuelle', val: productSignature, opt: [{ v: '', l: 'Classique' }, ...ALL_FASHION_CUTS.map(c => ({ v: c, l: c }))], set: setProductSignature },
+                    { label: 'Poids du Textile', val: productWeight, opt: weightOptions.map(w => ({ v: w.value, l: w.label })), set: setProductWeight },
                   ].map((field, idx) => (
-                    <div key={idx} className="space-y-4">
-                      <p className="text-[10px] font-black uppercase tracking-[0.5em] text-white/20 ml-2">{field.label}</p>
-                      <div className="flex flex-wrap gap-2">
+                    <div key={idx} className="space-y-5">
+                      <p className="text-[10px] font-black uppercase tracking-[0.4em] text-black/20 ml-2">{field.label}</p>
+                      <div className="flex flex-wrap gap-2.5">
                         {field.opt.slice(0, 6).map((o: any) => (
                           <button
                             key={o.v}
                             onClick={() => field.set(o.v)}
                             className={cn(
-                              "px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all duration-500 border",
+                              "px-8 py-4 rounded-3xl text-sm font-bold tracking-tight transition-all duration-500 border",
                               field.val === o.v
-                                ? "bg-white border-white text-black shadow-lg"
-                                : "bg-white/5 border-white/5 text-white/40 hover:bg-white/10 hover:border-white/20"
+                                ? "bg-white border-white text-[#007AFF] shadow-xl scale-105"
+                                : "bg-white/40 border-black/5 text-[#86868B] hover:bg-white hover:border-black/10"
                             )}
                           >
                             {o.l}
@@ -452,22 +450,22 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
               )}
 
               {currentStep.id === 'socials' && (
-                <div className="grid grid-cols-1 gap-6 w-full animate-in fade-in slide-in-from-right-8 duration-1000">
+                <div className="grid grid-cols-1 gap-8 w-full animate-in fade-in slide-in-from-right-8 duration-1000">
                   {[
-                    { val: domain, set: setDomain, ph: 'votre-marque.com', label: 'NOM DE DOMAINE' },
-                    { val: tagline, set: setTagline, ph: 'Manifestez votre slogan', label: 'SLOGAN' },
-                    { val: instagram, set: setInstagram, ph: '@pseudo', label: 'INSTAGRAM' },
-                    { val: twitter, set: setTwitter, ph: '@pseudo', label: 'TIKTOK / X' },
+                    { val: domain, set: setDomain, ph: 'votre-marque.com', label: 'BOUTIQUE WEB' },
+                    { val: tagline, set: setTagline, ph: 'Votre Baseline', label: 'SIGNATURE MARKETING' },
+                    { val: instagram, set: setInstagram, ph: '@insta_id', label: 'INSTAGRAM' },
+                    { val: twitter, set: setTwitter, ph: '@tiktok_id', label: 'TIKTOK' },
                   ].map((x, i) => (
                     <div key={i} className="group relative">
-                      <span className="absolute -top-3 left-6 px-3 bg-[#0a0a0b] text-[10px] font-black text-white/20 uppercase tracking-[0.4em] z-10 transition-colors group-focus-within:text-blue-500">
+                      <span className="absolute -top-3 left-8 px-3 bg-[#F5F5F7] text-[10px] font-black text-black/20 uppercase tracking-[0.4em] z-10 transition-colors group-focus-within:text-[#007AFF]">
                         {x.label}
                       </span>
                       <input
                         value={x.val}
                         onChange={(e) => x.set(e.target.value)}
                         placeholder={x.ph}
-                        className="w-full bg-transparent border-2 border-white/5 rounded-3xl h-20 px-10 font-bold text-xl text-white placeholder:text-white/5 focus:border-white/20 focus:ring-0 transition-all outline-none"
+                        className="w-full bg-white/40 border-2 border-black/5 rounded-[32px] h-20 px-10 font-bold text-xl text-[#1D1D1F] placeholder:text-black/[0.04] focus:bg-white focus:border-[#007AFF]/20 focus:ring-0 transition-all outline-none shadow-sm"
                       />
                     </div>
                   ))}
@@ -478,50 +476,50 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
         </div>
       </div>
 
-      {/* Control Architecture */}
+      {/* Cinematic Control Dock */}
       <div className="w-full max-w-7xl px-8 pb-16 z-20">
-        <div className="flex items-center justify-between pt-12 border-t border-white/5">
+        <div className="flex items-center justify-between pt-12 border-t border-black/5">
           <div className="flex gap-4">
             <button
               onClick={handlePrev}
               className={cn(
-                "h-16 px-10 rounded-2xl font-black text-[12px] uppercase tracking-[0.3em] transition-all border border-white/5 hover:bg-white/5",
+                "h-16 px-10 rounded-[24px] font-bold text-[13px] uppercase tracking-widest transition-all border border-black/5 bg-white/40 hover:bg-white flex items-center gap-3",
                 currentStepIndex === 0 ? "opacity-0 pointer-events-none" : "opacity-100"
               )}
             >
-              Retour
+              <ArrowLeft className="w-4 h-4" /> Retour
             </button>
-            {error && <p className="flex items-center text-rose-500 font-bold text-[12px] uppercase tracking-widest px-6 ml-4 bg-rose-500/10 rounded-2xl animate-in zoom-in duration-300">! {error}</p>}
+            {error && <p className="flex items-center text-rose-500 font-bold text-[13px] px-8 ml-4 bg-rose-50 rounded-[24px] animate-in zoom-in duration-300">! {error}</p>}
           </div>
 
           <Button
             onClick={handleNext}
             disabled={!canGoNext() || loading}
-            className="h-16 px-14 rounded-2xl bg-white hover:bg-white/90 text-black font-black text-[12px] uppercase tracking-[0.4em] transition-all shadow-2xl shadow-blue-500/20 active:scale-95 group overflow-hidden relative"
+            className="h-16 px-16 rounded-[24px] bg-[#1D1D1F] hover:bg-black text-white font-bold text-[14px] uppercase tracking-[0.3em] transition-all shadow-2xl active:scale-95 group overflow-hidden relative"
           >
-            <span className="relative z-10 flex items-center gap-3">
+            <span className="relative z-10 flex items-center gap-4">
               {loading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : isLastStep ? (
-                "Forger la Marque"
+                "Créer la Marque"
               ) : (
-                <>Continuer <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></>
+                <>Suivant <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></>
               )}
             </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-blue-400/20 to-blue-400/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
           </Button>
         </div>
       </div>
 
-      {/* Floating Vertical Index */}
-      <div className="fixed right-12 top-1/2 -translate-y-1/2 flex flex-col gap-8 z-30 hidden 2xl:flex bg-white/5 backdrop-blur-3xl p-4 rounded-full border border-white/5">
+      {/* Sidebar Progress Tracker */}
+      <div className="fixed right-12 top-1/2 -translate-y-1/2 flex flex-col gap-8 z-30 hidden 2xl:flex bg-white/60 backdrop-blur-3xl p-5 rounded-full border border-black/5 shadow-apple-sm">
         {steps.map((st, i) => (
           <div
             key={st.id}
             onClick={() => i === 0 || name.length >= 2 ? setCurrentStepIndex(i) : null}
             className={cn(
-              "w-3 h-3 rounded-full transition-all duration-700 cursor-pointer border-2 shadow-2xl",
-              i === currentStepIndex ? "bg-white scale-150 border-white/50" : "bg-white/10 hover:bg-white/30 border-transparent"
+              "w-3.5 h-3.5 rounded-full transition-all duration-700 cursor-pointer border-2",
+              i === currentStepIndex ? "bg-[#007AFF] scale-150 border-white shadow-lg" : "bg-black/5 hover:bg-black/20 border-transparent"
             )}
             title={st.title}
           />
