@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Send, RefreshCw, Sparkles, Loader2, ArrowRight } from 'lucide-react';
+import { Send, Sparkles, Loader2, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { BrandIdentity } from './LaunchMapStepper';
 import { MockupPackSelector } from './MockupPackSelector';
@@ -216,63 +216,38 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
     sendMessage(input);
   };
 
-  const resetChat = () => {
-    localStorage.removeItem(`pharell-chat-${brandId}`);
-    hasInitialized.current = false;
-    setMessages([]);
-    setIsTyping(true);
-    fetch('/api/launch-map/mockup-chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ brandId, messages: [{ role: 'user', content: '__INIT__' }] }),
-    })
-      .then(r => r.json())
-      .then(data => {
-        const rawReply = data.reply || 'On reprend à zéro ! Par où veux-tu commencer ? [[Un T-shirt|Un Hoodie]]';
-        const suggestMatch = rawReply.match(/\[\[(.*?)\]\]/);
-        if (suggestMatch) setSuggestions(suggestMatch[1].split('|'));
 
-        setMessages([{
-          id: `pharell-${Date.now()}`,
-          role: 'assistant',
-          content: rawReply,
-          timestamp: new Date(),
-        }]);
-      })
-      .finally(() => setIsTyping(false));
-  };
+
+
+
+
 
   return (
     <div className="flex flex-col h-full w-full bg-[#F5F5F7] font-sans relative overflow-hidden flex-1 min-h-0">
 
       {/* ── Header ── */}
-      <div className="bg-white/80 backdrop-blur-xl border-b border-black/[0.06] px-4 sm:px-6 py-3 flex items-center justify-between shrink-0 sticky top-0 z-20">
-        <div className="flex items-center gap-3">
-          <div className="relative">
+      <div className="bg-white/80 backdrop-blur-xl border-b border-black/[0.06] px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between shrink-0 sticky top-0 z-20">
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          <div className="relative shrink-0">
             <img
               src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
               alt="Pharell"
-              className="w-10 h-10 rounded-full object-cover shadow-md border border-black/5"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover shadow-md border border-black/5"
             />
             <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
           </div>
           <div>
-            <h3 className="font-bold text-[#1D1D1F] text-[15px] leading-tight">Pharell</h3>
-            <p className="text-[11px] text-[#86868B] font-medium">Design Coach</p>
+            <h3 className="font-bold text-[#1D1D1F] text-[14px] sm:text-[15px] leading-tight">Pharell</h3>
+            <p className="text-[10px] sm:text-[11px] text-[#86868B] font-medium leading-none mt-0.5">Directeur Artistique</p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <Button onClick={onComplete} variant="outline" className="h-8 text-xs font-bold rounded-full gap-2 px-4 shadow-sm">
-            Phase terminée <ArrowRight className="w-3.5 h-3.5" />
+          <Button onClick={onComplete} variant="outline" className="h-8 sm:h-9 text-[11px] sm:text-xs font-bold rounded-full gap-2 px-3 sm:px-4 shadow-sm">
+            <span className="hidden xs:inline">Phase terminée</span>
+            <span className="xs:hidden">Terminer</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </Button>
-          <button
-            onClick={resetChat}
-            className="w-8 h-8 rounded-full bg-[#E5E5EA] flex items-center justify-center hover:bg-[#D1D1D6] transition-colors text-[#1D1D1F]"
-            title="Rafraîchir"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-          </button>
         </div>
       </div>
 
@@ -281,20 +256,20 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
         {messages.map((msg) => {
           const isUser = msg.role === 'user';
           return (
-            <div key={msg.id} className={cn("flex items-end gap-2 max-w-[90%] sm:max-w-[75%] group", isUser ? 'self-end flex-row-reverse' : 'self-start')}>
+            <div key={msg.id} className={cn("flex items-end gap-2 max-w-[92%] sm:max-w-[85%] md:max-w-[75%] group", isUser ? 'self-end flex-row-reverse' : 'self-start')}>
               {!isUser && (
                 <img
                   src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
                   alt="Pharell"
-                  className="w-7 h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5"
+                  className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5 mb-1"
                 />
               )}
               <div
                 className={cn(
-                  "px-4 py-3 rounded-[24px] text-[15px] leading-relaxed shadow-sm break-words relative",
+                  "px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-[20px] sm:rounded-[24px] text-[14px] sm:text-[15px] leading-relaxed shadow-sm break-words relative",
                   isUser
-                    ? "bg-[#007AFF] text-white rounded-br-[8px]"
-                    : "bg-white text-[#1D1D1F] border border-black/[0.04] rounded-bl-[8px]"
+                    ? "bg-[#007AFF] text-white rounded-br-[6px] sm:rounded-br-[8px] lg:rounded-br-[12px]"
+                    : "bg-white text-[#1D1D1F] border border-black/[0.04] rounded-bl-[6px] sm:rounded-bl-[8px] lg:rounded-bl-[12px]"
                 )}
               >
                 <div className="max-w-none">
@@ -331,9 +306,9 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
       </div>
 
       {/* ── Input Box ── */}
-      <div className="shrink-0 pt-2 pb-32 sm:pb-6 px-4 sm:px-6 bg-[#F5F5F7] z-20 pb-safe">
+      <div className="shrink-0 pt-2 pb-32 sm:pb-8 px-4 sm:px-6 bg-[#F5F5F7] z-20 pb-safe border-t border-black/[0.03]">
         {suggestions.length > 0 && !isTyping && (
-          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 pt-1 -mx-4 px-4 sm:mx-0 sm:px-0">
             {suggestions.map(reply => (
               <button
                 key={reply}
@@ -341,7 +316,7 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
                   sendMessage(reply);
                   setSuggestions([]);
                 }}
-                className="shrink-0 text-[13px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 px-4 py-2 rounded-full transition-all active:scale-95"
+                className="shrink-0 text-[12px] sm:text-[13px] font-semibold text-[#007AFF] bg-white border border-[#007AFF]/20 hover:bg-[#007AFF]/5 px-4 py-2 rounded-full transition-all active:scale-95 shadow-sm whitespace-nowrap"
               >
                 {reply}
               </button>
