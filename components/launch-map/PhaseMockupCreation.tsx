@@ -212,7 +212,7 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
   };
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-120px)] sm:h-[600px] w-full bg-[#F5F5F7] font-sans relative rounded-3xl overflow-hidden shadow-apple-sm border border-black/5">
+    <div className="flex flex-col h-full w-full bg-[#F5F5F7] font-sans relative">
 
       {/* ── Header ── */}
       <div className="bg-white/80 backdrop-blur-xl border-b border-black/[0.06] px-4 sm:px-6 py-3 flex items-center justify-between shrink-0 sticky top-0 z-20">
@@ -294,7 +294,7 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
       </div>
 
       {/* ── Input Box ── */}
-      <div className="shrink-0 pt-2 pb-4 px-4 sm:px-6 bg-[#F5F5F7] z-20">
+      <div className="shrink-0 pt-2 pb-32 sm:pb-6 px-4 sm:px-6 bg-[#F5F5F7] z-20 pb-safe">
         {messages.length <= 2 && !isTyping && (
           <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3">
             {QUICK_REPLIES.map(reply => (
