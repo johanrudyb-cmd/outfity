@@ -9,7 +9,7 @@ on:
 jobs:
   scrape-trends:
     runs-on: ubuntu-latest
-    timeout-minutes: 60 # Augmenté à 60 minutes car 27 sources c'est long
+    timeout-minutes: 60
 
     steps:
       - name: 📥 Récupération du code
@@ -22,57 +22,19 @@ jobs:
           cache: 'npm'
 
       - name: 📦 Installation des dépendances (via cache)
-        run: npm ci || npm install
+        run: npm ci
 
       - name: 🌐 Installation de Puppeteer & Chrome
         run: npx puppeteer browsers install chrome
+
+      - name: 🧪 Génération Prisma
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npx prisma generate
 
       - name: 🚀 Lancement du Scrape Radar Hybride
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ADMIN_NOTIFY_WEBHOOK_URL: ${{ secrets.ADMIN_NOTIFY_WEBHOOK_URL }}
-        run: |
-          npx tsx -e "
-            import { refreshAllTrends } from './lib/refresh-all-trends';
-            import { enrichTrends } from './lib/trend-enricher';
-            import { notifyAdmin } from './lib/admin-notifications';
-
-            async function runFullProcess() {
-              console.log('🚀 Démarrage du Radar Hybride pour OUTFITY (v2026)');
-              const start = Date.now();
-              
-              // 1. Scraping
-              console.log('--- ETAPE 1 : SCRAPING EN COURS ---');
-              const scrapeResult = await refreshAllTrends();
-              console.log('✅ Scrape fini en ' + ((Date.now() - start)/1000).toFixed(0) + 's');
-              console.log('📊 Stats : ' + scrapeResult.savedCount + ' produits enregistrés.');
-
-              // 2. Enrichissement
-              console.log('--- ETAPE 2 : ENRICHISSEMENT IA ---');
-              const enrichResult = await enrichTrends(12);
-              console.log('✅ IA finie. Produits analysés : ' + enrichResult.enriched);
-
-              // 3. Notification
-              console.log('--- ETAPE 3 : NOTIFICATION ---');
-              await notifyAdmin({
-                type: 'scrape_success',
-                title: '🕵️ Radar OUTFITY Terminé',
-                message: 'Le Radar a bien mouliné. ' + scrapeResult.savedCount + ' produits trouvés, ' + enrichResult.enriched + ' enrichis.',
-                emoji: '�',
-                data: { 
-                  total: scrapeResult.totalItems,
-                  saved: scrapeResult.savedCount,
-                  enriched: enrichResult.enriched,
-                  duration: ((Date.now() - start)/60000).toFixed(1) + ' min'
-                }
-              });
-              
-              console.log('✨ Tout est en base de données. Mission accomplie.');
-            }
-
-            runFullProcess().catch(err => {
-              console.error('❌ ERREUR CRITIQUE:', err);
-              process.exit(1);
-            });
-          "
+        run: npx tsx --tsconfig tsconfig.scripts.json scripts/radar-hybride.ts

@@ -8,7 +8,8 @@ on:
 jobs:
   scrape-trends:
     runs-on: ubuntu-latest
-    
+    timeout-minutes: 20
+
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
@@ -32,5 +33,4 @@ jobs:
         run: npx prisma generate
 
       - name: 🚀 Lancement du Radar Viral (0€)
-        run: npx tsx scripts/radar-hybride.ts
-
+        run: npx tsx --tsconfig tsconfig.scripts.json scripts/radar-hybride.ts

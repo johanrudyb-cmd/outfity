@@ -1,8 +1,6 @@
 name: 🧠 OUTFITY - Intelligence Quotidienne
 
 on:
-  push:
-    branches: [ main ]
   schedule:
     - cron: '0 5 * * *' # Tous les jours à 5h00 UTC (6h00 Heure FR)
   workflow_dispatch: # Permet de lancer manuellement
@@ -23,7 +21,7 @@ jobs:
           cache: 'npm'
 
       - name: 📦 Installation des dépendances
-        run: npm ci || npm install
+        run: npm ci
 
       - name: 🌐 Installation du Navigateur (Puppeteer)
         run: npx puppeteer browsers install chrome
@@ -38,12 +36,12 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: npm run radar:viral
+        run: npx tsx --tsconfig tsconfig.scripts.json scripts/run-viral-radar.ts
 
       - name: "📊 ETAPE 2 : Scoring & Tagging Fashion"
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: npm run trends:update
+        run: npx tsx --tsconfig tsconfig.scripts.json scripts/calculate-daily-trends.ts
 
       - name: ✨ Mission Accomplie
         run: echo "Le radar quotidien a été mis à jour avec succès."
