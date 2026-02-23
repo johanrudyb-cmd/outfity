@@ -160,42 +160,85 @@ export function PhasePageView({
 
       // Recap générique pour les autres phases immersives (0, 2, 5)
       return (
-        <div className="flex flex-col w-full min-h-[calc(100dvh-64px)] bg-[#F5F5F7]">
-          <div className="px-4 py-3 flex items-center justify-between bg-white border-b border-black/5 sticky top-0 z-[60]">
-            <Link href="/launch-map" className="inline-flex items-center gap-2 text-sm font-medium text-[#86868B] hover:text-[#1D1D1F] transition-colors rounded-full px-3 py-1.5 hover:bg-[#F5F5F7]">
-              <ArrowLeft className="w-4 h-4" />
-              <span>Retour à la vue d'ensemble</span>
-            </Link>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsEditing(true)}
-              className="rounded-full border-black/10 hover:bg-black/5 gap-2"
-            >
-              <Pencil className="w-3.5 h-3.5" />
-              Modifier les informations
-            </Button>
+        <div className="flex flex-col w-full min-h-[calc(100dvh-64px)] bg-[#F5F5F7] relative overflow-x-hidden">
+          {/* Immersive Background Decor */}
+          <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+            <div className={cn("absolute top-[-20%] left-[-10%] w-[60%] h-[70%] rounded-full blur-[160px] opacity-20 animate-pulse duration-[8s]", currentColor.bg)} />
+            <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] select-none pointer-events-none">
+              <h1 className="text-[20vw] font-black tracking-tighter uppercase whitespace-nowrap leading-none text-black">
+                {brand.name}
+              </h1>
+            </div>
           </div>
 
-          <div className="flex-1 flex flex-col items-center justify-center p-8 sm:p-24 space-y-12">
-            <div className="text-center space-y-4">
-              <div className={cn("w-20 h-20 rounded-[28px] mx-auto flex items-center justify-center shadow-xl", currentColor.bg, currentColor.text)}>
-                <PhaseIcon size={36} />
-              </div>
-              <h2 className="text-4xl font-black tracking-tight text-[#1D1D1F]">{phase.title}</h2>
-              <p className="text-xl text-[#86868B] max-w-lg mx-auto font-medium">Vous avez complété cette étape. Voici un résumé de vos choix.</p>
+          {/* Atelier Immersive Header - Recap Style */}
+          <div className="px-6 sm:px-12 py-6 flex items-center justify-between bg-white/60 backdrop-blur-3xl border-b border-black/5 sticky top-0 z-[60]">
+            <Link href="/launch-map" className="inline-flex items-center gap-2 text-sm font-bold text-[#86868B] hover:text-[#1D1D1F] transition-colors rounded-full px-4 py-2 hover:bg-black/5 uppercase tracking-widest">
+              <ArrowLeft className="w-4 h-4" />
+              <span>Launch Map</span>
+            </Link>
+            <div className="flex items-center gap-4">
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF] hidden sm:block">Étape Terminée</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEditing(true)}
+                className="rounded-full border-black/10 hover:bg-black/5 gap-2 h-10 px-5 font-bold uppercase text-[11px] tracking-widest shadow-apple-sm transition-all active:scale-95"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                Modifier
+              </Button>
             </div>
+          </div>
 
-            <div className="w-full max-w-2xl bg-white border border-black/5 shadow-apple rounded-[40px] p-8 sm:p-12">
-              <PhaseRecap
-                phaseId={phaseId}
-                brandFull={brandFull}
-                launchMap={launchMap}
-                designCount={designCount}
-                quoteCount={quoteCount}
-                ugcCount={ugcCount}
-                progress={progress}
-              />
+          <div className="flex-1 flex flex-col z-10">
+            <div className="w-full max-w-7xl mx-auto px-6 sm:px-12 py-12 lg:py-24">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
+
+                {/* Left Side: Editorial Context */}
+                <div className="lg:col-span-5 space-y-10 animate-in fade-in slide-in-from-left-8 duration-1000">
+                  <div className={cn("w-20 h-20 rounded-[28px] flex items-center justify-center shadow-xl text-white shadow-apple-lg", currentColor.bg, currentColor.text)}>
+                    <PhaseIcon size={36} />
+                  </div>
+                  <div className="space-y-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF]">Manifeste de Phase</p>
+                    <h2 className="text-5xl sm:text-7xl font-bold tracking-tight text-[#1D1D1F] leading-[1.1]">{phase.title}</h2>
+                    <p className="text-xl sm:text-2xl text-[#86868B] font-medium leading-relaxed max-w-md">Vos choix stratégiques sont maintenant scellés dans l&apos;ADN de votre marque.</p>
+                  </div>
+
+                  {/* Custom Branding Element based on Phase */}
+                  {phaseId === 0 && (
+                    <div className="p-8 rounded-[40px] bg-white shadow-apple-lg border border-black/5 space-y-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 rounded-2xl bg-[#007AFF]/10 flex items-center justify-center">
+                          <Fingerprint className="w-8 h-8 text-[#007AFF]" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-black/30">Identité Actuelle</p>
+                          <p className="text-2xl font-bold text-[#1D1D1F]">{brand.name}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right Side: Bento Summaries */}
+                <div className="lg:col-span-7 animate-in fade-in slide-in-from-right-8 duration-1000 delay-200">
+                  <div className="bg-white/70 backdrop-blur-2xl border border-black/5 shadow-apple-2xl rounded-[48px] p-8 sm:p-16">
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF] mb-12 text-center">Sommaire des Décisions</p>
+                    <PhaseRecap
+                      phaseId={phaseId}
+                      brandFull={brandFull}
+                      launchMap={launchMap}
+                      designCount={designCount}
+                      quoteCount={quoteCount}
+                      ugcCount={ugcCount}
+                      progress={progress}
+                    />
+                  </div>
+                </div>
+
+              </div>
             </div>
           </div>
         </div>
