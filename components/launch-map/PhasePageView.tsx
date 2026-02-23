@@ -295,7 +295,7 @@ export function PhasePageView({
             <span className="sm:hidden">Retour</span>
           </Link>
         </div>
-        <div className="flex-1 w-full bg-white relative">
+        <div className="flex-1 w-full bg-white relative flex flex-col min-h-0">
           <LaunchMapStepper brandId={brand.id} launchMap={launchMap} brand={brandFull} hasIdentity={hasIdentity} focusedPhase={phaseId} userPlan={userPlan} />
         </div>
       </div>

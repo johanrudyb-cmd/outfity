@@ -236,7 +236,7 @@ export function LaunchMapStepper({
         </Card>
       )}
 
-      <div ref={phaseContentRef} className={cn("w-full", isFullPage && "flex-1 flex flex-col relative")}>
+      <div ref={phaseContentRef} className={cn("w-full", isFullPage && "flex-1 flex flex-col relative min-h-0")}>
         {!isFullPage && (
           <div className="flex items-center gap-4 mb-8 bg-white border border-black/[0.06] rounded-[24px] p-5 shadow-sm">
             <div className="w-10 h-10 rounded-xl bg-[#007AFF] flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">

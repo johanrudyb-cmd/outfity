@@ -93,7 +93,7 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
     hasInitialized.current = true;
 
     try {
-      const saved = localStorage.getItem(`mockup-chat-${brandId}`);
+      const saved = localStorage.getItem(`pharell-chat-${brandId}`);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -136,7 +136,7 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
 
   useEffect(() => {
     if (messages.length > 0) {
-      localStorage.setItem(`mockup-chat-${brandId}`, JSON.stringify(messages));
+      localStorage.setItem(`pharell-chat-${brandId}`, JSON.stringify(messages));
     }
   }, [messages, brandId]);
 
@@ -190,7 +190,7 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
   };
 
   const resetChat = () => {
-    localStorage.removeItem(`mockup-chat-${brandId}`);
+    localStorage.removeItem(`pharell-chat-${brandId}`);
     hasInitialized.current = false;
     setMessages([]);
     setIsTyping(true);
