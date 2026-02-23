@@ -6,6 +6,7 @@ import { Send, RefreshCw, Sparkles, Loader2, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { BrandIdentity } from './LaunchMapStepper';
 import { MockupPackSelector } from './MockupPackSelector';
+import Link from 'next/link';
 
 interface PhaseMockupCreationProps {
   brandId: string;
@@ -42,11 +43,9 @@ function MessageContent({ content, isUser, brandId, brandName, userPlan }: { con
     if (match) {
       const [, label, url] = match;
       return (
-        <a
+        <Link
           key={i}
           href={url}
-          target="_blank"
-          rel="noopener noreferrer"
           className={cn(
             "inline-flex items-center gap-2 mt-3 mb-1 font-bold text-[13px] px-5 py-2.5 rounded-2xl transition-all no-underline shadow-sm",
             isUser ? "bg-white text-[#007AFF]" : "bg-[#007AFF] text-white hover:bg-[#0056CC]"
@@ -54,7 +53,7 @@ function MessageContent({ content, isUser, brandId, brandName, userPlan }: { con
         >
           {label}
           <ArrowRight className="w-4 h-4" />
-        </a>
+        </Link>
       );
     }
     return (
