@@ -23,10 +23,10 @@ jobs:
           cache: 'npm'
 
       - name: 📦 Installation des dépendances
-        run: npm install
+        run: npm ci
 
-      - name: 🌐 Installation du Navigateur (pour TikTok/Pinterest)
-        run: npx puppeteer install
+      - name: 🌐 Installation de Chrome (pour Puppeteer)
+        run: npx puppeteer browsers install chrome
 
       - name: 🧪 Génération Prisma
         run: npx prisma generate

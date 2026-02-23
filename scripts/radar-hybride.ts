@@ -46,6 +46,7 @@ async function runRadar() {
 
     } catch (error: any) {
         console.error('❌ Erreur critique lors du radar:', error.message);
+        throw error; // Repropager pour faire échouer le script proprement
     }
 
     console.log('\n--- ✨ RADAR TERMINE ---');
