@@ -123,8 +123,8 @@ export function PhasePageView({
     (phaseId === 4 && launchMap?.phase4) ||
     (phaseId === 5 && launchMap?.phase5);
 
-  // Mode messagerie/immersif full width (Atelier phases & Shopify)
-  if ([0, 1, 2, 5].includes(phaseId) && !isLocked) {
+  // Mode messagerie/immersif full width (Atelier phases 0,1,2 + Sourcing Ada 4 + Shopify 5)
+  if ([0, 1, 2, 4, 5].includes(phaseId) && !isLocked) {
 
     // Si la phase est complétée et qu'on n'est pas en mode édition, on affiche le RECAP
     if (isCompleted && !isEditing) {
@@ -286,9 +286,9 @@ export function PhasePageView({
     return (
       <div className={cn(
         "flex flex-col w-full m-0 p-0 bg-white relative pb-6 sm:pb-0",
-        (phaseId === 1 || phaseId === 2 || phaseId === 5) ? "h-[calc(100dvh-64px)] overflow-hidden" : "min-h-[calc(100dvh-64px)] overflow-y-auto"
+        (phaseId === 1 || phaseId === 2 || phaseId === 4 || phaseId === 5) ? "h-[calc(100dvh-64px)] overflow-hidden" : "min-h-[calc(100dvh-64px)] overflow-y-auto"
       )}>
-        {![1, 2, 5].includes(phaseId) && (
+        {![1, 2, 4, 5].includes(phaseId) && (
           <div className="px-4 py-2 sm:py-3 flex items-center justify-between shrink-0 relative z-30 border-b border-black/5 bg-white sticky top-0">
             <Link href="/launch-map" className="inline-flex items-center gap-2 text-sm font-medium text-[#86868B] hover:text-[#1D1D1F] transition-colors rounded-full px-3 py-1.5 hover:bg-[#F5F5F7]">
               <ArrowLeft className="w-4 h-4" />

@@ -17,7 +17,7 @@ import { Phase1Strategy } from './Phase1Strategy';
 import { PhaseMockupCreation } from './PhaseMockupCreation';
 
 import { PhaseTechPack } from './PhaseTechPack';
-import { Phase3Sourcing } from './Phase3Sourcing';
+import { Phase3SourcingChat } from './Phase3SourcingChat';
 import { Phase6Shopify } from './Phase6Shopify';
 import { LAUNCH_MAP_PHASES } from '@/lib/launch-map-constants';
 
@@ -202,7 +202,7 @@ export function LaunchMapStepper({
   const progressPercentage = (completedPhases / LAUNCH_MAP_PHASES.length) * 100;
 
   const onlyPhaseContent = typeof focusedPhase === 'number';
-  const isAtelierPhase = currentPhase <= 2;
+  const isAtelierPhase = [0, 1, 2, 4].includes(currentPhase);
   const isFullPage = onlyPhaseContent || isAtelierPhase;
 
   return (
@@ -306,9 +306,11 @@ export function LaunchMapStepper({
             </Suspense>
           )}
           {!isTransitioning && phaseToRender === 4 && (
-            <Phase3Sourcing
+            <Phase3SourcingChat
               brandId={brandId}
+              brand={brand}
               onComplete={() => handlePhaseComplete(4)}
+              userPlan={userPlan}
             />
           )}
           {!isTransitioning && phaseToRender === 5 && (
