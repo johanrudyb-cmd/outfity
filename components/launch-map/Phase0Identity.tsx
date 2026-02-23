@@ -248,12 +248,37 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
 
   return (
     <div className="min-h-[calc(100vh-64px)] w-full bg-[#F5F5F7] flex flex-col relative overflow-hidden" onKeyDown={handleKeyDown}>
-      {/* Progress Bar */}
-      <div className="absolute top-0 left-0 right-0 h-1.5 bg-black/5 z-50">
-        <div
-          className="h-full bg-[#007AFF] transition-all duration-500 ease-out"
-          style={{ width: `${((currentStepIndex + 1) / steps.length) * 100}%` }}
-        />
+      {/* Progress Bar & Step Navigation */}
+      <div className="absolute top-0 left-0 right-0 z-50">
+        <div className="h-1.5 bg-black/5 w-full">
+          <div
+            className="h-full bg-[#007AFF] transition-all duration-500 ease-out"
+            style={{ width: `${((currentStepIndex + 1) / steps.length) * 100}%` }}
+          />
+        </div>
+
+        {/* Clickable Step Circles */}
+        <div className="flex justify-center gap-3 mt-4">
+          {steps.map((step, idx) => (
+            <button
+              key={step.id}
+              onClick={() => {
+                if (idx === 0 || name.trim().length >= 2) {
+                  setCurrentStepIndex(idx);
+                }
+              }}
+              className={cn(
+                "w-2 h-2 rounded-full transition-all duration-300",
+                currentStepIndex === idx
+                  ? "bg-[#007AFF] scale-150 shadow-sm"
+                  : idx < currentStepIndex
+                    ? "bg-[#007AFF]/40 hover:bg-[#007AFF]/60"
+                    : "bg-black/10 hover:bg-black/20"
+              )}
+              title={step.title}
+            />
+          ))}
+        </div>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center p-6 w-full max-w-2xl mx-auto relative z-10 w-full min-h-[500px]">

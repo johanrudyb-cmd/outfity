@@ -246,12 +246,16 @@ export function LaunchMapStepper({
             <div className="ml-auto h-px flex-1 bg-black/5 max-w-[150px] hidden sm:block" />
             <div className="flex gap-1.5">
               {[0, 1, 2, 3, 4, 5].map((idx) => (
-                <div
+                <button
                   key={idx}
+                  onClick={() => setCurrentPhase(idx)}
+                  disabled={idx > (hasIdentity ? (completedPhases) : 0)}
                   className={cn(
-                    "w-2.5 h-2.5 rounded-full transition-colors duration-500",
-                    currentPhase === idx ? "bg-[#007AFF] scale-110" : "bg-black/10"
+                    "w-2.5 h-2.5 rounded-full transition-all duration-500",
+                    currentPhase === idx ? "bg-[#007AFF] scale-125 shadow-md shadow-blue-500/20" :
+                      idx < completedPhases ? "bg-[#007AFF]/40 hover:bg-[#007AFF]/60 cursor-pointer" : "bg-black/10 cursor-not-allowed"
                   )}
+                  title={`Phase ${idx + 1}: ${LAUNCH_MAP_PHASES[idx]?.title}`}
                 />
               ))}
             </div>
