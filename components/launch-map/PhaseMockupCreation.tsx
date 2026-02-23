@@ -107,7 +107,7 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
     }
 
     const intro: Message = {
-      id: 'johan-intro',
+      id: 'pharell-intro',
       role: 'assistant',
       content: '',
       timestamp: new Date(),
@@ -124,11 +124,11 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
     })
       .then(r => r.json())
       .then(data => {
-        intro.content = data.reply || `Salut ! Je suis Johan, ton designer 3D 👋 C'est l'heure de créer tes mockups. Sais-tu déjà quel outil utiliser (Canva, Photoshop...) ou on fait le point sur ton budget/tes compétences ?`;
+        intro.content = data.reply || `Salut ! Je suis Pharell, ton designer 3D 👋 C'est l'heure de créer tes mockups. Sais-tu déjà quel outil utiliser (Canva, Photoshop...) ou on fait le point sur ton budget/tes compétences ?`;
         setMessages([{ ...intro }]);
       })
       .catch(() => {
-        intro.content = `Salut ! Je suis Johan, ton designer 3D 👋 Prêt à passer à la création des mockups ? Avant de télécharger ton pack, quel est ton niveau technique ? Plutôt Canva (débutant) ou Photoshop (pro) ?`;
+        intro.content = `Salut ! Je suis Pharell, ton designer 3D 👋 Prêt à passer à la création des mockups ? Avant de télécharger ton pack, quel est ton niveau technique ? Plutôt Canva (débutant) ou Photoshop (pro) ?`;
         setMessages([{ ...intro }]);
       })
       .finally(() => setIsTyping(false));
@@ -165,13 +165,13 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
         }),
       });
       const data = await res.json();
-      const johanMsg: Message = {
-        id: `johan-${Date.now()}`,
+      const pharellMsg: Message = {
+        id: `pharell-${Date.now()}`,
         role: 'assistant',
         content: data.reply || 'Je rencontre un souci technique. Réessaie dans un instant.',
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, johanMsg]);
+      setMessages(prev => [...prev, pharellMsg]);
     } catch {
       setMessages(prev => [...prev, {
         id: `error-${Date.now()}`,
@@ -202,7 +202,7 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
       .then(r => r.json())
       .then(data => {
         setMessages([{
-          id: `johan-${Date.now()}`,
+          id: `pharell-${Date.now()}`,
           role: 'assistant',
           content: data.reply || 'On reprend à zéro ! Par où veux-tu commencer ?',
           timestamp: new Date(),
@@ -212,7 +212,7 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
   };
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#F5F5F7] font-sans relative">
+    <div className="flex flex-col h-full w-full bg-[#F5F5F7] font-sans relative overflow-hidden flex-1 min-h-0">
 
       {/* ── Header ── */}
       <div className="bg-white/80 backdrop-blur-xl border-b border-black/[0.06] px-4 sm:px-6 py-3 flex items-center justify-between shrink-0 sticky top-0 z-20">
@@ -224,8 +224,8 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
             <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
           </div>
           <div>
-            <h3 className="font-bold text-[#1D1D1F] text-[15px] leading-tight">Johan</h3>
-            <p className="text-[11px] text-[#86868B] font-medium">Expert Mockup & 3D</p>
+            <h3 className="font-bold text-[#1D1D1F] text-[15px] leading-tight">Pharell</h3>
+            <p className="text-[11px] text-[#86868B] font-medium">Design Coach</p>
           </div>
         </div>
 
@@ -323,7 +323,7 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
                 if (input.trim() && !isTyping) sendMessage(input);
               }
             }}
-            placeholder="Écrire à Johan..."
+            placeholder="Écrire à Pharell..."
             className="flex-1 bg-transparent max-h-[120px] min-h-[40px] px-4 py-3 text-[15px] text-[#1D1D1F] placeholder:text-[#86868B] focus:outline-none resize-none leading-relaxed"
             disabled={isTyping}
             rows={1}
