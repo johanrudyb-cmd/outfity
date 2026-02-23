@@ -266,9 +266,11 @@ export function Phase6Shopify({
           <div className="h-6 w-px bg-black/5 hidden sm:block" />
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="relative">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#007AFF] to-[#5856D6] flex items-center justify-center shadow-md">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
+              <img
+                src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                alt="Johan"
+                className="w-10 h-10 rounded-full object-cover shadow-md border border-black/5"
+              />
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
             </div>
             <div>
@@ -360,9 +362,11 @@ export function Phase6Shopify({
 
               {/* Avatar for Johan only */}
               {!isUser && (
-                <div className="w-7 h-7 shrink-0 rounded-full bg-gradient-to-br from-[#007AFF] to-[#5856D6] flex items-center justify-center shadow-sm">
-                  <Sparkles className="w-3.5 h-3.5 text-white" />
-                </div>
+                <img
+                  src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                  alt="Johan"
+                  className="w-7 h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5"
+                />
               )}
 
               {/* Bubble */}
@@ -393,9 +397,11 @@ export function Phase6Shopify({
         {/* Typing indicator */}
         {isTyping && (
           <div className="flex items-end gap-2 self-start max-w-[85%] sm:max-w-[75%]">
-            <div className="w-7 h-7 shrink-0 rounded-full bg-gradient-to-br from-[#007AFF] to-[#5856D6] flex items-center justify-center shadow-sm">
-              <Sparkles className="w-3.5 h-3.5 text-white" />
-            </div>
+            <img
+              src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+              alt="Johan"
+              className="w-7 h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5"
+            />
             <div className="px-5 py-3.5 rounded-[24px] rounded-bl-[8px] bg-white border border-black/[0.04] shadow-sm">
               <div className="flex items-center gap-1.5 h-4">
                 <div className="w-2 h-2 bg-[#86868B]/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />

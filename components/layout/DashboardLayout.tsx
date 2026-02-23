@@ -8,7 +8,7 @@ import { DashboardTutorial } from '@/components/dashboard/DashboardTutorial';
 import { PageTransition } from './PageTransition';
 import { PaywallGate } from '@/components/paywall/PaywallGate';
 import { ErrorBoundary } from '@/components/error/ErrorBoundary';
-import { ChatAssistant } from './ChatAssistant';
+
 import { MobileNav } from './MobileNav';
 
 function DashboardTutorialGate() {
@@ -72,7 +72,7 @@ export function DashboardLayout({
         <DashboardTutorialGate />
       </Suspense>
       <MobileNav onMenuClick={() => setSidebarOpen(true)} />
-      <ChatAssistant />
+
     </div>
   );
 }

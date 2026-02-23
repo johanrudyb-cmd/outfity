@@ -237,9 +237,11 @@ export function Phase1StrategyChat({
                     <div className="h-6 w-px bg-black/5 hidden sm:block" />
                     <div className="flex items-center gap-2 sm:gap-3">
                         <div className="relative shrink-0">
-                            <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-sm">
-                                <Sparkles className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-white" />
-                            </div>
+                            <img
+                                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                                alt="Virgil"
+                                className="w-7 h-7 sm:w-10 sm:h-10 rounded-full object-cover shadow-sm border border-black/5"
+                            />
                             <div className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-full border border-white" />
                         </div>
                         <div className="min-w-0">
@@ -281,9 +283,11 @@ export function Phase1StrategyChat({
                     return (
                         <div key={msg.id} className={cn("flex items-end gap-1.5 sm:gap-2 max-w-[98%] sm:max-w-[95%] md:max-w-[90%] lg:max-w-[85%] group", isUser ? 'self-end flex-row-reverse' : 'self-start')}>
                             {!isUser && (
-                                <div className="w-5 h-5 sm:w-7 sm:h-7 shrink-0 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center mb-0.5 shadow-sm">
-                                    <Sparkles className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-white" />
-                                </div>
+                                <img
+                                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                                    alt="Virgil"
+                                    className="w-5 h-5 sm:w-7 sm:h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5 mb-0.5"
+                                />
                             )}
                             <div
                                 className={cn(
@@ -311,9 +315,11 @@ export function Phase1StrategyChat({
 
                 {isTyping && (
                     <div className="flex items-end gap-2 self-start max-w-[85%] sm:max-w-[75%]">
-                        <div className="w-5 h-5 sm:w-7 sm:h-7 shrink-0 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-sm">
-                            <Sparkles className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-white" />
-                        </div>
+                        <img
+                            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                            alt="Virgil"
+                            className="w-5 h-5 sm:w-7 sm:h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5 mb-0.5"
+                        />
                         <div className="px-3 py-2 sm:px-4 sm:py-3 rounded-[16px] sm:rounded-[24px] rounded-bl-[4px] sm:rounded-bl-[8px] bg-white border border-black/[0.05] shadow-sm">
                             <div className="flex items-center gap-1.5 h-4">
                                 <div className="w-1.5 h-1.5 bg-blue-500/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
