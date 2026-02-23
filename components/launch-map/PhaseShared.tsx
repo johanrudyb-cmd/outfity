@@ -111,15 +111,45 @@ export function PhaseRecap({
 
     if (phaseId === 0) {
         const sg0 = brandFull?.styleGuide && typeof brandFull.styleGuide === 'object' ? brandFull.styleGuide as Record<string, unknown> : null;
+        const sh = brandFull?.socialHandles && typeof brandFull.socialHandles === 'object' ? brandFull.socialHandles as Record<string, string> : {};
+
         const signature = sg0?.productSignature as string | null;
         const weight = sg0?.productWeight as string | null;
+        const story = sg0?.story as string | null;
+        const stage = sg0?.stage as string | null;
+        const noLogo = sg0?.noLogo === true || sg0?.noLogo === 'true';
+
         return (
-            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8">
-                {item('Nom de la marque', brandFull?.name ?? null)}
-                {item('Type de produit', productType)}
-                {item('Signature Visuelle', signature)}
-                {item('Grammage (GSM)', weight)}
-            </dl>
+            <div className="space-y-12">
+                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8">
+                    {item('Nom de la marque', brandFull?.name ?? null)}
+                    {item('Type de produit', productType)}
+                    {item('Grammage (GSM)', weight)}
+                    {item('Signature Visuelle', signature)}
+                    {item('Étape du projet', stage === 'ideation' ? 'Simple Idée' : stage === 'prelaunch' ? 'En Conception' : stage === 'launch' ? 'Prêt au Lancement' : stage)}
+                    {item('Logo', noLogo ? 'À créer plus tard' : 'Logo importé')}
+                </dl>
+
+                {(brandFull?.domain || sh.instagram || sh.twitter) && (
+                    <div className="pt-8 border-t border-black/5">
+                        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF] mb-6">Présence Digitale</p>
+                        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8">
+                            {item('Nom de domaine', brandFull?.domain)}
+                            {item('Instagram', sh.instagram ? `@${sh.instagram.replace('@', '')}` : null)}
+                            {item('TikTok', sh.twitter ? `@${sh.twitter.replace('@', '')}` : null)}
+                        </dl>
+                    </div>
+                )}
+
+                {story && (
+                    <div className="pt-8 border-t border-black/5">
+                        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF] mb-6">Le Manifeste</p>
+                        <p className="text-[#1D1D1F] font-medium text-[15px] leading-relaxed italic border-l-2 border-[#007AFF]/20 pl-6">
+                            "{story}"
+                        </p>
+                    </div>
+                )}
+            </div>
         );
     }
 
