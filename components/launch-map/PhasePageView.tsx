@@ -102,8 +102,8 @@ export function PhasePageView({
     );
   }
 
-  // Mode messagerie/immersif full width (Shopify Phase 5 & Identité Phase 0)
-  if ((phaseId === 5 || phaseId === 0) && !isLocked) {
+  // Mode messagerie/immersif full width (Atelier phases & Shopify)
+  if ([0, 1, 2, 5].includes(phaseId) && !isLocked) {
     return (
       <div className={cn(
         "flex flex-col w-full m-0 p-0 bg-white relative",
@@ -169,23 +169,9 @@ export function PhasePageView({
 
           {!isLocked ? (
             <div className="bg-white">
-              {(phaseId === 1) && !isShowingDetail ? (
-                <div className="p-8">
-                  <div className="bg-[#F5F5F7] rounded-[24px] p-6 mb-6 border border-black/5">
-                    <PhaseRecap phaseId={phaseId} brandFull={brandFull} launchMap={launchMap} designCount={designCount} quoteCount={quoteCount} ugcCount={ugcCount} progress={progress} suppliers={suppliers} />
-                  </div>
-                  <Button
-                    onClick={() => setShowingDetail(true)}
-                    className="bg-[#007AFF] hover:bg-[#0056CC] text-white font-bold rounded-full px-8 h-12 shadow-md shadow-blue-500/20 transition-all active:scale-[0.98]"
-                  >
-                    Modifier mes réponses
-                  </Button>
-                </div>
-              ) : (
-                <div ref={detailSectionRef} className="p-6 sm:p-8">
-                  <LaunchMapStepper brandId={brand.id} launchMap={launchMap} brand={brandFull} hasIdentity={hasIdentity} focusedPhase={phaseId} userPlan={userPlan} />
-                </div>
-              )}
+              <div ref={detailSectionRef} className="p-6 sm:p-8">
+                <LaunchMapStepper brandId={brand.id} launchMap={launchMap} brand={brandFull} hasIdentity={hasIdentity} focusedPhase={phaseId} userPlan={userPlan} />
+              </div>
             </div>
           ) : (
             /* Locked State UI */
