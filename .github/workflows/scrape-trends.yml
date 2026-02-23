@@ -3,7 +3,7 @@ name: OUTFITY - Radar Viral 24/7
 on:
   schedule:
     - cron: '0 6 * * *' # Tous les jours à 7h00 (Heure FR)
-  workflow_dispatch: # Permet de le lancer à la main pour tester
+  workflow_dispatch:
 
 jobs:
   scrape-trends:
@@ -32,5 +32,5 @@ jobs:
       - name: 🧪 Génération Prisma
         run: npx prisma generate
 
-      - name: 🚀 Lancement du Radar Viral (0€)
-        run: npx tsx --tsconfig tsconfig.scripts.json scripts/radar-hybride.ts
+      - name: 🚀 Lancement du Radar Viral
+        run: node_modules/.bin/tsx scripts/radar-hybride.ts

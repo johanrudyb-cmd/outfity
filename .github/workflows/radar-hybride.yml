@@ -2,9 +2,8 @@ name: 🕵️ OUTFITY - Radar Hybride Automatique
 
 on:
   schedule:
-    # Tous les mardis à 12:00 UTC (13h ou 14h en France selon l'heure d'été/hiver)
-    - cron: '0 12 * * 2'
-  workflow_dispatch: # Permet de lancer le scrape manuellement depuis l'interface GitHub
+    - cron: '0 12 * * 2' # Tous les mardis à 12:00 UTC
+  workflow_dispatch:
 
 jobs:
   scrape-trends:
@@ -37,4 +36,4 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ADMIN_NOTIFY_WEBHOOK_URL: ${{ secrets.ADMIN_NOTIFY_WEBHOOK_URL }}
-        run: npx tsx --tsconfig tsconfig.scripts.json scripts/radar-hybride.ts
+        run: node_modules/.bin/tsx scripts/radar-hybride.ts
