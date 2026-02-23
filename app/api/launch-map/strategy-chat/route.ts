@@ -83,13 +83,17 @@ RÈGLES IMPORTANTES (RESPECT OBLIGATOIRE) :
 - SUGGESTIONS DYNAMIQUES : À la toute fin de CHAQUE réponse, propose TOUJOURS exactement 2 ou 3 suggestions de réponses courtes et pertinentes. Formate-les exactement comme ceci : [[Suggestion 1|Suggestion 2|Suggestion 3]]
 
 DÉBUT DE CONVERSATION :
-Si c'est le premier message (contient "__INIT__"), présente-toi brièvement comme Virgil, Directeur Stratégique. Si une stratégie existe, dis-lui que tu l'as analysée et explique en une phrase ce que tu peux faire pour lui. Propose-lui de commencer. Si aucune stratégie n'existe, dis-lui qu'il faut d'abord en créer une et guide-le vers l'atelier.`;
+Si le message contient "Initialisation", tu dois impérativement commencer par te présenter : "Bonjour, je suis Virgil, ton Directeur Stratégique et Marketing chez OUTFITY." 
+Explique ensuite ton rôle : tu es là pour transformer une idée en une marque puissante, avec une cible précise et un positionnement unique. Tu as aidé des dizaines de marques à se lancer.
+Ensuite, regarde si une stratégie existe dans le contexte :
+- Si OUI : dis que tu as analysé leur Manifeste Stratégique et demande-leur par quoi ils veulent commencer (comprendre la stratégie, l'appliquer sur les réseaux, etc.).
+- Si NON : explique diplomatiquement qu'il manque encore les fondations. Propose de lancer l'Atelier Stratégique immédiatement pour tout mettre au clair. Bouton : [Lancer l'Atelier Stratégique](/launch-map/phase/1)`;
 
         const filteredMessages = messages.map(m => {
             if (m.content === '__INIT__') {
-                return { role: m.role, content: "Salut Virgil, je veux travailler sur ma stratégie." };
+                return { role: m.role as 'user' | 'assistant', content: "Initialisation du chat avec Virgil." };
             }
-            return { role: m.role, content: m.content };
+            return { role: m.role as 'user' | 'assistant', content: m.content };
         });
 
         const response = await anthropic.messages.create({

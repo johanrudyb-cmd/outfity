@@ -64,7 +64,10 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
   const sg = brand?.styleGuide && typeof brand.styleGuide === 'object' ? brand.styleGuide as Record<string, unknown> : null;
 
   // --- States ---
-  const [viewMode, setViewMode] = useState<'chat' | 'classic'>('chat');
+  const [viewMode, setViewMode] = useState<'chat' | 'classic'>(() => {
+    // Si la stratégie n'existe pas encore, on commence par l'atelier classique
+    return strategyText ? 'chat' : 'classic';
+  });
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [positioning, setPositioning] = useState(() => styleGuideField(sg, 'preferredStyle') || styleGuideField(sg, 'positioning') || '');
   const [targetAudience, setTargetAudience] = useState(() => styleGuideField(sg, 'targetAudience') || '');

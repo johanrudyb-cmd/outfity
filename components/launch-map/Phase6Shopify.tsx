@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Send, Store, ExternalLink, RefreshCw, ArrowRight, Check, Sparkles, X, ShoppingBag, Loader2
+  Send, Store, ExternalLink, RefreshCw, ArrowRight, Check, Sparkles, X, ShoppingBag, Loader2, ArrowLeft
 } from 'lucide-react';
 import Link from 'next/link';
 import type { SiteCreationTodoStep } from '@/lib/api/claude';
@@ -258,17 +258,23 @@ export function Phase6Shopify({
     <div className="flex flex-col h-full w-full bg-[#F5F5F7] font-sans relative">
 
       {/* ── Header ── */}
-      <div className="bg-white/80 backdrop-blur-xl border-b border-black/[0.06] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between shrink-0 sticky top-0 z-20">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#007AFF] to-[#5856D6] flex items-center justify-center shadow-md">
-              <Sparkles className="w-5 h-5 text-white" />
+      <div className="bg-white/80 backdrop-blur-xl border-b border-black/[0.06] px-4 py-1.5 sm:py-3 flex items-center justify-between shrink-0 sticky top-0 z-20">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <Link href="/launch-map" className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors">
+            <ArrowLeft className="w-4 h-4 text-[#86868B]" />
+          </Link>
+          <div className="h-6 w-px bg-black/5 hidden sm:block" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="relative">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#007AFF] to-[#5856D6] flex items-center justify-center shadow-md">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
             </div>
-            <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
-          </div>
-          <div>
-            <h3 className="font-bold text-[#1D1D1F] text-[15px] leading-tight">Johan</h3>
-            <p className="text-[11px] text-[#86868B] font-medium">Web designer</p>
+            <div>
+              <h3 className="font-bold text-[#1D1D1F] text-[15px] leading-tight text-[12px] sm:text-[15px]">Johan</h3>
+              <p className="text-[11px] text-[#86868B] font-medium text-[8px] sm:text-[11px]">Web designer</p>
+            </div>
           </div>
         </div>
 
@@ -350,7 +356,7 @@ export function Phase6Shopify({
         {messages.map((msg) => {
           const isUser = msg.role === 'user';
           return (
-            <div key={msg.id} className={cn("flex items-end gap-2 max-w-[85%] sm:max-w-[75%] group", isUser ? 'self-end flex-row-reverse' : 'self-start')}>
+            <div key={msg.id} className={cn("flex items-end gap-2 max-w-[98%] sm:max-w-[95%] md:max-w-[85%] group", isUser ? 'self-end flex-row-reverse' : 'self-start')}>
 
               {/* Avatar for Johan only */}
               {!isUser && (

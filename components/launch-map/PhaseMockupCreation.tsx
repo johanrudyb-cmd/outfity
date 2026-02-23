@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Send, Sparkles, Loader2, ArrowRight } from 'lucide-react';
+import { Send, Sparkles, Loader2, ArrowRight, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { BrandIdentity } from './LaunchMapStepper';
 import { MockupPackSelector } from './MockupPackSelector';
@@ -23,7 +23,7 @@ interface Message {
 }
 
 // Renders markdown-like content. Handles __SHOW_MOCKUP_SELECTOR__ magic string
-function MessageContent({ content, isUser, brandId, brandName, userPlan }: { content: string, isUser: boolean, brandId: string, brandName?: string, userPlan?: string }) {
+export function MessageContent({ content, isUser, brandId, brandName, userPlan }: { content: string, isUser: boolean, brandId: string, brandName?: string, userPlan?: string }) {
   // Hide suggestions [[...]] and mockup selector from the text bubble
   let displayContent = content.replace(/\[\[.*?\]\]/g, '').trim();
 
@@ -227,18 +227,24 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
 
       {/* ── Header (Ultra Compact on Mobile) ── */}
       <div className="bg-white/95 backdrop-blur-xl border-b border-black/[0.04] px-4 py-1.5 sm:py-3 flex items-center justify-between shrink-0 sticky top-0 z-20">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="relative shrink-0">
-            <img
-              src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
-              alt="Pharell"
-              className="w-7 h-7 sm:w-10 sm:h-10 rounded-full object-cover shadow-sm border border-black/5"
-            />
-            <div className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-full border border-white" />
-          </div>
-          <div className="min-w-0">
-            <h3 className="font-bold text-[#1D1D1F] text-[12px] sm:text-[15px] leading-tight truncate">Pharell</h3>
-            <p className="text-[8px] sm:text-[10px] text-[#86868B] font-bold uppercase tracking-tighter sm:tracking-normal leading-none mt-0.5">DA OUTFITY</p>
+        <div className="flex items-center gap-2 sm:gap-4">
+          <Link href="/launch-map" className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors">
+            <ArrowLeft className="w-4 h-4 text-[#86868B]" />
+          </Link>
+          <div className="h-6 w-px bg-black/5 hidden sm:block" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="relative shrink-0">
+              <img
+                src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                alt="Pharell"
+                className="w-7 h-7 sm:w-10 sm:h-10 rounded-full object-cover shadow-sm border border-black/5"
+              />
+              <div className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-full border border-white" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="font-bold text-[#1D1D1F] text-[12px] sm:text-[15px] leading-tight truncate">Pharell</h3>
+              <p className="text-[8px] sm:text-[10px] text-[#86868B] font-bold uppercase tracking-tighter sm:tracking-normal leading-none mt-0.5">DA OUTFITY</p>
+            </div>
           </div>
         </div>
 
@@ -256,7 +262,7 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
         {messages.map((msg) => {
           const isUser = msg.role === 'user';
           return (
-            <div key={msg.id} className={cn("flex items-end gap-1.5 sm:gap-2 max-w-[92%] sm:max-w-[85%] md:max-w-[70%] group", isUser ? 'self-end flex-row-reverse' : 'self-start')}>
+            <div key={msg.id} className={cn("flex items-end gap-1.5 sm:gap-2 max-w-[98%] sm:max-w-[95%] md:max-w-[90%] lg:max-w-[85%] group", isUser ? 'self-end flex-row-reverse' : 'self-start')}>
               {!isUser && (
                 <img
                   src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"

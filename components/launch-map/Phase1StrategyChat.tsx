@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import {
     Send,
     ArrowRight,
+    ArrowLeft,
     Loader2,
     Pencil,
     Sparkles,
@@ -28,45 +29,11 @@ interface Phase1StrategyChatProps {
     onShowClassic?: () => void;
 }
 
-// Renders content with markdown-like [Button Text](/link) parsing
-function MessageContent({ content, isUser }: { content: string; isUser: boolean }) {
-    // Hide suggestions [[...]] from the text bubble
-    const displayContent = content.replace(/\[\[.*?\]\]/g, '').trim();
-
-    const parts = displayContent.split(/(\[.*?\]\(.*?\))/g);
-    const elements = parts.map((part, i) => {
-        const match = part.match(/^\[(.*?)\]\((.*?)\)$/);
-        if (match) {
-            const [, label, url] = match;
-            return (
-                <Link
-                    key={i}
-                    href={url}
-                    className={cn(
-                        "inline-flex items-center gap-2 mt-3 mb-1 font-bold text-[13px] px-5 py-2.5 rounded-2xl transition-all no-underline shadow-sm",
-                        isUser ? "bg-white text-[#007AFF]" : "bg-[#007AFF] text-white hover:bg-[#0056CC]"
-                    )}
-                >
-                    {label}
-                    <ArrowRight className="w-4 h-4" />
-                </Link>
-            );
-        }
-        return (
-            <span key={i} style={{ whiteSpace: 'pre-wrap' }}>
-                {part}
-            </span>
-        );
-    });
-
-    return <div className="leading-relaxed text-[15px]">{elements}</div>;
-}
-
 const QUICK_REPLIES = [
     "Explique-moi ma stratégie",
+    "Mettre à jour la stratégie",
     "Comment l'appliquer ?",
     "Que faire en premier ?",
-    "Créer mon contenu",
 ];
 
 export function Phase1StrategyChat({
@@ -76,6 +43,56 @@ export function Phase1StrategyChat({
     userPlan = 'free',
     onShowClassic,
 }: Phase1StrategyChatProps) {
+    // Renders content with markdown-like [Button Text](/link) parsing
+    function MessageContent({ content, isUser }: { content: string; isUser: boolean }) {
+        // Hide suggestions [[...]] from the text bubble
+        const displayContent = content.replace(/\[\[.*?\]\]/g, '').trim();
+
+        const parts = displayContent.split(/(\[.*?\]\(.*?\))/g);
+        const elements = parts.map((part, i) => {
+            const match = part.match(/^\[(.*?)\]\((.*?)\)$/);
+            if (match) {
+                const [, label, url] = match;
+                // If the link points to the strategy phase, trigger the classic view
+                if (url === '/launch-map/phase/1') {
+                    return (
+                        <button
+                            key={i}
+                            onClick={onShowClassic}
+                            className={cn(
+                                "inline-flex items-center gap-2 mt-3 mb-1 font-bold text-[13px] px-5 py-2.5 rounded-2xl transition-all shadow-sm",
+                                isUser ? "bg-white text-[#007AFF]" : "bg-[#007AFF] text-white hover:bg-[#0056CC]"
+                            )}
+                        >
+                            {label}
+                            <ArrowRight className="w-4 h-4" />
+                        </button>
+                    );
+                }
+                return (
+                    <Link
+                        key={i}
+                        href={url}
+                        className={cn(
+                            "inline-flex items-center gap-2 mt-3 mb-1 font-bold text-[13px] px-5 py-2.5 rounded-2xl transition-all no-underline shadow-sm",
+                            isUser ? "bg-white text-[#007AFF]" : "bg-[#007AFF] text-white hover:bg-[#0056CC]"
+                        )}
+                    >
+                        {label}
+                        <ArrowRight className="w-4 h-4" />
+                    </Link>
+                );
+            }
+            return (
+                <span key={i} style={{ whiteSpace: 'pre-wrap' }}>
+                    {part}
+                </span>
+            );
+        });
+
+        return <div className="leading-relaxed text-[15px]">{elements}</div>;
+    }
+
     const [messages, setMessages] = useState<Message[]>([]);
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [input, setInput] = useState('');
@@ -213,16 +230,22 @@ export function Phase1StrategyChat({
 
             {/* ── Header ── */}
             <div className="bg-white/95 backdrop-blur-xl border-b border-black/[0.04] px-4 py-1.5 sm:py-3 flex items-center justify-between shrink-0 sticky top-0 z-20">
-                <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="relative shrink-0">
-                        <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-sm">
-                            <Sparkles className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-white" />
+                <div className="flex items-center gap-2 sm:gap-4">
+                    <Link href="/launch-map" className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors">
+                        <ArrowLeft className="w-4 h-4 text-[#86868B]" />
+                    </Link>
+                    <div className="h-6 w-px bg-black/5 hidden sm:block" />
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="relative shrink-0">
+                            <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-sm">
+                                <Sparkles className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-white" />
+                            </div>
+                            <div className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-full border border-white" />
                         </div>
-                        <div className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-full border border-white" />
-                    </div>
-                    <div className="min-w-0">
-                        <h3 className="font-bold text-[#1D1D1F] text-[12px] sm:text-[15px] leading-tight truncate">Virgil</h3>
-                        <p className="text-[8px] sm:text-[10px] text-[#86868B] font-bold uppercase tracking-tighter sm:tracking-normal leading-none mt-0.5">Stratégie & Marketing</p>
+                        <div className="min-w-0">
+                            <h3 className="font-bold text-[#1D1D1F] text-[12px] sm:text-[15px] leading-tight truncate">Virgil</h3>
+                            <p className="text-[8px] sm:text-[10px] text-[#86868B] font-bold uppercase tracking-tighter sm:tracking-normal leading-none mt-0.5">Stratégie & Marketing</p>
+                        </div>
                     </div>
                 </div>
 
@@ -256,7 +279,7 @@ export function Phase1StrategyChat({
                 {messages.map((msg) => {
                     const isUser = msg.role === 'user';
                     return (
-                        <div key={msg.id} className={cn("flex items-end gap-1.5 sm:gap-2 max-w-[92%] sm:max-w-[85%] md:max-w-[70%] group", isUser ? 'self-end flex-row-reverse' : 'self-start')}>
+                        <div key={msg.id} className={cn("flex items-end gap-1.5 sm:gap-2 max-w-[98%] sm:max-w-[95%] md:max-w-[90%] lg:max-w-[85%] group", isUser ? 'self-end flex-row-reverse' : 'self-start')}>
                             {!isUser && (
                                 <div className="w-5 h-5 sm:w-7 sm:h-7 shrink-0 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center mb-0.5 shadow-sm">
                                     <Sparkles className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-white" />
@@ -311,7 +334,11 @@ export function Phase1StrategyChat({
                             <button
                                 key={reply}
                                 onClick={() => {
-                                    sendMessage(reply);
+                                    if (reply === "Mettre à jour la stratégie") {
+                                        onShowClassic?.();
+                                    } else {
+                                        sendMessage(reply);
+                                    }
                                     setSuggestions([]);
                                 }}
                                 className="shrink-0 text-[11px] sm:text-[13px] font-bold text-blue-600 bg-white border border-blue-600/20 hover:bg-blue-600/5 px-4 py-2 rounded-full transition-all active:scale-95 shadow-sm whitespace-nowrap"
