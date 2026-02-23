@@ -14,7 +14,7 @@ interface Message {
 export function ChatAssistant() {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
-        { role: 'assistant', content: "Hello ! Je suis Virgil, le Directeur Artistique de ta marque. Pose-moi tes questions stratégiques ou créatives." }
+        { role: 'assistant', content: "Hello ! Je suis Virgil, le Directeur Stratégique et Marketing de ta marque. Pose-moi tes questions stratégiques ou créatives." }
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -145,7 +145,7 @@ export function ChatAssistant() {
                                         <h3 className="text-sm font-black uppercase tracking-widest text-black">Virgil</h3>
                                         <div className="flex items-center gap-1.5">
                                             <div className="w-1.5 h-1.5 rounded-full bg-[#34C759] animate-pulse" />
-                                            <span className="text-[10px] font-bold text-[#6e6e73]">Directeur Artistique</span>
+                                            <span className="text-[10px] font-bold text-[#6e6e73]">Directeur Stratégique et Marketing</span>
                                         </div>
                                     </div>
                                 </div>
