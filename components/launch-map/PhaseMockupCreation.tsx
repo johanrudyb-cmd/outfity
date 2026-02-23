@@ -223,7 +223,7 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
 
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#F5F5F7] font-sans relative overflow-hidden flex-1 min-h-0">
+    <div className="flex flex-col h-full w-full bg-[#F5F5F7] font-sans relative overflow-hidden flex-1 min-h-0" style={{ height: '100dvh' }}>
 
       {/* ── Header (Ultra Compact on Mobile) ── */}
       <div className="bg-white/95 backdrop-blur-xl border-b border-black/[0.04] px-4 py-1.5 sm:py-3 flex items-center justify-between shrink-0 sticky top-0 z-20">
@@ -312,9 +312,9 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
       </div>
 
       {/* ── Input Box ── */}
-      <div className="shrink-0 pt-2 pb-4 sm:pb-8 px-3 sm:px-6 bg-[#F5F5F7] z-20 pb-safe-bottom border-t border-black/[0.03]">
+      <div className="shrink-0 pt-2 px-3 sm:px-6 bg-[#F5F5F7] z-20 border-t border-black/[0.03]" style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom, 16px))' }}>
         {suggestions.length > 0 && !isTyping && (
-          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 pt-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="flex gap-2 overflow-x-auto pb-2.5 pt-1" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
             {suggestions.map(reply => (
               <button
                 key={reply}
@@ -322,7 +322,7 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
                   sendMessage(reply);
                   setSuggestions([]);
                 }}
-                className="shrink-0 text-[11px] sm:text-[13px] font-bold text-[#007AFF] bg-white border border-[#007AFF]/20 hover:bg-[#007AFF]/5 px-4 py-2 rounded-full transition-all active:scale-95 shadow-sm whitespace-nowrap"
+                className="shrink-0 text-[12px] font-semibold text-[#007AFF] bg-white border border-[#007AFF]/25 active:bg-[#007AFF]/10 px-3.5 py-1.5 rounded-full transition-all active:scale-95 shadow-sm whitespace-nowrap"
               >
                 {reply}
               </button>

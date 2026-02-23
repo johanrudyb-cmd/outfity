@@ -9,9 +9,10 @@ import {
 } from 'recharts';
 import { MarketChart } from './MarketChart';
 import { PredictiveChart } from './PredictiveChart';
-import { Loader2, TrendingUp, Tag, Layers, Shirt, ArrowLeft, Clock, Calendar, ThermometerSun, Snowflake, DollarSign, Activity, AlertTriangle, ArrowRight, Zap, ChevronDown, Sparkles, Info, Palette } from 'lucide-react';
+import { Loader2, TrendingUp, Tag, Layers, Shirt, ArrowLeft, Clock, Calendar, ThermometerSun, Snowflake, DollarSign, Activity, AlertTriangle, ArrowRight, Zap, ChevronDown, Sparkles, Info, Palette, Lock } from 'lucide-react';
 import { inferStyle } from '@/lib/infer-trend-category';
 import { FASHION_CUTS_BY_CATEGORY } from '@/lib/constants/fashion-cuts';
+import { useSession } from 'next-auth/react';
 
 interface TrendStyleGroup {
     id: string;
@@ -83,6 +84,10 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
     const [globalScore, setGlobalScore] = useState(50);
     const [globalDiff, setGlobalDiff] = useState(0);
 
+    const { data: session } = useSession();
+    const user = session?.user as any;
+    const isFree = user?.plan === 'free';
+
 
     useEffect(() => {
         const fetchTrends = async () => {
@@ -90,7 +95,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
             try {
                 const params = new URLSearchParams();
                 params.set('segment', segment);
-                params.set('limit', '400');
+                params.set('limit', '150'); // 150 suffisant pour une catégorie (ex: T-Shirts Homme)
                 const res = await fetch(`/api/trends/hybrid-radar?${params.toString()}`);
                 if (res.ok) {
                     const data = await res.json();
@@ -618,11 +623,34 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                                 {/* Conteneur de la Courbe avec hauteur garantie */}
                                 <div className="w-full relative h-[300px] md:h-[400px] lg:flex-1 lg:min-h-0">
                                     <PredictiveChart data={chartData} color={historyColor} predictionColor={predictionColor} />
+                                    {isFree && (
+                                        <div className="absolute top-0 bottom-0 right-0 w-[65%] sm:w-[55%] bg-white/40 backdrop-blur-md z-10 flex flex-col items-center justify-center p-2 sm:p-4 border-l border-white/50 rounded-r-[32px] md:rounded-r-[40px] text-center">
+                                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full flex items-center justify-center shadow-lg mb-2 sm:mb-3 shrink-0">
+                                                <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-[#007AFF]" />
+                                            </div>
+                                            <p className="text-[11px] sm:text-sm font-black uppercase text-black mb-1">Prédictions bloquées</p>
+                                            <p className="text-[9px] md:text-xs font-bold text-gray-700 sm:text-gray-500 mb-2 sm:mb-4 max-w-[200px] leading-tight px-1">Découvrez la tendance des mois à venir avec le plan Créateur.</p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
                             {/* Diagnostic Sidebar Responsive */}
-                            <div className="lg:col-span-4 xl:col-span-3 bg-white rounded-[32px] md:rounded-[40px] p-6 md:p-8 shadow-sm border border-gray-100 flex flex-col h-auto lg:h-[650px]">
+                            <div className="lg:col-span-4 xl:col-span-3 bg-white rounded-[32px] md:rounded-[40px] p-6 md:p-8 shadow-sm border border-gray-100 flex flex-col h-auto lg:h-[650px] relative overflow-hidden">
+                                {isFree && (
+                                    <div className="absolute inset-0 bg-white/60 backdrop-blur-xl z-20 flex flex-col items-center justify-center p-8 text-center">
+                                        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-xl mb-6">
+                                            <Lock className="w-8 h-8 text-[#007AFF]" />
+                                        </div>
+                                        <h4 className="text-xl font-black uppercase tracking-tight mb-3">Analyse Stratégique</h4>
+                                        <p className="text-xs text-gray-500 font-bold mb-8 leading-relaxed">
+                                            Passez au plan Créateur pour voir les recommandations de lancement, les prix de vente conseillés et l'opportunité de marge.
+                                        </p>
+                                        <Link href="/auth/choose-plan" className="w-full px-6 py-4 bg-[#007AFF] text-white rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-blue-600 transition-all shadow-xl shadow-blue-500/20 active:scale-95 flex items-center justify-center gap-2">
+                                            <Sparkles className="w-4 h-4" /> Passer Créateur
+                                        </Link>
+                                    </div>
+                                )}
                                 <p className="text-[10px] font-black uppercase tracking-widest text-[#007AFF] mb-1">Score</p>
                                 <div className="space-y-6 flex-1 flex flex-col min-h-0">
                                     <div className="bg-white rounded-[24px] md:rounded-[32px] p-5 md:p-6 border border-gray-100 shadow-sm relative overflow-hidden flex-1 flex flex-col">

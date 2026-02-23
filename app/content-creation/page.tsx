@@ -1,41 +1,21 @@
-import { notFound, redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Phase4Marketing } from '@/components/launch-map/Phase4Marketing';
 import Link from 'next/link';
+import { ArrowLeft, Sparkles, Zap, Camera, PenTool, LayoutList, Image as ImageIcon } from 'lucide-react';
+
+export const metadata = {
+    title: 'Studio de Création | Biangory',
+    description: 'Générez vos visuels produits, shootings IA et scripts marketing en quelques clics.',
+};
 
 export default async function ContentCreationPage() {
     const user = await getCurrentUser();
     if (!user) redirect('/auth/signin');
 
-    if (user.plan === 'free') {
-        return (
-            <DashboardLayout>
-                <div className="px-4 sm:px-6 lg:px-12 py-8 sm:py-12 lg:py-16 max-w-4xl mx-auto flex flex-col justify-center min-h-[calc(100vh-8rem)]">
-                    <div className="bg-white rounded-3xl shadow-apple overflow-hidden border-2 border-primary/20 p-12 text-center space-y-8">
-                        <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
-                            <span className="text-4xl text-primary">✨</span>
-                        </div>
-                        <div className="space-y-4">
-                            <h1 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Création de contenu IA</h1>
-                            <p className="text-[#1D1D1F]/60 text-lg leading-relaxed">
-                                La génération de posts structurés et de scripts marketing est réservée aux membres <strong>Créateur</strong>.
-                            </p>
-                        </div>
-                        <div className="pt-4">
-                            <Link
-                                href="/auth/choose-plan"
-                                className="inline-flex items-center justify-center rounded-full font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] bg-black text-white hover:opacity-90 active:scale-[0.98] h-14 px-10 text-lg gap-3"
-                            >
-                                🚀 Passer au plan Créateur
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </DashboardLayout>
-        );
-    }
+
 
     const brand = await prisma.brand.findFirst({
         where: { userId: user.id },
@@ -43,9 +23,7 @@ export default async function ContentCreationPage() {
         include: { launchMap: true },
     });
 
-    if (!brand) {
-        redirect('/launch-map');
-    }
+    if (!brand) redirect('/launch-map');
 
     const brandData = {
         id: brand.id,
@@ -58,15 +36,42 @@ export default async function ContentCreationPage() {
 
     return (
         <DashboardLayout>
-            <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 max-w-7xl mx-auto">
-                <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold text-[#1D1D1F] tracking-tight">Création de contenu</h1>
-                        <p className="text-[#1D1D1F]/60 text-sm">Générez vos posts structurés par IA basés sur votre stratégie de marque.</p>
+            <div className="min-h-screen bg-[#F5F5F7]">
+                {/* ── Hero Header ── */}
+                <div className="relative overflow-hidden bg-[#1D1D1F] pb-0">
+                    {/* Gradient orbs */}
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        <div className="absolute -top-20 -left-20 w-96 h-96 rounded-full bg-[#007AFF]/20 blur-3xl" />
+                        <div className="absolute -top-10 right-0 w-80 h-80 rounded-full bg-[#AF52DE]/15 blur-3xl" />
+                    </div>
+
+                    <div className="relative max-w-[1800px] mx-auto px-6 pt-8 pb-8">
+                        <Link href="/dashboard" className="inline-flex items-center gap-2 text-[13px] font-semibold text-white/50 hover:text-white/80 transition-colors mb-6 group">
+                            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                            Retour
+                        </Link>
+                        <div className="flex items-end justify-between gap-6">
+                            <div>
+                                <p className="text-[12px] font-bold text-[#007AFF] uppercase tracking-widest mb-1">Studio IA</p>
+                                <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight">
+                                    Création de Contenu
+                                </h1>
+                                <p className="text-[15px] text-white/50 mt-2 max-w-lg">
+                                    Shootings produit, Virtual Try-On, identité visuelle et scripts marketing — tout alimenté par l&apos;IA.
+                                </p>
+                            </div>
+                            <div className="hidden sm:flex items-center gap-2 shrink-0 pb-1">
+                                <div className="bg-white/5 border border-white/10 rounded-full px-3 py-1.5 flex items-center gap-1.5">
+                                    <div className="w-2 h-2 rounded-full bg-[#34C759] animate-pulse" />
+                                    <span className="text-[11px] font-bold text-white/70">IA Active</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-3xl shadow-apple overflow-hidden">
+                {/* ── Content ── */}
+                <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-8 pb-24">
                     <Phase4Marketing
                         brandId={brand.id}
                         brandName={brand.name}

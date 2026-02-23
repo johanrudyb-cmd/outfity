@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
 
-export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 /** GET : liste des mannequins de la marque */
 export async function GET(request: Request) {
@@ -14,15 +14,16 @@ export async function GET(request: Request) {
     const brandId = searchParams.get('brandId');
     if (!brandId) return NextResponse.json({ error: 'brandId requis' }, { status: 400 });
 
-    const brand = await prisma.brand.findFirst({
-      where: { id: brandId, userId: user.id },
-    });
+    // Vérification brand + mannequins en parallèle
+    const [brand, mannequins] = await Promise.all([
+      prisma.brand.findFirst({ where: { id: brandId, userId: user.id }, select: { id: true } }),
+      prisma.mannequin.findMany({
+        where: { brandId },
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, brandId: true, name: true, imageUrl: true, source: true, createdAt: true },
+      }),
+    ]);
     if (!brand) return NextResponse.json({ error: 'Marque non trouvée' }, { status: 404 });
-
-    const mannequins = await prisma.mannequin.findMany({
-      where: { brandId },
-      orderBy: { createdAt: 'desc' },
-    });
     return NextResponse.json(mannequins);
   } catch (e) {
     console.error('GET /api/ugc/mannequins', e);

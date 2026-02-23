@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { PredictiveChart } from './PredictiveChart';
 import { inferCategory } from '@/lib/infer-trend-category';
+import { QuotaGenerateButton } from '@/components/usage/QuotaGenerateButton';
 
 interface AnalysisResult {
     category: string;
@@ -272,13 +273,13 @@ export function VisualTrendScanner() {
                             />
 
                             {image && !isScanning && (
-                                <Button
-                                    className="w-full h-16 text-lg font-black uppercase tracking-widest rounded-2xl gap-3 bg-[#007AFF] hover:bg-blue-600 shadow-xl shadow-blue-500/20 transition-all"
+                                <QuotaGenerateButton
+                                    featureKey="trends_hybrid_scan"
                                     onClick={handleScan}
-                                >
-                                    <Sparkles className="w-6 h-6" />
-                                    Lancer l'analyse
-                                </Button>
+                                    title="Scanner Visuel IA"
+                                    description="Analyse la viabilité et le cycle de vie de votre design sur le marché actuel."
+                                    buttonText="Lancer l'analyse"
+                                />
                             )}
 
                             {isScanning && (

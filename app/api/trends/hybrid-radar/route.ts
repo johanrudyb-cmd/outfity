@@ -4,7 +4,8 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const dynamic = 'force-dynamic';
+// Cache 5 minutes — les tendances ne changent pas à la seconde
+export const revalidate = 300;
 
 export async function GET(request: Request) {
   try {
@@ -19,22 +20,37 @@ export async function GET(request: Request) {
       where.segment = segment;
     }
 
-    // Récupération simple et directe
+    // Récupération avec select strict pour réduire le payload (~70% plus léger)
     const products = await prisma.trendProduct.findMany({
       where,
-      orderBy: { trendScore: 'desc' }, // Les plus "hot" en premier
+      orderBy: { trendScore: 'desc' },
       take: limit,
-      // Pas de select restrictif, on prend tout pour l'instant
+      select: {
+        id: true,
+        name: true,
+        category: true,
+        style: true,
+        trendScore: true,
+        imageUrl: true,
+        segment: true,
+        averagePrice: true,
+        saturability: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
-    console.log(`API Hybrid Radar: Found ${products.length} products for segment ${segment}`);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`API Hybrid Radar: Found ${products.length} products for segment ${segment}`);
+    }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       trends: products,
-      summary: {
-        total: products.length,
-      }
+      summary: { total: products.length },
     });
+    // Cache CDN Vercel : frais 5 min, stale jusqu'à 10 min
+    response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+    return response;
 
   } catch (error) {
     console.error('API Error:', error);

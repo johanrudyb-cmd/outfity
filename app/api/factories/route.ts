@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export const runtime = 'nodejs';
+// Les usines ne changent quasiment jamais — cache 30 min
+export const revalidate = 1800;
 
 export async function GET() {
   try {
@@ -27,9 +29,16 @@ export async function GET() {
 
     const factories = await prisma.factory.findMany({
       orderBy: { rating: 'desc' },
+      select: {
+        id: true, name: true, country: true, moq: true,
+        specialties: true, leadTime: true, certifications: true,
+        contactEmail: true, website: true, rating: true,
+      },
     });
 
-    return NextResponse.json({ factories });
+    const response = NextResponse.json({ factories });
+    response.headers.set('Cache-Control', 'public, s-maxage=1800, stale-while-revalidate=3600');
+    return response;
   } catch (error: any) {
     console.error('Erreur dans /api/factories:', error);
     return NextResponse.json(

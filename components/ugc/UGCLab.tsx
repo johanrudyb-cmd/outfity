@@ -1,18 +1,23 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { VirtualTryOn } from './VirtualTryOn';
 import { StructuredPostCreator } from './StructuredPostCreator';
 import { ShootingPhoto } from './ShootingPhoto';
 import { LogoGenerator } from './LogoGenerator';
-import { LayoutList, Image as ImageIcon, Camera, Sparkles, PenTool } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import {
+  LayoutList,
+  Image as ImageIcon,
+  Camera,
+  Sparkles,
+  PenTool,
+  Zap,
+  Lock,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { FeatureUsageBadge } from '@/components/usage/FeatureUsageBadge';
 
-/** Design pour UGC (Virtual Try-On, Shooting). Compatible avec les designs renvoyés par /api/designs. */
 interface Design {
   id: string;
   type: string;
@@ -31,165 +36,209 @@ interface Brand {
 interface UGCLabProps {
   brandId: string;
   brandName: string;
-  /** Designs de la marque (optionnel : Shooting photo charge la collection via l’API). */
   designs?: Design[];
   brand?: Brand;
   userPlan?: string;
 }
 
-export function UGCLab({ brandId, brandName, designs = [], brand, userPlan = 'free' }: UGCLabProps) {
-  const [activeTab, setActiveTab] = useState<'tryon' | 'shooting' | 'scripts' | 'logo'>('tryon');
+type Tab = 'tryon' | 'shooting' | 'scripts' | 'logo';
 
-  if (userPlan === 'free') {
-    return (
-      <Card className="border-2 border-primary/20 bg-primary/5 py-12">
-        <CardContent className="flex flex-col items-center text-center space-y-6 max-w-2xl mx-auto">
-          <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-            <Sparkles className="w-10 h-10 text-primary" />
-          </div>
-          <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-foreground">Débloquez l&apos;UGC Lab</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Le Laboratoire UGC et ses outils d&apos;intelligence artificielle (Virtual Try-On, Shooting Photo, Scripts Marketing) sont réservés aux membres <strong>Créateur</strong>.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-4 justify-center">
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <span className="w-2 h-2 rounded-full bg-primary" />
-              Shootings IA
-            </div>
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <span className="w-2 h-2 rounded-full bg-primary" />
-              Virtual Try-On
-            </div>
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <span className="w-2 h-2 rounded-full bg-primary" />
-              Scripts marketing
-            </div>
-          </div>
-          <div className="pt-4">
-            <Button
-              size="lg"
-              className="px-8 gap-2"
-              onClick={() => window.location.href = '/auth/choose-plan'}
-            >
-              🚀 Passer au plan Créateur
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+const TABS = [
+  {
+    id: 'shooting' as Tab,
+    label: 'Shooting Photo',
+    sublabel: 'Mettez vos produits en scène avec l\'IA',
+    icon: Camera,
+    badge: null,
+    color: 'from-[#34C759] to-[#30D158]',
+    bgColor: 'bg-[#34C759]/10',
+    activeColor: 'border-[#34C759] text-[#34C759]',
+  },
+  {
+    id: 'tryon' as Tab,
+    label: 'Virtual Try-On',
+    sublabel: 'Visualisez vos pièces sur mannequin IA',
+    icon: ImageIcon,
+    badge: 'PREMIUM',
+    color: 'from-[#FF9500] to-[#FF6000]',
+    bgColor: 'bg-[#FF9500]/10',
+    activeColor: 'border-[#FF9500] text-[#FF9500]',
+  },
+  {
+    id: 'logo' as Tab,
+    label: 'Identité Visuelle',
+    sublabel: 'Générez votre logo et charte graphique',
+    icon: PenTool,
+    badge: null,
+    color: 'from-[#AF52DE] to-[#9034C7]',
+    bgColor: 'bg-[#AF52DE]/10',
+    activeColor: 'border-[#AF52DE] text-[#AF52DE]',
+  },
+  {
+    id: 'scripts' as Tab,
+    label: 'Scripts Marketing',
+    sublabel: 'Posts Instagram, TikTok & Reels structurés',
+    icon: LayoutList,
+    badge: null,
+    color: 'from-[#007AFF] to-[#0056CC]',
+    bgColor: 'bg-[#007AFF]/10',
+    activeColor: 'border-[#007AFF] text-[#007AFF]',
+  },
+] as const;
+
+export function UGCLab({ brandId, brandName, designs = [], brand, userPlan = 'free' }: UGCLabProps) {
+  const [activeTab, setActiveTab] = useState<Tab>('shooting');
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | undefined>();
+
+  const activeTabData = TABS.find(t => t.id === activeTab)!;
 
   return (
-    <div className="space-y-4">
-      {/* Onglets modernes */}
-      <Card className="border-b-2 rounded-none border-x-0 border-t-0 shadow-none bg-transparent">
-        <CardContent className="p-0">
-          <div className="flex gap-1 bg-muted/20 p-1 rounded-t-lg overflow-x-auto no-scrollbar">
-            <button
-              onClick={() => setActiveTab('tryon')}
-              className={cn(
-                'flex-1 min-w-[140px] px-4 py-2 text-xs font-semibold rounded-lg transition-all relative',
-                'flex items-center justify-center gap-2',
-                activeTab === 'tryon'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
-              <ImageIcon className="w-3.5 h-3.5" />
-              <span>Virtual Try-On</span>
-              <span className="hidden sm:inline-block px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold">PREMIUM</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('shooting')}
-              className={cn(
-                'flex-1 min-w-[140px] px-4 py-2 text-xs font-semibold rounded-lg transition-all relative',
-                'flex items-center justify-center gap-2',
-                activeTab === 'shooting'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
-              <Camera className="w-3.5 h-3.5" />
-              Shooting photo
-            </button>
-            <button
-              onClick={() => setActiveTab('logo')}
-              className={cn(
-                'flex-1 min-w-[140px] px-4 py-2 text-xs font-semibold rounded-lg transition-all relative',
-                'flex items-center justify-center gap-2',
-                activeTab === 'logo'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
-              <PenTool className="w-3.5 h-3.5" />
-              Identité visuelle
-            </button>
-            <button
-              onClick={() => setActiveTab('scripts')}
-              className={cn(
-                'flex-1 min-w-[140px] px-4 py-2 text-xs font-semibold rounded-lg transition-all relative',
-                'flex items-center justify-center gap-2',
-                activeTab === 'scripts'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
-              <LayoutList className="w-3.5 h-3.5" />
-              Post structuré
-            </button>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="space-y-4 sm:space-y-8">
 
-      {/* Contenu */}
-      <div className="min-h-0">
-        {activeTab === 'tryon' && (
-          <div className="space-y-3">
-            <div className="px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between gap-4">
-              <div className="flex flex-1 items-center gap-2">
-                <Sparkles className="w-4 h-4 text-amber-600" />
-                <p className="text-xs font-medium text-amber-800">Le Virtual Try-On Premium est payant à l&apos;unité (7,90€ / essai).</p>
+      {/* ── Tab Navigation : Cards cliquables ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+        {TABS.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                'relative group text-left p-3 sm:p-5 rounded-[18px] sm:rounded-[24px] border-2 transition-all duration-200 overflow-hidden',
+                isActive
+                  ? `${tab.bgColor} ${tab.activeColor} shadow-lg`
+                  : 'bg-white border-black/[0.06] hover:border-black/20 hover:shadow-md',
+              )}
+            >
+              {/* Active indicator */}
+              {isActive && (
+                <div className={cn("absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl opacity-30 bg-gradient-to-br", tab.color)} />
+              )}
+
+              <div className="relative space-y-2 sm:space-y-3">
+                <div className={cn("w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl flex items-center justify-center transition-all", isActive ? tab.bgColor : "bg-[#F5F5F7]")}>
+                  <Icon className={cn("w-4 h-4 sm:w-5 sm:h-5 transition-colors", isActive ? "text-current" : "text-[#86868B]")} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5">
+                    <p className={cn("text-[12px] sm:text-[13px] font-bold leading-tight", isActive ? "text-current" : "text-[#1D1D1F]")}>{tab.label}</p>
+                    {tab.badge && (
+                      <span className="text-[8px] sm:text-[9px] font-black bg-[#FF9500]/15 text-[#FF9500] px-1.5 py-0.5 rounded-full hidden sm:inline">{tab.badge}</span>
+                    )}
+                  </div>
+                  <p className="text-[10px] sm:text-[11px] text-[#86868B] leading-snug hidden md:block">{tab.sublabel}</p>
+                </div>
               </div>
-              <FeatureUsageBadge featureKey="ugc_virtual_tryon" className="bg-white/50 px-3 py-1 rounded-lg" isFree={userPlan === 'free'} />
-              <Link href="/usage" className="text-[10px] font-bold text-amber-700 underline hover:no-underline shrink-0">CRÉDITS</Link>
-            </div>
-            <VirtualTryOn brandId={brandId} designs={designs} />
-          </div>
-        )}
+            </button>
+          );
+        })}
+      </div>
 
-        {activeTab === 'shooting' && (
-          <div className="space-y-3">
-            <div className="px-4">
+      {/* ── Content Zone ── */}
+      <div className="bg-white rounded-[24px] sm:rounded-[32px] border border-black/[0.06] shadow-apple overflow-hidden">
+        {/* Header avec usage badge */}
+        <div className={cn("px-4 sm:px-8 py-4 sm:py-5 border-b border-black/5 flex items-center justify-between", activeTabData.bgColor.replace('/10', '/5'))}>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className={cn("w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl flex items-center justify-center", activeTabData.bgColor)}>
+              <activeTabData.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-current" />
+            </div>
+            <div>
+              <h2 className="text-[13px] sm:text-[15px] font-bold text-[#1D1D1F]">{activeTabData.label}</h2>
+              <p className="text-[10px] sm:text-[11px] text-[#86868B] hidden sm:block">{activeTabData.sublabel}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 sm:gap-3">
+            {activeTab === 'tryon' && (
+              <>
+                <FeatureUsageBadge featureKey="ugc_virtual_tryon" isFree={userPlan === 'free'} />
+                <Link href="/usage" className="text-[10px] font-bold text-[#FF9500] underline hover:no-underline hidden sm:inline">Crédits</Link>
+              </>
+            )}
+            {activeTab === 'shooting' && (
               <FeatureUsageBadge featureKey="ugc_shooting_photo" isFree={userPlan === 'free'} />
-            </div>
-            <ShootingPhoto
-              brandId={brandId}
-              designs={designs}
-              onSwitchToTryOn={() => setActiveTab('tryon')}
-            />
-          </div>
-        )}
-
-        {activeTab === 'logo' && (
-          <div className="space-y-3">
-            <div className="px-4">
+            )}
+            {activeTab === 'logo' && (
               <FeatureUsageBadge featureKey="brand_logo" isFree={userPlan === 'free'} />
-            </div>
-            <LogoGenerator brandId={brandId} />
-          </div>
-        )}
-
-        {activeTab === 'scripts' && (
-          <div className="space-y-3">
-            <div className="px-4">
+            )}
+            {activeTab === 'scripts' && (
               <FeatureUsageBadge featureKey="ugc_scripts" isFree={userPlan === 'free'} />
-            </div>
-            <StructuredPostCreator brandId={brandId} brandName={brandName} />
+            )}
           </div>
-        )}
+        </div>
+
+        {/* Tool area */}
+        <div className="relative p-4 sm:p-6 lg:p-8">
+          {/* Shadow State Overlay for Free Plan */}
+          {userPlan === 'free' && (
+            <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/40 backdrop-blur-[4px] rounded-b-[24px] sm:rounded-b-[32px]">
+              <div className="bg-white p-6 sm:p-8 rounded-[20px] sm:rounded-[24px] shadow-2xl border border-black/10 text-center max-w-sm space-y-5 mx-4 transform translate-y-[-5%] transition-all">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-black to-zinc-800 flex items-center justify-center mx-auto shadow-lg">
+                  <Lock className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-[16px] sm:text-[17px] font-black text-[#1D1D1F] mb-1.5">Aperçu du Studio IA</h3>
+                  <p className="text-[12px] sm:text-[13px] text-[#86868B] leading-relaxed">
+                    Vous visualisez l'interface en mode restreint. Le <strong className="text-[#1D1D1F]">plan Créateur</strong> débloque tous les outils d'IA.
+                  </p>
+                </div>
+                <Link
+                  href="/auth/choose-plan"
+                  className="inline-flex w-full items-center justify-center gap-2.5 rounded-full font-bold bg-[#007AFF] hover:bg-[#007AFF]/90 text-white h-11 sm:h-12 text-[13px] sm:text-[14px] transition-all shadow-md shadow-[#007AFF]/20"
+                >
+                  <Zap className="w-4 h-4" />
+                  Débloquer les Outils
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* Actual Tools (Blurred if Free) */}
+          <div className={cn(userPlan === 'free' && "opacity-40 pointer-events-none select-none blur-[2px]")}>
+            {activeTab === 'tryon' && (
+              <div className="space-y-4">
+                <div className="flex items-start gap-3 p-3 sm:p-4 bg-[#FF9500]/5 border border-[#FF9500]/15 rounded-xl sm:rounded-2xl">
+                  <Sparkles className="w-4 h-4 text-[#FF9500] shrink-0 mt-0.5" />
+                  <p className="text-[11px] sm:text-[12px] text-[#1D1D1F]">
+                    Le Virtual Try-On est un outil premium : <strong>7,90€ par essai</strong>. Vos crédits sont disponibles dans le tableau de bord.
+                  </p>
+                </div>
+                <VirtualTryOn
+                  brandId={brandId}
+                  designs={designs}
+                  onSelectImage={(url) => {
+                    setSelectedImageUrl(url);
+                    setActiveTab('scripts');
+                  }}
+                />
+              </div>
+            )}
+
+            {activeTab === 'shooting' && (
+              <ShootingPhoto
+                brandId={brandId}
+                designs={designs}
+                onSwitchToTryOn={() => setActiveTab('tryon')}
+                onSelectImage={(url) => {
+                  setSelectedImageUrl(url);
+                  setActiveTab('scripts');
+                }}
+              />
+            )}
+
+            {activeTab === 'logo' && (
+              <LogoGenerator brandId={brandId} />
+            )}
+
+            {activeTab === 'scripts' && (
+              <StructuredPostCreator
+                brandId={brandId}
+                brandName={brandName}
+                initialImageUrl={selectedImageUrl}
+              />
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

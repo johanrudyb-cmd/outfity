@@ -19,24 +19,21 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'brandId requis' }, { status: 400 });
     }
 
-    // Vérifier que la marque appartient à l'utilisateur
-    const brand = await prisma.brand.findFirst({
-      where: { id: brandId, userId: user.id },
-    });
+    // Vérification brand + fetch designs en parallèle
+    const [brand, designs] = await Promise.all([
+      prisma.brand.findFirst({ where: { id: brandId, userId: user.id }, select: { id: true } }),
+      prisma.design.findMany({
+        where: templatesOnly ? { brandId, isTemplate: true } : { brandId },
+        orderBy: templatesOnly ? { templateName: 'asc' } : { createdAt: 'desc' },
+        select: {
+          id: true, brandId: true, collectionId: true, isTemplate: true, templateName: true,
+          type: true, cut: true, material: true, flatSketchUrl: true, productImageUrl: true,
+          status: true, createdAt: true, updatedAt: true,
+        },
+      }),
+    ]);
 
-    if (!brand) {
-      return NextResponse.json({ error: 'Marque non trouvée' }, { status: 404 });
-    }
-
-    const where: any = { brandId };
-    if (templatesOnly) {
-      where.isTemplate = true;
-    }
-
-    const designs = await prisma.design.findMany({
-      where,
-      orderBy: templatesOnly ? { templateName: 'asc' } : { createdAt: 'desc' },
-    });
+    if (!brand) return NextResponse.json({ error: 'Marque non trouvée' }, { status: 404 });
 
     return NextResponse.json({ designs });
   } catch (error: any) {

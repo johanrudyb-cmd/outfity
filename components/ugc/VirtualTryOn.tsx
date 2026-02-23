@@ -75,9 +75,10 @@ interface Design {
 interface VirtualTryOnProps {
   brandId: string;
   designs: Design[];
+  onSelectImage?: (url: string) => void;
 }
 
-export function VirtualTryOn({ brandId, designs }: VirtualTryOnProps) {
+export function VirtualTryOn({ brandId, designs, onSelectImage }: VirtualTryOnProps) {
   const [stepIndex, setStepIndex] = useState(0);
   const [strategyContext, setStrategyContext] = useState<MannequinStrategyContext | null>(null);
   const [strategyLocked, setStrategyLocked] = useState<{ gender?: boolean; ageRange?: boolean }>({});
@@ -481,32 +482,44 @@ export function VirtualTryOn({ brandId, designs }: VirtualTryOnProps) {
             </>
           )}
 
-          <div className="flex justify-between pt-4">
+          <div className="flex justify-between items-center pt-4 border-t border-border mt-4">
             <Button
               type="button"
               variant="outline"
               onClick={() => setStepIndex((i) => Math.max(0, i - 1))}
               disabled={stepIndex === 0}
+              className="gap-1"
             >
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Précédent
+              <ChevronLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Précédent</span>
             </Button>
+            <span className="text-xs text-muted-foreground">{stepIndex + 1} / {STEPS.length}</span>
             {!isLastStep ? (
-              <Button type="button" onClick={() => setStepIndex((i) => Math.min(STEPS.length - 1, i + 1))}>
-                Suivant
-                <ChevronRight className="w-4 h-4 ml-1" />
+              <Button
+                type="button"
+                onClick={() => setStepIndex((i) => Math.min(STEPS.length - 1, i + 1))}
+                className="gap-1"
+              >
+                <span className="hidden sm:inline">Suivant</span>
+                <ChevronRight className="w-4 h-4" />
               </Button>
             ) : (
-              <Button type="button" onClick={handleGenerate} disabled={isGenerating || !canGenerate}>
+              <Button
+                type="button"
+                onClick={handleGenerate}
+                disabled={isGenerating || !canGenerate}
+                className="gap-2"
+              >
                 {isGenerating ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    Génération en cours…
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span className="hidden sm:inline">Génération…</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    {answers.creationMethod === 'reference_photo' ? 'Utiliser cette photo comme mannequin' : 'Générer le mannequin'}
+                    <Sparkles className="w-4 h-4" />
+                    <span className="hidden sm:inline">{answers.creationMethod === 'reference_photo' ? 'Créer le mannequin' : 'Générer'}</span>
+                    <span className="sm:hidden">Générer</span>
                     {answers.creationMethod !== 'reference_photo' && <GenerationCostBadge feature="ugc_generate_mannequin" />}
                   </>
                 )}
@@ -536,6 +549,13 @@ export function VirtualTryOn({ brandId, designs }: VirtualTryOnProps) {
               <img src={result} alt="Mannequin cible" className="w-full h-full object-cover" />
             </div>
             <div className="flex flex-wrap gap-3">
+              <Button
+                onClick={() => onSelectImage?.(result)}
+                className="gap-2 bg-black text-[#25F4EE] hover:bg-black/90 border border-white/10 shadow-lg"
+              >
+                <Sparkles className="w-4 h-4 text-[#FE2C55]" />
+                Créer un script TikTok pour cette photo
+              </Button>
               <Button
                 variant="secondary"
                 onClick={() => { setShowSaveMannequin(true); setSaveMannequinError(''); setMannequinName(''); }}
@@ -573,7 +593,8 @@ export function VirtualTryOn({ brandId, designs }: VirtualTryOnProps) {
             )}
           </CardContent>
         </Card>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 }

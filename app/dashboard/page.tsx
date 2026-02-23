@@ -120,8 +120,8 @@ export default async function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-[#F5F5F7]">
-        <div className="px-4 sm:px-6 lg:px-12 py-10 max-w-7xl mx-auto space-y-10">
+      <div className="min-h-screen bg-[#F5F5F7] pb-24 sm:pb-12">
+        <div className="px-4 sm:px-6 lg:px-12 py-8 sm:py-10 max-w-7xl mx-auto space-y-8 sm:space-y-10">
 
           {/* ── Header ── */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -259,7 +259,7 @@ export default async function DashboardPage() {
                     Accès rapide
                   </span>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
                   {quickTools.map((tool) => {
                     const Icon = tool.icon;
                     return (
@@ -267,18 +267,21 @@ export default async function DashboardPage() {
                         key={tool.href}
                         href={tool.href}
                         className={cn(
-                          "group bg-white rounded-[24px] p-5 border border-black/[0.05] shadow-sm flex items-center gap-4 transition-all duration-200 hover:shadow-apple active:scale-[0.97]",
+                          "group bg-white rounded-[20px] sm:rounded-[24px] p-4 sm:p-5 border border-black/[0.05] shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 transition-all duration-200 hover:shadow-apple active:scale-[0.97]",
                           tool.accent
                         )}
                       >
-                        <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform", tool.iconBg)}>
-                          <Icon className={cn("w-6 h-6", tool.iconColor)} />
+                        <div className="flex items-center justify-between w-full sm:w-auto">
+                          <div className={cn("w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform", tool.iconBg)}>
+                            <Icon className={cn("w-5 h-5 sm:w-6 sm:h-6", tool.iconColor)} />
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-[#C7C7CC] shrink-0 group-hover:text-[#86868B] transition-colors sm:hidden" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-bold text-sm text-[#1D1D1F] leading-tight truncate">{tool.title}</p>
-                          <p className="text-[11px] text-[#86868B] mt-0.5 truncate">{tool.subtitle}</p>
+                        <div className="flex-1 min-w-0 pr-1">
+                          <p className="font-bold text-[13px] sm:text-sm text-[#1D1D1F] leading-snug line-clamp-2">{tool.title}</p>
+                          <p className="text-[11px] text-[#86868B] mt-0.5 line-clamp-1">{tool.subtitle}</p>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-[#C7C7CC] shrink-0 group-hover:text-[#86868B] transition-colors" />
+                        <ChevronRight className="hidden sm:block w-4 h-4 text-[#C7C7CC] shrink-0 group-hover:text-[#86868B] transition-colors" />
                       </Link>
                     );
                   })}
@@ -290,43 +293,7 @@ export default async function DashboardPage() {
             {/* ── RIGHT (1/3) ── */}
             <div className="space-y-6">
 
-              {/* Brand Identity Card */}
-              <div className="bg-white rounded-[28px] border border-black/[0.06] shadow-apple p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-[#1D1D1F]">Votre marque</h3>
-                  <Link href="/launch-map" className="text-[10px] text-[#007AFF] font-bold uppercase tracking-widest hover:underline">
-                    Gérer
-                  </Link>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-[#F5F5F7] border border-black/5 flex items-center justify-center shrink-0 overflow-hidden">
-                    {brand.logo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={brand.logo} alt="Logo" className="w-full h-full object-contain" />
-                    ) : (
-                      <Sparkles className="w-6 h-6 text-[#86868B]" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="font-bold text-[#1D1D1F] text-lg leading-tight">{brand.name}</p>
-                    <p className="text-[11px] text-[#86868B] mt-0.5">
-                      {hasIdentity ? 'Identité définie ✓' : 'Identité à compléter'}
-                    </p>
-                  </div>
-                </div>
-                <div className="pt-2 border-t border-black/5">
-                  <div className="flex justify-between text-[11px] text-[#86868B] mb-1.5 font-medium">
-                    <span>Avancement global</span>
-                    <span className="font-bold text-[#1D1D1F]">{progress}%</span>
-                  </div>
-                  <div className="h-1.5 bg-[#F5F5F7] rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-[#007AFF] rounded-full transition-all duration-700"
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
+
 
               {/* Weekly Calendar */}
               <div className="bg-white rounded-[28px] border border-black/[0.06] shadow-apple p-6 space-y-4">

@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 // Types & constants
 // ─────────────────────────────────────────────────────────────
 
-type Step = 'welcome' | 'universe' | 'product' | 'identity' | 'pitch' | 'launch';
+type Step = 'welcome' | 'universe' | 'product' | 'identity' | 'pitch' | 'agents' | 'launch';
 
 interface OnboardingData {
     universe: string;
@@ -97,8 +97,10 @@ const PRODUCTS = [
     { id: 'ensemble', label: 'Ensemble', emoji: '🎽', trend: 94, desc: 'Niche premium rentable' },
 ];
 
-const STEP_ORDER: Step[] = ['welcome', 'universe', 'product', 'identity', 'pitch', 'launch'];
-const STEP_LABELS = ['Univers', 'Produit', 'Identité', 'Mission'];
+const STEP_ORDER: Step[] = ['welcome', 'universe', 'product', 'identity', 'pitch', 'agents', 'launch'];
+const STEP_LABELS = ['Univers', 'Produit', 'Identité', 'Mission', 'Ton Équipe'];
+
+import { AgentRevealCard, AGENTS_TEAM } from './AgentRevealCard';
 
 // ─────────────────────────────────────────────────────────────
 // Main component
@@ -123,7 +125,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
 
     const isCreator = plan === 'creator';
     const stepIndex = STEP_ORDER.indexOf(step);
-    const progressSteps = ['universe', 'product', 'identity', 'pitch'] as Step[];
+    const progressSteps = ['universe', 'product', 'identity', 'pitch', 'agents'] as Step[];
     const progressIndex = progressSteps.indexOf(step);
 
     // Re-check plan réel depuis la DB après retour Stripe
@@ -180,7 +182,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                 const json = await res.json();
                 throw new Error(json.error || 'Erreur');
             }
-            setStep('launch');
+            setStep('agents');
         } catch (e) {
             setError((e as Error).message);
             setSaving(false);
@@ -537,6 +539,51 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                             >
                                 Passer cette étape →
                             </button>
+                        </motion.div>
+                    )}
+
+                    {/* ── AGENTS REVEAL (FUT PACK) ── */}
+                    {step === 'agents' && (
+                        <motion.div key="agents"
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            transition={{ duration: 0.8 }}
+                            className="w-full max-w-5xl flex flex-col items-center space-y-12"
+                        >
+                            <div className="text-center space-y-3">
+                                <motion.div
+                                    initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+                                    transition={{ duration: 0.5 }}
+                                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] text-sm font-semibold uppercase tracking-wider mb-2"
+                                >
+                                    <Sparkles className="w-4 h-4" /> Agent Unlocked
+                                </motion.div>
+                                <h2 className="text-4xl sm:text-5xl font-black text-[#1D1D1F] tracking-tight uppercase">
+                                    Ton Équipe Experte
+                                </h2>
+                                <p className="text-lg text-[#86868B] max-w-lg mx-auto">
+                                    Découvre les intelligences artificielles dédiées au succès de {data.brandName || "ta marque"}.
+                                </p>
+                            </div>
+
+                            <div className="w-full max-w-full overflow-x-auto hide-scrollbar sm:overflow-visible pb-8 pt-4 px-4 sm:px-0">
+                                <div className="flex sm:flex-wrap items-center sm:justify-center gap-6 w-max sm:w-auto mx-auto snap-x snap-mandatory">
+                                    {AGENTS_TEAM.map((agent, i) => (
+                                        <div key={agent.id} className="snap-center shrink-0">
+                                            <AgentRevealCard agent={agent} delay={i * 0.4} />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <motion.button
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 3, duration: 0.5 }}
+                                onClick={goNext}
+                                className="w-full max-w-sm h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-base flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all shadow-lg shadow-blue-500/25"
+                            >
+                                Commencer le Lancement <ArrowRight className="w-4 h-4" />
+                            </motion.button>
                         </motion.div>
                     )}
 

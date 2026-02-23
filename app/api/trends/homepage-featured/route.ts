@@ -3,6 +3,8 @@ import { isDatabaseAvailable } from '@/lib/prisma';
 import { getFeaturedTrends } from '@/lib/trends-data';
 
 export const runtime = 'nodejs';
+// Cache 10 minutes — les featured trends sont stables
+export const revalidate = 600;
 
 export async function GET(request: Request) {
   const now = new Date();
@@ -15,10 +17,9 @@ export async function GET(request: Request) {
 
     const featuredTrends = await getFeaturedTrends();
 
-    return NextResponse.json({
-      trends: featuredTrends,
-      monthSeed,
-    });
+    const response = NextResponse.json({ trends: featuredTrends, monthSeed });
+    response.headers.set('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=1200');
+    return response;
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
 

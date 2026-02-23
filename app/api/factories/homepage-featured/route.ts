@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma, isDatabaseAvailable } from '@/lib/prisma';
 
 export const runtime = 'nodejs';
+export const revalidate = 1800;
 
 /**
  * GET /api/factories/homepage-featured
@@ -37,7 +38,9 @@ export async function GET() {
       turkeyFactory ? { ...turkeyFactory, country: 'Turquie' } : null,
     ].filter((f) => f !== null) as any[];
 
-    return NextResponse.json({ factories });
+    const response = NextResponse.json({ factories });
+    response.headers.set('Cache-Control', 'public, s-maxage=1800, stale-while-revalidate=3600');
+    return response;
   } catch (error: any) {
     console.error('[Homepage Featured Factories] Erreur:', error);
     return NextResponse.json({ error: 'Une erreur est survenue', factories: [] }, { status: 500 });

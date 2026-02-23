@@ -82,21 +82,23 @@ export function TendancesContent({ initialData }: { initialData?: any }) {
   const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
-    fetch('/style-previews.json')
-      .then(res => res.ok ? res.json() : null)
-      .then(data => setPreviews(data))
-      .catch(() => null);
-  }, []);
-
-  useEffect(() => {
-    const fetchStats = async () => {
+    const loadAll = async () => {
       setLoadingStats(true);
       try {
-        const res = await fetch(`/api/trends/hybrid-radar?segment=${segment}&limit=500`);
-        if (res.ok) {
-          const { trends } = await res.json();
-          const statsMap: Record<string, { score: number, diff: number, pct: string, newItems: number }> = {};
+        // Les 2 fetches partent en parallèle (gagne 300-800ms)
+        const [previewsRes, trendsRes] = await Promise.all([
+          fetch('/style-previews.json'),
+          fetch(`/api/trends/hybrid-radar?segment=${segment}&limit=120`),
+        ]);
 
+        if (previewsRes.ok) {
+          const data = await previewsRes.json();
+          setPreviews(data);
+        }
+
+        if (trendsRes.ok) {
+          const { trends } = await trendsRes.json();
+          const statsMap: Record<string, { score: number, diff: number, pct: string, newItems: number }> = {};
           const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
           MAIN_CATEGORIES.forEach(cat => {
@@ -105,13 +107,9 @@ export function TendancesContent({ initialData }: { initialData?: any }) {
               const avgScore = catProducts.reduce((acc: number, p: any) => acc + (p.trendScore || 50), 0) / catProducts.length;
               const volumeBonus = Math.min(15, Math.floor(catProducts.length / 5));
               const finalScore = Math.round(avgScore + volumeBonus);
-
               const newItems = catProducts.filter((p: any) => new Date(p.createdAt) > twentyFourHoursAgo).length;
-              const diff = newItems > 0
-                ? Math.max(1, Math.min(10, Math.floor(newItems / 2)))
-                : -0.2; // Baisse dérisoire par défaut si pas de refresh
+              const diff = newItems > 0 ? Math.max(1, Math.min(10, Math.floor(newItems / 2))) : -0.2;
               const pct = ((diff / (finalScore || 1)) * 100).toFixed(1);
-
               statsMap[cat.dbId] = { score: finalScore, diff, pct, newItems };
             } else {
               statsMap[cat.dbId] = { score: 50, diff: 0, pct: '0.0', newItems: 0 };
@@ -120,12 +118,12 @@ export function TendancesContent({ initialData }: { initialData?: any }) {
           setRealStats(statsMap as any);
         }
       } catch (e) {
-        console.error('Failed to fetch real stats:', e);
+        console.error('Failed to load trends data:', e);
       } finally {
         setLoadingStats(false);
       }
     };
-    fetchStats();
+    loadAll();
   }, [segment]);
 
   return (

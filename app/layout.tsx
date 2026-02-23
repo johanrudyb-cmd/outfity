@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { SurplusModalProvider } from '@/components/usage/SurplusModalContext';
-import { BackToTop } from '@/components/layout/BackToTop';
+
 import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 
 const inter = Inter({
@@ -125,7 +125,6 @@ export default function RootLayout({
             <SurplusModalProvider>{children}</SurplusModalProvider>
             <IOSInstallPrompt />
           </Providers>
-          <BackToTop />
         </ErrorBoundary>
       </body>
     </html>

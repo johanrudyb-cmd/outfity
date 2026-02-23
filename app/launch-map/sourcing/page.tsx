@@ -34,7 +34,6 @@ export default async function LaunchMapSourcingPage() {
       <Phase3SourcingChat
         brandId={brand.id}
         brand={brandForClient}
-        onComplete={() => { }}
         userPlan={user.plan}
       />
     </div>

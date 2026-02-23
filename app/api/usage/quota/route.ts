@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth-helpers';
-import { getFeatureCountThisMonth } from '@/lib/ai-usage';
+import { getFeatureCountThisMonth, getFeatureCountToday } from '@/lib/ai-usage';
 import { isAdminUser } from '@/lib/ai-usage';
 import type { AIFeatureKey } from '@/lib/ai-usage-config';
 import {
@@ -58,6 +58,7 @@ export async function GET() {
       factories_match: planLimits.factories_match,
       trends_hybrid_scan: planLimits.trends_hybrid_scan_limit,
       ugc_virtual_tryon: -1,
+      agent_chat: planLimits.agent_chat_limit,
     };
 
     const features = Object.keys(featureLimitMap) as QuotaFeatureKey[];
@@ -84,7 +85,11 @@ export async function GET() {
       let used = 0;
       if (baseLimit > 0) {
         try {
-          used = await getFeatureCountThisMonth(user.id, QUOTA_TO_AI_FEATURE[key] as any);
+          if (key === 'agent_chat') {
+            used = await getFeatureCountToday(user.id, QUOTA_TO_AI_FEATURE[key] as any);
+          } else {
+            used = await getFeatureCountThisMonth(user.id, QUOTA_TO_AI_FEATURE[key] as any);
+          }
         } catch {
           used = 0;
         }

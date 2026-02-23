@@ -3,8 +3,48 @@ import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { notifyAdmin } from '@/lib/admin-notifications';
 
+// --- In-Memory Rate Limiter basique ---
+// En production sur plusieurs serveurs (ex: Vercel Edge), il vaut mieux utiliser Upstash/Redis.
+// Mais pour un MVP ou un déploiement unique, cette Map en mémoire filtre 99% des bots basiques.
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const MAX_REQUESTS_PER_IP = 5;       // Max 5 inscriptions par minute
+const ipRequests = new Map<string, { count: number, resetTime: number }>();
+
 export async function POST(request: Request) {
     try {
+        // --- 1. RATE LIMITING ---
+        const ip = request.headers.get('x-forwarded-for') || '127.0.0.1';
+        const now = Date.now();
+        const limitData = ipRequests.get(ip);
+
+        if (limitData) {
+            if (now > limitData.resetTime) {
+                // Le temps est écoulé, on reset le compteur
+                ipRequests.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+            } else if (limitData.count >= MAX_REQUESTS_PER_IP) {
+                // Trop de requêtes
+                console.warn(`[Security] Blocage Rate Limit Inscription (IP: ${ip})`);
+                return NextResponse.json(
+                    { error: 'Trop de tentatives inscripton. Veuillez patienter une minute.' },
+                    { status: 429 } // 429 Too Many Requests
+                );
+            } else {
+                // On incrémente
+                limitData.count++;
+                ipRequests.set(ip, limitData);
+            }
+        } else {
+            // Première requête
+            ipRequests.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+        }
+
+        // --- Nettoyage périodique simple pour éviter les fuites de mémoire (très basique) ---
+        if (ipRequests.size > 10000) {
+            ipRequests.clear();
+            console.log('[Security] Vidage manuel du cache de Rate Limiting.');
+        }
+
+        // --- 2. TRAITEMENT NORMAL ---
         const { name, email, password } = await request.json();
 
         console.log('[Signup] Tentative inscription pour:', email);

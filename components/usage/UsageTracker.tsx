@@ -92,7 +92,7 @@ function UsageTrackerFeature({
       <div className="flex items-center justify-between gap-2">
         <span className="text-sm font-medium">{label}</span>
         <span className="text-xs text-muted-foreground tabular-nums">
-          {isUnlimited ? 'Illimité' : `${remaining} / ${limit} restants`}
+          {isUnlimited ? 'Illimité' : `${remaining} / ${limit} restant${featureKey === 'agent_chat' ? 's aujourd\'hui' : 's'}`}
         </span>
       </div>
       <div className="flex flex-col gap-1.5">

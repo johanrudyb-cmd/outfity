@@ -15,7 +15,8 @@ export type QuotaFeatureKey =
   | 'launch_map_site_texts'
   | 'factories_match'
   | 'trends_hybrid_scan'
-  | 'ugc_virtual_tryon'; // Module Premium (payant à l'essai)
+  | 'ugc_virtual_tryon' // Module Premium (payant à l'essai)
+  | 'agent_chat';
 
 /** Clé AIUsage pour le mapping */
 export const QUOTA_TO_AI_FEATURE: Record<QuotaFeatureKey, string> = {
@@ -31,6 +32,7 @@ export const QUOTA_TO_AI_FEATURE: Record<QuotaFeatureKey, string> = {
   factories_match: 'factories_match',
   trends_hybrid_scan: 'trends_hybrid_scan',
   ugc_virtual_tryon: 'ugc_virtual_tryon',
+  agent_chat: 'assistant_chat_qa',
 };
 
 /** -1 = illimité */
@@ -39,27 +41,29 @@ export const QUOTA_CONFIG = {
     brand_analyze_limit: 10,
     brand_strategy_limit: 10,
     strategy_view_limit: 10, // Consultations de stratégies templates par mois
-    ugc_scripts_limit: 10, // lots de 5 scripts
-    brand_logo_limit: 10,
-    trends_check_limit: 3,
-    trends_hybrid_scan_limit: 10,
-    ugc_shooting_photo_limit: 5,
-    ugc_shooting_product_limit: 1,
-    site_texts_limit: 999, // Illimité pour l'usage pratique
+    ugc_scripts_limit: -1, // Illimité
+    brand_logo_limit: 5,
+    trends_check_limit: -1,
+    trends_hybrid_scan_limit: -1,
+    ugc_shooting_photo_limit: 10,
+    ugc_shooting_product_limit: 10,
+    site_texts_limit: -1, // Illimité
     factories_match: -1, // Illimité (base de données statique)
+    agent_chat_limit: 40, // 40 par jour
   },
   free: {
     brand_analyze_limit: 0,
     brand_strategy_limit: 0,
     strategy_view_limit: 0,
-    ugc_scripts_limit: 0,
+    ugc_scripts_limit: 3, // 3 scripts gratuits (total via UI ou mois)
     brand_logo_limit: 0,
-    trends_check_limit: 1, // Limité à 1 pour free
-    trends_hybrid_scan_limit: 3, // 3 scans visuels pour free
+    trends_check_limit: 0, // Désactivé en gratuit sauf démo
+    trends_hybrid_scan_limit: 1, // 1 scan visuel free demo
     ugc_shooting_photo_limit: 0,
     ugc_shooting_product_limit: 0,
     site_texts_limit: 0,
     factories_match: 0,
+    agent_chat_limit: 3, // 3 par jour
   },
 } as const;
 
@@ -81,6 +85,7 @@ export const QUOTA_LIMITS: Record<QuotaFeatureKey, number> = {
   launch_map_site_texts: QUOTA_CONFIG.fashion_launch.site_texts_limit,
   factories_match: QUOTA_CONFIG.fashion_launch.factories_match,
   ugc_virtual_tryon: -1, // Premium : payant à l'essai (7,90€)
+  agent_chat: QUOTA_CONFIG.fashion_launch.agent_chat_limit,
 };
 
 /** Labels pour l'UI */
@@ -97,13 +102,14 @@ export const QUOTA_LABELS: Record<QuotaFeatureKey, string> = {
   launch_map_site_texts: 'Textes site',
   factories_match: 'Matching usines',
   ugc_virtual_tryon: 'Virtual Try-On',
+  agent_chat: 'Assistant IA',
 };
 
 /** Catégories pour le regroupement UI */
 export type QuotaCategory = 'intelligence' | 'identite' | 'marketing' | 'premium';
 
 export const QUOTA_CATEGORIES: Record<QuotaCategory, QuotaFeatureKey[]> = {
-  intelligence: ['brand_analyze', 'brand_strategy', 'strategy_view', 'trends_check_image', 'trends_hybrid_scan'],
+  intelligence: ['brand_analyze', 'brand_strategy', 'strategy_view', 'trends_check_image', 'trends_hybrid_scan', 'agent_chat'],
   identite: ['brand_logo', 'launch_map_site_texts'],
   marketing: ['ugc_scripts', 'ugc_shooting_photo', 'ugc_shooting_product'],
   premium: ['ugc_virtual_tryon'],

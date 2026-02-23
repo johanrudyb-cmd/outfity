@@ -61,6 +61,9 @@ RÈGLES IMPORTANTES (RESPECT OBLIGATOIRE) :
 - STRICTEMENT INTERDIT : N'utilise JAMAIS d'astérisques (*), JAMAIS de gras ou d'italique. N'utilise aucun formatage Markdown (exception: tu peux créer un bouton de redirection avec la syntaxe exacte [Texte du Bouton](/lien) quand c'est pertinent).
 - Réponds toujours en français. Sois TRÈS concis : 2-4 phrases max par réponse.
 - Pose TOUJOURS UNE SEULE question à la fois pour le faire avancer dans sa réflexion (ex: couleur, placement du logo, message à faire passer).
+- COLLABORATION IA : Ton domaine, c'est le design visuel. Ne réponds pas précisément aux questions de stratégie globale (prix, marketing, cible) ou de sourcing (trouver une usine).
+  - Pour la Stratégie/Marketing, demande-lui de consulter Virgil, votre Directeur de Stratégie. Bouton : [Demander à Virgil](/launch-map/phase/1)
+  - Pour le Sourcing/Production, redirige-le vers Ada, l'Expert Sourcing. Bouton : [Demander à Ada](/launch-map/sourcing)
 - Fais un vrai travail de découverte du besoin en t'appuyant sur sa stratégie. Ne donne pas la solution de suite, fais-le réfléchir.
 - ANTICIPATION & MARCHÉ (OUTIL VIRAL) : À chaque fois que l'utilisateur te parle d'un vêtement précis qu'il veut créer (ex: un t-shirt, un hoodie), ou s'il y a une notion de délai, tu dois ABSOLUMENT le sensibiliser à la validation de marché. Dis-lui que faire un vêtement au hasard est risqué et redirige-le vers l'outil "Viral sur Tiktok" d'OUTFITY pour vérifier si la coupe ou le style est tendance. Donne-lui ce bouton précis pour qu'il aille vérifier : [Vérifier sur Viral sur Tiktok](/trends)
 - OUTILS DE L'APP : D'une manière générale, redirige toujours (au maximum et quand c'est pertinent) vers les outils de l'app OUTFITY pour renforcer leur utilité.
@@ -77,16 +80,25 @@ RÈGLES IMPORTANTES (RESPECT OBLIGATOIRE) :
 DÉBUT DE CONVERSATION :
 Si c'est le premier message (historique contenant "__INIT__"), présente-toi comme Pharell, Directeur Artistique. Explique clairement que ton rôle est d'assurer la cohérence visuelle de sa collection de A à Z. Ne lui propose pas de fichier tout de suite. Demande-lui juste quelle pièce il souhaite designer en premier (par exemple un t-shirt ou un hoodie) pour qu'on commence la réflexion. Termine par tes suggestions de pièces : [[Un T-shirt|Un Hoodie|Un Sweatshirt]]`;
 
-        const filteredMessages = messages.map(m => {
-            if (m.content === '__INIT__') {
-                return { role: m.role, content: "Salut Pharell, par où commencer pour les mockups ?" };
-            }
-            return { role: m.role, content: m.content };
-        });
+        let filteredMessages = messages.map(m => ({
+            role: m.role,
+            content: m.content === '__INIT__'
+                ? "Salut Pharell, par où commencer pour les mockups ?"
+                : m.content,
+        }));
+
+        // Anthropic requires first message to be 'user'
+        if (filteredMessages.length > 0 && filteredMessages[0].role === 'assistant') {
+            filteredMessages = filteredMessages.slice(1);
+        }
+
+        if (filteredMessages.length === 0) {
+            filteredMessages = [{ role: 'user', content: "Salut" }];
+        }
 
         const response = await anthropic.messages.create({
-            model: 'claude-sonnet-4-5-20250929',
-            max_tokens: 600,
+            model: 'claude-3-haiku-20240307',
+            max_tokens: 1024,
             system: SYSTEM_PROMPT,
             messages: filteredMessages as any,
         });
@@ -94,8 +106,11 @@ Si c'est le premier message (historique contenant "__INIT__"), présente-toi com
         const reply = response.content[0].type === 'text' ? response.content[0].text : '';
 
         return NextResponse.json({ reply });
-    } catch (error) {
-        console.error('[mockup-chat]', error);
-        return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
+    } catch (error: any) {
+        console.error('[mockup-chat] ERROR:', error);
+        return NextResponse.json({
+            error: 'Erreur serveur.',
+            details: error?.message || String(error)
+        }, { status: 500 });
     }
 }

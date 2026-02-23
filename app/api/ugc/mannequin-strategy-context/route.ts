@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
 
-export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 /** GET : retourne le contexte stratégie pour pré-remplir / verrouiller les champs mannequin (cible, positionnement) */
 export async function GET(request: Request) {
@@ -14,16 +14,16 @@ export async function GET(request: Request) {
     const brandId = searchParams.get('brandId')?.trim();
     if (!brandId) return NextResponse.json({ error: 'brandId requis' }, { status: 400 });
 
-    const brand = await prisma.brand.findFirst({
-      where: { id: brandId, userId: user.id },
-    });
+    // Parallèle : vérif brand + dernière stratégie
+    const [brand, latest] = await Promise.all([
+      prisma.brand.findFirst({ where: { id: brandId, userId: user.id }, select: { id: true } }),
+      prisma.strategyGeneration.findFirst({
+        where: { brandId },
+        orderBy: { createdAt: 'desc' },
+        select: { targetAudience: true, positioning: true },
+      }),
+    ]);
     if (!brand) return NextResponse.json({ error: 'Marque non trouvée' }, { status: 404 });
-
-    const latest = await prisma.strategyGeneration.findFirst({
-      where: { brandId },
-      orderBy: { createdAt: 'desc' },
-      select: { targetAudience: true, positioning: true },
-    });
 
     return NextResponse.json({
       targetAudience: latest?.targetAudience ?? null,

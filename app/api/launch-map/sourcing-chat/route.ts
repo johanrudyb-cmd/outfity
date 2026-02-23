@@ -89,6 +89,9 @@ RÈGLES DE COMMUNICATION :
 - Toujours en français. 2-4 phrases max par réponse, sauf fiche usine.
 - UNE seule question à la fois. Pas de listes à puces.
 - Tu tutoies l'utilisateur. Ton ton : expert, direct, humain.
+- COLLABORATION IA : Ton domaine, c'est le sourcing et la production.
+  - Si l'utilisateur pose une question de design créatif, mockup, ou placement de logo, demande-lui de voir Pharell, le Directeur Artistique. Bouton : [Demander à Pharell](/launch-map/phase/2)
+  - S'il pose une question de marketing, positionnement, marque ou stratégie globale, redirige-le vers Virgil, Directeur Stratégique. Bouton : [Demander à Virgil](/launch-map/phase/1)
 
 PROCESSUS (SUIS CE FLOW STRICTEMENT) :
 
@@ -131,30 +134,38 @@ SUGGESTIONS :
 INIT :
 Si "__INIT__", présente-toi comme Ada, experte sourcing chez OUTFITY. Dis que tu vas trouver les meilleures usines pour la collection, mais que tu travailles sur mesure — donc commence par comprendre le projet. Demande : quel type de vêtement veut-il produire en premier ? [[T-shirt|Hoodie|Veste|Autre chose]]`;
 
-        // Build the messages for Claude
-        // If there's a tech pack image, inject it into the last user message as vision content
+        // Sanitize messages for Anthropic: must start with 'user' and alternate roles
+        let sanitizedMessages = messages.map(m => ({
+            role: m.role,
+            content: m.content === '__INIT__'
+                ? "Bonjour Ada, j'ai besoin de trouver un fournisseur pour ma collection."
+                : m.content,
+        }));
+
+        // Anthropic requires the first message to be from the 'user'
+        if (sanitizedMessages.length > 0 && sanitizedMessages[0].role === 'assistant') {
+            sanitizedMessages = sanitizedMessages.slice(1);
+        }
+
+        // If after slicing it's empty, or somehow still starts with assistant (shouldn't happen), fix it
+        if (sanitizedMessages.length === 0) {
+            sanitizedMessages = [{ role: 'user', content: "Bonjour" }];
+        }
+
+        // Handle Vision if image is present
         let claudeMessages: any[];
-
         if (techPackImageBase64) {
-            // Find the last user message and add the image to it
-            const regularMessages = messages.slice(0, -1).map(m => ({
-                role: m.role,
-                content: m.content === '__INIT__'
-                    ? "Bonjour Ada, j'ai besoin de trouver un fournisseur pour ma collection."
-                    : m.content,
-            }));
-
-            const lastMsg = messages[messages.length - 1];
+            const lastMsg = sanitizedMessages[sanitizedMessages.length - 1];
             claudeMessages = [
-                ...regularMessages,
+                ...sanitizedMessages.slice(0, -1),
                 {
-                    role: lastMsg.role,
+                    role: 'user',
                     content: [
                         {
                             type: 'image',
                             source: {
                                 type: 'base64',
-                                media_type: techPackMimeType as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp',
+                                media_type: techPackMimeType as any,
                                 data: techPackImageBase64,
                             },
                         },
@@ -166,17 +177,13 @@ Si "__INIT__", présente-toi comme Ada, experte sourcing chez OUTFITY. Dis que t
                 },
             ];
         } else {
-            claudeMessages = messages.map(m => ({
-                role: m.role,
-                content: m.content === '__INIT__'
-                    ? "Bonjour Ada, j'ai besoin de trouver un fournisseur pour ma collection."
-                    : m.content,
-            }));
+            claudeMessages = sanitizedMessages;
         }
 
+        // Using Haiku - only verified model for this key
         const response = await anthropic.messages.create({
-            model: 'claude-opus-4-5',
-            max_tokens: 900,
+            model: 'claude-3-haiku-20240307',
+            max_tokens: 1024,
             system: SYSTEM_PROMPT,
             messages: claudeMessages,
         });
@@ -184,8 +191,12 @@ Si "__INIT__", présente-toi comme Ada, experte sourcing chez OUTFITY. Dis que t
         const reply = response.content[0].type === 'text' ? response.content[0].text : '';
 
         return NextResponse.json({ reply });
-    } catch (error) {
-        console.error('[sourcing-chat]', error);
-        return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
+    } catch (error: any) {
+        console.error('[sourcing-chat] ERROR:', error);
+        return NextResponse.json({
+            error: 'Erreur serveur.',
+            details: error?.message || String(error),
+            stack: process.env.NODE_ENV === 'development' ? error?.stack : undefined
+        }, { status: 500 });
     }
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, ArrowLeft, Loader2, ArrowRight, ExternalLink, Check, Paperclip, X, ImageIcon } from 'lucide-react';
+import { Send, ArrowLeft, Loader2, ArrowRight, ExternalLink, Check, Paperclip, X, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import type { BrandIdentity } from './LaunchMapStepper';
@@ -17,7 +17,7 @@ interface Message {
 interface Phase3SourcingChatProps {
     brandId: string;
     brand?: BrandIdentity | null;
-    onComplete: () => void;
+    onComplete?: () => void;
     userPlan?: string;
 }
 

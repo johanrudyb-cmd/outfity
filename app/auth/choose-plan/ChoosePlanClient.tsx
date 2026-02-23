@@ -8,9 +8,11 @@ import { cn } from '@/lib/utils';
 import { SubscriptionWarning } from '@/components/subscription/SubscriptionWarning';
 
 const FREE_FEATURES = [
-  '3 analyses de tendances par mois',
-  'Scanner visuel IA (1/mois)',
-  'Calculateur de marge',
+  'Assistant IA générique (3 msgs/jour)',
+  'Scripts Marketing (3/mois)',
+  'Accès interface Outils Créatifs',
+  'Calcul financier illimité',
+  'Calendrier Éditorial (Lecture)',
 ];
 
 const CREATOR_FEATURES = [

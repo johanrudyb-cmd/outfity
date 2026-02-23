@@ -83,12 +83,12 @@ export function LaunchMapOverview({
   const primaryColor = colorPalette?.primary ?? '#007AFF';
 
   return (
-    <div className="min-h-screen bg-[#F5F5F7]">
-      <div className="px-4 sm:px-6 lg:px-12 py-10 max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen bg-[#F5F5F7] pb-24 sm:pb-12">
+      <div className="px-4 sm:px-6 lg:px-12 py-6 sm:py-10 max-w-7xl mx-auto space-y-6 sm:space-y-8">
 
         {/* ── Brand Hero Header ── */}
-        <div className="bg-white rounded-[32px] border border-black/[0.06] shadow-apple p-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        <div className="bg-white rounded-[28px] sm:rounded-[32px] border border-black/[0.06] shadow-apple p-5 sm:p-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 sm:gap-6">
             {/* Brand Identity */}
             <div className="flex items-center gap-5">
               <div className="w-16 h-16 rounded-2xl bg-[#F5F5F7] border border-black/5 flex items-center justify-center shrink-0 overflow-hidden">
@@ -235,9 +235,9 @@ export function LaunchMapOverview({
                       key={p.id}
                       href={href}
                       className={cn(
-                        "group flex items-center gap-4 p-5 rounded-[24px] border transition-all duration-200 hover:shadow-apple active:scale-[0.98]",
+                        "group flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-[20px] sm:rounded-[24px] border transition-all duration-200 hover:shadow-apple active:scale-[0.98]",
                         done
-                          ? "bg-white border-[#007AFF]/20 hover:border-[#007AFF]/40"
+                          ? "bg-white border-[#007AFF]/10 hover:border-[#007AFF]/20 shadow-sm"
                           : locked
                             ? "bg-white border-black/5 opacity-50"
                             : "bg-white border-black/[0.06] hover:border-black/[0.12]"
@@ -267,9 +267,11 @@ export function LaunchMapOverview({
                       </div>
 
                       {/* Status */}
-                      <div className="shrink-0">
+                      <div className="shrink-0 flex items-center justify-center">
                         {done ? (
-                          <span className="text-[10px] font-bold text-[#007AFF] bg-[#007AFF]/10 px-2 py-1 rounded-full">Fait ✓</span>
+                          <div className="flex items-center gap-1 text-[9px] font-black text-[#007AFF] uppercase tracking-widest bg-[#007AFF]/5 px-2 py-1 rounded-full border border-[#007AFF]/10">
+                            Fait
+                          </div>
                         ) : (
                           <ChevronRight className="w-4 h-4 text-[#C7C7CC] group-hover:text-[#86868B]" />
                         )}
@@ -337,17 +339,6 @@ export function LaunchMapOverview({
               </div>
             )}
 
-            {/* Stats rapides */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white rounded-[24px] border border-black/[0.06] shadow-sm p-5">
-                <p className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest mb-2">Designs</p>
-                <p className="text-3xl font-bold text-[#1D1D1F]">{designCount}</p>
-              </div>
-              <div className="bg-white rounded-[24px] border border-black/[0.06] shadow-sm p-5">
-                <p className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest mb-2">Devis</p>
-                <p className="text-3xl font-bold text-[#1D1D1F]">{quoteCount}</p>
-              </div>
-            </div>
 
             {/* Suppliers */}
             {suppliers.length > 0 && (

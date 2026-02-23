@@ -77,7 +77,10 @@ export function LaunchMapNav({
   const isPhaseAccessible = () => true;
 
   return (
-    <nav className="sticky top-14 sm:top-16 z-30 w-full border-b border-border bg-card shadow-sm">
+    <nav className={cn(
+      "sticky top-14 sm:top-16 z-30 w-full border-b border-border bg-card shadow-sm",
+      !isOverview && "hidden lg:block"
+    )}>
       <div className="relative overflow-hidden group">
         <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-card to-transparent z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity lg:hidden" />
 

@@ -22,23 +22,17 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Vérifier que la marque appartient à l'utilisateur
-    const brand = await prisma.brand.findFirst({
-      where: { id: brandId, userId: user.id },
-    });
+    // Vérification brand + collections en parallèle
+    const [brand, collections] = await Promise.all([
+      prisma.brand.findFirst({ where: { id: brandId, userId: user.id }, select: { id: true } }),
+      prisma.collection.findMany({
+        where: { brandId },
+        include: { _count: { select: { designs: true } } },
+        orderBy: { name: 'asc' },
+      }),
+    ]);
 
-    if (!brand) {
-      return NextResponse.json(
-        { error: 'Marque non trouvée' },
-        { status: 404 }
-      );
-    }
-
-    const collections = await prisma.collection.findMany({
-      where: { brandId },
-      include: { _count: { select: { designs: true } } },
-      orderBy: { name: 'asc' },
-    });
+    if (!brand) return NextResponse.json({ error: 'Marque non trouvée' }, { status: 404 });
 
     return NextResponse.json({ collections });
   } catch (error: any) {

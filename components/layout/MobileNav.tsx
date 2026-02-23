@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 const mobileLinks = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Accueil', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Viral sur Tiktok', href: '/trends', icon: TrendingUp },
     { name: 'Launch Map', href: '/launch-map', icon: Map },
     { name: 'Compte', href: '/settings', icon: CircleUser },
@@ -37,28 +37,28 @@ export function MobileNav({ onMenuClick }: MobileNavProps) {
                             key={link.name}
                             href={link.href}
                             className={cn(
-                                "flex flex-col items-center justify-center gap-1 w-full h-full transition-all duration-200",
-                                isActive ? "text-[#007AFF] scale-110" : "text-[#1D1D1F]/40 hover:text-[#1D1D1F]/60"
+                                "flex flex-col items-center justify-center gap-1.5 w-full h-full transition-all duration-300",
+                                isActive ? "text-[#007AFF]" : "text-[#1D1D1F]/40"
                             )}
                         >
-                            <Icon className={cn("w-5 h-5", isActive ? "stroke-[2.5px]" : "stroke-[2px]")} />
+                            <Icon className={cn("w-5 h-5 transition-transform duration-300", isActive ? "stroke-[2.5px] scale-110" : "stroke-[2px]")} />
                             <span className={cn(
-                                "text-[8px] font-bold text-center leading-none transition-all",
-                                isActive ? "opacity-100" : "opacity-70"
+                                "text-[9px] font-black text-center leading-none transition-all uppercase tracking-tighter",
+                                isActive ? "opacity-100" : "opacity-60"
                             )}>
-                                {link.name}
+                                {link.name.split(' ')[0]}
                             </span>
                         </Link>
                     );
                 })}
 
-                {/* Menu Button as 'Plus' to still allow access to sidebar if needed, but restored original 4 links first */}
+                {/* Menu Button as 'Plus' */}
                 <button
                     onClick={onMenuClick}
-                    className="flex flex-col items-center justify-center gap-1 w-full h-full text-[#1D1D1F]/40 hover:text-[#1D1D1F]/60 transition-all active:scale-90"
+                    className="flex flex-col items-center justify-center gap-1.5 w-full h-full text-[#1D1D1F]/40 active:scale-90 transition-all"
                 >
                     <Menu className="w-5 h-5 stroke-[2px]" />
-                    <span className="text-[8px] font-bold text-center leading-none opacity-70">Plus</span>
+                    <span className="text-[9px] font-black text-center leading-none opacity-60 uppercase tracking-tighter">Plus</span>
                 </button>
             </div>
         </nav>
