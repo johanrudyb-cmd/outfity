@@ -24,20 +24,28 @@ interface Message {
 
 // Renders markdown-like content. Handles __SHOW_MOCKUP_SELECTOR__ magic string
 function MessageContent({ content, isUser, brandId, brandName, userPlan }: { content: string, isUser: boolean, brandId: string, brandName?: string, userPlan?: string }) {
-  if (content.includes('__SHOW_MOCKUP_SELECTOR__')) {
-    const textPart = content.replace('__SHOW_MOCKUP_SELECTOR__', '').trim();
+  // Hide suggestions [[...]] and mockup selector from the text bubble
+  let displayContent = content.replace(/\[\[.*?\]\]/g, '').trim();
+
+  const matchRender = displayContent.match(/__SHOW_MOCKUP_SELECTOR(?::([a-zA-Z0-9_\-]+))?__/);
+  if (matchRender) {
+    const typeFilter = matchRender[1];
+    const textPart = displayContent.replace(matchRender[0], '').trim();
     return (
       <div className="space-y-4">
         {textPart && <div className="leading-relaxed text-[15px] whitespace-pre-wrap">{textPart}</div>}
         <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-4 border border-black/5">
-          <MockupPackSelector brandId={brandId} brandName={brandName} inline userPlan={userPlan} />
+          <MockupPackSelector brandId={brandId} brandName={brandName} inline userPlan={userPlan} typeFilter={typeFilter} />
         </div>
       </div>
     );
   }
 
+  // Update internal displayContent for further processing
+  const finalContent = displayContent;
+
   // Handle links like [Option 1](url)
-  const parts = content.split(/(\[.*?\]\(.*?\))/g);
+  const parts = finalContent.split(/(\[.*?\]\(.*?\))/g);
   const elements = parts.map((part, i) => {
     const match = part.match(/^\[(.*?)\]\((.*?)\)$/);
     if (match) {
@@ -75,6 +83,7 @@ const QUICK_REPLIES = [
 
 export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: PhaseMockupCreationProps) {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -123,11 +132,20 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
     })
       .then(r => r.json())
       .then(data => {
-        intro.content = data.reply || `Salut ! Je suis Pharell, ton designer 3D 👋 C'est l'heure de créer tes mockups. Sais-tu déjà quel outil utiliser (Canva, Photoshop...) ou on fait le point sur ton budget/tes compétences ?`;
+        const rawContent = data.reply || `Salut ! Je suis Pharell, ton coach design 👋 Mon rôle est de t'accompagner pas à pas dans la création visuelle de ta collection. Quelle pièce veut-tu designer en premier pour qu'on prépare le bon mockup ? [[Un T-shirt|Un Hoodie|Un Sweatshirt]]`;
+
+        // Extract suggestions
+        const suggestMatch = rawContent.match(/\[\[(.*?)\]\]/);
+        if (suggestMatch) {
+          setSuggestions(suggestMatch[1].split('|'));
+        }
+
+        intro.content = rawContent;
         setMessages([{ ...intro }]);
       })
       .catch(() => {
-        intro.content = `Salut ! Je suis Pharell, ton designer 3D 👋 Prêt à passer à la création des mockups ? Avant de télécharger ton pack, quel est ton niveau technique ? Plutôt Canva (débutant) ou Photoshop (pro) ?`;
+        intro.content = `Salut ! Je suis Pharell, ton coach design 👋 Mon rôle est de t'accompagner de A à Z. Quelle pièce veut-tu designer en premier (t-shirt, hoodie...) ? [[Un T-shirt|Un Hoodie]]`;
+        setSuggestions(['Un T-shirt', 'Un Hoodie']);
         setMessages([{ ...intro }]);
       })
       .finally(() => setIsTyping(false));
@@ -164,10 +182,20 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
         }),
       });
       const data = await res.json();
+      const rawReply = data.reply || 'Je rencontre un souci technique. Réessaie dans un instant.';
+
+      // Extract suggestions
+      const suggestMatch = rawReply.match(/\[\[(.*?)\]\]/);
+      if (suggestMatch) {
+        setSuggestions(suggestMatch[1].split('|'));
+      } else {
+        setSuggestions([]);
+      }
+
       const pharellMsg: Message = {
         id: `pharell-${Date.now()}`,
         role: 'assistant',
-        content: data.reply || 'Je rencontre un souci technique. Réessaie dans un instant.',
+        content: rawReply,
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, pharellMsg]);
@@ -200,10 +228,14 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
     })
       .then(r => r.json())
       .then(data => {
+        const rawReply = data.reply || 'On reprend à zéro ! Par où veux-tu commencer ? [[Un T-shirt|Un Hoodie]]';
+        const suggestMatch = rawReply.match(/\[\[(.*?)\]\]/);
+        if (suggestMatch) setSuggestions(suggestMatch[1].split('|'));
+
         setMessages([{
           id: `pharell-${Date.now()}`,
           role: 'assistant',
-          content: data.reply || 'On reprend à zéro ! Par où veux-tu commencer ?',
+          content: rawReply,
           timestamp: new Date(),
         }]);
       })
@@ -300,12 +332,15 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
 
       {/* ── Input Box ── */}
       <div className="shrink-0 pt-2 pb-32 sm:pb-6 px-4 sm:px-6 bg-[#F5F5F7] z-20 pb-safe">
-        {messages.length <= 2 && !isTyping && (
+        {suggestions.length > 0 && !isTyping && (
           <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3">
-            {QUICK_REPLIES.map(reply => (
+            {suggestions.map(reply => (
               <button
                 key={reply}
-                onClick={() => sendMessage(reply)}
+                onClick={() => {
+                  sendMessage(reply);
+                  setSuggestions([]);
+                }}
                 className="shrink-0 text-[13px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 px-4 py-2 rounded-full transition-all active:scale-95"
               >
                 {reply}
