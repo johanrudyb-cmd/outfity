@@ -68,9 +68,10 @@ function MessageContent({ content, isUser, brandId, brandName, userPlan }: { con
 }
 
 const QUICK_REPLIES = [
+  "J'ai un petit budget (Canva ?)",
+  "Je maîtrise Photoshop",
+  "Je veux déléguer le design",
   "Je veux mon pack mockup",
-  "Comment on utilise Photoshop ?",
-  "Quels mockups choisir ?",
 ];
 
 export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: PhaseMockupCreationProps) {
@@ -123,11 +124,11 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
     })
       .then(r => r.json())
       .then(data => {
-        intro.content = data.reply || `Salut ! Je suis Johan, ton designer 3D 👋 C'est l'heure de créer tes mockups. Tu sais déjà comment ça marche ou je t'explique ?`;
+        intro.content = data.reply || `Salut ! Je suis Johan, ton designer 3D 👋 C'est l'heure de créer tes mockups. Sais-tu déjà quel outil utiliser (Canva, Photoshop...) ou on fait le point sur ton budget/tes compétences ?`;
         setMessages([{ ...intro }]);
       })
       .catch(() => {
-        intro.content = `Salut ! Je suis Johan, ton designer 3D 👋 Prêt à passer à la création des mockups de ta marque ?`;
+        intro.content = `Salut ! Je suis Johan, ton designer 3D 👋 Prêt à passer à la création des mockups ? Avant de télécharger ton pack, quel est ton niveau technique ? Plutôt Canva (débutant) ou Photoshop (pro) ?`;
         setMessages([{ ...intro }]);
       })
       .finally(() => setIsTyping(false));
