@@ -365,21 +365,25 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
             <div className="max-w-xl w-full mx-auto">
 
               {currentStep.id === 'positioning' && (
-                <div className="grid grid-cols-1 gap-4 w-full animate-in fade-in duration-700">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full animate-in fade-in duration-700">
                   {POSITIONING_OPTIONS.map((opt) => (
                     <button
                       key={opt}
                       onClick={() => setPositioning(opt)}
                       className={cn(
-                        "p-6 rounded-[28px] text-left border transition-all duration-500 group",
+                        "p-4 sm:p-5 rounded-[24px] text-left border transition-all duration-500 group",
                         positioning === opt
                           ? "bg-white border-white text-black shadow-xl scale-[1.02]"
                           : "bg-white/40 border-black/5 text-[#86868B] hover:bg-white hover:border-black/10"
                       )}
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="text-base sm:text-lg font-bold tracking-tight text-[#1D1D1F]">{opt}</span>
-                        {positioning === opt && <div className="w-8 h-8 rounded-full bg-[#007AFF] flex items-center justify-center text-white"><Check className="w-5 h-5" /></div>}
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-sm font-bold tracking-tight text-[#1D1D1F] leading-tight">{opt}</span>
+                        {positioning === opt && (
+                          <div className="w-6 h-6 shrink-0 rounded-full bg-[#007AFF] flex items-center justify-center text-white">
+                            <Check className="w-4 h-4" />
+                          </div>
+                        )}
                       </div>
                     </button>
                   ))}
@@ -387,25 +391,29 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
               )}
 
               {currentStep.id === 'audience' && (
-                <div className="grid grid-cols-1 gap-4 w-full animate-in fade-in duration-700">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full animate-in fade-in duration-700">
                   {targetAudienceOptions.length > 0 ? targetAudienceOptions.map((opt) => (
                     <button
                       key={opt}
                       onClick={() => setTargetAudience(opt)}
                       className={cn(
-                        "p-6 rounded-[28px] text-left border transition-all duration-500 group",
+                        "p-4 sm:p-5 rounded-[24px] text-left border transition-all duration-500 group",
                         targetAudience === opt
                           ? "bg-white border-white text-black shadow-xl scale-[1.02]"
                           : "bg-white/40 border-black/5 text-[#86868B] hover:bg-white hover:border-black/10"
                       )}
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="text-lg font-bold tracking-tight text-[#1D1D1F]">{opt}</span>
-                        {targetAudience === opt && <div className="w-8 h-8 rounded-full bg-[#007AFF] flex items-center justify-center text-white"><Check className="w-5 h-5" /></div>}
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-sm font-bold tracking-tight text-[#1D1D1F] leading-tight">{opt}</span>
+                        {targetAudience === opt && (
+                          <div className="w-6 h-6 shrink-0 rounded-full bg-[#007AFF] flex items-center justify-center text-white">
+                            <Check className="w-4 h-4" />
+                          </div>
+                        )}
                       </div>
                     </button>
                   )) : (
-                    <div className="bg-amber-50 p-6 rounded-3xl border border-amber-200 text-amber-800 text-sm font-medium">
+                    <div className="col-span-full bg-amber-50 p-6 rounded-3xl border border-amber-200 text-amber-800 text-sm font-medium">
                       Veuillez d&apos;abord choisir un positionnement.
                     </div>
                   )}
