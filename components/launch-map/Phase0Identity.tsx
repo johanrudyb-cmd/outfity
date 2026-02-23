@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, ArrowRight, CheckCircle2, ImageOff, Upload, Sparkles, Globe } from 'lucide-react';
+import { Loader2, ArrowRight, ArrowLeft, ImageOff, Upload, Sparkles, Globe, CheckCircle2 } from 'lucide-react';
 import { BrandLogo } from '@/components/brands/BrandLogo';
 import { cn } from '@/lib/utils';
 import {
@@ -42,7 +42,6 @@ function styleGuideBool(sg: Record<string, unknown> | null | undefined, key: str
 export function Phase0Identity({ brandId, brand, brandName, onComplete, hideNameField = false, demoMode = false, userPlan = 'free' }: Phase0IdentityProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
 
   const [name, setName] = useState('');
@@ -51,7 +50,7 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
   const [logoUploading, setLogoUploading] = useState(false);
   const [logoUploadError, setLogoUploadError] = useState('');
   const logoFileInputRef = useRef<HTMLInputElement>(null);
-  const errorRef = useRef<HTMLParagraphElement>(null);
+
   const [domain, setDomain] = useState('');
   const [instagram, setInstagram] = useState('');
   const [twitter, setTwitter] = useState('');
@@ -66,6 +65,20 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
 
   const recommendation = useMemo(() => getSeasonalRecommendation(), []);
   const weightOptions = useMemo(() => getWeightOptions(productType), [productType]);
+
+  const steps = useMemo(() => {
+    const allSteps = [
+      { id: 'name', title: 'Le nom de votre marque', subtitle: 'Comment s\'appelle votre projet ?' },
+      { id: 'logo', title: 'Votre emblème', subtitle: 'Avez-vous déjà un logo ou un symbole ? (Optionnel)' },
+      { id: 'story', title: 'L\'histoire de votre marque', subtitle: 'Quelles sont vos inspirations ?' },
+      { id: 'stage', title: 'Stade actuel', subtitle: 'Où en êtes-vous dans la création ?' },
+      { id: 'product', title: 'Votre Premier Drop', subtitle: 'Quel sera votre premier vêtement phare ?' },
+      { id: 'socials', title: 'Réseaux & Web', subtitle: 'Si vous avez déjà préparé le terrain (Optionnel)' }
+    ];
+    return hideNameField ? allSteps.slice(1) : allSteps;
+  }, [hideNameField]);
+
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
   useEffect(() => {
     if (!brand) return;
@@ -95,14 +108,8 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
     }
   }, [brand, recommendation.productType, recommendation.weight]);
 
-  useEffect(() => {
-    if (error && errorRef.current) {
-      errorRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-  }, [error]);
-
   const handleSave = async (): Promise<boolean> => {
-    if (!name.trim() || name.trim().length < 2) {
+    if (!hideNameField && (!name.trim() || name.trim().length < 2)) {
       setError('Le nom de la marque est requis (2 caractères minimum).');
       return false;
     }
@@ -110,8 +117,7 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
     setLoading(true);
     try {
       if (demoMode) {
-        await new Promise((r) => setTimeout(r, 300));
-        setSaved(true);
+        await new Promise((r) => setTimeout(r, 600));
         return true;
       }
       const socialHandles: Record<string, string> = {};
@@ -143,7 +149,6 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Erreur lors de l\u2019enregistrement');
-      setSaved(true);
       router.refresh();
       return true;
     } catch (e) {
@@ -154,11 +159,21 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
     }
   };
 
-  const handleValidateAndContinue = async () => {
-    const ok = await handleSave();
-    if (ok) {
-      onComplete();
-      router.push('/launch-map/phase/1');
+  const handleNext = async () => {
+    if (currentStepIndex < steps.length - 1) {
+      setCurrentStepIndex(i => i + 1);
+    } else {
+      const ok = await handleSave();
+      if (ok) {
+        onComplete();
+        router.push('/launch-map/phase/1');
+      }
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentStepIndex > 0) {
+      setCurrentStepIndex(i => i - 1);
     }
   };
 
@@ -167,8 +182,6 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
     setLogo('');
     setLogoUploadError('');
   };
-
-  const LOGO_SIZE = 256;
 
   const checkImageDimensions = (file: File): Promise<{ width: number; height: number }> => {
     return new Promise((resolve, reject) => {
@@ -198,12 +211,6 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
     setLogoUploadError('');
     setLogoUploading(true);
     try {
-      const { width, height } = await checkImageDimensions(file);
-      if (width !== LOGO_SIZE || height !== LOGO_SIZE) {
-        setLogoUploadError(`Le logo doit faire exactement ${LOGO_SIZE}×${LOGO_SIZE} pixels. Votre image fait ${width}×${height} px.`);
-        setLogoUploading(false);
-        return;
-      }
       const formData = new FormData();
       formData.append('file', file);
       formData.append('brandId', brandId);
@@ -212,7 +219,10 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Erreur upload');
       const url = typeof data.url === 'string' ? data.url : '';
-      if (url) setLogo(url);
+      if (url) {
+        setLogo(url);
+        setNoLogo(false);
+      }
     } catch (e) {
       setLogoUploadError(e instanceof Error ? e.message : 'Erreur lors de l\'upload');
     } finally {
@@ -220,295 +230,263 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
     }
   };
 
-  const handleLogoDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file) uploadLogoFile(file);
+  const canGoNext = () => {
+    const currentStepId = steps[currentStepIndex].id;
+    if (currentStepId === 'name') return name.trim().length >= 2;
+    return true; // other steps optional or have defaults
   };
 
-  const handleLogoDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
-  };
+  const currentStep = steps[currentStepIndex];
+  const isLastStep = currentStepIndex === steps.length - 1;
 
-  const handleLogoFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) uploadLogoFile(file);
-    e.target.value = '';
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && canGoNext() && currentStep.id !== 'story') {
+      e.preventDefault();
+      handleNext();
+    }
   };
-
-  const hasIdentity = Boolean(name.trim().length >= 2);
 
   return (
-    <div className="min-h-screen w-full bg-[#F5F5F7] relative">
+    <div className="min-h-[calc(100vh-64px)] w-full bg-[#F5F5F7] flex flex-col relative overflow-hidden" onKeyDown={handleKeyDown}>
+      {/* Progress Bar */}
+      <div className="absolute top-0 left-0 right-0 h-1.5 bg-black/5 z-50">
+        <div
+          className="h-full bg-[#007AFF] transition-all duration-500 ease-out"
+          style={{ width: `${((currentStepIndex + 1) / steps.length) * 100}%` }}
+        />
+      </div>
 
-      {/* Subtle gradient from top */}
-      <div className="absolute top-0 inset-x-0 h-64 bg-gradient-to-b from-white/80 to-transparent pointer-events-none" />
+      <div className="flex-1 flex flex-col items-center justify-center p-6 w-full max-w-2xl mx-auto relative z-10 w-full min-h-[500px]">
 
-      <div className="relative z-10 max-w-2xl mx-auto px-5 sm:px-8 space-y-20 pb-40 pt-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-
-        {/* En-tête */}
-        <div className="text-center space-y-4">
-          <div className="inline-flex items-center gap-2 bg-[#007AFF]/8 rounded-full px-4 py-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#007AFF] animate-pulse" />
-            <span className="text-[11px] font-bold text-[#007AFF] uppercase tracking-widest">ADN de Marque</span>
+        {/* Step Header */}
+        <div className="text-center space-y-3 mb-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <div className="inline-flex items-center gap-2 bg-[#007AFF]/8 rounded-full px-3 py-1 mb-2">
+            <span className="text-[10px] font-bold text-[#007AFF] uppercase tracking-widest">Étape {currentStepIndex + 1} sur {steps.length}</span>
           </div>
-          <h2 className="text-4xl sm:text-5xl font-black text-[#1D1D1F] tracking-tight leading-[1.08]">
-            Donnez vie à<br />
-            <span className="text-[#007AFF]">votre marque.</span>
-          </h2>
-          <p className="text-[16px] text-[#86868B] max-w-md mx-auto leading-relaxed">
-            Ces fondations guideront notre IA tout au long de votre parcours de création.
-          </p>
+          <h2 className="text-3xl sm:text-4xl font-black text-[#1D1D1F] tracking-tight">{currentStep.title}</h2>
+          <p className="text-[15px] text-[#86868B] max-w-sm mx-auto">{currentStep.subtitle}</p>
         </div>
 
-        {/* 01 — Nom */}
-        {!hideNameField && (
-          <div className="space-y-5">
-            <div className="text-center">
-              <span className="text-[11px] font-bold text-[#86868B] uppercase tracking-[0.2em]">01 — Le nom de votre marque</span>
-            </div>
-            <div className="relative group">
+        {/* Step Content Wrapper (Fixed Height Area to avoid jumping) */}
+        <div className="w-full flex justify-center items-center min-h-[250px]">
+
+          {currentStep.id === 'name' && (
+            <div className="w-full max-w-lg animate-in zoom-in-95 fade-in duration-300">
               <Input
                 value={name}
                 onChange={(e) => { setName(e.target.value); setError(''); }}
                 placeholder="Ex. Supreme, Jacquemus..."
                 autoFocus
-                className="h-[72px] text-center text-3xl sm:text-4xl font-black bg-transparent border-0 border-b-2 border-black/10 rounded-none focus:border-[#007AFF] focus:ring-0 shadow-none px-2 text-[#1D1D1F] placeholder:text-[#1D1D1F]/15 transition-colors"
+                className="h-[80px] text-center text-3xl sm:text-4xl font-black bg-white border-none rounded-[24px] focus:ring-2 focus:ring-[#007AFF]/50 shadow-sm px-6 text-[#1D1D1F] placeholder:text-black/15 transition-all w-full"
               />
-              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#007AFF] scale-x-0 group-focus-within:scale-x-100 transition-transform duration-500 origin-center" />
-              {hasIdentity && (
-                <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 text-emerald-500 animate-in fade-in zoom-in duration-300" />
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* 02 — Logo */}
-        <div className="space-y-6">
-          <div className="text-center">
-            <span className="text-[11px] font-bold text-[#86868B] uppercase tracking-[0.2em]">02 — Votre emblème (optionnel)</span>
-          </div>
-          {!noLogo ? (
-            <div className="flex flex-col items-center gap-5">
-              <div
-                onDrop={handleLogoDrop}
-                onDragOver={handleLogoDragOver}
-                onClick={() => logoFileInputRef.current?.click()}
-                className={cn(
-                  'w-32 h-32 rounded-[28px] flex flex-col items-center justify-center transition-all cursor-pointer relative group overflow-hidden',
-                  logoUploading
-                    ? 'border-2 border-[#007AFF]/30 bg-[#007AFF]/5'
-                    : logo
-                      ? 'border border-black/5 shadow-md bg-white'
-                      : 'border-2 border-dashed border-black/10 hover:border-[#007AFF]/40 hover:bg-white bg-white/60'
-                )}
-              >
-                <input ref={logoFileInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoFileSelect} />
-                {logo ? (
-                  <>
-                    <BrandLogo logoUrl={logo} brandName={name || 'Logo'} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/40 rounded-[26px] flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Upload className="w-6 h-6 text-white mb-1" />
-                      <span className="text-[10px] font-bold text-white uppercase tracking-wider">Changer</span>
-                    </div>
-                  </>
-                ) : logoUploading ? (
-                  <Loader2 className="w-8 h-8 animate-spin text-[#007AFF]" />
-                ) : (
-                  <>
-                    <div className="w-10 h-10 rounded-2xl bg-[#F5F5F7] flex items-center justify-center mb-2 group-hover:bg-[#007AFF]/10 transition-colors">
-                      <Upload className="w-5 h-5 text-[#86868B] group-hover:text-[#007AFF] transition-colors" />
-                    </div>
-                    <span className="text-[10px] text-[#86868B] font-semibold max-w-[80px] text-center leading-tight">Glissez votre logo</span>
-                  </>
-                )}
-              </div>
-              {logoUploadError && <p className="text-[12px] text-red-500 text-center">{logoUploadError}</p>}
-              <div className="flex items-center gap-3">
-                <button type="button" onClick={handleNoLogo} className="h-10 px-5 rounded-full text-[13px] font-semibold text-[#86868B] hover:text-[#1D1D1F] hover:bg-black/5 transition-all">
-                  Je n&apos;en ai pas
-                </button>
-                <div className="w-px h-4 bg-black/10" />
-                <button
-                  type="button"
-                  onClick={() => router.push('/launch-map/phase/1')}
-                  className="h-10 px-5 rounded-full text-[13px] font-bold text-[#007AFF] hover:bg-[#007AFF]/8 flex items-center gap-1.5 transition-all"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  Générer par IA
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-3">
-              <div className="w-20 h-20 rounded-3xl bg-white border border-black/5 flex items-center justify-center shadow-sm">
-                <ImageOff className="w-8 h-8 text-[#86868B]" />
-              </div>
-              <p className="text-[14px] text-[#86868B] font-medium">Mode sans logo</p>
-              <button type="button" onClick={() => setNoLogo(false)} className="h-9 px-5 rounded-full text-[13px] font-bold text-[#007AFF] border border-[#007AFF]/20 hover:bg-[#007AFF]/8 transition-all">
-                J&apos;ai un logo finalement
-              </button>
             </div>
           )}
+
+          {currentStep.id === 'logo' && (
+            <div className="w-full max-w-md flex flex-col items-center gap-6 animate-in zoom-in-95 fade-in duration-300">
+              {!noLogo ? (
+                <>
+                  <div
+                    onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) uploadLogoFile(f); }}
+                    onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }}
+                    onClick={() => logoFileInputRef.current?.click()}
+                    className={cn(
+                      'w-40 h-40 rounded-[32px] flex flex-col items-center justify-center transition-all cursor-pointer relative group overflow-hidden',
+                      logoUploading
+                        ? 'border-2 border-[#007AFF]/30 bg-[#007AFF]/5'
+                        : logo
+                          ? 'border border-black/5 shadow-md bg-white'
+                          : 'border-2 border-dashed border-black/10 hover:border-[#007AFF]/40 hover:bg-white bg-white/60'
+                    )}
+                  >
+                    <input ref={logoFileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadLogoFile(f); e.target.value = ''; }} />
+                    {logo ? (
+                      <>
+                        <BrandLogo logoUrl={logo} brandName={name || 'Logo'} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Upload className="w-6 h-6 text-white mb-1" />
+                          <span className="text-[10px] font-bold text-white uppercase tracking-wider">Changer</span>
+                        </div>
+                      </>
+                    ) : logoUploading ? (
+                      <Loader2 className="w-8 h-8 animate-spin text-[#007AFF]" />
+                    ) : (
+                      <>
+                        <div className="w-12 h-12 rounded-2xl bg-[#F5F5F7] flex items-center justify-center mb-3 group-hover:bg-[#007AFF]/10 transition-colors">
+                          <Upload className="w-6 h-6 text-[#86868B] group-hover:text-[#007AFF] transition-colors" />
+                        </div>
+                        <span className="text-[12px] text-[#86868B] font-semibold text-center leading-tight">Glissez votre signature visuelle</span>
+                      </>
+                    )}
+                  </div>
+                  {logoUploadError && <p className="text-[13px] text-red-500 font-medium">{logoUploadError}</p>}
+                  <button type="button" onClick={handleNoLogo} className="text-[14px] font-semibold text-[#86868B] hover:text-[#1D1D1F] transition-colors underline decoration-black/20 underline-offset-4">
+                    Je n&apos;en ai pas encore
+                  </button>
+                </>
+              ) : (
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-24 h-24 rounded-[32px] bg-white border border-black/5 flex items-center justify-center shadow-sm">
+                    <ImageOff className="w-10 h-10 text-[#86868B]/50" />
+                  </div>
+                  <p className="text-[15px] text-[#86868B] font-medium">Mode sans logo activé</p>
+                  <Button variant="outline" onClick={() => setNoLogo(false)} className="rounded-full mt-2 border-black/10 text-[#1D1D1F]">
+                    J&apos;ai un logo finalement
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {currentStep.id === 'story' && (
+            <div className="w-full max-w-lg animate-in zoom-in-95 fade-in duration-300">
+              <div className="relative group">
+                <Sparkles className="absolute top-5 left-5 w-5 h-5 text-[#86868B]/40 group-focus-within:text-[#007AFF]/60 transition-colors pointer-events-none" />
+                <Textarea
+                  value={story}
+                  onChange={(e) => setStory(e.target.value)}
+                  placeholder="Je voulais créer une marque vêtement inspirée par..."
+                  rows={5}
+                  className="w-full bg-white border-none focus:ring-2 focus:ring-[#007AFF]/40 rounded-[28px] text-[16px] text-[#1D1D1F] p-6 pl-14 leading-relaxed placeholder:text-[#86868B]/40 resize-none shadow-sm outline-none transition-all"
+                />
+              </div>
+            </div>
+          )}
+
+          {currentStep.id === 'stage' && (
+            <div className="w-full max-w-lg animate-in zoom-in-95 fade-in duration-300">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                {[
+                  { id: 'ideation', icon: '💡', label: 'Simple Idée', desc: 'Je démarre à peine' },
+                  { id: 'prelaunch', icon: '⚙️', label: 'En construction', desc: 'Dessins / Protos en cours' },
+                  { id: 'launch', icon: '🚀', label: 'Prêt à lancer', desc: 'Stocks dispos, site prêt' },
+                  { id: 'growth', icon: '📈', label: 'En Croissance', desc: 'Déjà en train de vendre' },
+                ].map((s) => (
+                  <div
+                    key={s.id}
+                    onClick={() => setStage(s.id)}
+                    className={cn(
+                      "p-5 rounded-[24px] cursor-pointer transition-all border-2 flex flex-col gap-2",
+                      stage === s.id
+                        ? "bg-white border-[#007AFF] shadow-md shadow-[#007AFF]/10 scale-[1.02]"
+                        : "bg-white/50 border-transparent hover:bg-white hover:border-black/5 hover:scale-[1.01]"
+                    )}
+                  >
+                    <span className="text-2xl">{s.icon}</span>
+                    <span className="font-bold text-[#1D1D1F] text-[15px]">{s.label}</span>
+                    <span className="text-[12px] text-[#86868B] leading-tight">{s.desc}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {currentStep.id === 'product' && (
+            <div className="w-full max-w-3xl bg-white rounded-[32px] p-8 shadow-sm animate-in zoom-in-95 fade-in duration-300 border border-black/5">
+              <div className="grid sm:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold uppercase tracking-widest text-[#86868B] ml-1">Vêtement principal</label>
+                  <select
+                    value={productType}
+                    onChange={(e) => {
+                      const v = e.target.value as ProductTypeId;
+                      setProductType(v);
+                      setProductWeight(getWeightOptions(v)[0]?.value ?? '180 g/m²');
+                    }}
+                    className="w-full h-14 px-5 text-[15px] font-semibold text-[#1D1D1F] bg-[#F5F5F7] border border-transparent rounded-2xl focus:border-[#007AFF] focus:ring-1 focus:ring-[#007AFF]/20 transition-all appearance-none cursor-pointer"
+                  >
+                    {PRODUCT_TYPE_IDS.map((id) => <option key={id} value={id}>{getProductTypeLabel(id)}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold uppercase tracking-widest text-[#86868B] ml-1">Coupe (Optionnel)</label>
+                  <select
+                    value={productSignature}
+                    onChange={(e) => setProductSignature(e.target.value)}
+                    className="w-full h-14 px-5 text-[15px] font-semibold text-[#1D1D1F] bg-[#F5F5F7] border border-transparent rounded-2xl focus:border-[#007AFF] focus:ring-1 focus:ring-[#007AFF]/20 transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="">Classique</option>
+                    {ALL_FASHION_CUTS.map((cut) => <option key={cut} value={cut}>{cut}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold uppercase tracking-widest text-[#86868B] ml-1">Grammage</label>
+                  <select
+                    value={productWeight}
+                    onChange={(e) => setProductWeight(e.target.value)}
+                    className="w-full h-14 px-5 text-[15px] font-semibold text-[#1D1D1F] bg-[#F5F5F7] border border-transparent rounded-2xl focus:border-[#007AFF] focus:ring-1 focus:ring-[#007AFF]/20 transition-all appearance-none cursor-pointer"
+                  >
+                    {weightOptions.map((w) => <option key={w.value} value={w.value}>{w.label}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div className="mt-6 p-4 rounded-2xl bg-[#007AFF]/5 border border-[#007AFF]/10 flex gap-3 items-start">
+                <Sparkles className="w-5 h-5 text-[#007AFF] shrink-0 mt-0.5" />
+                <p className="text-[13px] text-[#007AFF]/80 leading-relaxed font-medium">
+                  {recommendation.reason}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {currentStep.id === 'socials' && (
+            <div className="w-full max-w-2xl animate-in zoom-in-95 fade-in duration-300">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-[#86868B] ml-4">Site Web</label>
+                  <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="ma-marque.com" className="h-[60px] px-6 text-[15px] bg-white border-none focus:ring-2 focus:ring-[#007AFF]/40 rounded-[20px] text-[#1D1D1F] placeholder:text-black/20 shadow-sm transition-all" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-[#86868B] ml-4">Slogan Marketing</label>
+                  <Input value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="ex: Just do it" className="h-[60px] px-6 text-[15px] bg-white border-none focus:ring-2 focus:ring-[#007AFF]/40 rounded-[20px] text-[#1D1D1F] placeholder:text-black/20 shadow-sm transition-all" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-[#86868B] ml-4">Instagram</label>
+                  <Input value={instagram} onChange={(e) => setInstagram(e.target.value)} placeholder="@instagram" className="h-[60px] px-6 text-[15px] bg-white border-none focus:ring-2 focus:ring-[#007AFF]/40 rounded-[20px] text-[#1D1D1F] placeholder:text-black/20 shadow-sm transition-all" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-[#86868B] ml-4">TikTok / Twitter</label>
+                  <Input value={twitter} onChange={(e) => setTwitter(e.target.value)} placeholder="@pseudo" className="h-[60px] px-6 text-[15px] bg-white border-none focus:ring-2 focus:ring-[#007AFF]/40 rounded-[20px] text-[#1D1D1F] placeholder:text-black/20 shadow-sm transition-all" />
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
 
-        {/* Séparateur */}
-        {hasIdentity && (
-          <div className="w-full h-px bg-gradient-to-r from-transparent via-black/8 to-transparent" />
-        )}
-
-        {/* Sections suivantes — visibles quand le nom est valide */}
-        <div className={cn(
-          "space-y-20 transition-all duration-700",
-          hasIdentity ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8 pointer-events-none hidden"
-        )}>
-
-          {/* 03 — Histoire */}
-          <div className="space-y-4">
-            <div className="text-center space-y-1">
-              <span className="text-[11px] font-bold text-[#86868B] uppercase tracking-[0.2em] block">03 — L&apos;histoire de {name || 'votre projet'}</span>
-              <p className="text-[13px] text-[#86868B]">Elle nourrira vos fiches produits et votre stratégie IA.</p>
-            </div>
-            <div className="relative group">
-              <Sparkles className="absolute top-5 left-5 w-4 h-4 text-[#86868B]/40 group-focus-within:text-[#007AFF]/60 transition-colors pointer-events-none" />
-              <Textarea
-                value={story}
-                onChange={(e) => setStory(e.target.value)}
-                placeholder="Je voulais créer une marque qui..."
-                rows={4}
-                className="w-full bg-white border border-black/5 focus:border-[#007AFF]/40 focus:ring-1 focus:ring-[#007AFF]/20 rounded-[24px] text-[15px] text-[#1D1D1F] p-5 pl-12 leading-relaxed placeholder:text-[#86868B]/35 resize-none transition-all shadow-sm outline-none"
-              />
-            </div>
-          </div>
-
-          {/* 04 — Stade */}
-          <div className="space-y-5">
-            <div className="text-center">
-              <span className="text-[11px] font-bold text-[#86868B] uppercase tracking-[0.2em] block">04 — Stade actuel du projet</span>
-            </div>
-            <div className="flex flex-wrap justify-center gap-2.5">
-              {[
-                { id: 'ideation', label: '💡 Simple Idée' },
-                { id: 'prelaunch', label: '⚙️ En construction' },
-                { id: 'launch', label: '🚀 Prêt à lancer' },
-                { id: 'growth', label: '📈 En Croissance' },
-              ].map((s) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => setStage(s.id)}
-                  className={cn(
-                    "px-5 py-3 rounded-full text-[14px] font-semibold transition-all border",
-                    stage === s.id
-                      ? "bg-[#1D1D1F] text-white border-[#1D1D1F] shadow-md scale-105"
-                      : "bg-white text-[#86868B] border-black/8 hover:border-black/20 hover:text-[#1D1D1F] shadow-sm"
-                  )}
-                >
-                  {s.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 05 — Premier Drop */}
-          <div className="bg-white rounded-[28px] border border-black/5 p-6 sm:p-8 shadow-sm space-y-5">
-            <div className="text-center space-y-1.5">
-              <span className="text-[11px] font-bold text-[#86868B] uppercase tracking-[0.2em] block">05 — Votre premier Drop</span>
-              <p className="text-[13px] text-[#86868B] max-w-xs mx-auto leading-relaxed">{recommendation.reason}</p>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-[#86868B] pl-1">Vêtement</label>
-                <select
-                  value={productType}
-                  onChange={(e) => {
-                    const v = e.target.value as ProductTypeId;
-                    setProductType(v);
-                    setProductWeight(getWeightOptions(v)[0]?.value ?? '180 g/m²');
-                  }}
-                  className="w-full h-12 px-4 text-[14px] font-semibold text-[#1D1D1F] bg-[#F5F5F7] border-transparent rounded-xl focus:border-[#007AFF] focus:ring-1 focus:ring-[#007AFF]/20 focus:outline-none transition-all appearance-none cursor-pointer"
-                >
-                  {PRODUCT_TYPE_IDS.map((id) => <option key={id} value={id}>{getProductTypeLabel(id)}</option>)}
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-[#86868B] pl-1">Coupe</label>
-                <select
-                  value={productSignature}
-                  onChange={(e) => setProductSignature(e.target.value)}
-                  className="w-full h-12 px-4 text-[14px] font-semibold text-[#1D1D1F] bg-[#F5F5F7] border-transparent rounded-xl focus:border-[#007AFF] focus:ring-1 focus:ring-[#007AFF]/20 focus:outline-none transition-all appearance-none cursor-pointer"
-                >
-                  <option value="">Optionnelle</option>
-                  {ALL_FASHION_CUTS.map((cut) => <option key={cut} value={cut}>{cut}</option>)}
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-[#86868B] pl-1">Grammage</label>
-                <select
-                  value={productWeight}
-                  onChange={(e) => setProductWeight(e.target.value)}
-                  className="w-full h-12 px-4 text-[14px] font-semibold text-[#1D1D1F] bg-[#F5F5F7] border-transparent rounded-xl focus:border-[#007AFF] focus:ring-1 focus:ring-[#007AFF]/20 focus:outline-none transition-all appearance-none cursor-pointer"
-                >
-                  {weightOptions.map((w) => <option key={w.value} value={w.value}>{w.label}</option>)}
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* 06 — Réseaux (optionnel) */}
-          <div className="space-y-5 pb-4">
-            <div className="text-center space-y-1">
-              <span className="text-[11px] font-bold text-[#86868B] uppercase tracking-[0.2em] block">
-                <Globe className="w-3.5 h-3.5 inline mr-1.5 opacity-60" />
-                06 — Réseaux & Web (Optionnel)
-              </span>
-              <p className="text-[13px] text-[#86868B]">Si vous avez déjà préparé le terrain.</p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="ma-marque.com" className="h-12 px-5 text-[14px] bg-white border border-black/8 hover:border-black/15 focus:border-[#007AFF]/40 focus:ring-1 focus:ring-[#007AFF]/20 rounded-2xl text-center text-[#1D1D1F] placeholder:text-[#86868B]/40 shadow-none transition-all" />
-              <Input value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="Slogan (si vous en avez un)" className="h-12 px-5 text-[14px] bg-white border border-black/8 hover:border-black/15 focus:border-[#007AFF]/40 focus:ring-1 focus:ring-[#007AFF]/20 rounded-2xl text-center text-[#1D1D1F] placeholder:text-[#86868B]/40 shadow-none transition-all" />
-              <Input value={instagram} onChange={(e) => setInstagram(e.target.value)} placeholder="@instagram" className="h-12 px-5 text-[14px] bg-white border border-black/8 hover:border-black/15 focus:border-[#007AFF]/40 focus:ring-1 focus:ring-[#007AFF]/20 rounded-2xl text-center text-[#1D1D1F] placeholder:text-[#86868B]/40 shadow-none transition-all" />
-              <Input value={twitter} onChange={(e) => setTwitter(e.target.value)} placeholder="@twitter / X" className="h-12 px-5 text-[14px] bg-white border border-black/8 hover:border-black/15 focus:border-[#007AFF]/40 focus:ring-1 focus:ring-[#007AFF]/20 rounded-2xl text-center text-[#1D1D1F] placeholder:text-[#86868B]/40 shadow-none transition-all" />
-            </div>
-          </div>
-        </div>
-
-        {error && <p ref={errorRef} className="text-[14px] text-red-500 font-medium text-center">{error}</p>}
-        {saved && (
-          <p className="text-[14px] text-emerald-600 font-medium flex items-center justify-center gap-2">
-            <CheckCircle2 className="w-5 h-5" /> Informations sauvegardées avec succès.
-          </p>
-        )}
+        {error && <p className="text-[14px] text-red-500 font-medium text-center mt-6">{error}</p>}
       </div>
 
-      {/* Barre d'action flottante */}
-      <div className={cn(
-        "fixed bottom-0 left-0 right-0 p-4 sm:p-5 bg-gradient-to-t from-[#F5F5F7] via-[#F5F5F7]/95 to-transparent pointer-events-none transition-all duration-500 flex justify-center z-50",
-        hasIdentity ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
-      )}>
-        <div className="pointer-events-auto flex items-center gap-3 max-w-lg w-full bg-white/80 backdrop-blur-xl p-2.5 rounded-full border border-black/8 shadow-xl shadow-black/5">
-          <button
-            onClick={() => router.push('/brands/create')}
-            className="flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center bg-[#F5F5F7] hover:bg-black/5 text-[#86868B] hover:text-[#1D1D1F] transition-all"
-            title="Changer de marque"
-          >
-            <ArrowRight className="w-5 h-5 rotate-180" />
-          </button>
+      {/* Footer Navigation */}
+      <div className="w-full bg-white/60 backdrop-blur-xl border-t border-black/5 p-4 sm:p-6 z-50">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
 
           <Button
-            onClick={handleValidateAndContinue}
-            disabled={loading}
-            className="flex-1 h-12 rounded-full bg-[#1D1D1F] hover:bg-black text-white font-bold text-[15px] shadow-lg shadow-black/10 hover:shadow-xl transition-all active:scale-[0.98] group border-0"
+            variant="ghost"
+            onClick={handlePrev}
+            className={cn("h-12 px-5 rounded-full text-[14px] font-semibold text-[#86868B] hover:text-[#1D1D1F] transition-all", currentStepIndex === 0 ? "opacity-0 pointer-events-none" : "opacity-100")}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" /> Précédent
+          </Button>
+
+          <Button
+            onClick={handleNext}
+            disabled={!canGoNext() || loading}
+            className="h-14 px-8 rounded-full bg-[#1D1D1F] hover:bg-black text-white font-bold text-[15px] shadow-lg shadow-black/10 transition-all active:scale-[0.98]"
           >
             {loading ? (
-              <><Loader2 className="w-5 h-5 animate-spin mr-3" /> Sauvegarde...</>
+              <><Loader2 className="w-5 h-5 animate-spin mr-3" /> Création...</>
+            ) : isLastStep ? (
+              <>Créer ma marque <Sparkles className="w-5 h-5 ml-2" /></>
             ) : (
-              <>Confirmer et continuer <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-0.5 transition-transform" /></>
+              <>Suivant <ArrowRight className="w-5 h-5 ml-2" /></>
             )}
           </Button>
+
         </div>
       </div>
+
     </div>
   );
 }
