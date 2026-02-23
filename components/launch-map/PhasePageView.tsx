@@ -161,7 +161,7 @@ export function PhasePageView({
 
       // Recap générique pour les autres phases immersives (0, 2, 5)
       return (
-        <div className="flex flex-col w-full min-h-[calc(100dvh-64px)] bg-[#F5F5F7] relative overflow-x-hidden">
+        <div className="flex flex-col w-full min-h-[calc(100dvh-64px)] bg-[#F5F5F7] relative overflow-x-hidden pb-32 sm:pb-0">
           {/* Immersive Background Decor */}
           <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
             <div className={cn("absolute top-[-20%] left-[-10%] w-[60%] h-[70%] rounded-full blur-[160px] opacity-20 animate-pulse duration-[8s]", currentColor.bg)} />
@@ -285,7 +285,7 @@ export function PhasePageView({
     // Sinon on affiche le STEPPER (mode édition ou première fois)
     return (
       <div className={cn(
-        "flex flex-col w-full m-0 p-0 bg-white relative",
+        "flex flex-col w-full m-0 p-0 bg-white relative pb-32 sm:pb-0",
         phaseId === 5 ? "h-[calc(100dvh-64px)] overflow-hidden" : "min-h-[calc(100dvh-64px)] overflow-y-auto"
       )}>
         <div className="px-4 py-2 sm:py-3 flex items-center justify-between shrink-0 relative z-30 border-b border-black/5 bg-white sticky top-0">
@@ -303,7 +303,7 @@ export function PhasePageView({
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F5F7] font-sans">
+    <div className="min-h-screen bg-[#F5F5F7] font-sans pb-32 sm:pb-0">
       <div className="px-4 sm:px-6 lg:px-12 py-8 max-w-5xl mx-auto space-y-6">
 
         {/* Navigation */}

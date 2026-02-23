@@ -275,7 +275,7 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
   const isLastStep = currentStepIndex === steps.length - 1;
 
   return (
-    <div className="min-h-screen w-full bg-[#F5F5F7] flex flex-col items-center relative overflow-hidden text-[#1D1D1F] selection:bg-[#007AFF]/20 pb-20 sm:pb-0">
+    <div className="min-h-screen w-full bg-[#F5F5F7] flex flex-col items-center relative overflow-hidden text-[#1D1D1F] selection:bg-[#007AFF]/20 pb-32 sm:pb-0">
 
       {/* Immersive Apple-Pro Background */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">

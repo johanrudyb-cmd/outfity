@@ -229,7 +229,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
     const technicalStyle = getTechnicalStyleKeywords(inspirationName);
 
     return (
-      <div className="min-h-screen w-full bg-[#F5F5F7] flex flex-col items-center relative overflow-hidden text-[#1D1D1F]">
+      <div className="min-h-screen w-full bg-[#F5F5F7] flex flex-col items-center relative overflow-hidden text-[#1D1D1F] pb-32 sm:pb-0">
         <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[70%] bg-indigo-500/5 rounded-full blur-[160px]" />
           <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[60%] bg-emerald-500/5 rounded-full blur-[140px]" />
@@ -308,7 +308,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
   if (showLogoStep) return renderLogoStep();
 
   return (
-    <div className="min-h-screen w-full bg-[#F5F5F7] flex flex-col items-center relative overflow-hidden text-[#1D1D1F] selection:bg-[#007AFF]/20 pb-20 sm:pb-0">
+    <div className="min-h-screen w-full bg-[#F5F5F7] flex flex-col items-center relative overflow-hidden text-[#1D1D1F] selection:bg-[#007AFF]/20 pb-32 sm:pb-0">
 
       {/* Immersive Background */}
       <div className="absolute inset-0 z-0 pointer-events-none">

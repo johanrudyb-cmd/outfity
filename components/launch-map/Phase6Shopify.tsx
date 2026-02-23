@@ -403,7 +403,7 @@ export function Phase6Shopify({
       </div>
 
       {/* ── Input Box (Docked at bottom) ── */}
-      <div className="shrink-0 pt-2 pb-4 sm:pb-6 px-4 sm:px-6 bg-[#F5F5F7] z-20 pb-safe">
+      <div className="shrink-0 pt-2 pb-32 sm:pb-6 px-4 sm:px-6 bg-[#F5F5F7] z-20 pb-safe">
 
         {/* Quick Replies */}
         {messages.length <= 2 && !isTyping && (
