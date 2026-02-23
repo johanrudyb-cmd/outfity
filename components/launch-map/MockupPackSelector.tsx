@@ -19,9 +19,10 @@ interface MockupPackSelectorProps {
   /** Si true, affiche une version compacte sans Card (pour intégration dans un autre bloc) */
   inline?: boolean;
   userPlan?: string;
+  typeFilter?: string;
 }
 
-export function MockupPackSelector({ brandId, brandName, inline, userPlan }: MockupPackSelectorProps) {
+export function MockupPackSelector({ brandId, brandName, inline, userPlan, typeFilter }: MockupPackSelectorProps) {
   const openSurplusModal = useSurplusModal();
   const [categories, setCategories] = useState<MockupCategory[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -34,6 +35,12 @@ export function MockupPackSelector({ brandId, brandName, inline, userPlan }: Moc
       .then((data) => {
         setCategories(data.categories || []);
         setSelected(new Set());
+        if (typeFilter) {
+          const matched = data.categories?.find((c: any) => c.id.toLowerCase() === typeFilter.toLowerCase() || c.label.toLowerCase().includes(typeFilter.toLowerCase()));
+          if (matched) {
+            setSelected(new Set([matched.id]));
+          }
+        }
       })
       .catch(() => setCategories([]))
       .finally(() => setIsLoading(false));
@@ -101,19 +108,25 @@ export function MockupPackSelector({ brandId, brandName, inline, userPlan }: Moc
     );
   }
 
+  const filteredCategories = typeFilter
+    ? categories.filter(c => c.id.toLowerCase() === typeFilter.toLowerCase() || c.label.toLowerCase().includes(typeFilter.toLowerCase()))
+    : categories;
+
   const selectorContent = (
     <>
-      <div className="flex gap-2">
-        <Button variant="outline" size="sm" onClick={selectAll}>
-          Tout sélectionner
-        </Button>
-        <Button variant="outline" size="sm" onClick={deselectAll}>
-          Tout désélectionner
-        </Button>
-      </div>
+      {!typeFilter && (
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={selectAll}>
+            Tout sélectionner
+          </Button>
+          <Button variant="outline" size="sm" onClick={deselectAll}>
+            Tout désélectionner
+          </Button>
+        </div>
+      )}
 
       <div className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 overflow-y-auto ${inline ? 'max-h-[200px]' : 'max-h-[320px]'}`}>
-        {categories.map((cat) => (
+        {filteredCategories.map((cat) => (
           <button
             key={cat.id}
             type="button"
