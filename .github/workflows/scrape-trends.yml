@@ -32,5 +32,5 @@ jobs:
         run: npx prisma generate
 
       - name: 🚀 Lancement du Radar Viral (0€)
-        run: npx ts-node scripts/radar-hybride.ts
+        run: npx tsx scripts/radar-hybride.ts
 
