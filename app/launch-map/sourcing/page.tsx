@@ -74,6 +74,7 @@ export default async function LaunchMapSourcingPage() {
         sentQuotes={quotes}
         favoriteFactoryIds={favoriteFactoryIds}
         preferences={preferences}
+        userPlan={user.plan}
       />
     </div>
   );
