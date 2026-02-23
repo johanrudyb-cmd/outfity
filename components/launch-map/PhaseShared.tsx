@@ -110,10 +110,15 @@ export function PhaseRecap({
         ) : null;
 
     if (phaseId === 0) {
+        const sg0 = brandFull?.styleGuide && typeof brandFull.styleGuide === 'object' ? brandFull.styleGuide as Record<string, unknown> : null;
+        const signature = sg0?.productSignature as string | null;
+        const weight = sg0?.productWeight as string | null;
         return (
-            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8">
                 {item('Nom de la marque', brandFull?.name ?? null)}
                 {item('Type de produit', productType)}
+                {item('Signature Visuelle', signature)}
+                {item('Grammage (GSM)', weight)}
             </dl>
         );
     }

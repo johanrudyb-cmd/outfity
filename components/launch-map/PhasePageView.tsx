@@ -207,16 +207,52 @@ export function PhasePageView({
                     <p className="text-xl sm:text-2xl text-[#86868B] font-medium leading-relaxed max-w-md">Vos choix stratégiques sont maintenant scellés dans l&apos;ADN de votre marque.</p>
                   </div>
 
-                  {/* Custom Branding Element based on Phase */}
+                  {/* Dynamic Relevant Info Cards based on Phase */}
                   {phaseId === 0 && (
+                    <div className="space-y-4">
+                      <div className="p-8 rounded-[40px] bg-white shadow-apple-lg border border-black/5 space-y-6">
+                        <div className="flex items-center gap-4">
+                          <div className="w-16 h-16 rounded-2xl bg-[#007AFF]/10 flex items-center justify-center">
+                            <Fingerprint className="w-8 h-8 text-[#007AFF]" />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-black/30">Identité Actuelle</p>
+                            <p className="text-2xl font-bold text-[#1D1D1F]">{brand.name}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {brandFull?.styleGuide && (brandFull.styleGuide as any).story && (
+                        <div className="p-8 rounded-[40px] bg-white/40 backdrop-blur-xl border border-black/5 space-y-3">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-black/30">Vision de Marque</p>
+                          <p className="text-sm text-[#86868B] italic leading-relaxed line-clamp-4">"{(brandFull.styleGuide as any).story}"</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {phaseId === 2 && (
+                    <div className="p-8 rounded-[40px] bg-[#1D1D1F] text-white shadow-apple-lg space-y-8">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Mockup Studio</p>
+                          <p className="text-3xl font-bold">{designCount} Créations</p>
+                        </div>
+                        <PenTool className="w-10 h-10 text-[#007AFF]" />
+                      </div>
+                      <p className="text-sm text-white/60 leading-relaxed">Vos prototypes visuels sont prêts pour la phase de Tech Pack.</p>
+                    </div>
+                  )}
+
+                  {phaseId === 5 && launchMap?.shopifyShopDomain && (
                     <div className="p-8 rounded-[40px] bg-white shadow-apple-lg border border-black/5 space-y-6">
                       <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-2xl bg-[#007AFF]/10 flex items-center justify-center">
-                          <Fingerprint className="w-8 h-8 text-[#007AFF]" />
+                        <div className="w-16 h-16 rounded-2xl bg-[#95BF47]/10 flex items-center justify-center">
+                          <Store className="w-8 h-8 text-[#5E8E3E]" />
                         </div>
                         <div>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-black/30">Identité Actuelle</p>
-                          <p className="text-2xl font-bold text-[#1D1D1F]">{brand.name}</p>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-black/30">Boutique Live</p>
+                          <p className="text-lg font-bold text-[#1D1D1F] truncate max-w-[200px]">{launchMap.shopifyShopDomain}</p>
                         </div>
                       </div>
                     </div>
