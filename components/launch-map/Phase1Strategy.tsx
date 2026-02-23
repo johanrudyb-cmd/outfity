@@ -235,23 +235,23 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
           <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[60%] bg-emerald-500/5 rounded-full blur-[140px]" />
         </div>
 
-        <div className="w-full max-w-7xl px-8 pt-12 z-20 flex justify-between items-end">
+        <div className="w-full max-w-7xl px-6 sm:px-8 pt-6 sm:pt-10 z-20 flex justify-between items-end">
           <div className="space-y-1">
             <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF]">Phase 1 : Identité Visuelle</p>
-            <h2 className="text-2xl font-bold tracking-tight">Le Studio <span className="text-[#007AFF]">Logo</span></h2>
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Le Studio <span className="text-[#007AFF]">Logo</span></h2>
           </div>
-          <Button variant="ghost" onClick={() => setShowLogoStep(false)} className="rounded-full">Retour</Button>
+          <Button variant="ghost" onClick={() => setShowLogoStep(false)} className="rounded-full h-10 px-6">Retour</Button>
         </div>
 
-        <div className="flex-1 w-full max-w-6xl px-8 flex flex-col z-20 py-12">
-          <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-            <div className="space-y-10">
-              <div className="w-20 h-20 rounded-[28px] bg-white border border-black/5 shadow-xl flex items-center justify-center text-[#007AFF]">
-                <Sparkles className="w-10 h-10" />
+        <div className="flex-1 w-full max-w-6xl px-6 sm:px-8 flex flex-col z-20 py-6 sm:py-10">
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-20 items-center">
+            <div className="space-y-8 sm:space-y-10">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-[24px] sm:rounded-[28px] bg-white border border-black/5 shadow-xl flex items-center justify-center text-[#007AFF]">
+                <Sparkles className="w-8 h-8 sm:w-10 sm:h-10" />
               </div>
               <div className="space-y-4">
-                <h3 className="text-6xl font-bold tracking-tight leading-[1]">L&apos;Emblème.</h3>
-                <p className="text-2xl text-[#86868B] max-w-md font-medium leading-relaxed">
+                <h3 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">L&apos;Emblème.</h3>
+                <p className="text-xl sm:text-2xl text-[#86868B] max-w-md font-medium leading-relaxed">
                   La synthèse visuelle de votre stratégie inspirée par <span className="text-[#1D1D1F]">{inspirationName}</span>.
                 </p>
               </div>
@@ -323,7 +323,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
       </div>
 
       {/* Atelier Header */}
-      <div className="w-full max-w-7xl px-8 pt-12 z-20 flex justify-between items-end">
+      <div className="w-full max-w-7xl px-6 sm:px-8 pt-6 sm:pt-10 z-20 flex justify-between items-end">
         <div className="space-y-1">
           <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF]">Phase 1 : La Stratégie</p>
           <h2 className="text-2xl font-bold tracking-tight">Atelier <span className="text-[#007AFF]">Marketing</span></h2>
@@ -344,7 +344,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
       </div>
 
       {/* Main Stage */}
-      <div className="flex-1 w-full max-w-6xl px-8 flex flex-col z-20 py-12">
+      <div className="flex-1 w-full max-w-6xl px-6 sm:px-8 flex flex-col z-20 py-4 sm:py-8">
         <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
 
           {/* Left Side: Context */}
@@ -355,8 +355,8 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
               </div>
             </div>
             <div className="space-y-4">
-              <h3 className="text-6xl font-bold tracking-tight leading-[1] text-[#1D1D1F]">{currentStep.title}</h3>
-              <p className="text-2xl text-[#86868B] max-w-md font-medium leading-relaxed">{currentStep.subtitle}</p>
+              <h3 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] text-[#1D1D1F]">{currentStep.title}</h3>
+              <p className="text-xl sm:text-2xl text-[#86868B] max-w-md font-medium leading-relaxed">{currentStep.subtitle}</p>
             </div>
           </div>
 
@@ -378,7 +378,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
                       )}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-lg font-bold tracking-tight text-[#1D1D1F]">{opt}</span>
+                        <span className="text-base sm:text-lg font-bold tracking-tight text-[#1D1D1F]">{opt}</span>
                         {positioning === opt && <div className="w-8 h-8 rounded-full bg-[#007AFF] flex items-center justify-center text-white"><Check className="w-5 h-5" /></div>}
                       </div>
                     </button>
@@ -413,8 +413,8 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
               )}
 
               {currentStep.id === 'inspiration' && (
-                <div className="w-full space-y-6 animate-in fade-in duration-700">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="w-full space-y-4 animate-in fade-in duration-700">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                     {referenceBrands.slice(0, 9).map((brand) => (
                       <button
                         key={brand.slug}
@@ -423,16 +423,16 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
                           if (userPlan !== 'free') handleCalquerStrategie(brand.slug);
                         }}
                         className={cn(
-                          "p-4 rounded-[32px] border transition-all duration-500 flex flex-col items-center gap-4 text-center group",
+                          "p-3 rounded-[24px] border transition-all duration-500 flex flex-col items-center gap-2 text-center group",
                           selectedSlug === brand.slug
                             ? "bg-white border-white shadow-xl scale-[1.05]"
                             : "bg-white/40 border-black/5 hover:bg-white hover:border-black/10"
                         )}
                       >
-                        <div className="w-14 h-14 rounded-full bg-white border border-black/5 flex items-center justify-center p-3 shadow-sm group-hover:scale-110 transition-transform">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white border border-black/5 flex items-center justify-center p-2 shadow-sm group-hover:scale-110 transition-transform">
                           <BrandLogo brandName={brand.brandName} logoUrl={getBrandLogoUrl(brand.brandName)} className="w-full h-full object-contain" />
                         </div>
-                        <span className="text-[11px] font-black uppercase tracking-widest text-[#1D1D1F] leading-tight px-1">{brand.brandName}</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-[#1D1D1F] leading-tight px-1">{brand.brandName}</span>
                       </button>
                     ))}
                   </div>
@@ -450,13 +450,13 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
                   {strategyResult ? (
                     <button
                       onClick={() => setStrategyModalOpen(true)}
-                      className="p-10 rounded-[48px] bg-white shadow-2xl border border-black/5 text-left w-full group transition-all hover:scale-[1.02]"
+                      className="p-6 sm:p-10 rounded-[40px] bg-white shadow-2xl border border-black/5 text-left w-full group transition-all hover:scale-[1.02]"
                     >
-                      <div className="flex justify-between items-start mb-6">
-                        <div className="w-16 h-16 rounded-[22px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center group-hover:bg-[#007AFF] group-hover:text-white transition-colors">
-                          <FileText className="w-8 h-8" />
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] sm:rounded-[22px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center group-hover:bg-[#007AFF] group-hover:text-white transition-colors">
+                          <FileText className="w-6 h-6 sm:w-8 sm:h-8" />
                         </div>
-                        <div className="px-4 py-2 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-black tracking-widest uppercase">Stratégie Prête</div>
+                        <div className="px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-600 text-[9px] sm:text-[10px] font-black tracking-widest uppercase">Stratégie Prête</div>
                       </div>
                       <p className="text-2xl font-bold mb-2">Manifeste Strategique</p>
                       <p className="text-[#86868B] text-sm leading-relaxed line-clamp-3">
@@ -479,13 +479,13 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
       </div>
 
       {/* Control Architecture */}
-      <div className="w-full max-w-7xl px-8 pb-16 z-20">
-        <div className="flex items-center justify-between pt-12 border-t border-black/5">
+      <div className="w-full max-w-7xl px-6 sm:px-8 pb-8 sm:pb-12 z-20">
+        <div className="flex items-center justify-between pt-6 sm:pt-10 border-t border-black/5">
           <div className="flex gap-4">
             <button
               onClick={() => currentStepIndex > 0 && setCurrentStepIndex(i => i - 1)}
               className={cn(
-                "h-16 px-10 rounded-[24px] font-bold text-[13px] uppercase tracking-widest transition-all border border-black/5 bg-white flex items-center gap-3",
+                "h-12 sm:h-14 px-8 rounded-2xl font-bold text-[12px] uppercase tracking-widest transition-all border border-black/5 bg-white flex items-center gap-2",
                 currentStepIndex === 0 ? "opacity-0 pointer-events-none" : "opacity-100"
               )}
             >
@@ -499,7 +499,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
               else setCurrentStepIndex(i => i + 1);
             }}
             disabled={!canGoNext() || validateLoading || strategyLoading}
-            className="h-16 px-16 rounded-[24px] bg-[#1D1D1F] hover:bg-black text-white font-bold text-[14px] uppercase tracking-[0.3em] transition-all shadow-2xl active:scale-95 group overflow-hidden relative"
+            className="h-12 sm:h-14 px-12 sm:px-16 rounded-2xl bg-[#1D1D1F] hover:bg-black text-white font-bold text-[13px] sm:text-[14px] uppercase tracking-[0.2em] sm:tracking-[0.3em] transition-all shadow-2xl active:scale-95 group overflow-hidden relative"
           >
             <span className="relative z-10 flex items-center gap-4">
               {validateLoading ? (
