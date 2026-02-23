@@ -481,37 +481,38 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
         </div>
 
         {error && <p className="text-[14px] text-red-500 font-medium text-center mt-6">{error}</p>}
-      </div>
 
-      {/* Footer Navigation */}
-      <div className="w-full bg-white/60 backdrop-blur-xl border-t border-black/5 p-4 sm:p-6 z-50">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-
-          <Button
-            variant="ghost"
-            onClick={handlePrev}
-            className={cn("h-12 px-5 rounded-full text-[14px] font-semibold text-[#86868B] hover:text-[#1D1D1F] transition-all", currentStepIndex === 0 ? "opacity-0 pointer-events-none" : "opacity-100")}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" /> Précédent
-          </Button>
-
+        {/* Integrated Navigation */}
+        <div className="w-full mt-12 flex flex-col items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
           <Button
             onClick={handleNext}
             disabled={!canGoNext() || loading}
-            className="h-14 px-8 rounded-full bg-[#1D1D1F] hover:bg-black text-white font-bold text-[15px] shadow-lg shadow-black/10 transition-all active:scale-[0.98]"
+            className="h-14 px-10 rounded-full bg-[#1D1D1F] hover:bg-black text-white font-bold text-[16px] shadow-xl shadow-black/10 transition-all active:scale-[0.98] w-full sm:w-auto min-w-[200px]"
           >
             {loading ? (
               <><Loader2 className="w-5 h-5 animate-spin mr-3" /> Création...</>
             ) : isLastStep ? (
               <>Créer ma marque <Sparkles className="w-5 h-5 ml-2" /></>
             ) : (
-              <>Suivant <ArrowRight className="w-5 h-5 ml-2" /></>
+              <>Continuer <ArrowRight className="w-5 h-5 ml-2" /></>
             )}
           </Button>
 
+          <Button
+            variant="ghost"
+            onClick={handlePrev}
+            className={cn(
+              "h-10 px-6 rounded-full text-[14px] font-semibold text-[#86868B] hover:text-[#1D1D1F] transition-all",
+              currentStepIndex === 0 ? "opacity-0 pointer-events-none" : "opacity-100"
+            )}
+          >
+            Revenir en arrière
+          </Button>
         </div>
       </div>
 
+      {/* Spacer for bottom widgets / mobile bar */}
+      <div className="h-24 sm:h-32 shrink-0" />
     </div>
   );
 }
