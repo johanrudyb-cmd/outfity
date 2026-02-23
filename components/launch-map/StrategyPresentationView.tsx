@@ -611,7 +611,7 @@ export function StrategyPresentationView({
 
   const content = (
     <div className={cn(
-      embedded ? 'w-full' : 'min-h-full px-4 sm:px-6 lg:px-12 py-8 sm:py-12 lg:py-16 pb-24 max-w-[96rem] mx-auto bg-[#F5F5F7]',
+      embedded ? 'w-full px-4 sm:px-8 py-0' : 'min-h-full px-4 sm:px-8 py-8 sm:py-12 bg-[#F5F5F7]',
       isFree && "relative overflow-hidden"
     )}>
       {isFree && (

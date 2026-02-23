@@ -525,19 +525,33 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
 
       {/* Strategy Overlay Modal */}
       {strategyModalOpen && (
-        <div className="fixed inset-0 z-[100] bg-white/80 backdrop-blur-2xl flex flex-col animate-in fade-in duration-300">
-          <div className="flex-1 overflow-y-auto custom-scrollbar">
-            <div className="max-w-6xl mx-auto py-24 px-8">
-              <div className="flex justify-between items-center mb-16">
-                <div className="space-y-1">
-                  <p className="text-[10px] font-black uppercase tracking-[0.5em] text-[#007AFF]">Livrable Stratégique</p>
-                  <h2 className="text-5xl font-bold tracking-tighter">Manifeste <span className="opacity-40">de Marque</span></h2>
-                </div>
-                <button onClick={() => setStrategyModalOpen(false)} className="w-16 h-16 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center transition-all">
-                  <ArrowLeft className="w-6 h-6" />
-                </button>
+        <div className="fixed inset-0 z-[100] bg-[#F5F5F7] flex flex-col animate-in fade-in duration-500">
+          {/* Atelier Immersive Header - Fixed */}
+          <div className="h-20 shrink-0 px-8 flex items-center justify-between bg-white/60 backdrop-blur-3xl border-b border-black/5 relative z-50">
+            <div className="flex items-center gap-6">
+              <button
+                onClick={() => setStrategyModalOpen(false)}
+                className="w-10 h-10 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center transition-all group"
+              >
+                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+              </button>
+              <div className="h-6 w-px bg-black/10 hidden sm:block" />
+              <div className="hidden sm:block">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#007AFF]">Livrable Stratégique</p>
+                <h2 className="text-lg font-bold tracking-tight">Manifeste <span className="opacity-40">de Marque</span></h2>
               </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="hidden md:flex gap-1.5 bg-black/5 p-1 rounded-full">
+                {[0, 1, 2, 3].map(i => (
+                  <div key={i} className={cn("h-1.5 rounded-full", i === 3 ? "w-8 bg-[#007AFF]" : "w-1.5 bg-black/10")} />
+                ))}
+              </div>
+            </div>
+          </div>
 
+          <div className="flex-1 overflow-y-auto custom-scrollbar bg-[#F5F5F7]">
+            <div className="w-full">
               <StrategyPresentationView
                 isOpen={true}
                 onClose={() => setStrategyModalOpen(false)}
@@ -549,8 +563,12 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
               />
             </div>
           </div>
-          <div className="p-8 border-t border-black/5 flex justify-center bg-white/40 backdrop-blur-xl">
-            <Button onClick={() => setStrategyModalOpen(false)} className="h-16 px-20 rounded-full bg-[#007AFF] text-white font-bold uppercase tracking-widest shadow-xl">
+
+          <div className="p-6 sm:p-8 border-t border-black/5 flex justify-center bg-white/60 backdrop-blur-3xl relative z-50">
+            <Button
+              onClick={() => setStrategyModalOpen(false)}
+              className="h-14 sm:h-16 px-12 sm:px-20 rounded-full bg-[#007AFF] hover:bg-[#0056CC] text-white font-bold uppercase tracking-widest shadow-xl shadow-blue-500/20 transition-all active:scale-[0.98]"
+            >
               Continuer au Studio
             </Button>
           </div>
