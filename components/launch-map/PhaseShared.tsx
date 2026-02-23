@@ -127,6 +127,14 @@ export function PhaseRecap({
         );
     }
 
+    if (phaseId === 2) {
+        return (
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {item('Nombre de designs enregistrés', designCount > 0 ? `${designCount} mockup(s)` : '0')}
+            </dl>
+        );
+    }
+
     if (phaseId === 4) {
         return (
             <div className="space-y-4">
