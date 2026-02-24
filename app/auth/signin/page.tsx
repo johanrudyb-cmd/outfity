@@ -60,7 +60,7 @@ function SignInContent() {
         </div>
       )}
 
-      <div className="w-full max-w-[420px] space-y-8 relative z-10 mx-auto">
+      <div className="w-full px-4 sm:px-0 max-w-[420px] space-y-8 relative z-10 mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

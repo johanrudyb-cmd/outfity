@@ -200,7 +200,7 @@ BUILTWITH_API_KEY=votre-cle-builtwith
 ### 14. URLs Publiques
 ```env
 # Lien d'affiliation Shopify
-NEXT_PUBLIC_SHOPIFY_AFFILIATE_URL=https://www.shopify.com/fr/essai-gratuit?ref=xxx
+NEXT_PUBLIC_SHOPIFY_AFFILIATE_URL=https://shopify.pxf.io/VOyg9a
 
 # Groupe Instagram
 NEXT_PUBLIC_INSTAGRAM_GROUP_URL=https://instagram.com/groups/xxx

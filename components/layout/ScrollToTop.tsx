@@ -21,7 +21,8 @@ export function ScrollToTop() {
         '/academy',
         '/pricing',
         '/auth/signin',
-        '/auth/signup'
+        '/auth/signup',
+        '/communaute'
     ];
 
     const isPublicRoute = publicRoutes.some(route =>
@@ -59,14 +60,14 @@ export function ScrollToTop() {
                     exit={{ opacity: 0, scale: 0.8, y: 20 }}
                     onClick={scrollToTop}
                     className={cn(
-                        "fixed bottom-8 right-8 z-[90] p-4 rounded-full",
+                        "fixed bottom-6 right-6 md:bottom-8 md:right-8 z-[90] p-3 md:p-4 rounded-full",
                         "bg-white/80 backdrop-blur-md border border-black/5 shadow-apple-lg",
                         "text-[#1D1D1F] transition-all hover:scale-110 active:scale-95 hover:bg-white",
-                        "hidden md:flex items-center justify-center" // On le cache sur mobile car ça gêne souvent
+                        "flex items-center justify-center"
                     )}
                     aria-label="Retour en haut"
                 >
-                    <ArrowUp className="w-6 h-6" />
+                    <ArrowUp className="w-5 h-5 md:w-6 md:h-6" />
                 </motion.button>
             )}
         </AnimatePresence>
