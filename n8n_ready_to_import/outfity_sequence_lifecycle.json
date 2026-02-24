@@ -1,0 +1,145 @@
+{
+    "name": "Cycle de vie Abonnement (Paiement & Annulation)",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "outfity-subscription",
+                "options": {}
+            },
+            "name": "Webhook Stripe",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                250,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "dataType": "string",
+                "value1": "={{ $json.body.event }}",
+                "rules": {
+                    "rules": [
+                        {
+                            "value2": "trial_converted"
+                        },
+                        {
+                            "value2": "subscription_canceled"
+                        }
+                    ]
+                }
+            },
+            "name": "Switch Event",
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 1,
+            "position": [
+                450,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://api.resend.com/emails",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"from\": \"Virgil <send@outfity.fr>\",\n  \"to\": [\"{{ $('Webhook Stripe').item.json.body.email }}\"],\n  \"subject\": \"C'est officiel. On passe la seconde 🚀\",\n  \"html\": \"Salut {{ $('Webhook Stripe').item.json.body.name }}, c'est Virgil !<br><br>Ton essai est officiellement basculé en abonnement Créateur actif.<br><br>Bienvenue parmi nous. Ton tarif de 29€ est bloqué à vie, et Pharrell, Ada et Johan sont désormais tes agents à temps plein.<br><br>Le Launch Map est chaud, génère ton Tech Pack avant la fin de la semaine et passe à l'action.<br><br>Let's go !<br>Virgil\"\n}"
+            },
+            "name": "Email (Trial Converted - Virgil)",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                700,
+                200
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "",
+                    "name": "Header Auth"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://api.resend.com/emails",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"from\": \"Johan <send@outfity.fr>\",\n  \"to\": [\"{{ $('Webhook Stripe').item.json.body.email }}\"],\n  \"subject\": \"Désactivation de ton équipe de Création 🔌\",\n  \"html\": \"Salut {{ $('Webhook Stripe').item.json.body.name }}, Johan à l'appareil.<br><br>Je te confirme la modification de ton abonnement. Tes agents rentrent au vestiaire (Virgil, Pharrell, Ada ont été restreints).<br><br>Ne t'inquiète pas, toutes tes données de tendances et tes anciens Tech Packs restent générés sur ton espace libre d'accès.<br><br>Si tu as fait une erreur ou que tu souhaites revenir, tu seras toujours le bienvenu. <br><br>À bientôt !<br>Johan\"\n}"
+            },
+            "name": "Email (Annulation - Johan)",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                700,
+                400
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "",
+                    "name": "Header Auth"
+                }
+            }
+        }
+    ],
+    "connections": {
+        "Webhook Stripe": {
+            "main": [
+                [
+                    {
+                        "node": "Switch Event",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switch Event": {
+            "main": [
+                [
+                    {
+                        "node": "Email (Trial Converted - Virgil)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Email (Annulation - Johan)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": false,
+    "settings": {},
+    "versionId": "f03bcf5d-16a8-4447-b286-a42907be8c8e",
+    "meta": {
+        "templateCredsSetupCompleted": true
+    }
+}

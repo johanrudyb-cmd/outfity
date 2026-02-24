@@ -1,0 +1,95 @@
+{
+    "name": "2. Début Essai 3 Jours",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "outfity-subscription",
+                "options": {}
+            },
+            "name": "Webhook Stripe",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                250,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "amount": 2,
+                "unit": "days"
+            },
+            "name": "Attente 48h",
+            "type": "n8n-nodes-base.wait",
+            "typeVersion": 1,
+            "position": [
+                450,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://api.resend.com/emails",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"from\": \"OUTFITY <send@outfity.fr>\",\n  \"to\": [\"{{ $('Webhook Stripe').item.json.body.email }}\"],\n  \"subject\": \"Plus que 24h pour ton essai Créateur ⏳\",\n  \"html\": \"Salut {{ $('Webhook Stripe').item.json.body.name }},<br><br>Ton essai gratuit se termine dans 24 heures.<br><br>C'est ta dernière journée pour te rétracter ou pour conserver toute l'équipe de l'IA au tarif bloqué de <b>29€/mois à vie (au lieu de 39€)</b>.<br><br>Finalise tes créations dès maintenant avec Pharrell et consulte tes usines premium sur le Sourcing Hub.<br><br>Garde cette opportunité !\"\n}"
+            },
+            "name": "Email Fin d'Essai",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                650,
+                300
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "",
+                    "name": "Header Auth"
+                }
+            }
+        }
+    ],
+    "connections": {
+        "Webhook Stripe": {
+            "main": [
+                [
+                    {
+                        "node": "Attente 48h",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Attente 48h": {
+            "main": [
+                [
+                    {
+                        "node": "Email Fin d'Essai",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": false,
+    "settings": {},
+    "versionId": "2",
+    "meta": {
+        "templateCredsSetupCompleted": true
+    }
+}

@@ -3,7 +3,7 @@ import { ArrowLeft, Mail, MapPin, MessageSquare, Instagram } from 'lucide-react'
 
 export const metadata = {
   title: 'Contact | OUTFITY',
-  description: 'Contactez BIANGORY / OUTFITY pour toute question ou demande.',
+  description: 'Contactez OUTFITY / OUTFITY pour toute question ou demande.',
 };
 
 export default function ContactPage() {
@@ -25,7 +25,7 @@ export default function ContactPage() {
           <h1 className="text-3xl font-bold text-[#1D1D1F] mb-4">Contact</h1>
           <p className="text-[#6e6e73] leading-relaxed mb-8">
             Une question sur la plateforme OUTFITY, nos offres, un problème technique ou une
-            demande de partenariat ? Utilisez les coordonnées ci-dessous. BIANGORY (éditeur
+            demande de partenariat ? Utilisez les coordonnées ci-dessous. OUTFITY (éditeur
             d&apos;OUTFITY) vous répond dans les meilleurs délais.
           </p>
 
@@ -56,7 +56,7 @@ export default function ContactPage() {
               <div>
                 <h2 className="font-semibold text-[#1D1D1F] mb-1">Siège social</h2>
                 <p className="text-sm text-[#6e6e73]">
-                  BIANGORY – 1 ALLÉE D&apos;ARTOIS, 37000 TOURS
+                  OUTFITY – 1 ALLÉE D&apos;ARTOIS, 37000 TOURS
                 </p>
               </div>
             </div>
@@ -83,7 +83,7 @@ export default function ContactPage() {
                 <Instagram className="w-5 h-5 text-[#007AFF]" />
               </div>
               <div>
-                <h2 className="font-semibold text-[#1D1D1F] mb-1">Réseaux sociaux – BIANGORY</h2>
+                <h2 className="font-semibold text-[#1D1D1F] mb-1">Réseaux sociaux – OUTFITY</h2>
                 <p className="text-sm text-[#6e6e73] mb-2">
                   Suivez-nous sur Instagram et TikTok pour les actualités et conseils mode.
                 </p>

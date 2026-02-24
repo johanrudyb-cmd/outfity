@@ -206,18 +206,18 @@ export function LaunchMapStepper({
   const isFullPage = onlyPhaseContent || isAtelierPhase;
 
   return (
-    <div className={cn("w-full", !isFullPage ? "space-y-6 max-w-4xl mx-auto" : "h-full flex flex-col")}>
+    <div className={cn("w-full transition-all duration-500", !isFullPage ? "space-y-4 sm:space-y-6 max-w-4xl mx-auto px-1 sm:px-0" : "h-full flex flex-col")}>
       {!isFullPage && (
-        <Card className="border border-black/[0.06] shadow-apple overflow-hidden bg-white rounded-[28px]">
-          <CardHeader className="bg-gradient-to-b from-[#F5F5F7]/50 to-white border-b border-black/[0.06] py-5 px-6 sm:px-8">
+        <Card className="border border-black/[0.06] shadow-apple overflow-hidden bg-white rounded-[24px] sm:rounded-[28px]">
+          <CardHeader className="bg-gradient-to-b from-[#F5F5F7]/50 to-white border-b border-black/[0.06] py-4 px-4 sm:py-5 sm:px-8">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-[16px] bg-[#007AFF]/10 flex items-center justify-center">
-                  <BarChart3 className="w-6 h-6 text-[#007AFF]" />
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[16px] bg-[#007AFF]/10 flex items-center justify-center">
+                  <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-[#007AFF]" />
                 </div>
                 <div>
-                  <CardTitle className="text-xl font-bold text-[#1D1D1F]">Votre Progression</CardTitle>
-                  <CardDescription className="text-sm text-[#86868B]">Étape {currentPhase + 1} sur {LAUNCH_MAP_PHASES.length}</CardDescription>
+                  <CardTitle className="text-lg sm:text-xl font-bold text-[#1D1D1F]">Votre Progression</CardTitle>
+                  <CardDescription className="text-xs sm:text-sm text-[#86868B]">Étape {currentPhase + 1} sur {LAUNCH_MAP_PHASES.length}</CardDescription>
                 </div>
               </div>
               <div className="hidden sm:block text-right">
@@ -228,7 +228,7 @@ export function LaunchMapStepper({
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="w-full bg-black/5 h-2 overflow-hidden">
+            <div className="w-full bg-black/5 h-1.5 sm:h-2 overflow-hidden">
               <div
                 className="bg-[#007AFF] h-full transition-all duration-1000 ease-out"
                 style={{ width: `${progressPercentage}%` }}
@@ -240,23 +240,23 @@ export function LaunchMapStepper({
 
       <div ref={phaseContentRef} className={cn("w-full", isFullPage && "flex-1 flex flex-col relative min-h-0")}>
         {!isFullPage && (
-          <div className="flex items-center gap-4 mb-8 bg-white border border-black/[0.06] rounded-[24px] p-5 shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-[#007AFF] flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">
-              <span className="text-white font-bold text-sm">{currentPhase + 1}</span>
+          <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-8 bg-white border border-black/[0.06] rounded-[20px] sm:rounded-[24px] p-4 sm:p-5 shadow-apple-sm">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-[#007AFF] flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">
+              <span className="text-white font-bold text-xs sm:text-sm">{currentPhase + 1}</span>
             </div>
-            <h2 className="text-lg font-bold text-[#1D1D1F]">
+            <h2 className="text-base sm:text-lg font-bold text-[#1D1D1F] truncate">
               {LAUNCH_MAP_PHASES[currentPhase]?.title}
             </h2>
             <div className="ml-auto h-px flex-1 bg-black/5 max-w-[150px] hidden sm:block" />
-            <div className="flex gap-1.5">
+            <div className="flex gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar py-1">
               {[0, 1, 2, 3, 4, 5].map((idx) => (
                 <button
                   key={idx}
                   onClick={() => setCurrentPhase(idx)}
                   disabled={idx > (hasIdentity ? (completedPhases) : 0)}
                   className={cn(
-                    "w-2.5 h-2.5 rounded-full transition-all duration-500",
-                    currentPhase === idx ? "bg-[#007AFF] scale-125 shadow-md shadow-blue-500/20" :
+                    "w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full transition-all duration-500 shrink-0",
+                    currentPhase === idx ? "bg-[#007AFF] scale-125 shadow-md shadow-blue-500/10" :
                       idx < completedPhases ? "bg-[#007AFF]/40 hover:bg-[#007AFF]/60 cursor-pointer" : "bg-black/10 cursor-not-allowed"
                   )}
                   title={`Phase ${idx + 1}: ${LAUNCH_MAP_PHASES[idx]?.title}`}

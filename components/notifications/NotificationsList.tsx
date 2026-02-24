@@ -138,13 +138,13 @@ export function NotificationsList() {
   return (
     <div className="space-y-6">
       {/* Filters and Actions */}
-      <div className="flex items-center justify-between">
-        <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           <Button
             variant={filter === 'all' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter('all')}
-            className="border-2"
+            className="border-2 flex-1 sm:flex-none text-[10px] sm:text-xs px-2 sm:px-4"
           >
             Toutes ({notifications.length})
           </Button>
@@ -152,7 +152,7 @@ export function NotificationsList() {
             variant={filter === 'unread' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter('unread')}
-            className="border-2"
+            className="border-2 flex-1 sm:flex-none text-[10px] sm:text-xs px-2 sm:px-4"
           >
             Non lues ({unreadCount})
           </Button>
@@ -160,7 +160,7 @@ export function NotificationsList() {
             variant={filter === 'read' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter('read')}
-            className="border-2"
+            className="border-2 flex-1 sm:flex-none text-[10px] sm:text-xs px-2 sm:px-4"
           >
             Lues ({notifications.length - unreadCount})
           </Button>
@@ -171,7 +171,7 @@ export function NotificationsList() {
             variant="outline"
             size="sm"
             onClick={markAllAsRead}
-            className="border-2"
+            className="border-2 w-full sm:w-auto text-xs"
           >
             <CheckCheck className="w-4 h-4 mr-2" />
             Tout marquer comme lu
@@ -197,9 +197,8 @@ export function NotificationsList() {
           {notifications.map((notification) => (
             <Card
               key={notification.id}
-              className={`border-2 transition-all ${
-                notification.read ? 'opacity-75' : ''
-              } ${getTypeColor(notification.type)}`}
+              className={`border-2 transition-all ${notification.read ? 'opacity-75' : ''
+                } ${getTypeColor(notification.type)}`}
             >
               <CardContent className="p-5">
                 <div className="flex items-start gap-4">
@@ -207,30 +206,28 @@ export function NotificationsList() {
                     {getIcon(notification.type)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
                         <h3
-                          className={`font-semibold text-base mb-1 ${
-                            notification.read ? 'text-muted-foreground' : 'text-foreground'
-                          }`}
+                          className={`font-semibold text-sm sm:text-base mb-1 truncate ${notification.read ? 'text-muted-foreground' : 'text-foreground'
+                            }`}
                         >
                           {notification.title}
                         </h3>
                         <p
-                          className={`text-sm mb-2 ${
-                            notification.read ? 'text-muted-foreground' : 'text-foreground'
-                          } font-medium`}
+                          className={`text-xs sm:text-sm mb-2 ${notification.read ? 'text-muted-foreground' : 'text-foreground'
+                            } font-medium leading-normal`}
                         >
                           {notification.message}
                         </p>
-                        <p className="text-xs text-muted-foreground font-medium">
+                        <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">
                           {formatDistanceToNow(new Date(notification.createdAt), {
                             addSuffix: true,
                             locale: fr,
                           })}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
+                      <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 self-end sm:self-start">
                         {!notification.read && (
                           <Button
                             variant="ghost"

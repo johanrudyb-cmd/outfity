@@ -110,13 +110,13 @@ export default async function BlogPage() {
 
         {/* Asymmetric Article Grid */}
         <section className="py-24 lg:py-40">
-          <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-y-12 md:gap-y-24 gap-x-12">
+          <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-y-12 md:gap-y-16 lg:gap-y-24 gap-x-8 lg:gap-x-12">
             {posts.slice(1).map((post, index) => (
               <div key={post.id} className={cn(
-                "md:col-span-12 lg:col-span-6 group",
-                index % 3 === 0 && "lg:col-span-7",
-                index % 3 === 1 && "lg:col-span-5 pt-20",
-                index % 3 === 2 && "lg:col-span-12 flex flex-col md:flex-row gap-12 border-y border-black/5 py-32 mt-20"
+                "col-span-1 md:col-span-6 group",
+                index % 3 === 0 && "md:col-span-7",
+                index % 3 === 1 && "md:col-span-5 md:pt-20",
+                index % 3 === 2 && "md:col-span-12 flex flex-col md:flex-row gap-8 md:gap-12 border-y border-black/5 py-16 md:py-32 mt-10 md:mt-20"
               )}>
                 <Link href={`/blog/${post.slug}`} className={cn(
                   "block space-y-8",

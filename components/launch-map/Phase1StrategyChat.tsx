@@ -224,54 +224,48 @@ export function Phase1StrategyChat({
         e.preventDefault();
         sendMessage(input);
     };
-
     return (
         <div className="flex flex-col h-full w-full bg-[#F5F5F7] font-sans relative overflow-hidden flex-1 min-h-0">
 
             {/* ── Header ── */}
-            <div className="bg-white/95 backdrop-blur-xl border-b border-black/[0.04] px-4 py-1.5 sm:py-3 flex items-center justify-between shrink-0 sticky top-0 z-20">
-                <div className="flex items-center gap-2 sm:gap-4">
-                    <Link href="/launch-map" className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors">
-                        <ArrowLeft className="w-4 h-4 text-[#86868B]" />
+            <div className="bg-white/95 backdrop-blur-xl border-b border-black/[0.1] px-3 py-2 sm:px-4 sm:py-3 flex items-center justify-between shrink-0 sticky top-0 z-20">
+                <div className="flex items-center gap-2 sm:gap-4 overflow-hidden">
+                    <Link href="/launch-map" className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors shrink-0">
+                        <ArrowLeft className="w-5 h-5 text-[#86868B]" />
                     </Link>
-                    <div className="h-6 w-px bg-black/5 hidden sm:block" />
-                    <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
                         <div className="relative shrink-0">
                             <img
-                                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                                src="/images/agents/virgil_final.png"
                                 alt="Virgil"
-                                className="w-7 h-7 sm:w-10 sm:h-10 rounded-full object-cover shadow-sm border border-black/5"
+                                className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl object-cover shadow-sm border border-black/5"
                             />
-                            <div className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-full border border-white" />
+                            <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="font-bold text-[#1D1D1F] text-[12px] sm:text-[15px] leading-tight truncate">Virgil</h3>
-                            <p className="text-[8px] sm:text-[10px] text-[#86868B] font-bold uppercase tracking-tighter sm:tracking-normal leading-none mt-0.5">Stratégie & Marketing</p>
+                            <h3 className="font-extrabold text-[#1D1D1F] text-[13px] sm:text-[15px] leading-tight truncate">Virgil</h3>
+                            <p className="text-[9px] sm:text-[10px] text-[#86868B] font-bold uppercase tracking-wider leading-none mt-0.5">Stratégie</p>
                         </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                    {/* Button to access the classic form to update strategy */}
+                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                     {onShowClassic && (
                         <Button
                             onClick={onShowClassic}
-                            variant="outline"
-                            className="h-6 sm:h-9 text-[9px] sm:text-xs font-bold rounded-full gap-1 px-2 sm:px-4 shadow-sm border-black/10 transition-all active:scale-95"
+                            variant="ghost"
+                            className="h-8 sm:h-9 text-[10px] sm:text-xs font-bold rounded-xl gap-1.5 px-2.5 sm:px-4 bg-black/[0.03] hover:bg-black/[0.06] transition-apple"
                         >
-                            <Pencil className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
-                            <span className="hidden xs:inline">Modifier la stratégie</span>
-                            <span className="xs:hidden">Modifier</span>
+                            <Pencil className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                            <span className="hidden sm:inline">Options</span>
                         </Button>
                     )}
                     <Button
                         onClick={onComplete}
-                        variant="outline"
-                        className="h-6 sm:h-9 text-[9px] sm:text-xs font-bold rounded-full gap-1 px-2.5 sm:px-4 shadow-sm border-black/10 transition-all active:scale-95"
+                        className="h-8 sm:h-9 text-[10px] sm:text-xs font-bold rounded-xl gap-1.5 px-3 sm:px-4 bg-[#007AFF] hover:bg-[#0056CC] text-white shadow-sm transition-apple"
                     >
-                        <span className="hidden xs:inline">Phase terminée</span>
-                        <span className="xs:hidden">Finir</span>
-                        <ArrowRight className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
+                        <span className="hidden xs:inline">Terminer</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
                     </Button>
                 </div>
             </div>
@@ -284,14 +278,14 @@ export function Phase1StrategyChat({
                         <div key={msg.id} className={cn("flex items-end gap-1.5 sm:gap-2 max-w-[98%] sm:max-w-[95%] md:max-w-[90%] lg:max-w-[85%] group", isUser ? 'self-end flex-row-reverse' : 'self-start')}>
                             {!isUser && (
                                 <img
-                                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                                    src="/images/agents/virgil_final.png"
                                     alt="Virgil"
-                                    className="w-5 h-5 sm:w-7 sm:h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5 mb-0.5"
+                                    className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5 mb-0.5"
                                 />
                             )}
                             <div
                                 className={cn(
-                                    "px-3.5 py-2 sm:px-4 sm:py-3 rounded-[16px] sm:rounded-[24px] text-[14px] sm:text-[15px] leading-relaxed shadow-sm break-words relative",
+                                    "px-3.5 py-2 sm:px-4 sm:py-3 rounded-[18px] sm:rounded-[24px] text-[14px] sm:text-[15px] leading-relaxed shadow-sm break-words relative transition-apple",
                                     isUser
                                         ? "bg-[#007AFF] text-white rounded-br-[4px] sm:rounded-br-[8px]"
                                         : "bg-white text-[#1D1D1F] border border-black/[0.05] rounded-bl-[4px] sm:rounded-bl-[8px]"
@@ -318,9 +312,9 @@ export function Phase1StrategyChat({
                         <img
                             src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
                             alt="Virgil"
-                            className="w-5 h-5 sm:w-7 sm:h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5 mb-0.5"
+                            className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5 mb-0.5"
                         />
-                        <div className="px-3 py-2 sm:px-4 sm:py-3 rounded-[16px] sm:rounded-[24px] rounded-bl-[4px] sm:rounded-bl-[8px] bg-white border border-black/[0.05] shadow-sm">
+                        <div className="px-3 py-2 sm:px-4 sm:py-3 rounded-[18px] sm:rounded-[24px] rounded-bl-[4px] sm:rounded-bl-[8px] bg-white border border-black/[0.05] shadow-sm">
                             <div className="flex items-center gap-1.5 h-4">
                                 <div className="w-1.5 h-1.5 bg-blue-500/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                                 <div className="w-1.5 h-1.5 bg-blue-500/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -332,10 +326,10 @@ export function Phase1StrategyChat({
                 <div ref={messagesEndRef} className="h-4" />
             </div>
 
-            {/* ── Input Box ── */}
-            <div className="shrink-0 pt-2 pb-4 sm:pb-8 px-3 sm:px-6 bg-[#F5F5F7] z-20 pb-safe-bottom border-t border-black/[0.03]">
+            {/* ── Input Box (Gemini-style) ── */}
+            <div className="shrink-0 pt-2 bg-[#F5F5F7] z-20 border-t border-black/[0.05] px-3 sm:px-6 pb-safe-bottom">
                 {suggestions.length > 0 && !isTyping && (
-                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 pt-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 pt-1 animate-in slide-in-from-bottom-2 duration-500">
                         {suggestions.map(reply => (
                             <button
                                 key={reply}
@@ -347,47 +341,50 @@ export function Phase1StrategyChat({
                                     }
                                     setSuggestions([]);
                                 }}
-                                className="shrink-0 text-[11px] sm:text-[13px] font-bold text-blue-600 bg-white border border-blue-600/20 hover:bg-blue-600/5 px-4 py-2 rounded-full transition-all active:scale-95 shadow-sm whitespace-nowrap"
+                                className="shrink-0 text-[12px] sm:text-[13px] font-bold text-[#007AFF] bg-white border border-[#007AFF]/15 hover:bg-blue-50 active:bg-blue-100 px-4 py-2.5 rounded-2xl transition-apple shadow-sm whitespace-nowrap"
                             >
                                 {reply}
                             </button>
                         ))}
                     </div>
                 )}
-                <form onSubmit={handleSubmit} className="relative flex items-end gap-2 bg-white border border-black/[0.08] rounded-[28px] shadow-sm p-1.5 transition-all focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/50 z-30">
-                    <textarea
-                        ref={inputRef}
-                        value={input}
-                        onChange={e => {
-                            setInput(e.target.value);
-                            e.target.style.height = 'auto';
-                            e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
-                        }}
-                        onKeyDown={e => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                if (input.trim() && !isTyping) sendMessage(input);
-                            }
-                        }}
-                        placeholder="Écrire à Virgil..."
-                        className="flex-1 bg-transparent max-h-[120px] min-h-[40px] px-4 py-3 text-[15px] text-[#1D1D1F] placeholder:text-[#86868B] focus:outline-none resize-none leading-relaxed"
-                        disabled={isTyping}
-                        rows={1}
-                    />
-                    <button
-                        type="submit"
-                        disabled={isTyping || !input.trim()}
-                        className="w-10 h-10 shrink-0 rounded-[20px] bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:hover:bg-blue-600 text-white flex items-center justify-center transition-all m-0.5 shadow-md shadow-blue-500/20 active:scale-95"
-                    >
-                        {isTyping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 ml-0.5" />}
-                    </button>
-                </form>
+                <div className="pb-3 sm:pb-6">
+                    <form onSubmit={handleSubmit} className="relative flex items-end gap-2 bg-white border border-black/[0.08] rounded-[28px] shadow-apple-lg p-1.5 transition-all focus-within:ring-4 focus-within:ring-blue-500/10 focus-within:border-blue-500/30 z-30">
+                        <textarea
+                            ref={inputRef}
+                            value={input}
+                            onChange={e => {
+                                setInput(e.target.value);
+                                e.target.style.height = 'auto';
+                                e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+                            }}
+                            onKeyDown={e => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    if (input.trim() && !isTyping) sendMessage(input);
+                                }
+                            }}
+                            placeholder="Écrire à Virgil..."
+                            className="flex-1 bg-transparent max-h-[120px] min-h-[44px] px-4 py-3 text-[15px] sm:text-[16px] text-[#1D1D1F] placeholder:text-[#86868B] focus:outline-none resize-none leading-relaxed"
+                            disabled={isTyping}
+                            rows={1}
+                        />
+                        <button
+                            type="submit"
+                            disabled={isTyping || !input.trim()}
+                            className="w-11 h-11 shrink-0 rounded-[22px] bg-[#007AFF] hover:bg-[#0056CC] disabled:opacity-30 disabled:hover:bg-[#007AFF] text-white flex items-center justify-center transition-apple m-0.5 shadow-md active:scale-95"
+                        >
+                            {isTyping ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 ml-0.5" />}
+                        </button>
+                    </form>
+                </div>
             </div>
 
             <style dangerouslySetInnerHTML={{
                 __html: `
         .stylish-scrollbar::-webkit-scrollbar { width: 0px; display: none; }
         .stylish-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .pb-safe-bottom { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
       `}} />
         </div>
     );

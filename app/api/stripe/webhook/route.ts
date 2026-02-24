@@ -63,6 +63,30 @@ export async function POST(request: Request) {
             },
           });
           console.log('[Stripe webhook] Subscription activated + quotas reset:', { userId, planId, customerId });
+
+          // Récupérer les infos utilisateur pour faciliter l'envoi d'email via n8n
+          const userObj = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, name: true } });
+
+          // Déclencher le webhook n8n pour la séquence email "Créateur"
+          try {
+            const N8N_WEBHOOK_SUBSCRIPTION_URL = process.env.N8N_WEBHOOK_SUBSCRIPTION_URL || 'http://localhost:5678/webhook/outfity-subscription';
+            fetch(N8N_WEBHOOK_SUBSCRIPTION_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                event: 'subscription_created',
+                userId,
+                email: userObj?.email || '',
+                name: userObj?.name || 'Créateur',
+                planId,
+                customerId,
+                timestamp: new Date().toISOString()
+              }),
+            }).catch(e => console.error('[Stripe webhook] Erreur fetch webhook n8n subscription:', e));
+          } catch (e) {
+            console.error('[Stripe webhook] Erreur préparation webhook n8n:', e);
+          }
+
           break;
         }
 
@@ -107,6 +131,90 @@ export async function POST(request: Request) {
         }
         break;
       }
+      case 'customer.subscription.updated':
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object as Stripe.Subscription;
+        const previousAttributes = event.data.previous_attributes as Partial<Stripe.Subscription> | undefined;
+        const customerId = subscription.customer as string;
+        const status = subscription.status;
+        const cancelAtPeriodEnd = subscription.cancel_at_period_end;
+
+        const isCanceled = status === 'canceled' || status === 'unpaid' || cancelAtPeriodEnd;
+        const isTrialConverted = previousAttributes?.status === 'trialing' && status === 'active';
+
+        // Trouver l'utilisateur lié à ce client Stripe
+        const user = await prisma.user.findFirst({
+          where: { stripeCustomerId: customerId },
+        });
+
+        if (user) {
+          if (isTrialConverted) {
+            console.log('[Stripe webhook] Trial converted to active for user:', user.id);
+            // Webhook n8n pour la conversion de l'essai
+            try {
+              const N8N_WEBHOOK_SUBSCRIPTION_URL = process.env.N8N_WEBHOOK_SUBSCRIPTION_URL || 'http://localhost:5678/webhook/outfity-subscription';
+              fetch(N8N_WEBHOOK_SUBSCRIPTION_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  event: 'trial_converted',
+                  userId: user.id,
+                  email: user.email,
+                  name: user.name || 'Créateur',
+                  status: status,
+                  timestamp: new Date().toISOString()
+                }),
+              }).catch(e => console.error('[Stripe webhook] Erreur fetch webhook n8n trial converted:', e));
+            } catch (e) {
+              console.error('[Stripe webhook] Erreur préparation webhook n8n:', e);
+            }
+          }
+
+          if (isCanceled) {
+            // Si c'est complètement supprimé (deleted), on remet en free direct
+            if (event.type === 'customer.subscription.deleted' || status === 'canceled' || status === 'unpaid') {
+              await prisma.user.update({
+                where: { id: user.id },
+                data: { plan: 'free' }
+              });
+              console.log('[Stripe webhook] Subscription canceled/deleted, user downgraded to free:', user.id);
+            } else {
+              if (previousAttributes && previousAttributes.cancel_at_period_end === false && cancelAtPeriodEnd === true) {
+                console.log('[Stripe webhook] Subscription set to cancel at period end for user:', user.id);
+              }
+            }
+
+            // Webhook n8n pour la résiliation (on envoie si ça vient d'être annulé)
+            // On vérifie que cancel_at_period_end vient juste de passer à true, ou que c'est un delete
+            const justCanceled = (previousAttributes?.cancel_at_period_end === false && cancelAtPeriodEnd === true) || event.type === 'customer.subscription.deleted';
+
+            if (justCanceled) {
+              try {
+                const N8N_WEBHOOK_SUBSCRIPTION_URL = process.env.N8N_WEBHOOK_SUBSCRIPTION_URL || 'http://localhost:5678/webhook/outfity-subscription';
+                fetch(N8N_WEBHOOK_SUBSCRIPTION_URL, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    event: 'subscription_canceled',
+                    userId: user.id,
+                    email: user.email,
+                    name: user.name || 'Créateur',
+                    status: status,
+                    cancelAtPeriodEnd: cancelAtPeriodEnd,
+                    timestamp: new Date().toISOString()
+                  }),
+                }).catch(e => console.error('[Stripe webhook] Erreur fetch webhook n8n cancellation:', e));
+              } catch (e) {
+                console.error('[Stripe webhook] Erreur préparation webhook n8n:', e);
+              }
+            }
+          }
+        } else {
+          console.warn('[Stripe webhook] Webhook update/delete: No user found for stripe customer:', customerId);
+        }
+        break;
+      }
+
       default:
         console.log(`[Stripe webhook] Unhandled event: ${event.type}`);
     }

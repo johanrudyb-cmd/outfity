@@ -69,7 +69,7 @@ function SignUpContent() {
   };
 
   return (
-    <div className={`min-h-[100dvh] flex flex-col justify-center items-center px-4 py-12 safe-area-padding overflow-y-auto transition-colors duration-500 overflow-x-hidden ${isPartnerFlow ? 'bg-black text-white selection:bg-[#007AFF] selection:text-white' : 'bg-gray-50 text-gray-900'}`}>
+    <div className={`min-h-[100dvh] flex flex-col justify-center items-center px-6 sm:px-8 py-12 safe-area-padding overflow-y-auto transition-colors duration-500 overflow-x-hidden ${isPartnerFlow ? 'bg-black text-white selection:bg-[#007AFF] selection:text-white' : 'bg-gray-50 text-gray-900'}`}>
 
       {/* Background Elements */}
       {isPartnerFlow ? (
@@ -123,7 +123,7 @@ function SignUpContent() {
         </div>
       )}
 
-      <div className="w-full max-w-md space-y-8 relative z-10">
+      <div className="w-full max-w-[420px] space-y-8 relative z-10 mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -154,9 +154,10 @@ function SignUpContent() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.1 }}
+          className="w-full"
         >
-          <Card className={`border-0 shadow-2xl overflow-hidden backdrop-blur-xl ${isPartnerFlow ? 'bg-white/5 border border-white/10 ring-1 ring-white/5' : 'bg-white'}`}>
-            <CardContent className="p-8">
+          <Card className={`border-0 shadow-2xl overflow-hidden backdrop-blur-xl w-full ${isPartnerFlow ? 'bg-white/5 border border-white/10 ring-1 ring-white/5' : 'bg-white'}`}>
+            <CardContent className="p-6 sm:p-8">
               <form onSubmit={handleSubmit} className="space-y-5">
                 {error && (
                   <motion.div
@@ -229,8 +230,8 @@ function SignUpContent() {
                   type="submit"
                   disabled={loading}
                   className={`w-full h-12 rounded-xl text-base font-semibold shadow-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] mt-2 ${isPartnerFlow
-                      ? 'bg-[#007AFF] hover:bg-[#0062CC] text-white shadow-[#007AFF]/25'
-                      : 'bg-black hover:bg-gray-900 text-white'
+                    ? 'bg-[#007AFF] hover:bg-[#0062CC] text-white shadow-[#007AFF]/25'
+                    : 'bg-black hover:bg-gray-900 text-white'
                     }`}
                 >
                   {loading ? (

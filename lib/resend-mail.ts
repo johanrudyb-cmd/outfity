@@ -17,7 +17,7 @@ export async function sendEmail({
     to,
     subject,
     html,
-    from = 'OUTFITY <onboarding@outfity.fr>'
+    from = 'OUTFITY <send@outfity.fr>'
 }: SendEmailParams) {
     if (!RESEND_API_KEY) {
         console.warn('[Mail] RESEND_API_KEY manquante. Email non envoyé.');

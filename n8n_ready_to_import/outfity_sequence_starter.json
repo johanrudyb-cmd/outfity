@@ -1,0 +1,139 @@
+{
+    "name": "1. Inscription Gratuite (Starter)",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "outfity-onboarding",
+                "options": {}
+            },
+            "name": "Webhook Inscription",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                250,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://api.resend.com/emails",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"from\": \"OUTFITY <send@outfity.fr>\",\n  \"to\": [\"{{ $('Webhook Inscription').item.json.body.email }}\"],\n  \"subject\": \"Bienvenue chez OUTFITY 🚀\",\n  \"html\": \"Salut {{ $('Webhook Inscription').item.json.body.name }},<br><br>Ton compte est officiellement créé ! Tu as accès à la plateforme en mode Starter.<br><br>Pour lancer ta marque sérieusement et débloquer tes agents d'IA (Directeur Artistique, Marketing, Sourcing), on t'offre <b>3 jours d'essai 100% gratuits</b> sur le plan Créateur.<br><br>👉 <b><a href='https://outfity.fr/auth/choose-plan'>Démarrer mon essai de 3 jours</a></b><br><br>À très vite sur la plateforme !\"\n}"
+            },
+            "name": "Email Bienvenue",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                450,
+                300
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "",
+                    "name": "Header Auth"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "amount": 2,
+                "unit": "days"
+            },
+            "name": "Attente 2 Jours",
+            "type": "n8n-nodes-base.wait",
+            "typeVersion": 1,
+            "position": [
+                650,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://api.resend.com/emails",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"from\": \"OUTFITY <send@outfity.fr>\",\n  \"to\": [\"{{ $('Webhook Inscription').item.json.body.email }}\"],\n  \"subject\": \"Dernière chance pour ton essai gratuit ⏳\",\n  \"html\": \"Salut {{ $('Webhook Inscription').item.json.body.name }},<br><br>Je vois que tu n'as pas encore activé ton essai gratuit.<br><br>C'est le moment idéal pour débloquer Pharrell (Design) et Virgil (Stratégie) gratuitement pendant 3 jours, et sécuriser l'offre de lancement à 29€/mois à vie (au lieu de 39€).<br><br>👉 <b><a href='https://outfity.fr/auth/choose-plan'>Je débloque l'équipe (Essai 3 Jours)</a></b><br><br>On se retrouve de l'autre côté !\"\n}"
+            },
+            "name": "Email Relance (J+2)",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                850,
+                300
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "",
+                    "name": "Header Auth"
+                }
+            }
+        }
+    ],
+    "connections": {
+        "Webhook Inscription": {
+            "main": [
+                [
+                    {
+                        "node": "Email Bienvenue",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Email Bienvenue": {
+            "main": [
+                [
+                    {
+                        "node": "Attente 2 Jours",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Attente 2 Jours": {
+            "main": [
+                [
+                    {
+                        "node": "Email Relance (J+2)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": false,
+    "settings": {},
+    "versionId": "1",
+    "meta": {
+        "templateCredsSetupCompleted": true
+    }
+}

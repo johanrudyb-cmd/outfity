@@ -255,133 +255,73 @@ export function Phase6Shopify({
   };
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#F5F5F7] font-sans relative">
+    <div className="flex flex-col h-full w-full bg-[#F5F5F7] font-sans relative overflow-hidden flex-1 min-h-0">
 
       {/* ── Header ── */}
-      <div className="bg-white/80 backdrop-blur-xl border-b border-black/[0.06] px-4 py-1.5 sm:py-3 flex items-center justify-between shrink-0 sticky top-0 z-20">
-        <div className="flex items-center gap-2 sm:gap-4">
-          <Link href="/launch-map" className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors">
-            <ArrowLeft className="w-4 h-4 text-[#86868B]" />
+      <div className="bg-white/95 backdrop-blur-xl border-b border-black/[0.1] px-3 py-2 sm:px-4 sm:py-3 flex items-center justify-between shrink-0 sticky top-0 z-20">
+        <div className="flex items-center gap-2 sm:gap-4 overflow-hidden">
+          <Link href="/launch-map" className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors shrink-0">
+            <ArrowLeft className="w-5 h-5 text-[#86868B]" />
           </Link>
-          <div className="h-6 w-px bg-black/5 hidden sm:block" />
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="relative">
-              <img
-                src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
-                alt="Johan"
-                className="w-10 h-10 rounded-full object-cover shadow-md border border-black/5"
-              />
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
+          <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
+            <div className="relative shrink-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#95BF47] to-[#5E8E3E] flex items-center justify-center shadow-sm text-white">
+                <Store className="w-5 h-5 sm:w-6 sm:h-6" />
+              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white" />
             </div>
-            <div>
-              <h3 className="font-bold text-[#1D1D1F] text-[15px] leading-tight text-[12px] sm:text-[15px]">Johan</h3>
-              <p className="text-[11px] text-[#86868B] font-medium text-[8px] sm:text-[11px]">Web designer</p>
+            <div className="min-w-0">
+              <h3 className="font-extrabold text-[#1D1D1F] text-[13px] sm:text-[15px] leading-tight truncate">Shopify Assist</h3>
+              <p className="text-[9px] sm:text-[10px] text-[#86868B] font-bold uppercase tracking-wider leading-none mt-0.5">Lancement E-shop</p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {isConnected && (
-            <Link
-              href={`https://${shopifyShopDomain}`}
-              target="_blank"
-              className="hidden sm:flex items-center gap-1.5 text-[11px] font-bold text-[#007AFF] bg-[#007AFF]/10 px-3 py-1.5 rounded-full hover:bg-[#007AFF]/20 transition-colors"
-            >
-              <div className="w-1.5 h-1.5 bg-[#007AFF] rounded-full" />
-              {shopifyShopDomain}
-              <ExternalLink className="w-3 h-3" />
-            </Link>
-          )}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {!showConnect && (
             <button
               onClick={() => setShowConnect(true)}
-              className="flex items-center gap-1.5 text-[12px] font-bold text-[#1D1D1F] bg-[#E5E5EA] hover:bg-[#D1D1D6] px-3 py-1.5 rounded-full transition-all"
+              className={cn(
+                "h-8 sm:h-9 px-3 sm:px-4 rounded-xl text-[10px] sm:text-xs font-bold flex items-center gap-1.5 transition-apple shadow-sm",
+                isConnected ? "bg-white border border-black/5 text-[#5E8E3E]" : "bg-black text-white hover:bg-black/80"
+              )}
             >
               <Store className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{isConnected ? 'Gérer' : 'Lier'}</span>
+              <span className="hidden xs:inline">{isConnected ? 'Gérer' : 'Lier'}</span>
             </button>
           )}
-          <button
-            onClick={resetChat}
-            className="w-8 h-8 rounded-full bg-[#E5E5EA] flex items-center justify-center hover:bg-[#D1D1D6] transition-colors text-[#1D1D1F]"
-            title="Rafraîchir"
+          <Button
+            onClick={onComplete}
+            className="h-8 sm:h-9 text-[10px] sm:text-xs font-bold rounded-xl gap-1.5 px-3 sm:px-4 bg-[#5E8E3E] hover:bg-[#4A7231] text-white shadow-sm transition-apple"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
-          </button>
+            <span className="hidden xs:inline">Terminer</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Button>
         </div>
       </div>
 
-      {/* ── Connect Store Panel ── */}
-      {showConnect && (
-        <div className="bg-white border-b border-black/[0.06] px-4 sm:px-6 py-5 shrink-0 transition-all shadow-sm z-10 relative">
-          <form onSubmit={handleConnect} className="flex flex-col sm:flex-row gap-3 items-end max-w-2xl mx-auto">
-            <div className="flex-1 space-y-1.5 w-full">
-              <Label className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest pl-1">URL Shopify</Label>
-              <Input
-                type="text"
-                value={domain}
-                onChange={e => setDomain(e.target.value)}
-                placeholder="ma-marque.myshopify.com"
-                className="h-11 rounded-2xl bg-[#F5F5F7] border-0 text-[14px] focus:ring-1 focus:ring-[#007AFF]"
-                disabled={connecting}
-              />
-            </div>
-            <div className="flex-1 space-y-1.5 w-full">
-              <div className="flex items-center justify-between pl-1">
-                <Label className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest">Access Token</Label>
-                <Link href="https://help.shopify.com/fr/manual/apps/app-types/custom-apps" target="_blank" className="text-[10px] text-[#007AFF] hover:underline">Aide ?</Link>
-              </div>
-              <Input
-                type="password"
-                value={accessToken}
-                onChange={e => setAccessToken(e.target.value)}
-                placeholder="Optionnel"
-                className="h-11 rounded-2xl bg-[#F5F5F7] border-0 text-[14px] focus:ring-1 focus:ring-[#007AFF]"
-                disabled={connecting}
-              />
-            </div>
-            <div className="flex gap-2 w-full sm:w-auto shrink-0">
-              <Button type="submit" disabled={connecting} className="flex-1 sm:flex-none h-11 px-5 rounded-2xl bg-[#007AFF] hover:bg-[#0056CC] text-white font-bold shadow-md shadow-blue-500/20">
-                {connecting ? <AppleLoader size="sm" /> : <span>Valider</span>}
-              </Button>
-              <button type="button" onClick={() => setShowConnect(false)} className="h-11 px-4 rounded-2xl bg-[#F5F5F7] text-[#86868B] hover:text-[#1D1D1F] font-bold transition-colors">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          </form>
-          {connectError && <p className="text-[13px] text-red-500 mt-3 font-medium text-center">{connectError}</p>}
-        </div>
-      )}
-
-      {/* ── Messages Chat UI (iMessage style) ── */}
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 pb-4 stylish-scrollbar relative z-0 flex flex-col gap-4">
+      {/* ── Messages Chat UI ── */}
+      <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 pb-4 stylish-scrollbar relative z-0 flex flex-col gap-3.5 sm:gap-4">
         {messages.map((msg) => {
           const isUser = msg.role === 'user';
           return (
-            <div key={msg.id} className={cn("flex items-end gap-2 max-w-[98%] sm:max-w-[95%] md:max-w-[85%] group", isUser ? 'self-end flex-row-reverse' : 'self-start')}>
-
-              {/* Avatar for Johan only */}
+            <div key={msg.id} className={cn("flex items-end gap-1.5 sm:gap-2 max-w-[98%] sm:max-w-[95%] md:max-w-[90%] lg:max-w-[85%] group", isUser ? 'self-end flex-row-reverse' : 'self-start')}>
               {!isUser && (
-                <img
-                  src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
-                  alt="Johan"
-                  className="w-7 h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5"
-                />
+                <div className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 rounded-full bg-gradient-to-br from-[#95BF47] to-[#5E8E3E] flex items-center justify-center shadow-sm text-white mb-0.5">
+                  <Store className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
               )}
-
-              {/* Bubble */}
               <div
                 className={cn(
-                  "px-4 py-3 rounded-[24px] text-[15px] leading-relaxed shadow-sm break-words relative",
+                  "px-3.5 py-2 sm:px-4 sm:py-3 rounded-[18px] sm:rounded-[24px] text-[14px] sm:text-[15px] leading-relaxed shadow-sm break-words relative transition-apple",
                   isUser
-                    ? "bg-[#007AFF] text-white rounded-br-[8px]"
-                    : "bg-white text-[#1D1D1F] border border-black/[0.04] rounded-bl-[8px]"
+                    ? "bg-[#5E8E3E] text-white rounded-br-[4px] sm:rounded-br-[8px]"
+                    : "bg-white text-[#1D1D1F] border border-black/[0.05] rounded-bl-[4px] sm:rounded-bl-[8px]"
                 )}
               >
-                <div className="prose prose-sm max-w-none">
+                <div className="max-w-none">
                   <MessageContent content={msg.content} isUser={isUser} />
                 </div>
-
                 <div className={cn(
                   "absolute -bottom-5 text-[10px] text-[#86868B] font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap",
                   isUser ? "right-1" : "left-1"
@@ -389,24 +329,73 @@ export function Phase6Shopify({
                   {msg.timestamp.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                 </div>
               </div>
-
             </div>
           );
         })}
 
-        {/* Typing indicator */}
         {isTyping && (
           <div className="flex items-end gap-2 self-start max-w-[85%] sm:max-w-[75%]">
-            <img
-              src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
-              alt="Johan"
-              className="w-7 h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5"
-            />
-            <div className="px-5 py-3.5 rounded-[24px] rounded-bl-[8px] bg-white border border-black/[0.04] shadow-sm">
+            <div className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 rounded-full bg-gradient-to-br from-[#95BF47] to-[#5E8E3E] flex items-center justify-center shadow-sm text-white mb-0.5">
+              <Store className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </div>
+            <div className="px-3 py-2 sm:px-4 sm:py-3 rounded-[18px] sm:rounded-[24px] rounded-bl-[4px] sm:rounded-bl-[8px] bg-white border border-black/[0.05] shadow-sm">
               <div className="flex items-center gap-1.5 h-4">
-                <div className="w-2 h-2 bg-[#86868B]/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-2 h-2 bg-[#86868B]/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-2 h-2 bg-[#86868B]/50 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="w-1.5 h-1.5 bg-[#95BF47]/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-1.5 h-1.5 bg-[#95BF47]/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-1.5 h-1.5 bg-[#95BF47]/50 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showConnect && (
+          <div className="self-center w-full max-w-sm my-4 animate-in fade-in zoom-in-95 duration-500">
+            <div className="bg-white rounded-[28px] border border-black/[0.08] shadow-apple-lg p-6 sm:p-8 space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-[#95BF47]/10 flex items-center justify-center">
+                  <ShoppingBag className="w-6 h-6 text-[#5E8E3E]" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-[#1D1D1F]">Connecter Shopify</h4>
+                  <p className="text-xs text-[#86868B]">Reliez votre boutique existante</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-black uppercase tracking-widest ml-1 text-black/30">Domaine .myshopify.com</Label>
+                  <Input
+                    placeholder="ma-boutique.myshopify.com"
+                    value={domain}
+                    onChange={e => setDomain(e.target.value)}
+                    className="h-12 rounded-xl border-black/[0.08] focus:ring-[#95BF47]/10 focus:border-[#95BF47]/40 font-medium"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-black uppercase tracking-widest ml-1 text-black/30">Access Token (Admin API)</Label>
+                  <Input
+                    type="password"
+                    placeholder="shpat_xxxxxxxxxxxxxxxx"
+                    value={accessToken}
+                    onChange={e => setAccessToken(e.target.value)}
+                    className="h-12 rounded-xl border-black/[0.08] focus:ring-[#95BF47]/10 focus:border-[#95BF47]/40 font-medium"
+                  />
+                </div>
+                {connectError && <p className="text-xs font-bold text-rose-500 px-1 italic">! {connectError}</p>}
+                <Button
+                  onClick={handleConnect}
+                  disabled={connecting || !domain || !accessToken}
+                  className="w-full h-12 rounded-xl bg-[#5E8E3E] hover:bg-[#4A7231] text-white font-bold shadow-sm transition-apple"
+                >
+                  {connecting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Lancer la synchronisation'}
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => setShowConnect(false)}
+                  className="w-full h-10 rounded-xl text-xs font-bold text-[#86868B] hover:text-[#1D1D1F]"
+                >
+                  Plus tard
+                </Button>
               </div>
             </div>
           </div>
@@ -414,17 +403,15 @@ export function Phase6Shopify({
         <div ref={messagesEndRef} className="h-4" />
       </div>
 
-      {/* ── Input Box (Docked at bottom) ── */}
-      <div className="shrink-0 pt-2 pb-32 sm:pb-6 px-4 sm:px-6 bg-[#F5F5F7] z-20 pb-safe">
-
-        {/* Quick Replies */}
-        {messages.length <= 2 && !isTyping && (
-          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3">
+      {/* ── Input Box (Gemini-style) ── */}
+      <div className="shrink-0 pt-2 bg-[#F5F5F7] z-20 border-t border-black/[0.05] px-3 sm:px-6 pb-safe-bottom">
+        {QUICK_REPLIES.length > 0 && !isTyping && (
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 pt-1 animate-in slide-in-from-bottom-2 duration-500">
             {QUICK_REPLIES.map(reply => (
               <button
                 key={reply}
                 onClick={() => sendMessage(reply)}
-                className="shrink-0 text-[13px] font-semibold text-[#007AFF] bg-[#007AFF]/10 hover:bg-[#007AFF]/20 px-4 py-2 rounded-full transition-all active:scale-95"
+                className="shrink-0 text-[12px] sm:text-[13px] font-bold text-[#5E8E3E] bg-white border border-[#95BF47]/20 hover:bg-[#95BF47]/5 active:bg-[#95BF47]/10 px-4 py-2.5 rounded-2xl transition-apple shadow-sm whitespace-nowrap"
               >
                 {reply}
               </button>
@@ -432,44 +419,43 @@ export function Phase6Shopify({
           </div>
         )}
 
-        {/* Message Input Pill */}
-        <form onSubmit={handleSubmit} className="relative flex items-end gap-2 bg-white border border-black/[0.08] rounded-[28px] shadow-sm p-1.5 transition-all focus-within:ring-2 focus-within:ring-[#007AFF]/20 focus-within:border-[#007AFF]/50 z-30">
-          <textarea
-            // @ts-ignore
-            ref={inputRef}
-            value={input}
-            onChange={e => {
-              setInput(e.target.value);
-              // Auto-resize
-              e.target.style.height = 'auto';
-              e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
-            }}
-            onKeyDown={e => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                if (input.trim() && !isTyping) sendMessage(input);
-              }
-            }}
-            placeholder="Écrire à Johan..."
-            className="flex-1 bg-transparent max-h-[120px] min-h-[40px] px-4 py-3 text-[15px] text-[#1D1D1F] placeholder:text-[#86868B] focus:outline-none resize-none leading-relaxed"
-            disabled={isTyping}
-            rows={1}
-          />
-          <button
-            type="submit"
-            disabled={isTyping || !input.trim()}
-            className="w-10 h-10 shrink-0 rounded-[20px] bg-[#007AFF] hover:bg-[#0056CC] disabled:opacity-40 disabled:hover:bg-[#007AFF] text-white flex items-center justify-center transition-all m-0.5 shadow-md shadow-blue-500/20 active:scale-95"
-          >
-            {isTyping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 ml-0.5" />}
-          </button>
-        </form>
+        <div className="pb-3 sm:pb-6">
+          <form onSubmit={handleSubmit} className="relative flex items-end gap-2 bg-white border border-black/[0.08] rounded-[28px] shadow-apple-lg p-1.5 transition-all focus-within:ring-4 focus-within:ring-[#95BF47]/10 focus-within:border-[#95BF47]/30 z-30">
+            <textarea
+              ref={inputRef as any}
+              value={input}
+              onChange={e => {
+                setInput(e.target.value);
+                e.target.style.height = 'auto';
+                e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+              }}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  if (input.trim() && !isTyping) sendMessage(input);
+                }
+              }}
+              placeholder="Parler à Shopify Assist..."
+              className="flex-1 bg-transparent max-h-[120px] min-h-[44px] px-4 py-3 text-[15px] sm:text-[16px] text-[#1D1D1F] placeholder:text-[#86868B] focus:outline-none resize-none leading-relaxed"
+              disabled={isTyping}
+              rows={1}
+            />
+            <button
+              type="submit"
+              disabled={isTyping || !input.trim()}
+              className="w-11 h-11 shrink-0 rounded-[22px] bg-[#5E8E3E] hover:bg-[#4A7231] disabled:opacity-30 disabled:hover:bg-[#5E8E3E] text-white flex items-center justify-center transition-apple m-0.5 shadow-md active:scale-95"
+            >
+              {isTyping ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 ml-0.5" />}
+            </button>
+          </form>
+        </div>
       </div>
 
-      {/* Basic stylings for scrollbars to keep it clean */}
       <style dangerouslySetInnerHTML={{
         __html: `
         .stylish-scrollbar::-webkit-scrollbar { width: 0px; display: none; }
         .stylish-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .pb-safe-bottom { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
       `}} />
     </div>
   );

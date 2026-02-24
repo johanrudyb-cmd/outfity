@@ -3,20 +3,44 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Check, Sparkles } from 'lucide-react';
+import { Check, Sparkles, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+function CountdownTimer() {
+  const [timeLeft, setTimeLeft] = useState({ days: 29, hours: 23, minutes: 54, seconds: 12 });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
+        if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
+        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
+        if (prev.days > 0) return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
+        return prev;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="flex items-center justify-center gap-2 text-[#FF3B30] font-bold text-xs mb-4 bg-red-50 py-2 px-4 rounded-full border border-red-100 animate-pulse">
+      <Clock className="w-4 h-4" />
+      <span>PROMO FINIT DANS : {timeLeft.days}j {String(timeLeft.hours).padStart(2, '0')}h {String(timeLeft.minutes).padStart(2, '0')}m</span>
+    </div>
+  );
+}
 
 const plans = [
   {
     name: 'Starter',
     price: 'Gratuit',
     period: 'pour toujours',
-    description: 'Parfait pour découvrir la plateforme',
+    description: 'Ton équipe d\'experts IA (Virgil, Pharrell, Ada, Johan) t\'accompagne.',
     features: [
+      'Accès limité aux 4 agents IA',
       '5 designs par mois',
       '3 analyses de tendances',
       'Accès au Sourcing Hub',
-      'Support par email',
       'Calendrier de contenu',
     ],
     cta: 'Commencer gratuitement',
@@ -24,18 +48,20 @@ const plans = [
   },
   {
     name: 'Créateur',
-    price: '34€',
-    period: '/mois',
-    description: 'Pour les créateurs qui veulent percer',
+    price: '29€',
+    oldPrice: '39€',
+    period: '/mois*',
+    description: 'Offre limitée : 29€/mois à vie (au lieu de 39€).',
     features: [
+      '3 JOURS D\'ESSAI GRATUIT',
+      'Les 4 agents IA inclus',
+      'Stratégie marketing complète',
       'Designs illimités',
-      '10 analyses IVS par mois',
-      'Accès au Radar Elite Outfity',
       'Tech packs automatiques',
-      'Génération de contenu IA',
+      'Accès au Radar Elite Outfity',
       'Support prioritaire',
     ],
-    cta: 'Commencer mon essai',
+    cta: 'Profiter de l\'offre',
     popular: true,
   },
   {
@@ -134,24 +160,52 @@ export function PricingSection() {
                 </div>
               )}
 
-              {/* Nom et prix */}
+              {/* Header */}
+              {plan.popular && <CountdownTimer />}
               <div className="mb-6">
                 <h3 className="text-2xl font-semibold tracking-tight text-[#1D1D1F] mb-2">
                   {plan.name}
                 </h3>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-semibold text-[#1D1D1F]">
+                  <span className="text-4xl font-bold text-[#1D1D1F]">
                     {plan.price}
                   </span>
+                  {plan.oldPrice && (
+                    <span className="text-xl text-[#86868B] line-through decoration-red-500/50">
+                      {plan.oldPrice}
+                    </span>
+                  )}
                   {plan.period && (
                     <span className="text-lg text-[#1D1D1F]/60">
                       {plan.period}
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-[#1D1D1F]/60 mt-2">
+                <p className="text-sm text-[#1D1D1F]/60 mt-2 mb-4">
                   {plan.description}
                 </p>
+
+                {/* Agents Avatars */}
+                <div className="flex items-center gap-1.5 mb-6">
+                  {[
+                    { name: 'Virgil', img: '/images/agents/virgil_final.png' },
+                    { name: 'Pharrell', img: '/images/agents/pharrell_final.png' },
+                    { name: 'Ada', img: '/images/agents/ada_final.png' },
+                    { name: 'Johan', img: '/images/agents/johan_final.png' }
+                  ].map((agent) => (
+                    <div key={agent.name} className="relative group/agent">
+                      <img
+                        src={agent.img}
+                        alt={agent.name}
+                        className="w-8 h-8 rounded-full border-2 border-white shadow-sm object-cover bg-slate-100"
+                      />
+                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover/agent:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+                        {agent.name}
+                      </div>
+                    </div>
+                  ))}
+                  <span className="text-[10px] font-bold text-[#007AFF] ml-1 uppercase tracking-wider">L'équipe IA</span>
+                </div>
               </div>
 
               {/* Liste de fonctionnalités */}
@@ -169,7 +223,10 @@ export function PricingSection() {
                     >
                       <Check className="w-3 h-3 text-white" />
                     </div>
-                    <span className="text-sm text-[#1D1D1F]/70">
+                    <span className={cn(
+                      "text-sm font-medium",
+                      feature === "3 JOURS D'ESSAI GRATUIT" ? "text-[#007AFF] font-bold" : "text-[#1D1D1F]/70"
+                    )}>
                       {feature}
                     </span>
                   </li>
@@ -194,7 +251,7 @@ export function PricingSection() {
         {/* Note de bas de page */}
         <div className="text-center mt-12">
           <p className="text-sm text-[#1D1D1F]/60">
-            Tous les plans incluent un essai gratuit de 14 jours. Annulation à tout moment.
+            *Offre de lancement : 29€/mois à vie (au lieu de 39€) si vous souscrivez pendant la promo. 3 jours d'essai gratuit. Annulation à tout moment.
           </p>
         </div>
       </div>

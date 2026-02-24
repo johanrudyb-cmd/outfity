@@ -74,7 +74,7 @@ export function LaunchMapOverview({
 
   const completedCount = Object.values(phaseProgress).filter(Boolean).length;
   const total = LAUNCH_MAP_PHASES.length;
-  const isLocked = (phaseId: number) => userPlan === 'free' && ![0, 1].includes(phaseId);
+  const isLocked = (phaseId: number) => userPlan === 'free' && ![0, 1, 2, 4].includes(phaseId);
   const nextPhase = LAUNCH_MAP_PHASES.find(p => !phaseProgress[`phase${p.id}`]);
 
   // Brand color palette

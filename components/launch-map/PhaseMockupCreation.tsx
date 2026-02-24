@@ -223,36 +223,36 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
 
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#F5F5F7] font-sans relative overflow-hidden flex-1 min-h-0" style={{ height: '100dvh' }}>
+    <div className="flex flex-col h-full w-full bg-[#F5F5F7] font-sans relative overflow-hidden flex-1 min-h-0">
 
       {/* ── Header (Ultra Compact on Mobile) ── */}
-      <div className="bg-white/95 backdrop-blur-xl border-b border-black/[0.04] px-4 py-1.5 sm:py-3 flex items-center justify-between shrink-0 sticky top-0 z-20">
-        <div className="flex items-center gap-2 sm:gap-4">
-          <Link href="/launch-map" className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors">
+      <div className="bg-white/95 backdrop-blur-xl border-b border-black/[0.04] px-4 py-2 sm:py-3 flex items-center justify-between shrink-0 sticky top-0 z-20">
+        <div className="flex items-center gap-2 sm:gap-4 overflow-hidden">
+          <Link href="/launch-map" className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors shrink-0">
             <ArrowLeft className="w-4 h-4 text-[#86868B]" />
           </Link>
-          <div className="h-6 w-px bg-black/5 hidden sm:block" />
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="h-6 w-px bg-black/5 hidden sm:block shrink-0" />
+          <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
             <div className="relative shrink-0">
               <img
-                src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                src="/images/agents/pharrell_final.png"
                 alt="Pharell"
-                className="w-7 h-7 sm:w-10 sm:h-10 rounded-full object-cover shadow-sm border border-black/5"
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover shadow-sm border border-black/5"
               />
-              <div className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-full border border-white" />
+              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white" />
             </div>
             <div className="min-w-0">
-              <h3 className="font-bold text-[#1D1D1F] text-[12px] sm:text-[15px] leading-tight truncate">Pharell</h3>
-              <p className="text-[8px] sm:text-[10px] text-[#86868B] font-bold uppercase tracking-tighter sm:tracking-normal leading-none mt-0.5">DA OUTFITY</p>
+              <h3 className="font-extrabold text-[#1D1D1F] text-[13px] sm:text-[15px] leading-tight truncate">Pharell</h3>
+              <p className="text-[9px] sm:text-[10px] text-[#86868B] font-bold uppercase tracking-wider leading-none mt-0.5">DA OUTFITY</p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button onClick={onComplete} variant="outline" className="h-6 sm:h-9 text-[9px] sm:text-xs font-bold rounded-full gap-1 px-2.5 sm:px-4 shadow-sm border-black/10 transition-all active:scale-95">
-            <span className="hidden xs:inline">Phase terminée</span>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button onClick={onComplete} variant="outline" className="h-8 sm:h-9 text-[10px] sm:text-xs font-bold rounded-xl gap-1.5 px-3 sm:px-4 shadow-sm border-black/10 transition-all active:scale-95">
+            <span className="hidden xs:inline">Terminer la phase</span>
             <span className="xs:hidden">Finir</span>
-            <ArrowRight className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
+            <ArrowRight className="w-3.5 h-3.5" />
           </Button>
         </div>
       </div>
@@ -265,14 +265,14 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
             <div key={msg.id} className={cn("flex items-end gap-1.5 sm:gap-2 max-w-[98%] sm:max-w-[95%] md:max-w-[90%] lg:max-w-[85%] group", isUser ? 'self-end flex-row-reverse' : 'self-start')}>
               {!isUser && (
                 <img
-                  src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                  src="/images/agents/pharrell_final.png"
                   alt="Pharell"
-                  className="w-5 h-5 sm:w-7 sm:h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5 mb-0.5"
+                  className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5 mb-0.5"
                 />
               )}
               <div
                 className={cn(
-                  "px-3.5 py-2 sm:px-4 sm:py-3 rounded-[16px] sm:rounded-[24px] text-[14px] sm:text-[15px] leading-relaxed shadow-sm break-words relative",
+                  "px-3.5 py-2 sm:px-4 sm:py-3 rounded-[18px] sm:rounded-[24px] text-[14px] sm:text-[15px] leading-relaxed shadow-sm break-words relative transition-apple",
                   isUser
                     ? "bg-[#007AFF] text-white rounded-br-[4px] sm:rounded-br-[8px]"
                     : "bg-white text-[#1D1D1F] border border-black/[0.05] rounded-bl-[4px] sm:rounded-bl-[8px]"
@@ -295,15 +295,15 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
         {isTyping && (
           <div className="flex items-end gap-2 self-start max-w-[85%] sm:max-w-[75%]">
             <img
-              src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+              src="/images/agents/pharrell_final.png"
               alt="Pharell"
-              className="w-7 h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5"
+              className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5"
             />
-            <div className="px-3 py-2 sm:px-4 sm:py-3 rounded-[16px] sm:rounded-[24px] rounded-bl-[4px] sm:rounded-bl-[8px] bg-white border border-black/[0.05] shadow-sm">
+            <div className="px-3 py-2 sm:px-4 sm:py-3 rounded-[18px] sm:rounded-[24px] rounded-bl-[4px] sm:rounded-bl-[8px] bg-white border border-black/[0.05] shadow-sm">
               <div className="flex items-center gap-1.5 h-4">
-                <div className="w-2 h-2 bg-[#86868B]/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-2 h-2 bg-[#86868B]/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-2 h-2 bg-[#86868B]/50 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="w-1.5 h-1.5 bg-[#86868B]/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-1.5 h-1.5 bg-[#86868B]/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-1.5 h-1.5 bg-[#86868B]/50 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
             </div>
           </div>
@@ -311,10 +311,10 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
         <div ref={messagesEndRef} className="h-4" />
       </div>
 
-      {/* ── Input Box ── */}
-      <div className="shrink-0 pt-2 px-3 sm:px-6 bg-[#F5F5F7] z-20 border-t border-black/[0.03]" style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom, 16px))' }}>
+      {/* ── Input Box (Gemini-style Bottom Bar) ── */}
+      <div className="shrink-0 bg-[#F5F5F7] px-3 sm:px-6 z-20 border-t border-black/[0.03] pt-2 pb-safe-bottom">
         {suggestions.length > 0 && !isTyping && (
-          <div className="flex gap-2 overflow-x-auto pb-2.5 pt-1" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
+          <div className="flex gap-2 overflow-x-auto pb-3 pt-1 no-scrollbar animate-in slide-in-from-bottom-2 duration-500">
             {suggestions.map(reply => (
               <button
                 key={reply}
@@ -322,47 +322,50 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan }: Ph
                   sendMessage(reply);
                   setSuggestions([]);
                 }}
-                className="shrink-0 text-[12px] font-semibold text-[#007AFF] bg-white border border-[#007AFF]/25 active:bg-[#007AFF]/10 px-3.5 py-1.5 rounded-full transition-all active:scale-95 shadow-sm whitespace-nowrap"
+                className="shrink-0 text-[12px] sm:text-[13px] font-bold text-[#007AFF] bg-white border border-[#007AFF]/15 hover:bg-blue-50 active:bg-blue-100 px-4 py-2 rounded-2xl transition-apple shadow-sm whitespace-nowrap"
               >
                 {reply}
               </button>
             ))}
           </div>
         )}
-        <form onSubmit={handleSubmit} className="relative flex items-end gap-2 bg-white border border-black/[0.08] rounded-[28px] shadow-sm p-1.5 transition-all focus-within:ring-2 focus-within:ring-[#007AFF]/20 focus-within:border-[#007AFF]/50 z-30">
-          <textarea
-            ref={inputRef}
-            value={input}
-            onChange={e => {
-              setInput(e.target.value);
-              e.target.style.height = 'auto';
-              e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
-            }}
-            onKeyDown={e => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                if (input.trim() && !isTyping) sendMessage(input);
-              }
-            }}
-            placeholder="Écrire à Pharell..."
-            className="flex-1 bg-transparent max-h-[120px] min-h-[40px] px-4 py-3 text-[15px] text-[#1D1D1F] placeholder:text-[#86868B] focus:outline-none resize-none leading-relaxed"
-            disabled={isTyping}
-            rows={1}
-          />
-          <button
-            type="submit"
-            disabled={isTyping || !input.trim()}
-            className="w-10 h-10 shrink-0 rounded-[20px] bg-[#007AFF] hover:bg-[#0056CC] disabled:opacity-40 disabled:hover:bg-[#007AFF] text-white flex items-center justify-center transition-all m-0.5 shadow-md shadow-blue-500/20 active:scale-95"
-          >
-            {isTyping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 ml-0.5" />}
-          </button>
-        </form>
+        <div className="pb-3 sm:pb-6">
+          <form onSubmit={handleSubmit} className="relative flex items-end gap-2 bg-white border border-black/[0.08] rounded-[28px] shadow-apple-lg p-1.5 transition-all focus-within:ring-4 focus-within:ring-[#007AFF]/10 focus-within:border-[#007AFF]/40 z-30 group">
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={e => {
+                setInput(e.target.value);
+                e.target.style.height = 'auto';
+                e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+              }}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  if (input.trim() && !isTyping) sendMessage(input);
+                }
+              }}
+              placeholder="Écrire à Pharell..."
+              className="flex-1 bg-transparent max-h-[120px] min-h-[44px] px-4 py-3 text-[15px] sm:text-[16px] text-[#1D1D1F] placeholder:text-[#86868B] focus:outline-none resize-none leading-relaxed"
+              disabled={isTyping}
+              rows={1}
+            />
+            <button
+              type="submit"
+              disabled={isTyping || !input.trim()}
+              className="w-11 h-11 shrink-0 rounded-[22px] bg-[#007AFF] hover:bg-[#0056CC] disabled:opacity-30 disabled:hover:bg-[#007AFF] text-white flex items-center justify-center transition-apple m-0.5 shadow-md active:scale-90"
+            >
+              {isTyping ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 ml-0.5" />}
+            </button>
+          </form>
+        </div>
       </div>
 
       <style dangerouslySetInnerHTML={{
         __html: `
         .stylish-scrollbar::-webkit-scrollbar { width: 0px; display: none; }
         .stylish-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .pb-safe-bottom { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
       `}} />
     </div>
   );

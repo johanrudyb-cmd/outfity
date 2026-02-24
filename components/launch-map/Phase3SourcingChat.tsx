@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, ArrowLeft, Loader2, ArrowRight, ExternalLink, Check, Paperclip, X, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import type { BrandIdentity } from './LaunchMapStepper';
 
 interface Message {
@@ -285,120 +286,84 @@ export function Phase3SourcingChat({
         <div className="flex flex-col h-full w-full bg-[#F5F5F7] font-sans relative overflow-hidden flex-1 min-h-0">
 
             {/* ── Header ── */}
-            <div className="bg-white/95 backdrop-blur-xl border-b border-black/[0.04] px-4 py-1.5 sm:py-3 flex items-center justify-between shrink-0 sticky top-0 z-20">
-                <div className="flex items-center gap-2 sm:gap-4">
-                    <Link href="/launch-map" className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors">
-                        <ArrowLeft className="w-4 h-4 text-[#86868B]" />
+            <div className="bg-white/95 backdrop-blur-xl border-b border-black/[0.1] px-3 py-2 sm:px-4 sm:py-3 flex items-center justify-between shrink-0 sticky top-0 z-20">
+                <div className="flex items-center gap-2 sm:gap-4 overflow-hidden">
+                    <Link href="/launch-map" className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors shrink-0">
+                        <ArrowLeft className="w-5 h-5 text-[#86868B]" />
                     </Link>
-                    <div className="h-6 w-px bg-black/5 hidden sm:block" />
-                    <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
                         <div className="relative shrink-0">
                             <img
-                                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                                src="/images/agents/ada_final.png"
                                 alt="Ada"
-                                className="w-7 h-7 sm:w-10 sm:h-10 rounded-full object-cover shadow-sm border border-black/5"
+                                className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl object-cover shadow-sm border border-black/5"
                             />
-                            <div className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-full border border-white" />
+                            <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="font-bold text-[#1D1D1F] text-[12px] sm:text-[15px] leading-tight truncate">Ada</h3>
-                            <p className="text-[8px] sm:text-[10px] text-[#86868B] font-bold uppercase tracking-tighter sm:tracking-normal leading-none mt-0.5">Experte Sourcing</p>
+                            <h3 className="font-extrabold text-[#1D1D1F] text-[13px] sm:text-[15px] leading-tight truncate">Ada</h3>
+                            <p className="text-[9px] sm:text-[10px] text-[#86868B] font-bold uppercase tracking-wider leading-none mt-0.5">Sourcing</p>
                         </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                    {quoteSentCount >= 1 && (
-                        <button
-                            onClick={onComplete}
-                            className="h-7 sm:h-9 text-[9px] sm:text-xs font-bold rounded-full gap-1 px-2.5 sm:px-4 shadow-sm border border-emerald-200 bg-emerald-50 text-emerald-700 flex items-center transition-all active:scale-95 hover:bg-emerald-100"
-                        >
-                            <Check className="w-3 h-3" />
-                            <span className="hidden xs:inline">Phase terminée</span>
-                            <ArrowRight className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
-                        </button>
-                    )}
-                    <button
-                        onClick={resetChat}
-                        title="Nouvelle recherche"
-                        className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors text-[#86868B]"
-                    >
-                        <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                        </svg>
-                    </button>
+                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                    <Button onClick={onComplete} className="h-8 sm:h-9 text-[10px] sm:text-xs font-bold rounded-xl gap-1.5 px-3 sm:px-4 bg-[#007AFF] hover:bg-[#0056CC] text-white shadow-sm transition-apple">
+                        <span className="hidden xs:inline">Terminer</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                    </Button>
                 </div>
             </div>
 
-            {/* ── Messages ── */}
-            <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 pb-4 flex flex-col gap-3.5 sm:gap-4 stylish-scrollbar">
+            {/* ── Messages Chat UI ── */}
+            <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 pb-4 stylish-scrollbar relative z-0 flex flex-col gap-3.5 sm:gap-4">
                 {messages.map((msg) => {
                     const isUser = msg.role === 'user';
                     return (
-                        <div
-                            key={msg.id}
-                            className={cn(
-                                "flex items-end gap-1.5 sm:gap-2 max-w-[98%] sm:max-w-[95%] md:max-w-[90%] lg:max-w-[85%] group",
-                                isUser ? 'self-end flex-row-reverse' : 'self-start'
-                            )}
-                        >
+                        <div key={msg.id} className={cn("flex items-end gap-1.5 sm:gap-2 max-w-[98%] sm:max-w-[95%] md:max-w-[90%] lg:max-w-[85%] group", isUser ? 'self-end flex-row-reverse' : 'self-start')}>
                             {!isUser && (
                                 <img
-                                    src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                                    src="/images/agents/ada_final.png"
                                     alt="Ada"
-                                    className="w-5 h-5 sm:w-7 sm:h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5 mb-0.5"
+                                    className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5 mb-0.5"
                                 />
                             )}
-                            <div className={cn(
-                                "px-3 py-2 sm:px-4 sm:py-3 rounded-[20px] sm:rounded-[24px] text-[14px] sm:text-[15px] leading-relaxed shadow-sm break-words relative",
-                                isUser
-                                    ? "bg-[#007AFF] text-white rounded-br-[6px] sm:rounded-br-[8px]"
-                                    : "bg-white text-[#1D1D1F] border border-black/[0.04] rounded-bl-[6px] sm:rounded-bl-[8px]"
-                            )}>
-                                {/* Tech pack image preview */}
-                                {msg.imagePreview && (
-                                    <div className="mb-2">
-                                        <img
-                                            src={msg.imagePreview}
-                                            alt="Tech pack"
-                                            className="max-w-[200px] rounded-xl border border-white/30 shadow-sm"
-                                        />
-                                        <p className="text-[11px] mt-1 opacity-70 flex items-center gap-1">
-                                            <ImageIcon className="w-3 h-3" />
-                                            Tech pack envoyé
-                                        </p>
-                                    </div>
+                            <div
+                                className={cn(
+                                    "px-3.5 py-2 sm:px-4 sm:py-3 rounded-[18px] sm:rounded-[24px] text-[14px] sm:text-[15px] leading-relaxed shadow-sm break-words relative transition-apple",
+                                    isUser
+                                        ? "bg-[#007AFF] text-white rounded-br-[4px] sm:rounded-br-[8px]"
+                                        : "bg-white text-[#1D1D1F] border border-black/[0.05] rounded-bl-[4px] sm:rounded-bl-[8px]"
                                 )}
-                                <MessageContent
-                                    content={msg.content}
-                                    isUser={isUser}
-                                    brandId={brandId}
-                                    onQuoteSent={() => setQuoteSentCount(n => n + 1)}
-                                />
+                            >
+                                <div className="max-w-none">
+                                    <MessageContent content={msg.content} isUser={isUser} brandId={brandId} />
+                                </div>
                                 <div className={cn(
                                     "absolute -bottom-5 text-[10px] text-[#86868B] font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap",
                                     isUser ? "right-1" : "left-1"
                                 )}>
-                                    {msg.timestamp.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                                    {msg.timestamp instanceof Date
+                                        ? msg.timestamp.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+                                        : new Date(msg.timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                                 </div>
                             </div>
                         </div>
                     );
                 })}
 
-                {/* Typing indicator */}
                 {isTyping && (
-                    <div className="flex items-end gap-2 self-start max-w-[85%]">
+                    <div className="flex items-end gap-2 self-start max-w-[85%] sm:max-w-[75%]">
                         <img
-                            src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                            src="/images/agents/ada_final.png"
                             alt="Ada"
-                            className="w-5 h-5 sm:w-7 sm:h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5 mb-0.5"
+                            className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5 mb-0.5"
                         />
-                        <div className="px-4 py-3 rounded-[24px] rounded-bl-[8px] bg-white border border-black/[0.04] shadow-sm">
+                        <div className="px-3 py-2 sm:px-4 sm:py-3 rounded-[18px] sm:rounded-[24px] rounded-bl-[4px] sm:rounded-bl-[8px] bg-white border border-black/[0.05] shadow-sm">
                             <div className="flex items-center gap-1.5 h-4">
-                                <div className="w-2 h-2 bg-amber-400/70 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                                <div className="w-2 h-2 bg-amber-400/70 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                                <div className="w-2 h-2 bg-amber-400/70 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                                <div className="w-1.5 h-1.5 bg-blue-500/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                <div className="w-1.5 h-1.5 bg-blue-500/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                <div className="w-1.5 h-1.5 bg-blue-500/50 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                             </div>
                         </div>
                     </div>
@@ -406,17 +371,20 @@ export function Phase3SourcingChat({
                 <div ref={messagesEndRef} className="h-4" />
             </div>
 
-            {/* ── Input Box ── */}
-            <div className="shrink-0 pt-2 pb-4 sm:pb-8 px-3 sm:px-6 bg-[#F5F5F7] z-20 border-t border-black/[0.03]">
+            {/* ── Input Box (Gemini-style) ── */}
+            <div className="shrink-0 pt-2 bg-[#F5F5F7] z-20 border-t border-black/[0.05] px-3 sm:px-6 pb-safe-bottom">
 
                 {/* Suggestion chips */}
                 {suggestions.length > 0 && !isTyping && (
-                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 pt-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 pt-1 animate-in slide-in-from-bottom-2 duration-500">
                         {suggestions.map(reply => (
                             <button
                                 key={reply}
-                                onClick={() => sendMessage(reply)}
-                                className="shrink-0 text-[11px] sm:text-[13px] font-bold text-amber-700 bg-white border border-amber-200 hover:bg-amber-50 px-4 py-2 rounded-full transition-all active:scale-95 shadow-sm whitespace-nowrap"
+                                onClick={() => {
+                                    sendMessage(reply);
+                                    setSuggestions([]);
+                                }}
+                                className="shrink-0 text-[12px] sm:text-[13px] font-bold text-[#007AFF] bg-white border border-[#007AFF]/15 hover:bg-blue-50 active:bg-blue-100 px-4 py-2.5 rounded-2xl transition-apple shadow-sm whitespace-nowrap"
                             >
                                 {reply}
                             </button>
@@ -426,79 +394,82 @@ export function Phase3SourcingChat({
 
                 {/* Tech pack image preview */}
                 {pendingImage && (
-                    <div className="flex items-center gap-2 mb-2 p-2 bg-white rounded-2xl border border-amber-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-2 p-2 bg-white rounded-2xl border border-blue-500/20 shadow-sm animate-in slide-in-from-bottom-2 duration-300">
                         <img
                             src={pendingImage.preview}
                             alt="Tech pack"
                             className="w-12 h-12 rounded-xl object-cover border border-black/5"
                         />
                         <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-[#1D1D1F] truncate">Tech pack prêt à envoyer</p>
-                            <p className="text-[10px] text-[#86868B]">Ada va analyser ton design</p>
+                            <p className="text-xs font-bold text-[#1D1D1F] truncate">Tech pack prêt</p>
+                            <p className="text-[10px] text-[#86868B]">Dior va l'analyser</p>
                         </div>
                         <button
                             onClick={() => setPendingImage(null)}
-                            className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors"
+                            className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors"
                         >
-                            <X className="w-3.5 h-3.5 text-[#86868B]" />
+                            <X className="w-4 h-4 text-[#86868B]" />
                         </button>
                     </div>
                 )}
 
-                {/* Input form */}
-                <form onSubmit={handleSubmit} className="relative flex items-end gap-2 bg-white border border-black/[0.08] rounded-[28px] shadow-sm p-1.5 transition-all focus-within:ring-2 focus-within:ring-amber-500/20 focus-within:border-amber-500/50">
-                    {/* Tech pack upload button */}
-                    <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="w-10 h-10 shrink-0 rounded-[20px] flex items-center justify-center hover:bg-amber-50 transition-colors m-0.5 text-amber-500"
-                        title="Envoyer ton tech pack"
-                    >
-                        <Paperclip className="w-4 h-4" />
-                    </button>
-                    <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*,.pdf"
-                        className="hidden"
-                        onChange={handleFileChange}
-                    />
+                <div className="pb-3 sm:pb-6">
+                    <form onSubmit={handleSubmit} className="relative flex items-end gap-2 bg-white border border-black/[0.08] rounded-[28px] shadow-apple-lg p-1.5 transition-all focus-within:ring-4 focus-within:ring-blue-500/10 focus-within:border-blue-500/30 z-30">
 
-                    <textarea
-                        ref={inputRef}
-                        value={input}
-                        onChange={e => {
-                            setInput(e.target.value);
-                            e.target.style.height = 'auto';
-                            e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
-                        }}
-                        onKeyDown={e => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                if ((input.trim() || pendingImage) && !isTyping) sendMessage(input, pendingImage?.file);
-                            }
-                        }}
-                        placeholder="Décris ton projet à Ada, ou envoie ton tech pack 📎"
-                        className="flex-1 bg-transparent max-h-[120px] min-h-[40px] px-2 py-3 text-[15px] text-[#1D1D1F] placeholder:text-[#86868B] focus:outline-none resize-none leading-relaxed"
-                        disabled={isTyping}
-                        rows={1}
-                    />
-                    <button
-                        type="submit"
-                        disabled={isTyping || (!input.trim() && !pendingImage)}
-                        className="w-10 h-10 shrink-0 rounded-[20px] bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:hover:bg-amber-500 text-white flex items-center justify-center transition-all m-0.5 shadow-md shadow-amber-500/30 active:scale-95"
-                    >
-                        {isTyping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 ml-0.5" />}
-                    </button>
-                </form>
+                        <div className="flex items-center pl-2">
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*,.pdf"
+                                className="hidden"
+                                onChange={handleFileChange}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5 transition-apple active:scale-95 text-[#86868B]"
+                                title="Envoyer ton tech pack"
+                            >
+                                <Paperclip className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <textarea
+                            ref={inputRef}
+                            value={input}
+                            onChange={e => {
+                                setInput(e.target.value);
+                                e.target.style.height = 'auto';
+                                e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+                            }}
+                            onKeyDown={e => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    if ((input.trim() || pendingImage) && !isTyping) sendMessage(input, pendingImage?.file);
+                                }
+                            }}
+                            placeholder="Parler à Dior..."
+                            className="flex-1 bg-transparent max-h-[120px] min-h-[44px] px-2 py-3 text-[15px] sm:text-[16px] text-[#1D1D1F] placeholder:text-[#86868B] focus:outline-none resize-none leading-relaxed"
+                            disabled={isTyping}
+                            rows={1}
+                        />
+                        <button
+                            type="submit"
+                            disabled={isTyping || (!input.trim() && !pendingImage)}
+                            className="w-11 h-11 shrink-0 rounded-[22px] bg-[#007AFF] hover:bg-[#0056CC] disabled:opacity-30 disabled:hover:bg-[#007AFF] text-white flex items-center justify-center transition-apple m-0.5 shadow-md active:scale-95"
+                        >
+                            {isTyping ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 ml-0.5" />}
+                        </button>
+                    </form>
+                </div>
             </div>
 
             <style dangerouslySetInnerHTML={{
                 __html: `
-                .stylish-scrollbar::-webkit-scrollbar { width: 0px; display: none; }
-                .stylish-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-              `
-            }} />
+        .stylish-scrollbar::-webkit-scrollbar { width: 0px; display: none; }
+        .stylish-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .pb-safe-bottom { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+      `}} />
         </div>
     );
 }

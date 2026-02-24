@@ -3,15 +3,40 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { Check } from 'lucide-react';
+import { Check, Clock } from 'lucide-react';
+
+function CountdownTimer() {
+  const [timeLeft, setTimeLeft] = useState({ days: 29, hours: 23, minutes: 54, seconds: 12 });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev: any) => {
+        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
+        if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
+        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
+        if (prev.days > 0) return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
+        return prev;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="flex items-center justify-center gap-2 text-[#FF3B30] font-bold text-[10px] sm:text-xs mb-4 bg-red-50 py-1.5 px-3 rounded-full border border-red-100 animate-pulse">
+      <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+      <span>SÉANCE PROMO : {timeLeft.days}j {String(timeLeft.hours).padStart(2, '0')}h {String(timeLeft.minutes).padStart(2, '0')}m</span>
+    </div>
+  );
+}
 
 const plans = [
   {
     name: 'Gratuit',
     price: 0,
     period: 'Gratuit',
-    description: 'Explorez la plateforme et découvrez nos outils de validation de style',
+    description: 'Ton équipe d\'experts IA (Virgil, Pharrell, Ada, Johan) t\'accompagne.',
     features: [
+      'Accès limité aux 4 agents IA',
       'Accès limité au radar de tendances',
       'Calculateur de marge',
       'Aperçu des outils de création',
@@ -23,19 +48,20 @@ const plans = [
   {
     name: 'Créateur',
     price: 29,
-    period: '/mois',
-    description: 'Nous vous accompagnons dans chaque étape du lancement de votre marque',
+    oldPrice: 39,
+    period: '/mois*',
+    description: 'Offre limitée : 29€/mois à vie (au lieu de 39€).',
     features: [
+      '3 JOURS D\'ESSAI GRATUIT',
+      'Les 4 agents IA inclus',
+      'Stratégie marketing complète',
       'Accès complet au Radar de tendances',
-      'Analyses de style illimitées',
-      'Générateur de logo IA',
+      'Analyses de style détaillées',
       'Shooting Virtuel & Mannequin IA',
-      'Scripts Marketing personnalisés',
       'Mockups & Tech Packs',
-      'Accès à nos fournisseurs de confiance',
       'Support prioritaire',
     ],
-    cta: 'S\'abonner',
+    cta: 'Profiter de l\'offre',
     ctaStyle: 'solid',
     popular: true,
   },
@@ -109,7 +135,8 @@ export function SalesPricing() {
                 </div>
               )}
 
-              {/* Nom et prix */}
+              {/* Header */}
+              {plan.popular && <CountdownTimer />}
               <div className="mb-8">
                 <h3 className="text-2xl font-bold tracking-tight text-[#000000] mb-4">
                   {plan.name}
@@ -119,6 +146,11 @@ export function SalesPricing() {
                     <span className="text-5xl font-bold text-[#000000]">
                       {plan.price}€
                     </span>
+                    {plan.oldPrice && (
+                      <span className="text-2xl text-[#86868B] line-through decoration-red-500/50">
+                        {plan.oldPrice}€
+                      </span>
+                    )}
                     <span className="text-lg text-[#6e6e73] font-normal">
                       {plan.period}
                     </span>
@@ -128,9 +160,31 @@ export function SalesPricing() {
                     {plan.period}
                   </div>
                 )}
-                <p className="text-sm text-[#6e6e73] font-normal mt-3">
+                <p className="text-sm text-[#6e6e73] font-normal mt-3 mb-4">
                   {plan.description}
                 </p>
+
+                {/* Agents Avatars */}
+                <div className="flex items-center gap-1.5 mb-8">
+                  {[
+                    { name: 'Virgil', img: '/images/agents/virgil_final.png' },
+                    { name: 'Pharrell', img: '/images/agents/pharrell_final.png' },
+                    { name: 'Ada', img: '/images/agents/ada_final.png' },
+                    { name: 'Johan', img: '/images/agents/johan_final.png' }
+                  ].map((agent) => (
+                    <div key={agent.name} className="relative group/agent">
+                      <img
+                        src={agent.img}
+                        alt={agent.name}
+                        className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white shadow-sm object-cover bg-slate-100"
+                      />
+                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover/agent:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+                        {agent.name}
+                      </div>
+                    </div>
+                  ))}
+                  <span className="text-[10px] font-bold text-[#007AFF] ml-1 uppercase tracking-wider">L'équipe IA</span>
+                </div>
               </div>
 
               {/* Liste de fonctionnalités */}
@@ -143,7 +197,10 @@ export function SalesPricing() {
                     <div className="w-5 h-5 rounded-full bg-[#007AFF]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Check className="w-3 h-3 text-[#007AFF]" />
                     </div>
-                    <span className="text-sm text-[#6e6e73] font-normal">
+                    <span className={cn(
+                      "text-sm font-normal",
+                      feature === "3 JOURS D'ESSAI GRATUIT" ? "text-blue-600 font-bold" : "text-[#6e6e73]"
+                    )}>
                       {feature}
                     </span>
                   </li>
@@ -176,7 +233,7 @@ export function SalesPricing() {
         {/* Note de bas de page */}
         <div className="text-center mt-12">
           <p className="text-sm text-[#6e6e73] font-normal">
-            Abonnement annulable à tout moment.
+            *Offre de lancement : 29€/mois à vie (au lieu de 39€) si vous souscrivez pendant la promo. 3 jours d'essai gratuit. Annulable à tout moment.
           </p>
         </div>
       </div>

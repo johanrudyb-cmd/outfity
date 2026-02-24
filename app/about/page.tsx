@@ -3,7 +3,7 @@ import { ArrowLeft, TrendingUp, Factory, Sparkles, BarChart3 } from 'lucide-reac
 
 export const metadata = {
   title: 'À propos | OUTFITY',
-  description: 'Découvrez OUTFITY par BIANGORY : l\'outil d\'aide à la création et au développement de marques de mode.',
+  description: 'Découvrez OUTFITY par OUTFITY : l\'outil d\'aide à la création et au développement de marques de vêtement.',
 };
 
 export default function AboutPage() {
@@ -24,9 +24,9 @@ export default function AboutPage() {
         <article className="bg-white rounded-2xl border border-[#F2F2F2] p-8 md:p-12 shadow-sm">
           <h1 className="text-3xl font-bold text-[#1D1D1F] mb-4">À propos d&apos;OUTFITY</h1>
           <p className="text-[#6e6e73] leading-relaxed mb-8">
-            OUTFITY est une plateforme SaaS éditée par <strong className="text-[#1D1D1F]">BIANGORY</strong> (Auto-entreprise,
+            OUTFITY est une plateforme SaaS éditée par <strong className="text-[#1D1D1F]">OUTFITY</strong> (Auto-entreprise,
             RCS TOURS 92907536400018). Elle constitue un outil d&apos;aide à la création et au
-            développement de marques de mode (&quot;Brand Building&quot;). Le Prestataire agit en
+            développement de marques de vêtement (&quot;Brand Building&quot;). Le Prestataire agit en
             tant que fournisseur de technologies et de données&nbsp;: il n&apos;est ni fabricant
             de vêtements, ni agent commercial, ni conseiller financier.
           </p>
@@ -63,7 +63,7 @@ export default function AboutPage() {
                 <strong className="text-[#1D1D1F]">Studio IA</strong>
                 <p className="text-sm text-[#6e6e73] mt-1">
                   Outils de génération d&apos;images, de mannequins virtuels et de contenus
-                  marketing assistés par Intelligence Artificielle.
+                  marketing assistés par Data & Sourcing.
                 </p>
               </div>
             </li>

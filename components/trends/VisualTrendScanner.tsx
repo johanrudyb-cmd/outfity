@@ -13,6 +13,10 @@ import Image from 'next/image';
 import { PredictiveChart } from './PredictiveChart';
 import { inferCategory } from '@/lib/infer-trend-category';
 import { QuotaGenerateButton } from '@/components/usage/QuotaGenerateButton';
+import { useSession } from 'next-auth/react';
+import { History as HistoryIcon, X, Lock as LockIcon } from 'lucide-react';
+import Link from 'next/link';
+import { useToast } from '@/components/ui/toast';
 
 interface AnalysisResult {
     category: string;
@@ -28,13 +32,37 @@ interface AnalysisResult {
 }
 
 export function VisualTrendScanner() {
+    const { data: session } = useSession();
+    const isFree = (session?.user as any)?.plan === 'free';
+    const { toast } = useToast();
+
     const [image, setImage] = useState<string | null>(null);
     const [isScanning, setIsScanning] = useState(false);
     const [result, setResult] = useState<AnalysisResult | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [leadTime, setLeadTime] = useState(60);
     const [segment, setSegment] = useState<'homme' | 'femme'>('homme');
+    const [history, setHistory] = useState<any[]>(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('trend_scan_history');
+            return saved ? JSON.parse(saved) : [];
+        }
+        return [];
+    });
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Sauvegarde de l'historique
+    const saveToHistory = (item: any) => {
+        const newHistory = [item, ...history].slice(0, 10);
+        setHistory(newHistory);
+        localStorage.setItem('trend_scan_history', JSON.stringify(newHistory));
+    };
+
+    const removeFromHistory = (id: string) => {
+        const newHistory = history.filter(h => h.id !== id);
+        setHistory(newHistory);
+        localStorage.setItem('trend_scan_history', JSON.stringify(newHistory));
+    };
 
     // --- LOGIQUE ANALYTIQUE ---
 
@@ -207,6 +235,12 @@ export function VisualTrendScanner() {
             if (!res.ok) throw new Error(data.error || "Erreur lors de l'analyse");
 
             setResult(data.analysis);
+            saveToHistory({
+                id: Date.now().toString(),
+                image,
+                analysis: data.analysis,
+                date: new Date().toISOString()
+            });
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -221,7 +255,7 @@ export function VisualTrendScanner() {
     };
 
     return (
-        <div className="min-h-screen bg-[#F5F5F7] font-sans text-[#1a1a1a] -mt-8 -mx-8">
+        <div className="min-h-screen bg-[#F5F5F7] font-sans text-[#1a1a1a] -mt-8 -mx-8 pb-20">
             {!result ? (
                 <div className="max-w-4xl mx-auto py-12 px-6 space-y-8 animate-in fade-in duration-500">
                     <div className="flex flex-col items-center text-center space-y-4">
@@ -297,6 +331,48 @@ export function VisualTrendScanner() {
                             )}
                         </div>
                     </div>
+
+                    {/* Section Historique */}
+                    {history.length > 0 && (
+                        <div className="pt-12 border-t border-black/5 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+                            <div className="flex items-center gap-4 mb-8">
+                                <HistoryIcon className="w-5 h-5 text-gray-400" />
+                                <h3 className="text-sm font-black uppercase tracking-widest text-[#1D1D1F]">Historique de Scan</h3>
+                                <div className="h-px bg-gray-100 flex-1" />
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                                {history.map((item) => (
+                                    <div key={item.id} className="group relative">
+                                        <button
+                                            onClick={() => {
+                                                setImage(item.image);
+                                                setResult(item.analysis);
+                                            }}
+                                            className="w-full aspect-square rounded-[24px] overflow-hidden border border-black/5 bg-white shadow-sm hover:shadow-md hover:scale-[1.02] transition-all"
+                                        >
+                                            <img src={item.image} className="w-full h-full object-cover" alt="History item" />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
+                                                <span className="text-[10px] font-black text-white uppercase tracking-widest">Voir l'analyse</span>
+                                            </div>
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                removeFromHistory(item.id);
+                                            }}
+                                            className="absolute -top-2 -right-2 w-7 h-7 bg-white rounded-full shadow-apple-sm flex items-center justify-center text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all border border-black/5"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                        <div className="mt-2 px-1">
+                                            <p className="text-[10px] font-black uppercase truncate">{item.analysis.category}</p>
+                                            <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">{new Date(item.date).toLocaleDateString()}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             ) : (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -397,18 +473,38 @@ export function VisualTrendScanner() {
                                     </div>
                                 </div>
 
-                                {(() => {
-                                    const todayScore = chartData[30]?.value || 0;
-                                    const yesterdayScore = chartData[29]?.value || 0;
-                                    const isPositive = todayScore >= yesterdayScore;
-                                    return (
-                                        <PredictiveChart
-                                            data={chartData}
-                                            color={isPositive ? "#34C759" : "#FF3B30"}
-                                            predictionColor="#007AFF"
-                                        />
-                                    );
-                                })()}
+                                <div className="flex-1 min-h-[350px] md:min-h-[400px] w-full relative">
+                                    {/* Overlay pour le plan gratuit */}
+                                    {isFree && (
+                                        <div className="absolute inset-0 z-30 flex items-center justify-center p-6 bg-white/20 backdrop-blur-[6px] rounded-3xl">
+                                            <div className="max-w-xs w-full bg-white/95 shadow-2xl rounded-[32px] p-8 text-center border border-blue-100 animate-in zoom-in-95 duration-500">
+                                                <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-[#007AFF]">
+                                                    <LockIcon className="w-7 h-7" />
+                                                </div>
+                                                <h4 className="text-xl font-black uppercase tracking-tight text-black mb-3">Prédictions Verrouillées</h4>
+                                                <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider leading-relaxed mb-6">
+                                                    Débloquez la courbe de tendance à 90 jours et nos algorithmes prédictifs.
+                                                </p>
+                                                <Link href="/auth/choose-plan" className="inline-flex w-full items-center justify-center h-12 rounded-full bg-[#007AFF] text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 hover:bg-blue-600 transition-all">
+                                                    Passer au Plan Créateur
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {(() => {
+                                        const todayScore = chartData[30]?.value || 0;
+                                        const yesterdayScore = chartData[29]?.value || 0;
+                                        const isPositive = todayScore >= yesterdayScore;
+                                        return (
+                                            <PredictiveChart
+                                                data={chartData}
+                                                color={isPositive ? "#34C759" : "#FF3B30"}
+                                                predictionColor="#007AFF"
+                                            />
+                                        );
+                                    })()}
+                                </div>
                             </div>
 
                             {/* Sidebar Recommendation */}
@@ -444,11 +540,14 @@ export function VisualTrendScanner() {
                                                     strategicAnalysis?.recommendationLevel === "PRUDENT" ? "Lancement Prudent" : "Risque Élevé"}
                                             </h4>
 
-                                            <p className="text-[11px] md:text-xs text-gray-600 font-bold leading-relaxed mb-6">
-                                                {strategicAnalysis?.commentary}
+                                            <p className="text-[11px] md:text-sm text-gray-600 font-bold leading-relaxed mb-6 text-center sm:text-justify italic">
+                                                {isFree ? "Analyse détaillée réservée au plan Créateur. Upgradez pour voir les recommandations de lancement spécifiques." : strategicAnalysis?.commentary}
                                             </p>
 
-                                            <div className="grid grid-cols-2 gap-4 pt-6 border-t border-gray-200/50">
+                                            <div className={cn(
+                                                "grid grid-cols-2 gap-4 pt-6 border-t border-gray-200/50",
+                                                isFree && "blur-md select-none pointer-events-none opacity-50"
+                                            )}>
                                                 <div>
                                                     <span className="text-[8px] font-black text-gray-400 uppercase block mb-1 text-center">Opportunité</span>
                                                     <div className={cn(
@@ -471,22 +570,33 @@ export function VisualTrendScanner() {
                                             </div>
                                         </div>
 
-                                        <div className="bg-blue-50/30 rounded-[32px] p-6 border border-blue-100/30">
+                                        <div className={cn(
+                                            "bg-blue-50/30 rounded-[32px] p-6 border border-blue-100/30",
+                                            isFree && "blur-sm select-none pointer-events-none opacity-50"
+                                        )}>
                                             <div className="flex items-center gap-2 bg-gradient-to-r from-[#007AFF15] to-transparent px-3 py-1.5 rounded-full border border-[#007AFF20]">
                                                 <Zap className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500/20" />
                                                 <span className="text-[10px] font-bold text-[#007AFF] uppercase tracking-wider">Verdict Tendance</span>
                                                 <div className="w-1 h-1 rounded-full bg-[#007AFF40]" />
                                                 <span className="text-[9px] font-black uppercase tracking-widest text-[#007AFF60]">Analyse Vision</span>
                                             </div>
-                                            <p className="text-[11px] font-bold italic text-gray-600 leading-relaxed">
-                                                "{result.analysis}"
+                                            <p className="text-[11px] md:text-xs font-bold italic text-gray-600 leading-relaxed text-center sm:text-justify mt-4">
+                                                "{isFree ? "Le scan visuel a détecté un potentiel intéressant. Upgradez pour lire l'analyse complète de l'IA." : result.analysis}"
                                             </p>
                                         </div>
                                     </div>
 
-                                    <Button className="mt-8 w-full h-14 rounded-2xl bg-[#007AFF] text-white hover:bg-blue-600 font-black uppercase tracking-widest text-xs shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2">
-                                        PRODUCTION <ArrowRight className="w-4 h-4" />
-                                    </Button>
+                                    {isFree ? (
+                                        <Link href="/auth/choose-plan">
+                                            <Button className="mt-8 w-full h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 font-black uppercase tracking-widest text-xs shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2">
+                                                DEBLOQUER LE PLAN CRÉATEUR <Zap className="w-4 h-4 fill-white" />
+                                            </Button>
+                                        </Link>
+                                    ) : (
+                                        <Button className="mt-8 w-full h-14 rounded-2xl bg-[#1D1D1F] text-white hover:bg-black font-black uppercase tracking-widest text-xs shadow-xl shadow-black/10 flex items-center justify-center gap-2">
+                                            LANCER LA PRODUCTION <ArrowRight className="w-4 h-4" />
+                                        </Button>
+                                    )}
                                 </div>
                             </div>
                         </div>

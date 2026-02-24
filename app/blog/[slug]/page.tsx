@@ -289,7 +289,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                                                 Dominez votre marché <br className="hidden sm:block" /> avec la Data.
                                             </h3>
                                             <p className="text-white/50 text-base font-medium max-w-lg leading-relaxed">
-                                                L'IA BIANGORY analyse des millions de points de données pour vous donner une longueur d'avance sur vos concurrents.
+                                                L'IA OUTFITY analyse des millions de points de données pour vous donner une longueur d'avance sur vos concurrents.
                                             </p>
                                         </div>
                                         <Link

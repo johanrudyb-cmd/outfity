@@ -30,8 +30,8 @@ export async function POST() {
           price_data: {
             currency: 'eur',
             product_data: {
-              name: 'Plan Créateur',
-              description: 'Accès à l\'intégralité des fonctionnalités : analyses de tendances, stratégie, logo, scripts, shootings, Sourcing Hub, formation, support.',
+              name: 'Plan Créateur - Offre Spéciale',
+              description: 'Accès 29€/mois à vie (au lieu de 39€) + 3 jours d\'essai gratuit. Inclus : Virgil, Pharrell, Ada, Johan.',
               images: [],
             },
             unit_amount: SUBSCRIPTION_PRICE_EUR * 100, // centimes
@@ -42,17 +42,18 @@ export async function POST() {
           quantity: 1,
         },
       ],
+      subscription_data: {
+        trial_period_days: 3,
+        metadata: {
+          userId: user.id,
+          planId: SUBSCRIPTION_PLAN_ID,
+        },
+      },
       success_url: `${origin}/onboarding?subscribed=true`,
       cancel_url: `${origin}/auth/choose-plan?canceled=true`,
       metadata: {
         userId: user.id,
         planId: SUBSCRIPTION_PLAN_ID,
-      },
-      subscription_data: {
-        metadata: {
-          userId: user.id,
-          planId: SUBSCRIPTION_PLAN_ID,
-        },
       },
       customer_email: user.email ?? undefined,
     });

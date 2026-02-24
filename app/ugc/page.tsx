@@ -59,7 +59,7 @@ export default async function UGCPage() {
                 UGC Lab
               </h1>
               <p className="text-muted-foreground text-sm">
-                Créez votre contenu marketing viral avec l'intelligence artificielle
+                Créez votre contenu marketing viral avec l'Data & Sourcing
               </p>
             </div>
           </div>

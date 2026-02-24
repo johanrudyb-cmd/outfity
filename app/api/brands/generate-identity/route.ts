@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: 'system',
-          content: `Tu es un expert en création de noms de marques de mode. 
+          content: `Tu es un expert en création de noms de marques de vêtement. 
           Génère des noms créatifs, mémorables et adaptés au marché français.
           Les noms doivent être courts (1-3 mots), faciles à prononcer et disponibles potentiellement en .com/.fr.
           Retourne UNIQUEMENT un JSON avec un tableau "names" contenant 5 noms de marque.`,
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: 'system',
-          content: `Tu es un expert en identité visuelle et palettes de couleurs pour marques de mode.
+          content: `Tu es un expert en identité visuelle et palettes de couleurs pour marques de vêtement.
           Génère une palette de couleurs cohérente avec le concept de marque.
           Retourne UNIQUEMENT un JSON avec un objet "colorPalette" contenant : primary, secondary, accent (codes hexadécimaux).
           Les couleurs doivent être modernes, adaptées au secteur mode et cohérentes entre elles.`,
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: 'system',
-          content: `Tu es un expert en typographie pour marques de mode.
+          content: `Tu es un expert en typographie pour marques de vêtement.
           Recommande des polices Google Fonts adaptées au concept.
           Retourne UNIQUEMENT un JSON avec un objet "typography" contenant : heading (police pour titres), body (police pour texte).
           Les polices doivent être modernes, lisibles et adaptées au secteur mode.`,
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
     for (let i = 0; i < Math.min(3, names.length); i++) {
       const logoPrompt = `Logo minimaliste et moderne pour la marque "${names[i]}", style ${style || 'contemporain'}, 
       palette de couleurs ${colorPalette.primary}, ${colorPalette.secondary}, ${colorPalette.accent}, 
-      design épuré, adapté pour marque de mode, vectoriel, fond transparent`;
+      design épuré, adapté pour marque de vêtement, vectoriel, fond transparent`;
       
       logoPrompts.push(logoPrompt);
     }

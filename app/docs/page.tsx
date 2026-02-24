@@ -3,7 +3,7 @@ import { ArrowLeft, Book, TrendingUp, Factory, Sparkles, BarChart3 } from 'lucid
 
 export const metadata = {
   title: 'Documentation | OUTFITY',
-  description: 'Documentation et guides d\'utilisation de la plateforme OUTFITY par BIANGORY.',
+  description: 'Documentation et guides d\'utilisation de la plateforme OUTFITY par OUTFITY.',
 };
 
 export default function DocsPage() {
@@ -29,7 +29,7 @@ export default function DocsPage() {
             <div>
               <h1 className="text-3xl font-bold text-[#1D1D1F]">Documentation OUTFITY</h1>
               <p className="text-[#6e6e73] text-sm mt-1">
-                Guides et ressources pour bien utiliser la plateforme (BIANGORY)
+                Guides et ressources pour bien utiliser la plateforme (OUTFITY)
               </p>
             </div>
           </div>

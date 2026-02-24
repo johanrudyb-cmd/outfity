@@ -143,67 +143,67 @@ export function DashboardTutorial() {
             key={`ring-${step}`}
             initial={{ opacity: 0, scale: 1.1 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="absolute rounded-2xl border-2 border-[#007AFF] shadow-[0_0_20px_rgba(0,122,255,0.4)] pointer-events-none"
+            className="absolute rounded-xl sm:rounded-2xl border-2 border-[#007AFF] shadow-[0_0_15px_rgba(0,122,255,0.4)] sm:shadow-[0_0_20px_rgba(0,122,255,0.4)] pointer-events-none"
             style={{
-              left: targetRect.left - 6,
-              top: targetRect.top - 6,
-              width: targetRect.width + 12,
-              height: targetRect.height + 12,
+              left: targetRect.left - (window.innerWidth < 640 ? 4 : 6),
+              top: targetRect.top - (window.innerWidth < 640 ? 4 : 6),
+              width: targetRect.width + (window.innerWidth < 640 ? 8 : 12),
+              height: targetRect.height + (window.innerWidth < 640 ? 8 : 12),
             }}
           />
         )}
       </AnimatePresence>
 
       {/* Tooltip Card Apple Style */}
-      <div className="relative pointer-events-auto flex justify-center pb-12 px-6">
+      <div className="relative pointer-events-auto flex justify-center pb-8 sm:pb-12 px-4 sm:px-6">
         <motion.div
           key={`card-${step}`}
           initial={{ opacity: 0, y: 30, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.95 }}
-          className="w-full max-w-md bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] overflow-hidden border border-[#E5E5EA]"
+          className="w-full max-w-[calc(100vw-32px)] sm:max-w-md bg-white rounded-[24px] sm:rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] sm:shadow-[0_20px_60px_rgba(0,0,0,0.15)] overflow-hidden border border-[#E5E5EA]"
         >
           {/* Header */}
-          <div className="p-6 flex items-start justify-between gap-4">
-            <div className="flex gap-4">
-              <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-inner", currentStep.bg)}>
-                <currentStep.icon className={cn("w-6 h-6", currentStep.color)} />
+          <div className="p-4 sm:p-6 flex items-start justify-between gap-3 sm:gap-4">
+            <div className="flex gap-3 sm:gap-4">
+              <div className={cn("w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 shadow-inner", currentStep.bg)}>
+                <currentStep.icon className={cn("w-5 h-5 sm:w-6 sm:h-6", currentStep.color)} />
               </div>
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#86868B]">Visite Guidée</span>
-                  <div className="w-1 h-1 rounded-full bg-[#E5E5EA]" />
-                  <span className="text-[10px] font-bold text-[#007AFF]">Étape {step + 1}/{TUTORIAL_STEPS.length}</span>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1 overflow-hidden">
+                  <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.05em] sm:tracking-[0.1em] text-[#86868B] truncate">Visite Guidée</span>
+                  <div className="w-1 h-1 rounded-full bg-[#E5E5EA] shrink-0" />
+                  <span className="text-[9px] sm:text-[10px] font-bold text-[#007AFF] shrink-0">{step + 1}/{TUTORIAL_STEPS.length}</span>
                 </div>
-                <h3 className="text-xl font-bold text-[#1D1D1F] leading-tight">{currentStep.title}</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-[#1D1D1F] leading-tight truncate">{currentStep.title}</h3>
               </div>
             </div>
             <button
               onClick={handleComplete}
-              className="p-2 hover:bg-[#F2F2F7] rounded-full transition-colors text-[#86868B] hover:text-[#1D1D1F]"
+              className="p-1.5 sm:p-2 hover:bg-[#F2F2F7] rounded-full transition-colors text-[#86868B] hover:text-[#1D1D1F]"
               aria-label="Fermer"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
 
           {/* Body */}
-          <div className="px-6 pb-6">
-            <p className="text-[#424245] leading-relaxed text-[15px]">
+          <div className="px-4 sm:px-6 pb-4 sm:pb-6">
+            <p className="text-[#424245] leading-relaxed text-[13px] sm:text-[15px]">
               {currentStep.body}
             </p>
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 bg-[#F2F2F7]/50 border-t border-[#E5E5EA] flex items-center justify-between">
+          <div className="px-4 sm:px-6 py-3 sm:py-4 bg-[#F2F2F7]/50 border-t border-[#E5E5EA] flex items-center justify-between">
             {/* Progress dots */}
-            <div className="flex gap-1.5">
+            <div className="flex gap-1 sm:gap-1.5">
               {TUTORIAL_STEPS.map((_, i) => (
                 <div
                   key={i}
                   className={cn(
-                    "h-1.5 rounded-full transition-all duration-300",
-                    i === step ? "w-4 bg-[#007AFF]" : "w-1.5 bg-[#E5E5EA]"
+                    "h-1 sm:h-1.5 rounded-full transition-all duration-300",
+                    i === step ? "w-3 sm:w-4 bg-[#007AFF]" : "w-1 sm:w-1.5 bg-[#E5E5EA]"
                   )}
                 />
               ))}
@@ -211,10 +211,10 @@ export function DashboardTutorial() {
 
             <Button
               onClick={handleNext}
-              className="bg-[#007AFF] hover:bg-[#0056CC] text-white rounded-full px-6 h-10 font-semibold gap-2 border-none shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all"
+              className="bg-[#007AFF] hover:bg-[#0056CC] text-white rounded-full px-4 sm:px-6 h-9 sm:h-10 text-sm sm:text-base font-semibold gap-1.5 sm:gap-2 border-none shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all"
             >
               {isLast ? 'Terminer' : 'Suivant'}
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-3.5 h-3.5 sm:w-4 h-4" />
             </Button>
           </div>
         </motion.div>

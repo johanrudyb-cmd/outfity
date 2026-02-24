@@ -2,6 +2,7 @@
 
 import { AlertTriangle, Sparkles, TrendingUp, Lock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 interface SubscriptionWarningProps {
     context: 'downgrade' | 'cancel' | 'upgrade';
@@ -82,11 +83,18 @@ export function SubscriptionWarning({ context, brandName, templateBrand }: Subsc
 
     const config = warnings[context];
     const IconComponent = config.icon;
+    const isUpgrade = context === 'upgrade';
 
     return (
-        <Card className="border-2 border-amber-500/30 bg-amber-50/50">
+        <Card className={cn(
+            "border-2",
+            isUpgrade ? "border-blue-500/30 bg-blue-50/50" : "border-amber-500/30 bg-amber-50/50"
+        )}>
             <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-bold text-amber-900 flex items-center gap-2">
+                <CardTitle className={cn(
+                    "text-lg font-bold flex items-center gap-2",
+                    isUpgrade ? "text-blue-900" : "text-amber-900"
+                )}>
                     <IconComponent className="w-5 h-5" />
                     {config.title}
                 </CardTitle>
@@ -95,19 +103,34 @@ export function SubscriptionWarning({ context, brandName, templateBrand }: Subsc
                 {config.items.map((item, idx) => {
                     const ItemIcon = item.icon;
                     return (
-                        <div key={idx} className="flex gap-3 p-3 rounded-lg bg-white border border-amber-200">
-                            <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
-                                <ItemIcon className="w-5 h-5 text-amber-600" />
+                        <div key={idx} className={cn(
+                            "flex gap-3 p-3 rounded-lg bg-white border",
+                            isUpgrade ? "border-blue-100" : "border-amber-200"
+                        )}>
+                            <div className={cn(
+                                "w-10 h-10 rounded-lg flex items-center justify-center shrink-0",
+                                isUpgrade ? "bg-blue-100" : "bg-amber-100"
+                            )}>
+                                <ItemIcon className={cn(
+                                    "w-5 h-5",
+                                    isUpgrade ? "text-blue-600" : "text-amber-600"
+                                )} />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="font-semibold text-sm text-amber-900">{item.title}</p>
-                                <p className="text-xs text-amber-700 mt-0.5">{item.description}</p>
+                                <p className={cn(
+                                    "font-semibold text-sm",
+                                    isUpgrade ? "text-blue-900" : "text-amber-900"
+                                )}>{item.title}</p>
+                                <p className={cn(
+                                    "text-xs mt-0.5",
+                                    isUpgrade ? "text-blue-700" : "text-amber-700"
+                                )}>{item.description}</p>
                             </div>
                         </div>
                     );
                 })}
 
-                {context !== 'upgrade' && (
+                {!isUpgrade && (
                     <div className="mt-4 p-4 rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20">
                         <p className="text-sm font-semibold text-primary mb-2">💡 Stratégie vivante</p>
                         <p className="text-xs text-muted-foreground">

@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Politique de confidentialité | OUTFITY',
-  description: 'Politique de confidentialité et protection des données personnelles - OUTFITY par BIANGORY.',
+  description: 'Politique de confidentialité et protection des données personnelles - OUTFITY.',
 };
 
 export default function PrivacyPage() {

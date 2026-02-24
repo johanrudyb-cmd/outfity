@@ -71,7 +71,8 @@ export function DashboardLayout({
       <Suspense fallback={null}>
         <DashboardTutorialGate />
       </Suspense>
-      <MobileNav onMenuClick={() => setSidebarOpen(true)} />
+      {/* Bottom Mobile Navigation removed as per user request */}
+      {/* <MobileNav onMenuClick={() => setSidebarOpen(true)} /> */}
 
     </div>
   );

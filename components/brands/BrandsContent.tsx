@@ -251,7 +251,7 @@ export function BrandsContent() {
           ) : (
             <>
               {/* Version Mobile / Cartes (masqué sur desktop) */}
-              <div className="grid grid-cols-1 gap-4 lg:hidden">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:hidden">
                 {brands.map((brand) => {
                   const websiteUrl = brand.websiteUrl || getBrandUrl(brand.brand);
                   const domain = getDomain(websiteUrl);

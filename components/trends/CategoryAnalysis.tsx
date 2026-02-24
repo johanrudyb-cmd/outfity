@@ -80,7 +80,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
     const [loading, setLoading] = useState(true);
     const [segment, setSegment] = useState<string>(initialSegment);
     const [subFilter, setSubFilter] = useState('ALL');
-    const [leadTime, setLeadTime] = useState(60);
+    const [leadTime, setLeadTime] = useState(30);
     const [globalScore, setGlobalScore] = useState(50);
     const [globalDiff, setGlobalDiff] = useState(0);
 
@@ -88,6 +88,12 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
     const user = session?.user as any;
     const isFree = user?.plan === 'free';
 
+    // Force 1M leadTime for free users
+    useEffect(() => {
+        if (isFree && leadTime > 30) {
+            setLeadTime(30);
+        }
+    }, [isFree, leadTime]);
 
     useEffect(() => {
         const fetchTrends = async () => {
@@ -549,22 +555,27 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                             <div className="flex flex-col px-2 lg:px-4 lg:border-r lg:border-gray-100">
                                 <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Quand tu veux sortir ta collection ?</span>
                                 <div className="flex gap-2">
-                                    {[30, 60, 90].map(days => (
-                                        <motion.button
-                                            key={days}
-                                            onClick={() => setLeadTime(days)}
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
-                                            className={cn(
-                                                "flex-1 md:flex-none px-4 md:px-5 py-2.5 rounded-xl text-[9px] md:text-[10px] font-black uppercase transition-all duration-300",
-                                                leadTime === days
-                                                    ? "bg-[#007AFF] text-white shadow-[0_4px_12px_rgba(0,122,255,0.3)]"
-                                                    : "bg-gray-50 text-gray-400 hover:text-black hover:bg-gray-100"
-                                            )}
-                                        >
-                                            {days / 30}M
-                                        </motion.button>
-                                    ))}
+                                    {[30, 60, 90].map(days => {
+                                        const isDisabled = isFree && days > 30;
+                                        return (
+                                            <motion.button
+                                                key={days}
+                                                onClick={() => !isDisabled && setLeadTime(days)}
+                                                whileHover={!isDisabled ? { scale: 1.05 } : {}}
+                                                whileTap={!isDisabled ? { scale: 0.95 } : {}}
+                                                className={cn(
+                                                    "flex-1 md:flex-none px-4 md:px-5 py-2.5 rounded-xl text-[9px] md:text-[10px] font-black uppercase transition-all duration-300 relative overflow-hidden",
+                                                    leadTime === days && !isDisabled
+                                                        ? "bg-[#007AFF] text-white shadow-[0_4px_12px_rgba(0,122,255,0.3)]"
+                                                        : "bg-gray-50 text-gray-400 hover:text-black hover:bg-gray-100",
+                                                    isDisabled && "opacity-50 cursor-not-allowed grayscale"
+                                                )}
+                                            >
+                                                {days / 30}M
+                                                {isDisabled && <Lock className="w-2 h-2 absolute top-1 right-1 text-gray-400" />}
+                                            </motion.button>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
@@ -574,7 +585,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                                 </div>
                                 <div className="flex items-center gap-3 bg-[#F5F5F7] px-4 py-2 rounded-xl border border-blue-100">
                                     <Sparkles className="w-3.5 h-3.5 text-[#007AFF]" />
-                                    <span className="text-xs md:text-sm font-black text-black">
+                                    <span className={cn("text-xs md:text-sm font-black text-black", isFree && "blur-md select-none")}>
                                         {strategicAnalysis.priceRange.min}€ - {strategicAnalysis.priceRange.max}€
                                     </span>
                                 </div>
@@ -621,16 +632,30 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                                 </div>
 
                                 {/* Conteneur de la Courbe avec hauteur garantie */}
-                                <div className="w-full relative h-[300px] md:h-[400px] lg:flex-1 lg:min-h-0">
-                                    <PredictiveChart data={chartData} color={historyColor} predictionColor={predictionColor} />
+                                <div className="w-full relative h-[300px] md:h-[400px] lg:flex-1 lg:min-h-0 overflow-hidden">
+                                    <div className={cn("w-full h-full", isFree && "pointer-events-none select-none")}>
+                                        <PredictiveChart data={chartData} color={historyColor} predictionColor={predictionColor} />
+                                    </div>
+
                                     {isFree && (
-                                        <div className="absolute top-0 bottom-0 right-0 w-[65%] sm:w-[55%] bg-white/40 backdrop-blur-md z-10 flex flex-col items-center justify-center p-2 sm:p-4 border-l border-white/50 rounded-r-[32px] md:rounded-r-[40px] text-center">
-                                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full flex items-center justify-center shadow-lg mb-2 sm:mb-3 shrink-0">
-                                                <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-[#007AFF]" />
+                                        <>
+                                            {/* Overlay dynamique de flou sur la partie prédiction (droite) extrêmement opaque et intense */}
+                                            <div className="absolute top-0 right-0 w-[63%] h-full backdrop-blur-[120px] bg-white/95 z-10 pointer-events-none border-l border-white/20" />
+
+                                            {/* Contenu de verrouillage parfaitement centré dans la zone floutée (63% de droite) */}
+                                            <div className="absolute top-0 right-0 w-[63%] h-full z-20 flex flex-col items-center justify-center p-4 md:p-8 text-center bg-transparent">
+                                                <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center shadow-2xl mb-3 shrink-0">
+                                                    <Lock className="w-4 h-4 md:w-5 md:h-5 text-[#007AFF]" />
+                                                </div>
+                                                <h5 className="text-[11px] md:text-sm font-black uppercase text-black mb-1 drop-shadow-sm px-2">Prédictions bloquées</h5>
+                                                <p className="text-[9px] md:text-[11px] font-bold text-gray-800 mb-4 max-w-[180px] leading-tight px-1 italic">
+                                                    Seul le plan Créateur permet de débloquer le reste de la courbe.
+                                                </p>
+                                                <Link href="/auth/choose-plan" className="px-5 py-2.5 bg-[#007AFF] text-white rounded-xl text-[9px] md:text-[10px] font-black uppercase hover:bg-blue-600 transition-all shadow-xl shadow-blue-500/40 active:scale-95 whitespace-nowrap">
+                                                    Débloquer
+                                                </Link>
                                             </div>
-                                            <p className="text-[11px] sm:text-sm font-black uppercase text-black mb-1">Prédictions bloquées</p>
-                                            <p className="text-[9px] md:text-xs font-bold text-gray-700 sm:text-gray-500 mb-2 sm:mb-4 max-w-[200px] leading-tight px-1">Découvrez la tendance des mois à venir avec le plan Créateur.</p>
-                                        </div>
+                                        </>
                                     )}
                                 </div>
                             </div>
@@ -690,7 +715,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                                                 <ArrowRight className="w-4 h-4 text-gray-300 mx-2 mb-1" />
                                                 <div className="flex-1 text-right">
                                                     <p className="text-[8px] font-black text-gray-400 uppercase">Potentiel (J+{leadTime})</p>
-                                                    <p className={cn("text-xl md:text-2xl font-black", futureScore >= currentScoreValue ? "text-[#34C759]" : "text-[#FF3B30]")}>{futureScore}</p>
+                                                    <p className={cn("text-xl md:text-2xl font-black", isFree ? "blur-md" : (futureScore >= currentScoreValue ? "text-[#34C759]" : "text-[#FF3B30]"))}>{futureScore}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -704,7 +729,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                                         <div className="pt-4 border-t border-gray-100 flex justify-between items-center mt-auto">
                                             <div>
                                                 <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase block mb-1">Prix Cible</span>
-                                                <span className="text-xs md:text-sm font-black text-[#007AFF]">
+                                                <span className={cn("text-xs md:text-sm font-black text-[#007AFF]", isFree && "blur-md select-none")}>
                                                     {strategicAnalysis.priceRange.min}€ - {strategicAnalysis.priceRange.max}€
                                                 </span>
                                             </div>

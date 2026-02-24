@@ -16,6 +16,7 @@ export async function POST(request: Request) {
         pitch?: string;
         logoUrl?: string;
         instagram?: string;
+        plan?: string;
     };
 
     try {
@@ -24,7 +25,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
 
-    const { universe, universeId, productType, brandName, pitch, logoUrl, instagram } = body;
+    const { universe, universeId, productType, brandName, pitch, logoUrl, instagram, plan } = body;
 
     if (!brandName || brandName.trim().length < 2) {
         return NextResponse.json({ error: 'Le nom de la marque est requis.' }, { status: 400 });
@@ -77,6 +78,7 @@ export async function POST(request: Request) {
             where: { id: authUser.id },
             data: {
                 onboardingCompleted: true,
+                plan: (plan === 'creator' || plan === 'free') ? plan : authUser.plan,
                 onboardingData: {
                     universe,
                     universeId,

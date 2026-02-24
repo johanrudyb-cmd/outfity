@@ -3,28 +3,51 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Check, ArrowRight, Sparkles } from 'lucide-react';
+import { Check, ArrowRight, Sparkles, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SubscriptionWarning } from '@/components/subscription/SubscriptionWarning';
 
+function CountdownTimer() {
+  const [timeLeft, setTimeLeft] = useState({ days: 29, hours: 23, minutes: 54, seconds: 12 });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev: any) => {
+        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
+        if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
+        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
+        if (prev.days > 0) return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
+        return prev;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="flex items-center justify-center gap-2 text-[#FF3B30] font-bold text-xs mb-4 bg-red-50 py-2 px-4 rounded-full border border-red-100 animate-pulse">
+      <Clock className="w-4 h-4" />
+      <span>L'OFFRE EXPIRE DANS : {timeLeft.days}j {String(timeLeft.hours).padStart(2, '0')}h</span>
+    </div>
+  );
+}
+
 const FREE_FEATURES = [
-  'Assistant IA générique (3 msgs/jour)',
-  'Scripts Marketing (3/mois)',
+  'Accès limité aux 4 experts IA',
+  'Scripts Marketing & Branding',
   'Accès interface Outils Créatifs',
   'Calcul financier illimité',
   'Calendrier Éditorial (Lecture)',
 ];
 
 const CREATOR_FEATURES = [
+  '3 JOURS D\'ESSAI GRATUIT',
+  'Les 4 agents IA inclus (Virgil, Pharrell, Ada, Johan)',
+  'Stratégie marketing complète',
   'Accès à l\'intégralité des fonctionnalités',
-  'Scanner visuel IA illimité*',
   '10 analyses de tendances par mois',
   '10 stratégies de marque par mois',
-  'Générateur de logo',
   'Packs de mockup & tech pack',
-  'Scripts marketing IA',
-  'Shootings photo & produit',
-  'Sourcing Hub complet',
+  'Sourcing Hub & Catalogues Premium',
   'Formation & support prioritaire',
 ];
 
@@ -130,16 +153,27 @@ export function ChoosePlanClient() {
                 <Sparkles className="w-3 h-3" /> Recommandé
               </span>
             </div>
+            <CountdownTimer />
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-[#1D1D1F]">Créateur</h2>
-              <p className="text-3xl font-bold text-[#1D1D1F] mt-2">34€ <span className="text-lg font-normal text-[#6e6e73]">/ mois</span></p>
-              <p className="text-sm text-[#6e6e73] mt-1">Annulable à tout moment</p>
+              <div className="flex items-baseline gap-2 mt-2">
+                <p className="text-4xl font-bold text-[#000000]">29€</p>
+                <p className="text-xl text-[#86868B] line-through decoration-red-500/50">39€</p>
+                <span className="text-lg font-normal text-[#6e6e73]">/ mois*</span>
+              </div>
+              <p className="text-sm text-[#007AFF] font-bold mt-2 bg-blue-50 py-1 px-3 rounded-lg inline-block">3 jours d'essai gratuit</p>
+              <p className="text-[11px] text-[#6e6e73] mt-2 leading-tight">*Offre de lancement : 29€ à vie (au lieu de 39€) si vous souscrivez maintenant.</p>
             </div>
             <ul className="space-y-3 mb-8">
               {CREATOR_FEATURES.map((f, i) => (
-                <li key={i} className="flex items-center gap-3 text-[#6e6e73] text-sm">
+                <li key={i} className="flex items-center gap-3 text-sm">
                   <Check className="w-5 h-5 text-[#34C759] shrink-0" />
-                  {f}
+                  <span className={cn(
+                    "font-medium",
+                    f === "3 JOURS D'ESSAI GRATUIT" ? "text-[#007AFF] font-bold" : "text-[#6e6e73]"
+                  )}>
+                    {f}
+                  </span>
                 </li>
               ))}
             </ul>

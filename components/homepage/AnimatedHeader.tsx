@@ -47,7 +47,7 @@ export function AnimatedHeader() {
           {/* Menu Mobile Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 text-[#1D1D1F] hover:bg-black/5 rounded-full transition-colors"
+            className="xl:hidden p-2 text-[#1D1D1F] hover:bg-black/5 rounded-full transition-colors"
             aria-label="Menu"
           >
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -59,7 +59,7 @@ export function AnimatedHeader() {
         </div>
 
         {/* Navigation Desktop */}
-        <div className="hidden md:flex items-center gap-4 lg:gap-8">
+        <div className="hidden xl:flex items-center gap-8">
           {navLinks.map((link) => (
             <Link
               key={link.name}
@@ -96,7 +96,7 @@ export function AnimatedHeader() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full left-0 w-full h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] lg:h-[calc(100vh-5rem)] z-40 bg-white border-t border-[#F2F2F2] overflow-y-auto md:hidden"
+            className="absolute top-full left-0 w-full h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] lg:h-[calc(100vh-5rem)] z-40 bg-white border-t border-[#F2F2F2] overflow-y-auto xl:hidden"
           >
             <div className="flex flex-col px-6 py-8 space-y-6 pb-24">
               {navLinks.map((link) => (

@@ -37,9 +37,10 @@ export function AgentRevealCard({ agent, delay = 0, onReveal }: { agent: AgentPr
     useEffect(() => {
         const timer = setTimeout(() => {
             setIsRevealed(true);
-            triggerFireworks();
+            // Small extra delay to ensure the card has started flipping before firing confetti
+            setTimeout(triggerFireworks, 400);
             if (onReveal) onReveal();
-        }, delay * 1000 + 1000); // Base delay for entry + individual delay
+        }, delay * 1000 + 400);
         return () => clearTimeout(timer);
     }, [delay, onReveal]);
 
@@ -219,6 +220,32 @@ export function AgentRevealCard({ agent, delay = 0, onReveal }: { agent: AgentPr
 
 export const AGENTS_TEAM: AgentProps[] = [
     {
+        id: 'virgil',
+        name: 'Virgil',
+        role: 'Stratégie',
+        image: '/images/agents/virgil_final.png',
+        color: '#007AFF', // OUTFITY Blue
+        stats: [
+            { label: 'Vision', value: 99 },
+            { label: 'Branding', value: 98 },
+            { label: 'Expertise', value: 95 },
+            { label: 'Conseil', value: 97 }
+        ]
+    },
+    {
+        id: 'pharrell',
+        name: 'Pharrell',
+        role: 'Design',
+        image: '/images/agents/pharrell_final.png',
+        color: '#a032ff',
+        stats: [
+            { label: 'Créativité', value: 99 },
+            { label: 'Mockup', value: 97 },
+            { label: 'Style', value: 96 },
+            { label: 'Détail', value: 94 }
+        ]
+    },
+    {
         id: 'ada',
         name: 'Ada',
         role: 'Tendances & Data',
@@ -226,48 +253,22 @@ export const AGENTS_TEAM: AgentProps[] = [
         color: '#ff2a5f',
         stats: [
             { label: 'Analytique', value: 98 },
-            { label: 'Vision', value: 92 },
+            { label: 'Marché', value: 99 },
             { label: 'Vitesse', value: 95 },
-            { label: 'Marché', value: 99 }
-        ]
-    },
-    {
-        id: 'virgil',
-        name: 'Virgil',
-        role: 'Direction Artistique',
-        image: '/images/agents/virgil_final.png',
-        color: '#00d2ff',
-        stats: [
-            { label: 'Créativité', value: 99 },
-            { label: 'Vanguard', value: 97 },
-            { label: 'Style', value: 95 },
-            { label: 'Détail', value: 94 }
+            { label: 'Predictive', value: 92 }
         ]
     },
     {
         id: 'johan',
         name: 'Johan',
-        role: 'Sourcing Expert',
+        role: 'Sourcing',
         image: '/images/agents/johan_final.png',
         color: '#ffaa00',
         stats: [
-            { label: 'Négociation', value: 96 },
             { label: 'Réseau', value: 99 },
-            { label: 'Qualité', value: 94 },
-            { label: 'Logistique', value: 91 }
-        ]
-    },
-    {
-        id: 'pharrell',
-        name: 'Pharrell',
-        role: 'Marketing',
-        image: '/images/agents/pharrell_final.png',
-        color: '#a032ff',
-        stats: [
-            { label: 'Influence', value: 99 },
-            { label: 'Pitch', value: 95 },
-            { label: 'Viralité', value: 98 },
-            { label: 'Charisme', value: 96 }
+            { label: 'Usines', value: 98 },
+            { label: 'Négociation', value: 96 },
+            { label: 'Qualité', value: 94 }
         ]
     }
 ];

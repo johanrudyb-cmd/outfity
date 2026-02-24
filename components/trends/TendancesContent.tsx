@@ -131,7 +131,7 @@ export function TendancesContent({ initialData }: { initialData?: any }) {
       {/* 1. Static Header */}
       <div className="backdrop-blur-xl border-b pt-16 pb-14 transition-all duration-1000 bg-white border-black/5">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-10">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 lg:gap-10">
             <div>
               <p className="font-black uppercase tracking-[0.4em] text-[11px] mb-4 transition-colors duration-500 text-[#007AFF]">Analyse Tendance</p>
               <h1 className="text-6xl md:text-7xl font-black text-black uppercase tracking-tighter leading-[0.9]">
@@ -144,7 +144,7 @@ export function TendancesContent({ initialData }: { initialData?: any }) {
                   key={s}
                   onClick={() => setSegment(s)}
                   className={cn(
-                    "px-10 py-4 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all duration-500",
+                    "px-6 lg:px-10 py-3 lg:py-4 text-[10px] sm:text-[11px] font-black uppercase tracking-widest rounded-xl transition-all duration-500",
                     segment === s
                       ? "bg-[#007AFF] text-white shadow-[0_10px_30px_-10px_rgba(0,122,255,0.5)] scale-105"
                       : "text-gray-400 hover:text-black"
@@ -203,7 +203,7 @@ export function TendancesContent({ initialData }: { initialData?: any }) {
                   </div>
 
                   {/* Content Overlay */}
-                  <div className="absolute inset-0 p-10 flex flex-col justify-end">
+                  <div className="absolute inset-0 p-6 lg:p-10 flex flex-col justify-end">
                     <motion.div
                       whileHover={{ scale: 1.1 }}
                       className={cn(
@@ -215,7 +215,7 @@ export function TendancesContent({ initialData }: { initialData?: any }) {
                     </motion.div>
 
                     <h2 className={cn(
-                      "text-4xl font-black uppercase tracking-tighter leading-none mb-3",
+                      "text-3xl lg:text-4xl font-black uppercase tracking-tighter leading-none mb-3",
                       "text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] transition-all duration-500 group-hover:translate-x-2"
                     )}>
                       {label}

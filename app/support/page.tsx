@@ -3,7 +3,7 @@ import { ArrowLeft, HelpCircle, Book, Mail } from 'lucide-react';
 
 export const metadata = {
   title: 'Support | OUTFITY',
-  description: 'Centre d\'aide et support de la plateforme OUTFITY par BIANGORY.',
+  description: 'Centre d\'aide et support de la plateforme OUTFITY par OUTFITY.',
 };
 
 export default function SupportPage() {
@@ -25,7 +25,7 @@ export default function SupportPage() {
           <h1 className="text-3xl font-bold text-[#1D1D1F] mb-4">Support OUTFITY</h1>
           <p className="text-[#6e6e73] leading-relaxed mb-8">
             Retrouvez ici les ressources pour utiliser la plateforme OUTFITY (éditée par
-            BIANGORY) et nous contacter en cas de besoin. L&apos;accès complet aux services
+            OUTFITY) et nous contacter en cas de besoin. L&apos;accès complet aux services
             (Market Intelligence, Sourcing, Studio IA, Stratégie) nécessite un abonnement&nbsp;:
             consultez les{' '}
             <Link href="/legal/terms" className="text-[#007AFF] hover:underline">

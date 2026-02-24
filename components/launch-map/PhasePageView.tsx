@@ -88,7 +88,7 @@ export function PhasePageView({
     }
   }, [isShowingDetail]);
 
-  const isLocked = userPlan === 'free' && ![0, 1].includes(phaseId);
+  const isLocked = userPlan === 'free' && ![0, 1, 2, 4].includes(phaseId);
 
   if (!phase || !presentation) {
     return (
@@ -130,23 +130,23 @@ export function PhasePageView({
     if (isCompleted && !isEditing) {
       if (phaseId === 1 && strategyText) {
         return (
-          <div className="flex flex-col w-full min-h-[calc(100dvh-64px)] bg-[#F5F5F7]">
-            <div className="px-4 py-3 flex items-center justify-between bg-white border-b border-black/5 sticky top-0 z-[60]">
-              <Link href="/launch-map" className="inline-flex items-center gap-2 text-sm font-medium text-[#86868B] hover:text-[#1D1D1F] transition-colors rounded-full px-3 py-1.5 hover:bg-[#F5F5F7]">
-                <ArrowLeft className="w-4 h-4" />
-                <span>Retour à la vue d'ensemble</span>
+          <div className="flex flex-col w-full h-[calc(100dvh-3.5rem)] sm:h-[calc(100dvh-4rem)] bg-[#F5F5F7] overflow-hidden">
+            <div className="px-3 py-2 sm:px-4 sm:py-3 flex items-center justify-between bg-white/95 backdrop-blur-xl border-b border-black/[0.05] sticky top-0 z-[60]">
+              <Link href="/launch-map" className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-[#86868B] hover:text-[#1D1D1F] transition-all rounded-full px-3 py-1.5 hover:bg-black/5 uppercase tracking-widest leading-none">
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Launch Map</span>
               </Link>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setIsEditing(true)}
-                className="rounded-full border-black/10 hover:bg-black/5 gap-2"
+                className="rounded-full border-black/10 hover:bg-black/5 gap-1.5 h-8 sm:h-9 px-3 sm:px-4 text-[10px] sm:text-xs font-bold transition-apple shadow-sm"
               >
-                <Pencil className="w-3.5 h-3.5" />
-                Modifier la stratégie
+                <Pencil className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                Modifier
               </Button>
             </div>
-            <div className="flex-1">
+            <div className="flex-1 overflow-y-auto stylish-scrollbar">
               <StrategyPresentationView
                 isOpen={true}
                 strategyText={strategyText}
@@ -159,110 +159,79 @@ export function PhasePageView({
         );
       }
 
-      // Recap générique pour les autres phases immersives (0, 2, 5)
+      // Recap générique pour les autres phases immersives (0, 2, 4, 5)
       return (
-        <div className="flex flex-col w-full min-h-[calc(100dvh-64px)] bg-[#F5F5F7] relative overflow-x-hidden pb-32 sm:pb-0">
-          {/* Immersive Background Decor */}
-          <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-            <div className={cn("absolute top-[-20%] left-[-10%] w-[60%] h-[70%] rounded-full blur-[160px] opacity-20 animate-pulse duration-[8s]", currentColor.bg)} />
-            <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] select-none pointer-events-none">
-              <h1 className="text-[20vw] font-black tracking-tighter uppercase whitespace-nowrap leading-none text-black">
-                {brand.name}
-              </h1>
-            </div>
-          </div>
-
+        <div className="flex flex-col w-full h-[calc(100dvh-3.5rem)] sm:h-[calc(100dvh-4rem)] bg-[#F5F5F7] relative overflow-hidden">
           {/* Atelier Immersive Header - Recap Style */}
-          <div className="px-6 sm:px-12 py-6 flex items-center justify-between bg-white/60 backdrop-blur-3xl border-b border-black/5 sticky top-0 z-[60]">
-            <Link href="/launch-map" className="inline-flex items-center gap-2 text-sm font-bold text-[#86868B] hover:text-[#1D1D1F] transition-colors rounded-full px-4 py-2 hover:bg-black/5 uppercase tracking-widest">
-              <ArrowLeft className="w-4 h-4" />
+          <div className="px-3 py-2 sm:px-12 sm:py-6 flex items-center justify-between bg-white/95 backdrop-blur-xl border-b border-black/[0.05] sticky top-0 z-[60]">
+            <Link href="/launch-map" className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#86868B] hover:text-[#1D1D1F] transition-all rounded-full px-3 py-1.5 sm:px-4 sm:py-2 hover:bg-black/5 uppercase tracking-widest leading-none">
+              <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>Launch Map</span>
             </Link>
-            <div className="flex items-center gap-4">
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF] hidden sm:block">Étape Terminée</span>
+            <div className="flex items-center gap-2 sm:gap-4">
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[#007AFF] hidden xs:block">Terminé</span>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setIsEditing(true)}
-                className="rounded-full border-black/10 hover:bg-black/5 gap-2 h-10 px-5 font-bold uppercase text-[11px] tracking-widest shadow-apple-sm transition-all active:scale-95"
+                className="rounded-full border-black/10 hover:bg-black/5 gap-1.5 h-8 sm:h-10 px-3 sm:px-5 font-bold uppercase text-[9px] sm:text-[11px] tracking-widest shadow-apple-sm transition-apple"
               >
-                <Pencil className="w-3.5 h-3.5" />
-                Modifier
+                <Pencil className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                <span>Modifier</span>
               </Button>
             </div>
           </div>
 
-          <div className="flex-1 flex flex-col z-10">
-            <div className="w-full max-w-7xl mx-auto px-6 sm:px-12 py-12 lg:py-24">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
+          <div className="flex-1 overflow-y-auto stylish-scrollbar relative z-10">
+            {/* Immersive Background Decor */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+              <div className={cn("absolute top-[-10%] left-[-5%] w-[80%] h-[60%] rounded-full blur-[100px] sm:blur-[160px] opacity-10 sm:opacity-20 animate-pulse", currentColor.bg)} />
+            </div>
+
+            <div className="w-full max-w-7xl mx-auto px-4 sm:px-12 py-6 sm:py-12 lg:py-24 relative z-10">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-20 items-start">
 
                 {/* Left Side: Editorial Context */}
-                <div className="lg:col-span-5 space-y-10 animate-in fade-in slide-in-from-left-8 duration-1000">
-                  <div className={cn("w-20 h-20 rounded-[28px] flex items-center justify-center shadow-xl text-white shadow-apple-lg", currentColor.bg, currentColor.text)}>
-                    <PhaseIcon size={36} />
+                <div className="lg:col-span-5 space-y-4 sm:space-y-10">
+                  <div className={cn("w-12 h-12 sm:w-20 sm:h-20 rounded-xl sm:rounded-[28px] flex items-center justify-center shadow-lg text-white mx-auto lg:mx-0", currentColor.bg, currentColor.text)}>
+                    <PhaseIcon size={24} className="sm:hidden" />
+                    <PhaseIcon size={36} className="hidden sm:block" />
                   </div>
-                  <div className="space-y-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF]">Manifeste de Phase</p>
-                    <h2 className="text-5xl sm:text-7xl font-bold tracking-tight text-[#1D1D1F] leading-[1.1]">{phase.title}</h2>
-                    <p className="text-xl sm:text-2xl text-[#86868B] font-medium leading-relaxed max-w-md">Vos choix stratégiques sont maintenant scellés dans l&apos;ADN de votre marque.</p>
+                  <div className="space-y-1 sm:space-y-4 text-center lg:text-left">
+                    <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF]">Manifeste de Phase</p>
+                    <h2 className="text-2xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-[#1D1D1F] leading-tight">{phase.title}</h2>
+                    <p className="text-[13px] sm:text-xl lg:text-2xl text-[#86868B] font-medium leading-relaxed max-w-md mx-auto lg:mx-0">Vos choix stratégiques sont maintenant scellés dans l&apos;ADN de votre marque.</p>
                   </div>
 
-                  {/* Dynamic Relevant Info Cards based on Phase */}
-                  {phaseId === 0 && (
-                    <div className="space-y-4">
-                      <div className="p-8 rounded-[40px] bg-white shadow-apple-lg border border-black/5 space-y-6">
-                        <div className="flex items-center gap-4">
-                          <div className="w-16 h-16 rounded-2xl bg-[#007AFF]/10 flex items-center justify-center">
-                            <Fingerprint className="w-8 h-8 text-[#007AFF]" />
-                          </div>
-                          <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-black/30">Identité Actuelle</p>
-                            <p className="text-2xl font-bold text-[#1D1D1F]">{brand.name}</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {brandFull?.styleGuide && (brandFull.styleGuide as any).story && (
-                        <div className="p-8 rounded-[40px] bg-white/40 backdrop-blur-xl border border-black/5 space-y-3">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-black/30">Vision de Marque</p>
-                          <p className="text-sm text-[#86868B] italic leading-relaxed line-clamp-4">"{(brandFull.styleGuide as any).story}"</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {phaseId === 2 && (
-                    <div className="p-8 rounded-[40px] bg-[#1D1D1F] text-white shadow-apple-lg space-y-8">
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Mockup Studio</p>
-                          <p className="text-3xl font-bold">{designCount} Créations</p>
-                        </div>
-                        <PenTool className="w-10 h-10 text-[#007AFF]" />
-                      </div>
-                      <p className="text-sm text-white/60 leading-relaxed">Vos prototypes visuels sont prêts pour la phase de Tech Pack.</p>
-                    </div>
-                  )}
-
-                  {phaseId === 5 && launchMap?.shopifyShopDomain && (
-                    <div className="p-8 rounded-[40px] bg-white shadow-apple-lg border border-black/5 space-y-6">
-                      <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-2xl bg-[#95BF47]/10 flex items-center justify-center">
-                          <Store className="w-8 h-8 text-[#5E8E3E]" />
+                  {/* Dynamic Info Cards */}
+                  <div className="grid grid-cols-1 gap-3 sm:gap-4">
+                    {phaseId === 0 && (
+                      <div className="p-4 sm:p-8 rounded-[24px] sm:rounded-[40px] bg-white shadow-apple-sm border border-black/5 flex items-center gap-3 sm:gap-4">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-[#007AFF]/10 flex items-center justify-center shrink-0">
+                          <Fingerprint className="w-5 h-5 sm:w-6 sm:h-6 text-[#007AFF]" />
                         </div>
                         <div>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-black/30">Boutique Live</p>
-                          <p className="text-lg font-bold text-[#1D1D1F] truncate max-w-[200px]">{launchMap.shopifyShopDomain}</p>
+                          <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-black/30">Identité</p>
+                          <p className="text-base sm:text-xl font-bold text-[#1D1D1F] truncate max-w-[140px] sm:max-w-none">{brand.name}</p>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                    {phaseId === 2 && (
+                      <div className="p-4 sm:p-8 rounded-[24px] sm:rounded-[40px] bg-[#1D1D1F] text-white shadow-apple-lg flex items-center justify-between">
+                        <div className="space-y-0.5 sm:space-y-1">
+                          <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-white/40">Mockup Studio</p>
+                          <p className="text-lg sm:text-2xl font-bold">{designCount} Créations</p>
+                        </div>
+                        <PenTool className="w-6 h-6 sm:w-8 sm:h-8 text-[#007AFF]" />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Right Side: Bento Summaries */}
-                <div className="lg:col-span-7 animate-in fade-in slide-in-from-right-8 duration-1000 delay-200">
-                  <div className="bg-white/70 backdrop-blur-2xl border border-black/5 shadow-apple-2xl rounded-[48px] p-8 sm:p-16">
-                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF] mb-12 text-center">Sommaire des Décisions</p>
+                <div className="lg:col-span-7">
+                  <div className="bg-white/70 backdrop-blur-2xl border border-black/5 shadow-apple-2xl rounded-[24px] sm:rounded-[48px] p-5 sm:p-16">
+                    <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF] mb-6 sm:mb-12 text-center">Sommaire des Décisions</p>
                     <PhaseRecap
                       phaseId={phaseId}
                       brandFull={brandFull}
@@ -274,7 +243,6 @@ export function PhasePageView({
                     />
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
@@ -282,21 +250,9 @@ export function PhasePageView({
       );
     }
 
-    // Sinon on affiche le STEPPER (mode édition ou première fois)
+    // STEPPER (mode édition ou première fois) - TRUE FULL SCREEN CHAT FEEL
     return (
-      <div className={cn(
-        "flex flex-col w-full m-0 p-0 bg-white relative pb-6 sm:pb-0",
-        (phaseId === 1 || phaseId === 2 || phaseId === 4 || phaseId === 5) ? "h-[calc(100dvh-64px)] overflow-hidden" : "min-h-[calc(100dvh-64px)] overflow-y-auto"
-      )}>
-        {![1, 2, 4, 5].includes(Number(phaseId)) && (
-          <div className="px-4 py-2 sm:py-3 flex items-center justify-between shrink-0 relative z-30 border-b border-black/5 bg-white sticky top-0">
-            <Link href="/launch-map" className="inline-flex items-center gap-2 text-sm font-medium text-[#86868B] hover:text-[#1D1D1F] transition-colors rounded-full px-3 py-1.5 hover:bg-[#F5F5F7]">
-              <ArrowLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Retour à la vue d'ensemble</span>
-              <span className="sm:hidden">Retour</span>
-            </Link>
-          </div>
-        )}
+      <div className="w-full bg-white h-[calc(100dvh-3.5rem)] sm:h-[calc(100dvh-4rem)] flex flex-col overflow-hidden">
         <div className="flex-1 w-full bg-white relative flex flex-col min-h-0">
           <LaunchMapStepper brandId={brand.id} launchMap={launchMap} brand={brandFull} hasIdentity={hasIdentity} focusedPhase={phaseId} userPlan={userPlan} strategyText={strategyText} />
         </div>
@@ -339,16 +295,16 @@ export function PhasePageView({
           {!isLocked ? (
             <div className="bg-white">
               {isCompleted && !isEditing ? (
-                <div className="p-12 sm:p-16 flex flex-col items-center space-y-10">
-                  <div className="text-center space-y-4">
-                    <div className={cn("w-16 h-16 rounded-[22px] mx-auto flex items-center justify-center shadow-lg", currentColor.bg, currentColor.text)}>
-                      <PhaseIcon size={28} />
+                <div className="p-8 sm:p-16 flex flex-col items-center space-y-6 sm:space-y-10">
+                  <div className="text-center space-y-3 sm:space-y-4">
+                    <div className={cn("w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] sm:rounded-[22px] mx-auto flex items-center justify-center shadow-lg", currentColor.bg, currentColor.text)}>
+                      <PhaseIcon className="w-7 h-7 sm:w-8 sm:h-8" />
                     </div>
-                    <h3 className="text-2xl font-bold text-[#1D1D1F]">Étape Validée</h3>
-                    <p className="text-[#86868B] max-w-sm mx-auto">Vous avez complété cette phase. Voici vos informations enregistrées.</p>
+                    <h3 className="text-xl sm:text-2xl font-bold text-[#1D1D1F]">Étape Validée</h3>
+                    <p className="text-[13px] sm:text-base text-[#86868B] max-w-sm mx-auto">Vous avez complété cette phase. Voici vos informations enregistrées.</p>
                   </div>
 
-                  <div className="w-full max-w-md bg-[#F5F5F7]/50 border border-black/5 rounded-[32px] p-8">
+                  <div className="w-full max-w-md bg-[#F5F5F7]/50 border border-black/5 rounded-[24px] sm:rounded-[32px] p-6 sm:p-8">
                     <PhaseRecap
                       phaseId={phaseId}
                       brandFull={brandFull}
@@ -364,43 +320,48 @@ export function PhasePageView({
                     variant="outline"
                     size="lg"
                     onClick={() => setIsEditing(true)}
-                    className="rounded-full border-black/10 hover:bg-black/5 h-14 px-8 gap-2 font-bold"
+                    className="rounded-full border-black/10 hover:bg-black/5 h-12 sm:h-14 px-6 sm:px-8 gap-2 font-bold text-xs sm:text-sm transition-apple shadow-sm"
                   >
-                    <Pencil className="w-4 h-4" />
+                    <Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     Modifier les informations
                   </Button>
                 </div>
               ) : (
-                <div ref={detailSectionRef} className="p-6 sm:p-8">
+                <div ref={detailSectionRef} className="p-4 sm:p-8">
                   <LaunchMapStepper brandId={brand.id} launchMap={launchMap} brand={brandFull} hasIdentity={hasIdentity} focusedPhase={phaseId} userPlan={userPlan} />
                 </div>
               )}
             </div>
           ) : (
-            /* Locked State UI */
-            <div className="relative p-12 sm:p-20 text-center overflow-hidden bg-white">
+            /* Locked State UI - More Premium & Less Broken */
+            <div className="relative p-6 sm:p-20 text-center overflow-hidden bg-white min-h-[350px] sm:min-h-[400px] flex flex-col justify-center">
               {/* Fake blurred background elements */}
-              <div className="absolute inset-0 opacity-20 pointer-events-none select-none overflow-hidden flex flex-col items-center justify-center gap-4 blur-[4px]">
-                <div className="w-2/3 h-12 bg-gray-200 rounded-xl" />
-                <div className="w-1/2 h-8 bg-gray-100 rounded-lg" />
-                <div className="w-3/4 h-32 bg-gray-50 rounded-2xl border" />
+              <div className="absolute inset-0 opacity-10 pointer-events-none select-none overflow-hidden flex flex-col items-center justify-center gap-4 sm:gap-6 blur-[8px]">
+                <div className="w-2/3 h-10 sm:h-12 bg-gray-200 rounded-xl sm:rounded-2xl" />
+                <div className="w-1/2 h-6 sm:h-8 bg-gray-100 rounded-lg sm:rounded-xl" />
+                <div className="w-full h-32 sm:h-48 bg-gray-50 rounded-[30px] sm:rounded-[40px] border border-black/5" />
               </div>
 
-              <div className="relative z-10 max-w-md mx-auto space-y-6">
-                <div className="w-20 h-20 mx-auto bg-gradient-to-br from-amber-400 to-amber-600 rounded-[24px] shadow-lg flex items-center justify-center rotate-3 transform hover:rotate-6 transition-transform">
-                  <Lock className="w-10 h-10 text-white" />
+              <div className="relative z-10 max-w-sm mx-auto space-y-6 sm:space-y-8 px-2 sm:px-4">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-gradient-to-br from-[#007AFF] to-[#00C6FF] rounded-[22px] sm:rounded-[28px] shadow-apple-lg flex items-center justify-center rotate-3 transform hover:rotate-6 transition-transform duration-500">
+                  <Lock className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                 </div>
 
-                <div className="space-y-2">
-                  <h3 className="text-2xl font-bold text-[#1D1D1F]">Fonctionnalité Premium</h3>
-                  <p className="text-[15px] text-[#86868B] leading-relaxed">
-                    Cette phase nécessite un compte Créateur. Débloquez la création de Tech Packs, le Sourcing d'Usines et la configuration Shopify IA.
+                <div className="space-y-2 sm:space-y-3">
+                  <h3 className="text-2xl sm:text-3xl font-bold text-[#1D1D1F] tracking-tight">Accès Créateur</h3>
+                  <p className="text-[13px] sm:text-[15px] text-[#86868B] font-medium leading-relaxed">
+                    Cette phase est réservée aux membres Créateurs. Débloquez les outils avancés de production et de sourcing.
                   </p>
                 </div>
 
-                <Link href="/auth/choose-plan" className="inline-flex w-full items-center justify-center bg-[#1D1D1F] hover:bg-black text-white font-bold rounded-full h-14 px-8 shadow-xl shadow-black/10 transition-all active:scale-[0.98]">
-                  Passer au Plan Créateur
-                </Link>
+                <div className="flex flex-col gap-2.5 sm:gap-3">
+                  <Link href="/auth/choose-plan" className="inline-flex w-full items-center justify-center bg-[#1D1D1F] hover:bg-black text-white font-bold rounded-full h-12 sm:h-14 px-6 sm:px-8 shadow-apple-md transition-all active:scale-[0.98] text-[11px] sm:text-xs uppercase tracking-widest leading-none">
+                    Découvrir le Plan Créateur
+                  </Link>
+                  <Link href="/launch-map" className="text-[10px] sm:text-xs font-bold text-[#86868B] hover:text-[#1D1D1F] uppercase tracking-widest transition-colors py-2">
+                    Peut-être plus tard
+                  </Link>
+                </div>
               </div>
             </div>
           )}

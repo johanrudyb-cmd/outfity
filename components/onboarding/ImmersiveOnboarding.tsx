@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Sparkles, Zap, Moon, ShieldCheck, Leaf, ArrowRight,
-    Check, Loader2, CheckCircle2, Crown, Star, TrendingUp
+    Check, Loader2, CheckCircle2, Crown, Star, TrendingUp, Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 // Types & constants
 // ─────────────────────────────────────────────────────────────
 
-type Step = 'welcome' | 'universe' | 'product' | 'identity' | 'pitch' | 'agents' | 'launch';
+type Step = 'welcome' | 'plan' | 'universe' | 'product' | 'identity' | 'pitch' | 'agents' | 'launch';
 
 interface OnboardingData {
     universe: string;
@@ -23,7 +23,32 @@ interface OnboardingData {
     pitch: string;
     logoUrl?: string;
     instagram?: string;
+    plan?: string;
 }
+
+const PLANS = [
+    {
+        id: 'free',
+        name: 'Starter',
+        price: 'Gratuit',
+        description: 'Ton équipe d\'experts IA (Virgil, Pharrell, Ada, Johan) t\'accompagne.',
+        features: ['Accès limité aux 4 agents IA', '5 designs / mois', '3 analyses trends', 'Sourcing Hub'],
+        icon: Zap,
+        color: '#86868B'
+    },
+    {
+        id: 'creator',
+        name: 'Créateur',
+        price: '29€',
+        oldPrice: '39€',
+        period: '/mois*',
+        description: 'Offre limitée : 29€/mois à vie (au lieu de 39€).',
+        features: ['3 JOURS D\'ESSAI GRATUIT', 'Les 4 agents IA inclus', 'Stratégie marketing complète', 'Designs illimités', 'Tech Packs IA', 'Sourcing Premium'],
+        icon: Crown,
+        color: '#007AFF',
+        popular: true
+    }
+];
 
 const UNIVERSES = [
     {
@@ -97,8 +122,8 @@ const PRODUCTS = [
     { id: 'ensemble', label: 'Ensemble', emoji: '🎽', trend: 94, desc: 'Niche premium rentable' },
 ];
 
-const STEP_ORDER: Step[] = ['welcome', 'universe', 'product', 'identity', 'pitch', 'agents', 'launch'];
-const STEP_LABELS = ['Univers', 'Produit', 'Identité', 'Mission', 'Ton Équipe'];
+const STEP_ORDER: Step[] = ['welcome', 'plan', 'universe', 'product', 'identity', 'pitch', 'agents', 'launch'];
+const STEP_LABELS = ['Offre', 'Univers', 'Produit', 'Identité', 'Mission', 'Ton Équipe'];
 
 import { AgentRevealCard, AGENTS_TEAM } from './AgentRevealCard';
 
@@ -125,7 +150,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
 
     const isCreator = plan === 'creator';
     const stepIndex = STEP_ORDER.indexOf(step);
-    const progressSteps = ['universe', 'product', 'identity', 'pitch', 'agents'] as Step[];
+    const progressSteps = ['plan', 'universe', 'product', 'identity', 'pitch', 'agents'] as Step[];
     const progressIndex = progressSteps.indexOf(step);
 
     // Re-check plan réel depuis la DB après retour Stripe
@@ -176,7 +201,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
             const res = await fetch('/api/user/complete-onboarding', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
+                body: JSON.stringify({ ...data, plan }),
             });
             if (!res.ok) {
                 const json = await res.json();
@@ -287,6 +312,99 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
                             </button>
                             <p className="text-[#86868B] text-sm">Environ 3 minutes · Gratuit</p>
+                        </motion.div>
+                    )}
+
+                    {/* ── PLAN SELECTION ── */}
+                    {step === 'plan' && (
+                        <motion.div key="plan"
+                            initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
+                            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                            className="max-w-2xl w-full space-y-8"
+                        >
+                            <div className="text-center space-y-2">
+                                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Choisis ton plan</h2>
+                                <p className="text-[#86868B]">Tu pourras changer à tout moment depuis tes paramètres.</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                {PLANS.map(p => (
+                                    <button
+                                        key={p.id}
+                                        onClick={() => setPlan(p.id)}
+                                        className={cn(
+                                            'relative text-left p-6 rounded-3xl border-2 transition-all duration-300 flex flex-col h-full bg-white',
+                                            plan === p.id
+                                                ? 'border-[#007AFF] shadow-xl shadow-blue-500/10 scale-[1.02]'
+                                                : 'border-[#E5E5EA] hover:border-[#C7C7CC] opacity-80 hover:opacity-100'
+                                        )}
+                                    >
+                                        {p.popular && (
+                                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#007AFF] text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                                Recommandé
+                                            </div>
+                                        )}
+
+                                        <div className="flex items-center justify-between mb-4">
+                                            <div className={cn('p-2 rounded-xl bg-opacity-10', plan === p.id ? 'bg-[#007AFF]/10' : 'bg-slate-100')}>
+                                                <p.icon className={cn('w-6 h-6', plan === p.id ? 'text-[#007AFF]' : 'text-slate-400')} />
+                                            </div>
+                                            {plan === p.id && (
+                                                <div className="w-6 h-6 rounded-full bg-[#007AFF] flex items-center justify-center">
+                                                    <Check className="w-4 h-4 text-white" />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="mb-6">
+                                            <h3 className="text-xl font-bold text-[#1D1D1F]">{p.name}</h3>
+                                            <div className="flex items-baseline gap-2 mt-1">
+                                                <span className="text-2xl font-black text-[#1D1D1F]">{p.price}</span>
+                                                {p.oldPrice && (
+                                                    <span className="text-lg text-[#86868B] line-through decoration-red-500/50">{p.oldPrice}</span>
+                                                )}
+                                                {p.id === 'creator' && (
+                                                    <div className="flex items-center gap-1.5 text-red-500 font-bold text-[10px] mb-2 px-2 py-0.5 bg-red-50 rounded-full border border-red-100 animate-pulse uppercase tracking-tight">
+                                                        <Clock className="w-3 h-3" />
+                                                        OFFRE : 29 JOURS RESTANTS
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <p className="text-sm text-[#86868B] mt-2 leading-relaxed">{p.description}</p>
+                                        </div>
+
+                                        <ul className="space-y-3 mb-8 flex-1">
+                                            {p.features.map(f => (
+                                                <li key={f} className="flex items-center gap-2 text-sm">
+                                                    <Check className="w-4 h-4 text-[#34C759] shrink-0" />
+                                                    <span className={cn(
+                                                        f === "3 JOURS D'ESSAI GRATUIT" ? "text-[#007AFF] font-bold" : "text-[#1D1D1F]/80"
+                                                    )}>
+                                                        {f}
+                                                    </span>
+                                                </li>
+                                            ))}
+                                        </ul>
+
+                                        <div className={cn(
+                                            'mt-auto w-full py-3 rounded-xl text-center font-bold text-sm transition-all',
+                                            plan === p.id ? 'bg-[#007AFF] text-white' : 'bg-[#F2F2F7] text-[#1D1D1F]'
+                                        )}>
+                                            {plan === p.id ? 'Plan sélectionné' : 'Sélectionner'}
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={goNext}
+                                className="w-full h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all shadow-lg shadow-blue-500/25"
+                            >
+                                Valider et continuer <ArrowRight className="w-5 h-5" />
+                            </button>
+                            <p className="text-center text-[10px] text-slate-500 mt-4 px-4">
+                                *Offre limitée : 29€/mois à vie (au lieu de 39€) si vous souscrivez pendant la promo. 3 jours d'essai gratuit. Annulable à tout moment.
+                            </p>
                         </motion.div>
                     )}
 
@@ -565,11 +683,11 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                 </p>
                             </div>
 
-                            <div className="w-full max-w-full overflow-x-auto hide-scrollbar sm:overflow-visible pb-8 pt-4 px-4 sm:px-0">
-                                <div className="flex sm:flex-wrap items-center sm:justify-center gap-6 w-max sm:w-auto mx-auto snap-x snap-mandatory">
-                                    {AGENTS_TEAM.map((agent, i) => (
-                                        <div key={agent.id} className="snap-center shrink-0">
-                                            <AgentRevealCard agent={agent} delay={i * 0.4} />
+                            <div className="w-full max-w-5xl px-4 sm:px-6">
+                                <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 justify-items-center">
+                                    {AGENTS_TEAM.map((agent) => (
+                                        <div key={agent.id} className="w-full flex justify-center">
+                                            <AgentRevealCard agent={agent} delay={0.2} />
                                         </div>
                                     ))}
                                 </div>
