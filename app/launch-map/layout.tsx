@@ -83,7 +83,7 @@ export default async function LaunchMapLayout({
           phase6={lm?.phase6 ?? false}
           phase7={lm?.phase7 ?? false}
         />
-        <main className="min-h-[calc(100vh-var(--nav-height,0px))]">{children}</main>
+        <main className="flex-1 flex flex-col min-h-0">{children}</main>
       </DashboardLayout>
     );
   } catch (error) {

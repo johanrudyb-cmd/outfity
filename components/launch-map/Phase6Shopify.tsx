@@ -22,6 +22,7 @@ interface Phase6ShopifyProps {
   shopifyShopDomain: string | null;
   siteCreationTodo?: { steps: SiteCreationTodoStep[] } | null;
   onComplete: () => void;
+  userPlan?: string;
 }
 
 interface Message {
@@ -85,7 +86,7 @@ const QUICK_REPLIES = [
 ];
 
 export function Phase6Shopify({
-  brandId, brand, shopifyShopDomain, onComplete,
+  brandId, brand, shopifyShopDomain, onComplete, userPlan = 'free',
 }: Phase6ShopifyProps) {
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -210,6 +211,9 @@ export function Phase6Shopify({
     e.preventDefault();
     sendMessage(input);
   };
+
+  const userMessagesCount = messages.filter(m => m.role === 'user').length;
+  const isFreeLimitReached = userPlan === 'free' && userMessagesCount >= 10;
 
   async function handleConnect(e: React.FormEvent) {
     e.preventDefault();
@@ -405,50 +409,63 @@ export function Phase6Shopify({
 
       {/* ── Input Box (Gemini-style) ── */}
       <div className="shrink-0 pt-2 bg-[#F5F5F7] z-20 border-t border-black/[0.05] px-3 sm:px-6 pb-safe-bottom">
-        {QUICK_REPLIES.length > 0 && !isTyping && (
-          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 pt-1 animate-in slide-in-from-bottom-2 duration-500">
-            {QUICK_REPLIES.map(reply => (
-              <button
-                key={reply}
-                onClick={() => sendMessage(reply)}
-                className="shrink-0 text-[12px] sm:text-[13px] font-bold text-[#5E8E3E] bg-white border border-[#95BF47]/20 hover:bg-[#95BF47]/5 active:bg-[#95BF47]/10 px-4 py-2.5 rounded-2xl transition-apple shadow-sm whitespace-nowrap"
-              >
-                {reply}
-              </button>
-            ))}
+        {isFreeLimitReached ? (
+          <div className="p-4 sm:p-5 flex flex-col items-center justify-center text-center space-y-3">
+            <p className="text-[13px] sm:text-[14px] text-[#1D1D1F] font-medium leading-relaxed max-w-sm mx-auto">
+              Tu as atteint ta limite de <b className="font-extrabold text-[#5E8E3E]">10 messages</b> offerts avec Johan.
+            </p>
+            <Link href="/auth/choose-plan" className="w-full max-w-sm shrink-0 rounded-[22px] bg-[#5E8E3E] hover:bg-[#4A7231] text-white flex items-center justify-center font-bold text-xs sm:text-sm h-11 transition-apple shadow-md active:scale-95">
+              Débloquer E-shop Builder
+            </Link>
           </div>
-        )}
+        ) : (
+          <>
+            {QUICK_REPLIES.length > 0 && !isTyping && (
+              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 pt-1 animate-in slide-in-from-bottom-2 duration-500">
+                {QUICK_REPLIES.map(reply => (
+                  <button
+                    key={reply}
+                    onClick={() => sendMessage(reply)}
+                    className="shrink-0 text-[12px] sm:text-[13px] font-bold text-[#5E8E3E] bg-white border border-[#95BF47]/20 hover:bg-[#95BF47]/5 active:bg-[#95BF47]/10 px-4 py-2.5 rounded-2xl transition-apple shadow-sm whitespace-nowrap"
+                  >
+                    {reply}
+                  </button>
+                ))}
+              </div>
+            )}
 
-        <div className="pb-3 sm:pb-6">
-          <form onSubmit={handleSubmit} className="relative flex items-end gap-2 bg-white border border-black/[0.08] rounded-[28px] shadow-apple-lg p-1.5 transition-all focus-within:ring-4 focus-within:ring-[#95BF47]/10 focus-within:border-[#95BF47]/30 z-30">
-            <textarea
-              ref={inputRef as any}
-              value={input}
-              onChange={e => {
-                setInput(e.target.value);
-                e.target.style.height = 'auto';
-                e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
-              }}
-              onKeyDown={e => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  if (input.trim() && !isTyping) sendMessage(input);
-                }
-              }}
-              placeholder="Parler à Shopify Assist..."
-              className="flex-1 bg-transparent max-h-[120px] min-h-[44px] px-4 py-3 text-[15px] sm:text-[16px] text-[#1D1D1F] placeholder:text-[#86868B] focus:outline-none resize-none leading-relaxed"
-              disabled={isTyping}
-              rows={1}
-            />
-            <button
-              type="submit"
-              disabled={isTyping || !input.trim()}
-              className="w-11 h-11 shrink-0 rounded-[22px] bg-[#5E8E3E] hover:bg-[#4A7231] disabled:opacity-30 disabled:hover:bg-[#5E8E3E] text-white flex items-center justify-center transition-apple m-0.5 shadow-md active:scale-95"
-            >
-              {isTyping ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 ml-0.5" />}
-            </button>
-          </form>
-        </div>
+            <div className="pb-3 sm:pb-6">
+              <form onSubmit={handleSubmit} className="relative flex items-end gap-2 bg-white border border-black/[0.08] rounded-[28px] shadow-apple-lg p-1.5 transition-all focus-within:ring-4 focus-within:ring-[#95BF47]/10 focus-within:border-[#95BF47]/30 z-30">
+                <textarea
+                  ref={inputRef as any}
+                  value={input}
+                  onChange={e => {
+                    setInput(e.target.value);
+                    e.target.style.height = 'auto';
+                    e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+                  }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      if (input.trim() && !isTyping) sendMessage(input);
+                    }
+                  }}
+                  placeholder="Parler à Shopify Assist..."
+                  className="flex-1 bg-transparent max-h-[120px] min-h-[44px] px-4 py-3 text-[15px] sm:text-[16px] text-[#1D1D1F] placeholder:text-[#86868B] focus:outline-none resize-none leading-relaxed"
+                  disabled={isTyping}
+                  rows={1}
+                />
+                <button
+                  type="submit"
+                  disabled={isTyping || !input.trim()}
+                  className="w-11 h-11 shrink-0 rounded-[22px] bg-[#5E8E3E] hover:bg-[#4A7231] disabled:opacity-30 disabled:hover:bg-[#5E8E3E] text-white flex items-center justify-center transition-apple m-0.5 shadow-md active:scale-95"
+                >
+                  {isTyping ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 ml-0.5" />}
+                </button>
+              </form>
+            </div>
+          </>
+        )}
       </div>
 
       <style dangerouslySetInnerHTML={{

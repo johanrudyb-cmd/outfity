@@ -37,7 +37,6 @@ export async function POST(request: Request) {
             product_data: {
               name: pack.name,
               description: pack.description,
-              images: [],
             },
             unit_amount: pack.amount,
           },

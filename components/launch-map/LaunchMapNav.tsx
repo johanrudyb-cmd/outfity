@@ -54,7 +54,8 @@ export function LaunchMapNav({
 
   if (
     pathname === '/launch-map/formation' ||
-    pathname.startsWith('/launch-map/formation/')
+    pathname.startsWith('/launch-map/formation/') ||
+    pathname.startsWith('/launch-map/phase/')
   ) {
     return null;
   }

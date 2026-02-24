@@ -97,6 +97,5 @@ export function PaywallGate({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
-
-  return <div className="min-w-0 flex-1">{children}</div>;
+  return <div className="min-w-0 flex-1 flex flex-col min-h-0">{children}</div>;
 }

@@ -32,7 +32,6 @@ export async function POST() {
             product_data: {
               name: 'Plan Créateur - Offre Spéciale',
               description: 'Accès 29€/mois à vie (au lieu de 39€) + 3 jours d\'essai gratuit. Inclus : Virgil, Pharrell, Ada, Johan.',
-              images: [],
             },
             unit_amount: SUBSCRIPTION_PRICE_EUR * 100, // centimes
             recurring: {

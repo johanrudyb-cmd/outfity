@@ -32,7 +32,7 @@ export default auth(async (req) => {
 
   // 2. Pages d'auth => laisser passer
   if (isAuthPage) {
-    if (isAuthenticated && nextUrl.pathname !== '/auth/signout') {
+    if (isAuthenticated && nextUrl.pathname !== '/auth/signout' && nextUrl.pathname !== '/auth/choose-plan') {
       return NextResponse.redirect(new URL('/dashboard', nextUrl));
     }
     return NextResponse.next();

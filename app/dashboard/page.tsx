@@ -348,7 +348,7 @@ export default async function DashboardPage() {
                     <div className="w-10 h-10 rounded-2xl bg-[#007AFF] flex items-center justify-center">
                       <Sparkles className="w-5 h-5 text-white" />
                     </div>
-                    <h3 className="font-bold text-base">Passez au Plan Créateur</h3>
+                    <h3 className="font-bold text-base text-white">Passez au Plan Créateur</h3>
                     <p className="text-white/70 text-xs leading-relaxed">
                       Déverrouillez tous les outils IA, mockups illimités et support prioritaire.
                     </p>

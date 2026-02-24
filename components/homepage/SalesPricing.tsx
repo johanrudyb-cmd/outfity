@@ -34,9 +34,9 @@ const plans = [
     name: 'Gratuit',
     price: 0,
     period: 'Gratuit',
-    description: 'Ton équipe d\'experts IA (Virgil, Pharrell, Ada, Johan) t\'accompagne.',
+    description: 'Ton équipe d\'experts IA (Virgil, Pharrell, Ada) t\'accompagne.',
     features: [
-      'Accès limité aux 4 agents IA',
+      'Accès limité à 3 agents IA',
       'Accès limité au radar de tendances',
       'Calculateur de marge',
       'Aperçu des outils de création',
@@ -170,16 +170,24 @@ export function SalesPricing() {
                     { name: 'Virgil', img: '/images/agents/virgil_final.png' },
                     { name: 'Pharrell', img: '/images/agents/pharrell_final.png' },
                     { name: 'Ada', img: '/images/agents/ada_final.png' },
-                    { name: 'Johan', img: '/images/agents/johan_final.png' }
+                    { name: 'Johan', img: '/images/agents/johan_final.png', locked: plan.price === 0 }
                   ].map((agent) => (
                     <div key={agent.name} className="relative group/agent">
                       <img
                         src={agent.img}
                         alt={agent.name}
-                        className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white shadow-sm object-cover bg-slate-100"
+                        className={cn(
+                          "w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white shadow-sm object-cover bg-slate-100",
+                          agent.locked && "opacity-40 grayscale"
+                        )}
                       />
+                      {agent.locked && (
+                        <div className="absolute inset-0 flex items-center justify-center -translate-y-0.5">
+                          <span className="text-[10px]">🔒</span>
+                        </div>
+                      )}
                       <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover/agent:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
-                        {agent.name}
+                        {agent.name} {agent.locked && "(Plan Créateur)"}
                       </div>
                     </div>
                   ))}

@@ -206,7 +206,7 @@ export function LaunchMapStepper({
   const isFullPage = onlyPhaseContent || isAtelierPhase;
 
   return (
-    <div className={cn("w-full transition-all duration-500", !isFullPage ? "space-y-4 sm:space-y-6 max-w-4xl mx-auto px-1 sm:px-0" : "h-full flex flex-col")}>
+    <div className={cn("w-full transition-all duration-500", !isFullPage ? "space-y-4 sm:space-y-6 max-w-4xl mx-auto px-1 sm:px-0" : "flex-1 flex flex-col min-h-0")}>
       {!isFullPage && (
         <Card className="border border-black/[0.06] shadow-apple overflow-hidden bg-white rounded-[24px] sm:rounded-[28px]">
           <CardHeader className="bg-gradient-to-b from-[#F5F5F7]/50 to-white border-b border-black/[0.06] py-4 px-4 sm:py-5 sm:px-8">
@@ -268,8 +268,8 @@ export function LaunchMapStepper({
 
         <Card className={cn(
           "transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] overflow-hidden",
-          isTransitioning ? "opacity-0 translate-y-8 scale-[0.98] blur-[2px]" : "opacity-100 translate-y-0 scale-100 blur-0",
-          isFullPage ? "border-none shadow-none bg-transparent rounded-none flex-1 flex flex-col" : "border border-black/[0.06] shadow-apple bg-white rounded-[32px]"
+          isTransitioning ? "opacity-0 translate-y-8 scale-[0.98] blur-[2px]" : "opacity-100",
+          isFullPage ? "border-none shadow-none bg-transparent rounded-none flex-1 flex flex-col min-h-0" : "border border-black/[0.06] shadow-apple bg-white rounded-[32px] overflow-hidden"
         )}>
           {!isTransitioning && phaseToRender === 0 && (
             <Phase0Identity
@@ -320,6 +320,7 @@ export function LaunchMapStepper({
               shopifyShopDomain={launchMap?.shopifyShopDomain ?? null}
               siteCreationTodo={(launchMap?.siteCreationTodo as { steps: { id: string; label: string; done: boolean }[] } | null | undefined) ?? null}
               onComplete={() => handlePhaseComplete(5)}
+              userPlan={userPlan}
             />
           )}
         </Card>

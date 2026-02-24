@@ -155,7 +155,9 @@ export function AgentRevealCard({ agent, delay = 0, onReveal }: { agent: AgentPr
                                     {agent.role}
                                 </p>
                             </div>
-                            <div className="text-2xl font-black italic text-white opacity-20 mb-1">99</div>
+                            <div className="text-2xl font-black italic text-white opacity-20 mb-1">
+                                {Math.round(agent.stats.reduce((acc, s) => acc + s.value, 0) / agent.stats.length)}
+                            </div>
                         </div>
 
                         {/* Mini Stats Grid */}
@@ -226,49 +228,49 @@ export const AGENTS_TEAM: AgentProps[] = [
         image: '/images/agents/virgil_final.png',
         color: '#007AFF', // OUTFITY Blue
         stats: [
-            { label: 'Vision', value: 99 },
-            { label: 'Branding', value: 98 },
-            { label: 'Expertise', value: 95 },
-            { label: 'Conseil', value: 97 }
+            { label: 'Vision', value: 96 },
+            { label: 'Branding', value: 94 },
+            { label: 'Expertise', value: 92 },
+            { label: 'Conseil', value: 94 }
         ]
     },
     {
         id: 'pharrell',
         name: 'Pharrell',
-        role: 'Design',
+        role: 'Design & Mockups',
         image: '/images/agents/pharrell_final.png',
         color: '#a032ff',
         stats: [
-            { label: 'Créativité', value: 99 },
-            { label: 'Mockup', value: 97 },
-            { label: 'Style', value: 96 },
-            { label: 'Détail', value: 94 }
+            { label: 'Créativité', value: 92 },
+            { label: 'Style', value: 90 },
+            { label: 'Détail', value: 88 },
+            { label: 'Vitesse', value: 86 }
         ]
     },
     {
         id: 'ada',
         name: 'Ada',
-        role: 'Tendances & Data',
+        role: 'Sourcing & Collection',
         image: '/images/agents/ada_final.png',
         color: '#ff2a5f',
         stats: [
-            { label: 'Analytique', value: 98 },
-            { label: 'Marché', value: 99 },
-            { label: 'Vitesse', value: 95 },
-            { label: 'Predictive', value: 92 }
+            { label: 'Analytique', value: 95 },
+            { label: 'Usines', value: 94 },
+            { label: 'Sourcing', value: 92 },
+            { label: 'Qualité', value: 91 }
         ]
     },
     {
         id: 'johan',
         name: 'Johan',
-        role: 'Sourcing',
+        role: 'E-shop & Ventes',
         image: '/images/agents/johan_final.png',
         color: '#ffaa00',
         stats: [
-            { label: 'Réseau', value: 99 },
-            { label: 'Usines', value: 98 },
-            { label: 'Négociation', value: 96 },
-            { label: 'Qualité', value: 94 }
+            { label: 'Shopify', value: 86 },
+            { label: 'Conversion', value: 84 },
+            { label: 'Web Design', value: 82 },
+            { label: 'Support', value: 86 }
         ]
     }
 ];

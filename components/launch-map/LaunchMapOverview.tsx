@@ -375,7 +375,7 @@ export function LaunchMapOverview({
                   <div className="w-9 h-9 rounded-xl bg-[#007AFF] flex items-center justify-center">
                     <Sparkles className="w-4 h-4 text-white" />
                   </div>
-                  <p className="font-bold text-sm">Déverrouillez tout le parcours</p>
+                  <p className="font-bold text-sm text-white">Déverrouillez tout le parcours</p>
                   <p className="text-white/60 text-xs leading-relaxed">
                     Accédez aux phases Tech Pack, Sourcing et Boutique Shopify.
                   </p>

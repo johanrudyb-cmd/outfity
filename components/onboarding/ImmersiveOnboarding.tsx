@@ -684,10 +684,13 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                             </div>
 
                             <div className="w-full max-w-5xl px-4 sm:px-6">
-                                <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 justify-items-center">
-                                    {AGENTS_TEAM.map((agent) => (
+                                <div className={cn(
+                                    "grid gap-6 sm:gap-8 justify-items-center",
+                                    plan === 'free' ? "grid-cols-1 xs:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 xs:grid-cols-2 lg:grid-cols-4"
+                                )}>
+                                    {AGENTS_TEAM.filter(a => plan === 'creator' || a.id !== 'johan').map((agent, idx) => (
                                         <div key={agent.id} className="w-full flex justify-center">
-                                            <AgentRevealCard agent={agent} delay={0.2} />
+                                            <AgentRevealCard agent={agent} delay={idx * 0.1 + 0.2} />
                                         </div>
                                     ))}
                                 </div>

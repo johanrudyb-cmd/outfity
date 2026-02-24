@@ -35,9 +35,9 @@ const plans = [
     name: 'Starter',
     price: 'Gratuit',
     period: 'pour toujours',
-    description: 'Ton équipe d\'experts IA (Virgil, Pharrell, Ada, Johan) t\'accompagne.',
+    description: 'Ton équipe d\'experts IA (Virgil, Pharrell, Ada) t\'accompagne.',
     features: [
-      'Accès limité aux 4 agents IA',
+      'Accès limité à 3 agents IA',
       '5 designs par mois',
       '3 analyses de tendances',
       'Accès au Sourcing Hub',

@@ -249,6 +249,9 @@ export function Phase3SourcingChat({
         sendMessage(input, pendingImage?.file);
     };
 
+    const userMessagesCount = messages.filter(m => m.role === 'user').length;
+    const isFreeLimitReached = userPlan === 'free' && userMessagesCount >= 10;
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -316,7 +319,7 @@ export function Phase3SourcingChat({
             </div>
 
             {/* ── Messages Chat UI ── */}
-            <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 pb-4 stylish-scrollbar relative z-0 flex flex-col gap-3.5 sm:gap-4">
+            <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 pb-4 sm:pb-6 stylish-scrollbar relative z-0 flex flex-col gap-3.5 sm:gap-4">
                 {messages.map((msg) => {
                     const isUser = msg.role === 'user';
                     return (
@@ -372,96 +375,106 @@ export function Phase3SourcingChat({
             </div>
 
             {/* ── Input Box (Gemini-style) ── */}
-            <div className="shrink-0 pt-2 bg-[#F5F5F7] z-20 border-t border-black/[0.05] px-3 sm:px-6 pb-safe-bottom">
-
-                {/* Suggestion chips */}
-                {suggestions.length > 0 && !isTyping && (
-                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 pt-1 animate-in slide-in-from-bottom-2 duration-500">
-                        {suggestions.map(reply => (
-                            <button
-                                key={reply}
-                                onClick={() => {
-                                    sendMessage(reply);
-                                    setSuggestions([]);
-                                }}
-                                className="shrink-0 text-[12px] sm:text-[13px] font-bold text-[#007AFF] bg-white border border-[#007AFF]/15 hover:bg-blue-50 active:bg-blue-100 px-4 py-2.5 rounded-2xl transition-apple shadow-sm whitespace-nowrap"
-                            >
-                                {reply}
-                            </button>
-                        ))}
+            <div className="w-full shrink-0 pt-2 pb-safe-bottom bg-[#F5F5F7]/95 backdrop-blur z-20 border-t border-black/[0.05] px-3 sm:px-6">
+                {isFreeLimitReached ? (
+                    <div className="p-4 sm:p-5 flex flex-col items-center justify-center text-center space-y-3">
+                        <p className="text-[13px] sm:text-[14px] text-[#1D1D1F] font-medium leading-relaxed max-w-sm mx-auto">
+                            Tu as atteint ta limite de <b className="font-extrabold text-[#007AFF]">10 messages</b> offerts avec Ada.
+                        </p>
+                        <Link href="/auth/choose-plan" className="w-full max-w-sm shrink-0 rounded-[22px] bg-[#007AFF] hover:bg-[#0056CC] text-white flex items-center justify-center font-bold text-xs sm:text-sm h-11 transition-apple shadow-md active:scale-95">
+                            Débloquer Sourcing Pro
+                        </Link>
                     </div>
-                )}
+                ) : (
+                    <>
+                        {/* Suggestion chips */}
+                        {suggestions.length > 0 && !isTyping && (
+                            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 pt-1 animate-in slide-in-from-bottom-2 duration-500">
+                                {suggestions.map(reply => (
+                                    <button
+                                        key={reply}
+                                        onClick={() => {
+                                            sendMessage(reply);
+                                            setSuggestions([]);
+                                        }}
+                                        className="shrink-0 text-[12px] sm:text-[13px] font-bold text-[#007AFF] bg-white border border-[#007AFF]/15 hover:bg-blue-50 active:bg-blue-100 px-4 py-2.5 rounded-2xl transition-apple shadow-sm whitespace-nowrap"
+                                    >
+                                        {reply}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
 
-                {/* Tech pack image preview */}
-                {pendingImage && (
-                    <div className="flex items-center gap-2 mb-2 p-2 bg-white rounded-2xl border border-blue-500/20 shadow-sm animate-in slide-in-from-bottom-2 duration-300">
-                        <img
-                            src={pendingImage.preview}
-                            alt="Tech pack"
-                            className="w-12 h-12 rounded-xl object-cover border border-black/5"
-                        />
-                        <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-[#1D1D1F] truncate">Tech pack prêt</p>
-                            <p className="text-[10px] text-[#86868B]">Dior va l'analyser</p>
+                        {/* Tech pack image preview */}
+                        {pendingImage && (
+                            <div className="flex items-center gap-2 mb-2 p-2 bg-white rounded-2xl border border-blue-500/20 shadow-sm animate-in slide-in-from-bottom-2 duration-300">
+                                <img
+                                    src={pendingImage.preview}
+                                    alt="Tech pack"
+                                    className="w-12 h-12 rounded-xl object-cover border border-black/5"
+                                />
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-bold text-[#1D1D1F] truncate">Tech pack prêt</p>
+                                    <p className="text-[10px] text-[#86868B]">Ada va l'analyser</p>
+                                </div>
+                                <button
+                                    onClick={() => setPendingImage(null)}
+                                    className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors"
+                                >
+                                    <X className="w-4 h-4 text-[#86868B]" />
+                                </button>
+                            </div>
+                        )}
+
+                        <div>
+                            <form onSubmit={handleSubmit} className="relative flex items-end gap-2 bg-white border border-black/[0.08] rounded-[28px] shadow-apple-lg p-1.5 transition-all focus-within:ring-4 focus-within:ring-blue-500/10 focus-within:border-blue-500/30 z-30">
+                                <div className="flex items-center pl-2">
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept="image/*,.pdf"
+                                        className="hidden"
+                                        onChange={handleFileChange}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5 transition-apple active:scale-95 text-[#86868B]"
+                                        title="Envoyer ton tech pack"
+                                    >
+                                        <Paperclip className="w-5 h-5" />
+                                    </button>
+                                </div>
+                                <textarea
+                                    ref={inputRef}
+                                    value={input}
+                                    onChange={e => {
+                                        setInput(e.target.value);
+                                        e.target.style.height = 'auto';
+                                        e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+                                    }}
+                                    onKeyDown={e => {
+                                        if (e.key === 'Enter' && !e.shiftKey) {
+                                            e.preventDefault();
+                                            if ((input.trim() || pendingImage) && !isTyping) sendMessage(input, pendingImage?.file);
+                                        }
+                                    }}
+                                    placeholder="Écrire à Ada..."
+                                    className="flex-1 bg-transparent max-h-[120px] min-h-[44px] px-2 py-3 text-[15px] sm:text-[16px] text-[#1D1D1F] placeholder:text-[#86868B] focus:outline-none resize-none leading-relaxed"
+                                    disabled={isTyping}
+                                    rows={1}
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={isTyping || (!input.trim() && !pendingImage)}
+                                    className="w-11 h-11 shrink-0 rounded-[22px] bg-[#007AFF] hover:bg-[#0056CC] disabled:opacity-30 disabled:hover:bg-[#007AFF] text-white flex items-center justify-center transition-apple m-0.5 shadow-md active:scale-95"
+                                >
+                                    {isTyping ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 ml-0.5" />}
+                                </button>
+                            </form>
                         </div>
-                        <button
-                            onClick={() => setPendingImage(null)}
-                            className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors"
-                        >
-                            <X className="w-4 h-4 text-[#86868B]" />
-                        </button>
-                    </div>
+                    </>
                 )}
-
-                <div className="pb-3 sm:pb-6">
-                    <form onSubmit={handleSubmit} className="relative flex items-end gap-2 bg-white border border-black/[0.08] rounded-[28px] shadow-apple-lg p-1.5 transition-all focus-within:ring-4 focus-within:ring-blue-500/10 focus-within:border-blue-500/30 z-30">
-
-                        <div className="flex items-center pl-2">
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept="image/*,.pdf"
-                                className="hidden"
-                                onChange={handleFileChange}
-                            />
-                            <button
-                                type="button"
-                                onClick={() => fileInputRef.current?.click()}
-                                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5 transition-apple active:scale-95 text-[#86868B]"
-                                title="Envoyer ton tech pack"
-                            >
-                                <Paperclip className="w-5 h-5" />
-                            </button>
-                        </div>
-
-                        <textarea
-                            ref={inputRef}
-                            value={input}
-                            onChange={e => {
-                                setInput(e.target.value);
-                                e.target.style.height = 'auto';
-                                e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
-                            }}
-                            onKeyDown={e => {
-                                if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault();
-                                    if ((input.trim() || pendingImage) && !isTyping) sendMessage(input, pendingImage?.file);
-                                }
-                            }}
-                            placeholder="Parler à Dior..."
-                            className="flex-1 bg-transparent max-h-[120px] min-h-[44px] px-2 py-3 text-[15px] sm:text-[16px] text-[#1D1D1F] placeholder:text-[#86868B] focus:outline-none resize-none leading-relaxed"
-                            disabled={isTyping}
-                            rows={1}
-                        />
-                        <button
-                            type="submit"
-                            disabled={isTyping || (!input.trim() && !pendingImage)}
-                            className="w-11 h-11 shrink-0 rounded-[22px] bg-[#007AFF] hover:bg-[#0056CC] disabled:opacity-30 disabled:hover:bg-[#007AFF] text-white flex items-center justify-center transition-apple m-0.5 shadow-md active:scale-95"
-                        >
-                            {isTyping ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 ml-0.5" />}
-                        </button>
-                    </form>
-                </div>
             </div>
 
             <style dangerouslySetInnerHTML={{
