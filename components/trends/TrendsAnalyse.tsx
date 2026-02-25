@@ -153,6 +153,6 @@ export function TrendsAnalyse({ userId }: TrendsAnalyseProps) {
         Les analyses et prédictions de tendances sont basées sur des algorithmes de données et constituent un outil d'aide à la décision. <br />
         Elles ne garantissent pas les ventes futures ni le succès commercial.
       </p>
-    </div >
+    </div>
   );
 }

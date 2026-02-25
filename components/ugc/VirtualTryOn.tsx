@@ -595,6 +595,6 @@ export function VirtualTryOn({ brandId, designs, onSelectImage }: VirtualTryOnPr
         </Card>
       )
       }
-    </div >
+    </div>
   );
 }

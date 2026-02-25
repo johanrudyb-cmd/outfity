@@ -501,6 +501,6 @@ export function ScriptGenerator({ brandId, brandName }: ScriptGeneratorProps) {
         </>
       )
       }
-    </div >
+    </div>
   );
 }
