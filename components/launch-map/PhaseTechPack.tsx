@@ -603,10 +603,10 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(380px,480px)_1fr] gap-0 lg:flex-1 lg:min-h-0 lg:overflow-hidden">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(380px,480px)_1fr] gap-0 xl:flex-1 xl:min-h-0 xl:overflow-hidden">
         <div className={cn(
-          "border-b lg:border-b-0 lg:border-r border-border overflow-y-auto p-4 lg:p-6 space-y-6 bg-background lg:min-h-0",
-          mobileTab !== 'form' && "hidden lg:block"
+          "border-b xl:border-b-0 xl:border-r border-border overflow-y-auto p-4 xl:p-6 space-y-6 bg-background xl:min-h-0",
+          mobileTab !== 'form' && "hidden xl:block"
         )}>
           <div>
             <h2 className="text-lg font-semibold mb-1">{isEditMode ? 'Modifier le tech pack' : 'Remplir le tech pack'}</h2>
@@ -894,8 +894,8 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
 
         {/* Droite : tech pack en direct — reste visible pendant le défilement du formulaire */}
         <div className={cn(
-          "p-4 lg:p-6 bg-muted/30 overflow-y-auto lg:min-h-0",
-          mobileTab !== 'preview' && "hidden lg:block"
+          "p-4 xl:p-6 bg-muted/30 overflow-y-auto xl:min-h-0",
+          mobileTab !== 'preview' && "hidden xl:block"
         )}>
           <div className="rounded-lg overflow-hidden border-2 border-border bg-stone-100 shadow-lg">
             <TechPackSheet

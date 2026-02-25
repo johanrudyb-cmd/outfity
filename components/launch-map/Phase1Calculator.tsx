@@ -249,10 +249,10 @@ export function Phase1Calculator({ brandId, brand, initialData, onComplete }: an
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
 
       {/* ── COLONNE GAUCHE (7/12) : CONFIGURATION ── */}
-      <div className="lg:col-span-7 space-y-6">
+      <div className="xl:col-span-7 space-y-6">
 
         {/* SECTION 1 : SIMULATEUR */}
         <div className="bg-white rounded-[32px] border border-black/[0.06] shadow-apple overflow-hidden">
@@ -368,7 +368,7 @@ export function Phase1Calculator({ brandId, brand, initialData, onComplete }: an
       </div>
 
       {/* ── COLONNE DROITE (5/12) : RÉSULTATS & ANALYSE ── */}
-      <div className="lg:col-span-5 lg:sticky lg:top-8 space-y-6">
+      <div className="xl:col-span-5 xl:sticky xl:top-8 space-y-6">
 
         <div className="bg-white rounded-[32px] border border-black/[0.08] shadow-2xl overflow-hidden">
           <div className="px-8 py-5 border-b border-black/5 bg-[#1D1D1F] text-white flex items-center justify-between">

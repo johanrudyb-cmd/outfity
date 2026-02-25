@@ -586,17 +586,6 @@ export function VisualTrendScanner() {
                                         </div>
                                     </div>
 
-                                    {isFree ? (
-                                        <Link href="/auth/choose-plan">
-                                            <Button className="mt-8 w-full h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 font-black uppercase tracking-widest text-xs shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2">
-                                                DEBLOQUER LE PLAN CRÉATEUR <Zap className="w-4 h-4 fill-white" />
-                                            </Button>
-                                        </Link>
-                                    ) : (
-                                        <Button className="mt-8 w-full h-14 rounded-2xl bg-[#1D1D1F] text-white hover:bg-black font-black uppercase tracking-widest text-xs shadow-xl shadow-black/10 flex items-center justify-center gap-2">
-                                            LANCER LA PRODUCTION <ArrowRight className="w-4 h-4" />
-                                        </Button>
-                                    )}
                                 </div>
                             </div>
                         </div>

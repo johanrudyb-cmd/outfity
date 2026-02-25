@@ -313,7 +313,7 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
 
       {/* Immersive Stage - Light & Airy */}
       <div className="flex-1 w-full max-w-6xl px-4 sm:px-6 lg:px-8 flex flex-col z-20 py-6 sm:py-8 lg:py-12">
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 lg:gap-20 items-center">
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 lg:gap-12 xl:gap-20 items-center">
 
           {/* Left Side: Context & Philosophy */}
           <div className="space-y-6 sm:space-y-10 animate-in fade-in slide-in-from-left-8 duration-1000">
@@ -323,8 +323,8 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
               </div>
             </div>
             <div className="space-y-3 sm:space-y-4">
-              <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight leading-[1] text-[#1D1D1F] break-words">{currentStep.title}</h3>
-              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#86868B] max-w-md font-medium leading-relaxed">{currentStep.subtitle}</p>
+              <h3 className="text-3xl sm:text-4xl md:text-5xl xl:text-7xl font-bold tracking-tight leading-[1] text-[#1D1D1F] break-words">{currentStep.title}</h3>
+              <p className="text-base sm:text-lg md:text-xl xl:text-2xl text-[#86868B] max-w-md font-medium leading-relaxed">{currentStep.subtitle}</p>
             </div>
 
             <div className="pt-6 sm:pt-10 border-t border-black/5 grid grid-cols-2 gap-4 sm:gap-8">
@@ -340,7 +340,7 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
           </div>
 
           {/* Right Side: High-End Interactive Workspace */}
-          <div className="relative min-h-[260px] sm:min-h-[350px] md:min-h-[380px] lg:min-h-[450px] flex flex-col justify-center">
+          <div className="relative min-h-[260px] sm:min-h-[350px] md:min-h-[380px] xl:min-h-[450px] flex flex-col justify-center">
             <div className="max-w-xl w-full mx-auto">
 
               {currentStep.id === 'name' && (
@@ -350,7 +350,7 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
                     onChange={(e) => { setName(e.target.value); setError(''); }}
                     placeholder="Écrivez ici..."
                     autoFocus
-                    className="w-full bg-transparent border-none text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-[#1D1D1F] placeholder:text-black/10 focus:outline-none focus:ring-0 transition-all caret-[#007AFF] text-right uppercase tracking-tighter"
+                    className="w-full bg-transparent border-none text-3xl sm:text-5xl md:text-6xl xl:text-7xl font-bold text-[#1D1D1F] placeholder:text-black/10 focus:outline-none focus:ring-0 transition-all caret-[#007AFF] text-right uppercase tracking-tighter"
                   />
                   <div className="h-1.5 w-full bg-black/5 mt-4 sm:mt-6 relative overflow-hidden rounded-full">
                     <div className={cn("absolute inset-0 bg-[#007AFF] transition-all duration-1000", name.length >= 2 ? "translate-x-0" : "-translate-x-full")} />
@@ -396,7 +396,7 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
                     value={story}
                     onChange={(e) => setStory(e.target.value)}
                     placeholder="Racontez-nous votre vision..."
-                    className="w-full bg-white/80 backdrop-blur-2xl border border-black/5 focus:border-[#007AFF]/30 focus:ring-0 rounded-[32px] sm:rounded-[48px] text-lg sm:text-2xl text-[#1D1D1F] p-8 sm:p-12 min-h-[300px] sm:min-h-[350px] placeholder:text-black/10 shadow-2xl transition-all resize-none leading-relaxed"
+                    className="w-full bg-white/80 backdrop-blur-2xl border border-black/5 focus:border-[#007AFF]/30 focus:ring-0 rounded-[32px] sm:rounded-[48px] text-lg sm:text-xl xl:text-2xl text-[#1D1D1F] p-8 sm:p-12 min-h-[250px] sm:min-h-[300px] xl:min-h-[350px] placeholder:text-black/10 shadow-2xl transition-all resize-none leading-relaxed"
                   />
                 </div>
               )}

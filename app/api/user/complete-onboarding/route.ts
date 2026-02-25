@@ -74,11 +74,21 @@ export async function POST(request: Request) {
         }
 
         // 2. Marquer l'onboarding comme complété
+        const dbUser = await prisma.user.findUnique({ where: { id: authUser.id }, select: { plan: true } });
+        const currentPlan = dbUser?.plan || authUser.plan;
+
+        // Seule l'évolution vers 'starter' est autorisée par cette route (onboarding). 
+        // Le passage à 'creator' se fait exclusivement via les webhooks Stripe.
+        let targetPlan = currentPlan;
+        if (currentPlan === 'free') {
+            targetPlan = 'starter';
+        }
+
         await prisma.user.update({
             where: { id: authUser.id },
             data: {
                 onboardingCompleted: true,
-                plan: (plan === 'creator' || plan === 'starter') ? plan : authUser.plan,
+                plan: targetPlan,
                 onboardingData: {
                     universe,
                     universeId,

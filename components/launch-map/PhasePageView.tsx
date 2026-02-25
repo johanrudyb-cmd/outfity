@@ -192,19 +192,19 @@ export function PhasePageView({
                 <div className={cn("absolute top-[-10%] left-[-5%] w-[80%] h-[60%] rounded-full blur-[100px] sm:blur-[160px] opacity-10 sm:opacity-20 animate-pulse", currentColor.bg)} />
               </div>
 
-              <div className="w-full max-w-7xl mx-auto px-4 sm:px-12 py-6 sm:py-12 lg:py-24 relative z-10">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-20 items-start">
+              <div className="w-full max-w-7xl mx-auto px-4 sm:px-12 py-6 sm:py-12 xl:py-24 relative z-10">
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-12 xl:gap-20 items-start">
 
                   {/* Left Side: Editorial Context */}
-                  <div className="lg:col-span-5 space-y-4 sm:space-y-10">
-                    <div className={cn("w-12 h-12 sm:w-20 sm:h-20 rounded-xl sm:rounded-[28px] flex items-center justify-center shadow-lg text-white mx-auto lg:mx-0", currentColor.bg, currentColor.text)}>
+                  <div className="xl:col-span-5 space-y-4 sm:space-y-10">
+                    <div className={cn("w-12 h-12 sm:w-20 sm:h-20 rounded-xl sm:rounded-[28px] flex items-center justify-center shadow-lg text-white mx-auto xl:mx-0", currentColor.bg, currentColor.text)}>
                       <PhaseIcon size={24} className="sm:hidden" />
                       <PhaseIcon size={36} className="hidden sm:block" />
                     </div>
-                    <div className="space-y-1 sm:space-y-4 text-center lg:text-left">
+                    <div className="space-y-1 sm:space-y-4 text-center xl:text-left">
                       <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF]">Manifeste de Phase</p>
-                      <h2 className="text-2xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-[#1D1D1F] leading-tight">{phase.title}</h2>
-                      <p className="text-[13px] sm:text-xl lg:text-2xl text-[#86868B] font-medium leading-relaxed max-w-md mx-auto lg:mx-0">Vos choix stratégiques sont maintenant scellés dans l&apos;ADN de votre marque.</p>
+                      <h2 className="text-2xl sm:text-5xl xl:text-7xl font-bold tracking-tight text-[#1D1D1F] leading-tight">{phase.title}</h2>
+                      <p className="text-[13px] sm:text-xl xl:text-2xl text-[#86868B] font-medium leading-relaxed max-w-md mx-auto xl:mx-0">Vos choix stratégiques sont maintenant scellés dans l&apos;ADN de votre marque.</p>
                     </div>
 
                     {/* Dynamic Info Cards */}
@@ -233,7 +233,7 @@ export function PhasePageView({
                   </div>
 
                   {/* Right Side: Bento Summaries */}
-                  <div className="lg:col-span-7">
+                  <div className="xl:col-span-7">
                     <div className="bg-white/70 backdrop-blur-2xl border border-black/5 shadow-apple-2xl rounded-[24px] sm:rounded-[48px] p-5 sm:p-16">
                       <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF] mb-6 sm:mb-12 text-center">Sommaire des Décisions</p>
                       <PhaseRecap

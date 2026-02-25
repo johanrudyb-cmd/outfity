@@ -533,9 +533,9 @@ export function ContentCalendarView({
     <div className="space-y-6">
       <GenerationLoadingPopup open={generatePostsLoading} title="Génération des posts…" />
       <GenerationLoadingPopup open={generateStructuredLoading} title="Génération du post structuré…" />
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6 items-start">
         {/* Colonne gauche : contenu, formulaires, liste */}
-        <div className="space-y-6 order-2 lg:order-1">
+        <div className="space-y-6 order-2 xl:order-1">
           {/* Créer des posts depuis la stratégie de contenu */}
           {allPhasesDone && (
             <div className="bg-[#007AFF]/5 rounded-[24px] sm:rounded-[32px] border border-[#007AFF]/10 p-5 sm:p-8">
@@ -991,8 +991,8 @@ export function ContentCalendarView({
         </div>
 
         {/* Colonne droite : calendrier avec stick */}
-        <div className="order-1 lg:order-2 lg:sticky lg:top-[120px]">
-          <div className="bg-white rounded-[24px] sm:rounded-[32px] border border-black/[0.06] shadow-apple p-5 sm:p-6 mb-8 lg:mb-0">
+        <div className="order-1 xl:order-2 xl:sticky xl:top-[120px]">
+          <div className="bg-white rounded-[24px] sm:rounded-[32px] border border-black/[0.06] shadow-apple p-5 sm:p-6 mb-8 xl:mb-0">
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-[17px] font-bold text-[#1D1D1F] flex items-center gap-2 capitalize">
                 <CalendarIcon className="w-[18px] h-[18px] text-[#007AFF]" />

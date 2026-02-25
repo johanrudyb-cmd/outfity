@@ -89,26 +89,26 @@ export function LaunchMapNav({
           <Link
             href="/launch-map"
             className={cn(
-              'flex flex-col lg:flex-row items-center justify-center lg:justify-start gap-1 lg:gap-2 px-1 py-2 lg:px-3 lg:py-2 rounded-lg text-[10px] lg:text-sm font-semibold transition-all duration-200 flex-shrink-0',
+              'flex flex-col xl:flex-row items-center justify-center xl:justify-start gap-1 xl:gap-2 px-1 py-2 xl:px-3 xl:py-2 rounded-lg text-[10px] xl:text-sm font-semibold transition-all duration-200 flex-shrink-0',
               isOverview ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
             )}
           >
-            <BarChart3 className="w-4 h-4 lg:w-4 lg:h-4" />
-            <span className="text-center lg:text-left leading-tight">Vue</span>
+            <BarChart3 className="w-4 h-4 xl:w-4 xl:h-4" />
+            <span className="text-center xl:text-left leading-tight">Vue</span>
           </Link>
 
           <Link
             href="/launch-map/calendar"
             className={cn(
-              'flex flex-col lg:flex-row items-center justify-center lg:justify-start gap-1 lg:gap-2 px-1 py-2 lg:px-3 lg:py-2 rounded-lg text-[10px] lg:text-sm font-semibold transition-all duration-200 flex-shrink-0',
+              'flex flex-col xl:flex-row items-center justify-center xl:justify-start gap-1 xl:gap-2 px-1 py-2 xl:px-3 xl:py-2 rounded-lg text-[10px] xl:text-sm font-semibold transition-all duration-200 flex-shrink-0',
               pathname === '/launch-map/calendar' || pathname.startsWith('/launch-map/calendar/')
                 ? 'bg-primary text-primary-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted'
             )}
             title="Planifier tournages et posts"
           >
-            <Calendar className="w-4 h-4 lg:w-4 lg:h-4" />
-            <span className="text-center lg:text-left leading-tight">Calendrier</span>
+            <Calendar className="w-4 h-4 xl:w-4 xl:h-4" />
+            <span className="text-center xl:text-left leading-tight">Calendrier</span>
           </Link>
 
           {LAUNCH_MAP_PHASES.map((p: any) => {
@@ -138,20 +138,20 @@ export function LaunchMapNav({
                 href={accessible ? href : '#'}
                 onClick={(e) => !accessible && e.preventDefault()}
                 className={cn(
-                  'flex flex-col lg:flex-row items-center justify-center lg:justify-start gap-1 lg:gap-2 px-1 py-2 lg:px-3 lg:py-2 rounded-lg text-[10px] lg:text-sm font-semibold transition-all duration-200 flex-shrink-0 relative',
+                  'flex flex-col xl:flex-row items-center justify-center xl:justify-start gap-1 xl:gap-2 px-1 py-2 xl:px-3 xl:py-2 rounded-lg text-[10px] xl:text-sm font-semibold transition-all duration-200 flex-shrink-0 relative',
                   isActive ? 'bg-primary text-primary-foreground shadow-sm' : accessible ? 'text-muted-foreground hover:text-foreground hover:bg-muted' : 'text-muted-foreground/50 cursor-not-allowed pointer-events-none'
                 )}
                 title={p.subtitle}
               >
                 <div className="relative">
-                  <Icon className="w-4 h-4 lg:w-4 lg:h-4" />
+                  <Icon className="w-4 h-4 xl:w-4 xl:h-4" />
                   {completed && (
                     <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-card flex items-center justify-center">
                       <CheckCircle2 className="w-full h-full text-white" />
                     </div>
                   )}
                 </div>
-                <span className="text-center lg:text-left leading-tight">{shortTitle}</span>
+                <span className="text-center xl:text-left leading-tight">{shortTitle}</span>
               </Link>
             );
           })}

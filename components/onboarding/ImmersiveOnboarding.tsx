@@ -129,10 +129,15 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
     const stepIndex = STEP_ORDER.indexOf(step);
 
     useEffect(() => {
-        const p = searchParams.get('plan');
-        if (p === 'creator') setPlan('creator');
-        else setPlan('starter');
-    }, [searchParams]);
+        if (searchParams.get('subscribed') === 'true') {
+            setPlan('creator');
+        } else if (searchParams.get('plan')) {
+            const p = searchParams.get('plan');
+            setPlan(p === 'creator' ? 'creator' : 'starter');
+        } else {
+            setPlan(initialPlan === 'creator' ? 'creator' : 'starter');
+        }
+    }, [searchParams, initialPlan]);
 
     const goNext = useCallback(() => {
         const nextIdx = stepIndex + 1;

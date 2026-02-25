@@ -648,7 +648,7 @@ export function StrategyPresentationView({
           <header className="sticky top-0 z-40 -mx-4 sm:-mx-6 lg:-mx-12 -mt-8 sm:-mt-12 lg:-mt-16 px-4 sm:px-6 lg:px-12 pt-8 sm:pt-12 lg:pt-16 pb-6 mb-8 backdrop-blur-xl bg-white/80 border-b border-black/5">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
               <div className="min-w-0 w-full">
-                <h1 className="text-2xl sm:text-3xl lg:text-5xl font-semibold tracking-tight text-[#1D1D1F] mb-2 break-words">
+                <h1 className="text-2xl sm:text-3xl xl:text-5xl font-semibold tracking-tight text-[#1D1D1F] mb-2 break-words">
                   {titleMode === 'analysis'
                     ? `Analyse · ${brandName || 'Marque de référence'}`
                     : isTemplateView
@@ -915,7 +915,7 @@ export function StrategyPresentationView({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-stretch">
                   <div className="rounded-[40px] bg-white shadow-apple p-8 flex flex-col justify-center border border-black/[0.03]">
                     <div className="w-full min-w-0">
                       {schematic || (

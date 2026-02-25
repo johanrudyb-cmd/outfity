@@ -257,8 +257,8 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
                 <Sparkles className="w-8 h-8 sm:w-10 sm:h-10" />
               </div>
               <div className="space-y-4">
-                <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">L&apos;Emblème.</h3>
-                <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#86868B] max-w-md font-medium leading-relaxed">
+                <h3 className="text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-bold tracking-tight leading-[1.1]">L&apos;Emblème.</h3>
+                <p className="text-base sm:text-lg md:text-xl xl:text-2xl text-[#86868B] max-w-md font-medium leading-relaxed">
                   La synthèse visuelle de votre stratégie inspirée par <span className="text-[#1D1D1F]">{inspirationName}</span>.
                 </p>
               </div>
@@ -371,7 +371,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
 
       {/* Main Stage */}
       <div className="flex-1 w-full max-w-6xl px-4 sm:px-6 lg:px-8 flex flex-col z-20 py-4 sm:py-6 lg:py-8">
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 lg:gap-20 items-center">
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 lg:gap-12 xl:gap-20 items-center">
 
           {/* Left Side: Context */}
           <div className="space-y-6 md:space-y-8 lg:space-y-10 animate-in fade-in slide-in-from-left-8 duration-1000">
@@ -381,13 +381,13 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
               </div>
             </div>
             <div className="space-y-4">
-              <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] text-[#1D1D1F]">{currentStep.title}</h3>
-              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#86868B] max-w-md font-medium leading-relaxed">{currentStep.subtitle}</p>
+              <h3 className="text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-bold tracking-tight leading-[1.1] text-[#1D1D1F]">{currentStep.title}</h3>
+              <p className="text-base sm:text-lg md:text-xl xl:text-2xl text-[#86868B] max-w-md font-medium leading-relaxed">{currentStep.subtitle}</p>
             </div>
           </div>
 
           {/* Right Side: Interaction */}
-          <div className="relative min-h-[280px] sm:min-h-[360px] md:min-h-[400px] lg:min-h-[450px] flex flex-col justify-center">
+          <div className="relative min-h-[280px] sm:min-h-[360px] md:min-h-[400px] xl:min-h-[450px] flex flex-col justify-center">
             <div className="max-w-xl w-full mx-auto">
 
               {currentStep.id === 'positioning' && (

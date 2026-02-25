@@ -235,16 +235,14 @@ export function StyleTradingDashboard({ data }: { data: StyleDetailProps }) {
                                 <span className="text-gray-500">Marge Brute Est.</span>
                                 <span className="text-green-400 font-mono">{(selectedAsset.averagePrice * 0.65).toFixed(2)} €</span>
                             </div>
-
-                            <Link href="/production/start" className="w-full py-4 bg-white text-black rounded font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors shadow-lg shadow-white/10">
-                                Lancer Prod <ArrowRight className="w-3 h-3" />
-                            </Link>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
+
+            </div >
+        </div >
     );
 }
 

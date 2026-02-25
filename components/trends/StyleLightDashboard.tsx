@@ -364,16 +364,7 @@ export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
                                 </div>
                             )}
 
-                            <div className="mt-auto space-y-2 w-full">
-                                {futureScore > 45 ? (
-                                    <Link href="/production/start" className={cn("w-full py-3 rounded-xl text-white shadow-lg text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all hover:scale-[1.02]", futureScore > 60 ? "bg-[#007AFF] shadow-blue-500/30 hover:bg-blue-600" : "bg-orange-500 shadow-orange-500/30 hover:bg-orange-600")}>
-                                        Lancer la Production <ArrowRight className="w-3 h-3" />
-                                    </Link>
-                                ) : (
-                                    <button disabled className="w-full py-3 rounded-xl bg-gray-100 text-gray-400 cursor-not-allowed text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2">
-                                        Production Déconseillée <ArrowRight className="w-3 h-3" />
-                                    </button>
-                                )}
+                            <div className="mt-auto w-full">
                             </div>
                         </div>
                     </div>
