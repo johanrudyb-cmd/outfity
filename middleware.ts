@@ -22,7 +22,8 @@ export default auth(async (req) => {
     '/settings',
     '/usage',
     '/hub',
-    '/academy'
+    '/academy',
+    '/welcome-creator',
   ].some(route => nextUrl.pathname.startsWith(route));
 
   // 1. Pages publiques ou API => laisser passer

@@ -6,12 +6,13 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Crown, X, Sparkles } from 'lucide-react';
 
 /**
- * Composant invisible (sauf Toast).
- * Si l'URL contient ?upgraded=true (retour après paiement Stripe),
- * on force le refresh JWT et on affiche une bannière de confirmation.
+ * Composant invisible (sauf Toast si onboarding déjà fait).
+ * Détecte le retour de Stripe (?upgraded=true) :
+ * - Refresh le JWT session → plan = 'creator'
+ * - Redirige vers /welcome-creator (page immersive d'activation)
  */
 export function UpgradeSessionRefresh() {
-    const { update } = useSession();
+    const { update, data: session } = useSession();
     const router = useRouter();
     const searchParams = useSearchParams();
     const [showToast, setShowToast] = useState(false);
@@ -19,18 +20,19 @@ export function UpgradeSessionRefresh() {
     useEffect(() => {
         if (searchParams.get('upgraded') !== 'true') return;
 
-        // Refresh la session NextAuth pour relire le plan depuis la DB
+        // Retire le param de l'URL immédiatement
+        const url = new URL(window.location.href);
+        url.searchParams.delete('upgraded');
+        router.replace(url.pathname + (url.search || ''));
+
+        // Refresh la session NextAuth pour obtenir plan='creator'
         update({ plan: 'creator' }).then(() => {
-            // Retire le paramètre ?upgraded=true de l'URL sans recharger
-            const url = new URL(window.location.href);
-            url.searchParams.delete('upgraded');
-            router.replace(url.pathname + (url.search || ''));
-            // Affiche le toast de confirmation
-            setShowToast(true);
-            setTimeout(() => setShowToast(false), 6000);
+            // Redirige vers la page de bienvenue Creator
+            router.push('/welcome-creator');
         });
     }, [searchParams, update, router]);
 
+    // Toast fallback (si la page welcome-creator échoue, ou usage direct)
     if (!showToast) return null;
 
     return (
@@ -40,12 +42,9 @@ export function UpgradeSessionRefresh() {
             aria-live="polite"
         >
             <div className="flex items-center gap-4 bg-[#1D1D1F] text-white px-6 py-4 rounded-2xl shadow-2xl shadow-black/30 max-w-sm w-[calc(100vw-2rem)]">
-                {/* Icône */}
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#007AFF] to-[#5AC8FA] flex items-center justify-center flex-shrink-0 shadow-lg">
                     <Crown className="w-5 h-5 text-white" />
                 </div>
-
-                {/* Texte */}
                 <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold flex items-center gap-1.5">
                         Plan Créateur activé <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
@@ -54,8 +53,6 @@ export function UpgradeSessionRefresh() {
                         Toutes les fonctionnalités sont débloquées. Bienvenue dans l&apos;équipe !
                     </p>
                 </div>
-
-                {/* Fermer */}
                 <button
                     onClick={() => setShowToast(false)}
                     className="flex-shrink-0 w-7 h-7 rounded-lg hover:bg-white/10 flex items-center justify-center transition-colors"
@@ -64,21 +61,6 @@ export function UpgradeSessionRefresh() {
                     <X className="w-4 h-4 text-white/50" />
                 </button>
             </div>
-
-            {/* Barre de progression */}
-            <div className="mt-1.5 mx-1 h-0.5 bg-white/10 rounded-full overflow-hidden">
-                <div
-                    className="h-full bg-[#007AFF] rounded-full"
-                    style={{ animation: 'toast-progress 6s linear forwards' }}
-                />
-            </div>
-
-            <style>{`
-        @keyframes toast-progress {
-          from { width: 100%; }
-          to { width: 0%; }
-        }
-      `}</style>
         </div>
     );
 }
