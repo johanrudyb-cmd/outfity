@@ -8,6 +8,7 @@ import {
     Check, Loader2, CheckCircle2, Crown, Star, TrendingUp, Clock, Rocket
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useSession } from 'next-auth/react';
 
 // ─────────────────────────────────────────────────────────────
 // Types & constants
@@ -114,6 +115,7 @@ interface ImmersiveOnboardingProps {
 export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { update } = useSession();
     const [step, setStep] = useState<Step>('welcome');
     const [plan, setPlan] = useState(initialPlan || 'starter');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -165,6 +167,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                 const json = await res.json();
                 throw new Error(json.error || 'Erreur lors de la sauvegarde');
             }
+            await update();
             setStep('launch');
         } catch (err) {
             console.error(err);
