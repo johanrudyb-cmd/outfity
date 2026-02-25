@@ -167,7 +167,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                 const json = await res.json();
                 throw new Error(json.error || 'Erreur lors de la sauvegarde');
             }
-            await update();
+            await update({ plan: plan === 'starter' ? 'starter' : plan });
             setStep('launch');
         } catch (err) {
             console.error(err);
