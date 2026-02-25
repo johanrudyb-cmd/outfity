@@ -224,7 +224,7 @@ export function LaunchMapOverview({
             <div>
               <p className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest mb-4 px-1">Toutes les phases</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {LAUNCH_MAP_PHASES.map((p) => {
+                {LAUNCH_MAP_PHASES.map((p, index) => {
                   const Icon = PHASE_ICONS[p.id] ?? Palette;
                   const done = phaseProgress[`phase${p.id}`];
                   const locked = isLocked(p.id);
@@ -257,6 +257,7 @@ export function LaunchMapOverview({
 
                       {/* Phase info */}
                       <div className="flex-1 min-w-0">
+                        <p className="text-[9px] font-black text-[#86868B] uppercase tracking-widest mb-0.5">Étape {index + 1}</p>
                         <p className={cn(
                           "font-bold text-sm leading-tight flex items-center gap-2",
                           done ? "text-[#007AFF]" : "text-[#1D1D1F]"

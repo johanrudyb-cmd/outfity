@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, ArrowLeft, Loader2, ArrowRight, ExternalLink, Check, Paperclip, X, Image as ImageIcon } from 'lucide-react';
+import { Send, ArrowLeft, Loader2, ArrowRight, ExternalLink, Check, Paperclip, X, Image as ImageIcon, Sparkles, MessageCircle, Factory, Globe } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -320,60 +320,113 @@ export function Phase3SourcingChat({
             </div>
 
             {/* ── Messages Chat UI ── */}
-            <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 pb-4 sm:pb-6 stylish-scrollbar relative z-0 flex flex-col gap-3.5 sm:gap-4">
-                {messages.map((msg) => {
-                    const isUser = msg.role === 'user';
-                    return (
-                        <div key={msg.id} className={cn("flex items-end gap-1.5 sm:gap-2 max-w-[98%] sm:max-w-[95%] md:max-w-[90%] lg:max-w-[85%] group", isUser ? 'self-end flex-row-reverse' : 'self-start')}>
-                            {!isUser && (
-                                <img
-                                    src="/images/agents/ada_final.png"
-                                    alt="Ada"
-                                    className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5 mb-0.5"
-                                />
-                            )}
-                            <div
-                                className={cn(
-                                    "px-3.5 py-2 sm:px-4 sm:py-3 rounded-[18px] sm:rounded-[24px] text-[14px] sm:text-[15px] leading-relaxed shadow-sm break-words relative transition-apple",
-                                    isUser
-                                        ? "bg-[#007AFF] text-white rounded-br-[4px] sm:rounded-br-[8px]"
-                                        : "bg-white text-[#1D1D1F] border border-black/[0.05] rounded-bl-[4px] sm:rounded-bl-[8px]"
-                                )}
-                            >
-                                <div className="max-w-none">
-                                    <MessageContent content={msg.content} isUser={isUser} brandId={brandId} />
-                                </div>
-                                <div className={cn(
-                                    "absolute -bottom-5 text-[10px] text-[#86868B] font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap",
-                                    isUser ? "right-1" : "left-1"
-                                )}>
-                                    {msg.timestamp instanceof Date
-                                        ? msg.timestamp.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-                                        : new Date(msg.timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                                </div>
-                            </div>
-                        </div>
-                    );
-                })}
-
-                {isTyping && (
-                    <div className="flex items-end gap-2 self-start max-w-[85%] sm:max-w-[75%]">
-                        <img
-                            src="/images/agents/ada_final.png"
-                            alt="Ada"
-                            className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5 mb-0.5"
-                        />
-                        <div className="px-3 py-2 sm:px-4 sm:py-3 rounded-[18px] sm:rounded-[24px] rounded-bl-[4px] sm:rounded-bl-[8px] bg-white border border-black/[0.05] shadow-sm">
-                            <div className="flex items-center gap-1.5 h-4">
-                                <div className="w-1.5 h-1.5 bg-blue-500/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                                <div className="w-1.5 h-1.5 bg-blue-500/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                                <div className="w-1.5 h-1.5 bg-blue-500/50 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                            </div>
+            {userMessagesCount === 0 && !isTyping && !pendingImage ? (
+                /* Écran d'accueil Sourcing Hub */
+                <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 animate-in fade-in zoom-in-95 duration-500 overflow-y-auto stylish-scrollbar">
+                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl relative mb-6 shadow-2xl border-4 border-white shrink-0">
+                        <img src="/images/agents/ada_final.png" className="w-full h-full object-cover rounded-[20px]" alt="Ada" />
+                        <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full border-4 border-[#F5F5F7] flex items-center justify-center">
+                            <Sparkles className="w-4 h-4 text-white" />
                         </div>
                     </div>
-                )}
-                <div ref={messagesEndRef} className="h-4" />
-            </div>
+
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#1D1D1F] text-center tracking-tight mb-3">
+                        Trouvez l'usine parfaite
+                    </h2>
+                    <p className="text-center text-[#86868B] text-sm sm:text-base max-w-md mx-auto leading-relaxed mb-8">
+                        Je suis <b>Ada</b>, votre experte en production. Je parcours notre base d'usines mondiales certifiées pour trouver le partenaire idéal selon vos besoins, quantités et budget.
+                    </p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl mx-auto mb-8">
+                        {[
+                            "Je cherche un fabricant de t-shirts streetwear en coton lourd (Portugal)",
+                            "Je veux produire des ensembles jogging (Turquie, MOQ bas)",
+                            "Quelles sont les usines spécialisées en broderie / impression 3D ?",
+                            "Quelle est la différence de coût entre l'Europe et l'Asie pour des hoodies ?"
+                        ].map((prompt, i) => (
+                            <button
+                                key={i}
+                                onClick={() => sendMessage(prompt)}
+                                className="p-4 rounded-2xl bg-white border border-black/5 hover:border-[#007AFF]/30 hover:shadow-md text-left transition-all group flex items-start gap-3 active:scale-95"
+                            >
+                                <div className="w-8 h-8 rounded-full bg-[#007AFF]/10 flex items-center justify-center shrink-0 group-hover:bg-[#007AFF] transition-colors">
+                                    <MessageCircle className="w-4 h-4 text-[#007AFF] group-hover:text-white transition-colors" />
+                                </div>
+                                <span className="text-[13px] sm:text-[14px] text-[#1D1D1F] font-medium leading-snug group-hover:text-[#007AFF] transition-colors mt-0.5">
+                                    {prompt}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-12 opacity-40">
+                        <div className="flex items-center gap-2">
+                            <Factory className="w-5 h-5" />
+                            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">Usines Vérifiées</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Globe className="w-5 h-5" />
+                            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">Europe & Asie</span>
+                        </div>
+                    </div>
+                </div>
+            ) : (
+                /* Historique du Chat régulier */
+                <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 pb-4 sm:pb-6 stylish-scrollbar relative z-0 flex flex-col gap-3.5 sm:gap-4">
+                    {messages.map((msg) => {
+                        const isUser = msg.role === 'user';
+                        return (
+                            <div key={msg.id} className={cn("flex items-end gap-1.5 sm:gap-2 max-w-[98%] sm:max-w-[95%] md:max-w-[90%] lg:max-w-[85%] group", isUser ? 'self-end flex-row-reverse' : 'self-start')}>
+                                {!isUser && (
+                                    <img
+                                        src="/images/agents/ada_final.png"
+                                        alt="Ada"
+                                        className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5 mb-0.5"
+                                    />
+                                )}
+                                <div
+                                    className={cn(
+                                        "px-3.5 py-2 sm:px-4 sm:py-3 rounded-[18px] sm:rounded-[24px] text-[14px] sm:text-[15px] leading-relaxed shadow-sm break-words relative transition-apple",
+                                        isUser
+                                            ? "bg-[#007AFF] text-white rounded-br-[4px] sm:rounded-br-[8px]"
+                                            : "bg-white text-[#1D1D1F] border border-black/[0.05] rounded-bl-[4px] sm:rounded-bl-[8px]"
+                                    )}
+                                >
+                                    <div className="max-w-none">
+                                        <MessageContent content={msg.content} isUser={isUser} brandId={brandId} />
+                                    </div>
+                                    <div className={cn(
+                                        "absolute -bottom-5 text-[10px] text-[#86868B] font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap",
+                                        isUser ? "right-1" : "left-1"
+                                    )}>
+                                        {msg.timestamp instanceof Date
+                                            ? msg.timestamp.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+                                            : new Date(msg.timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+
+                    {isTyping && (
+                        <div className="flex items-end gap-2 self-start max-w-[85%] sm:max-w-[75%]">
+                            <img
+                                src="/images/agents/ada_final.png"
+                                alt="Ada"
+                                className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 rounded-full object-cover shadow-sm border border-black/5 mb-0.5"
+                            />
+                            <div className="px-3 py-2 sm:px-4 sm:py-3 rounded-[18px] sm:rounded-[24px] rounded-bl-[4px] sm:rounded-bl-[8px] bg-white border border-black/[0.05] shadow-sm">
+                                <div className="flex items-center gap-1.5 h-4">
+                                    <div className="w-1.5 h-1.5 bg-blue-500/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                    <div className="w-1.5 h-1.5 bg-blue-500/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                    <div className="w-1.5 h-1.5 bg-blue-500/50 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    <div ref={messagesEndRef} className="h-4" />
+                </div>
+            )}
 
             {/* ── Input Box (Gemini-style) ── */}
             <div className="w-full shrink-0 pt-2 pb-safe-bottom bg-[#F5F5F7]/95 backdrop-blur z-20 border-t border-black/[0.05] px-3 sm:px-6">
@@ -389,7 +442,7 @@ export function Phase3SourcingChat({
                 ) : (
                     <>
                         {/* Suggestion chips */}
-                        {suggestions.length > 0 && !isTyping && (
+                        {userMessagesCount > 0 && suggestions.length > 0 && !isTyping && (
                             <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 pt-1 animate-in slide-in-from-bottom-2 duration-500">
                                 {suggestions.map(reply => (
                                     <button

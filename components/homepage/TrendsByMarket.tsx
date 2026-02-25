@@ -285,16 +285,16 @@ export function TrendsByMarket({ initialTrends }: { initialTrends?: TrendProduct
                               return n.toString();
                             };
 
-                            // Realistic TikTok fashion usernames
-                            const creatorNames = [
-                              '@clara.outfits', '@lena_style', '@mathilde.ootd', '@julien.drip',
-                              '@sarah.fashion', '@lucas_streetwear', '@emilie.finds', '@hugo.styles',
-                              '@camille.looks', '@theo.vintage', '@lea.fashionista', '@max.sneakers',
-                              '@chloe.wardrobe', '@antoine.fits', '@manon.trends'
-                            ];
-                            // Pick one deterministically based on product signature/first chars
+                            // No longer using creator names based on user request
+                            // const creatorNames = [
+                            //   '@clara.outfits', '@lena_style', '@mathilde.ootd', '@julien.drip',
+                            //   '@sarah.fashion', '@lucas_streetwear', '@emilie.finds', '@hugo.styles',
+                            //   '@camille.looks', '@theo.vintage', '@lea.fashionista', '@max.sneakers',
+                            //   '@chloe.wardrobe', '@antoine.fits', '@manon.trends'
+                            // ];
+                            // const charCodeSum = (product.name + product.id).split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+                            // const username = creatorNames[charCodeSum % creatorNames.length];
                             const charCodeSum = (product.name + product.id).split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
-                            const username = creatorNames[charCodeSum % creatorNames.length];
 
                             return (
                               <>
@@ -372,12 +372,10 @@ export function TrendsByMarket({ initialTrends }: { initialTrends?: TrendProduct
 
                                 {/* Infos Produit en bas à gauche */}
                                 <div className="absolute left-2 lg:left-2 bottom-3 lg:bottom-4 right-[38px] lg:right-[52px] z-20">
-                                  <div className="flex items-center gap-1.5 mb-1">
-                                    <span className="text-[12px] lg:text-[13px] font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] line-clamp-1">
-                                      {username}
-                                    </span>
-                                    <div className="px-1 py-0.5 bg-white/20 backdrop-blur-sm rounded-sm text-[8px] text-white font-bold flex items-center gap-1">
-                                      Viral
+                                  <div className="flex items-center gap-1.5 mb-1.5">
+                                    <div className="px-2 py-0.5 bg-white/20 backdrop-blur-sm rounded-full text-[9px] text-white font-black uppercase tracking-wider flex items-center gap-1 border border-white/10">
+                                      <div className="w-1 h-1 rounded-full bg-red-500 animate-pulse" />
+                                      Viral TikTok
                                     </div>
                                   </div>
 

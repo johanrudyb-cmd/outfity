@@ -65,10 +65,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
   const sg = brand?.styleGuide && typeof brand.styleGuide === 'object' ? brand.styleGuide as Record<string, unknown> : null;
 
   // --- States ---
-  const [viewMode, setViewMode] = useState<'chat' | 'classic'>(() => {
-    // Si la stratégie n'existe pas encore, on commence par l'atelier classique
-    return strategyText ? 'chat' : 'classic';
-  });
+  const [viewMode, setViewMode] = useState<'chat' | 'classic'>('chat');
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [positioning, setPositioning] = useState(() => styleGuideField(sg, 'preferredStyle') || styleGuideField(sg, 'positioning') || '');
   const [targetAudience, setTargetAudience] = useState(() => styleGuideField(sg, 'targetAudience') || '');
@@ -236,7 +233,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
     const technicalStyle = getTechnicalStyleKeywords(inspirationName);
 
     return (
-      <div className="min-h-screen w-full bg-[#F5F5F7] flex flex-col items-center relative overflow-hidden text-[#1D1D1F] pb-32 sm:pb-0">
+      <div className="min-h-screen w-full bg-[#F5F5F7] flex flex-col items-center relative overflow-y-auto overflow-x-hidden text-[#1D1D1F] pb-32 sm:pb-0">
         <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[70%] bg-indigo-500/5 rounded-full blur-[160px]" />
           <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[60%] bg-emerald-500/5 rounded-full blur-[140px]" />
@@ -327,7 +324,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#F5F5F7] flex flex-col items-center relative overflow-hidden text-[#1D1D1F] selection:bg-[#007AFF]/20 pb-32 sm:pb-0">
+    <div className="min-h-screen w-full bg-[#F5F5F7] flex flex-col items-center relative overflow-y-auto overflow-x-hidden text-[#1D1D1F] selection:bg-[#007AFF]/20 pb-32 sm:pb-0">
 
       {/* Immersive Background */}
       <div className="absolute inset-0 z-0 pointer-events-none">

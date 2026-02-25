@@ -8,7 +8,7 @@ import { Users, Activity, Rocket, Star } from 'lucide-react';
 const stats = [
   { value: '150+', label: 'Créateurs actifs', icon: Users, color: '#007AFF' },
   { value: '10k+', label: 'Produits analysés/mois', icon: Activity, color: '#007AFF' },
-  { value: '500+', label: 'Marques créées', icon: Rocket, color: '#007AFF' },
+  { value: '200+', label: 'Marques créées', icon: Rocket, color: '#007AFF' },
   { value: '4.9/5', label: 'Note moyenne', icon: Star, color: '#007AFF' },
 ];
 

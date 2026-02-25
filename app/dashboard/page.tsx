@@ -121,8 +121,17 @@ export default async function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-[#F5F5F7] pb-24 sm:pb-12">
-        <div className="px-4 sm:px-6 lg:px-12 py-8 sm:py-10 max-w-7xl mx-auto space-y-8 sm:space-y-10">
+      <div className="min-h-screen bg-[#FAFAFA] relative overflow-hidden pb-24 sm:pb-12">
+
+        {/* Pattern de fond (Dots) façon "Premium SaaS" avec fondu vers le bas */}
+        <div className="absolute inset-0 bg-[radial-gradient(#c7c7cc_1px,transparent_1px)] [background-size:24px_24px] [mask-image:linear-gradient(to_bottom,black_40%,transparent_100%)] pointer-events-none opacity-40 mix-blend-multiply" />
+
+        {/* Décoration d'arrière-plan (Ambient Glow) légèrement rehaussée */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-500/[0.06] rounded-full blur-[120px] pointer-events-none transform translate-x-1/3 -translate-y-1/4" />
+        <div className="absolute top-[20%] left-0 w-[500px] h-[500px] bg-violet-500/[0.05] rounded-full blur-[120px] pointer-events-none transform -translate-x-1/2" />
+        <div className="absolute bottom-[-10%] left-[20%] w-[800px] h-[800px] bg-orange-500/[0.04] rounded-full blur-[150px] pointer-events-none" />
+
+        <div className="relative z-10 px-4 sm:px-6 lg:px-12 py-8 sm:py-10 max-w-7xl mx-auto space-y-8 sm:space-y-10">
           {/* Refresh JWT silencieux si retour de paiement Stripe */}
           <Suspense fallback={null}>
             <UpgradeSessionRefresh />
@@ -229,28 +238,42 @@ export default async function DashboardPage() {
 
                 {/* Phases timeline */}
                 <div className="relative z-10 mt-8 pt-6 border-t border-black/5">
-                  <div className="flex items-center justify-between overflow-x-auto gap-1 pb-1">
+                  <div className="relative flex items-start justify-between overflow-x-auto pb-1">
+                    {/* Ligne de fond globale */}
+                    <div className="absolute top-[18px] left-[8%] right-[8%] h-[2px] bg-[#F5F5F7] -z-10" />
+                    {/* Ligne de progression (calcul approximatif basé sur l'index) */}
+                    <div
+                      className="absolute top-[18px] left-[8%] h-[2px] bg-[#007AFF] -z-10 transition-all duration-1000"
+                      style={{ width: `${Math.max(0, (phases.findIndex(p => p.id === nextPhase.id) / (phases.length - 1)) * 84)}%` }}
+                    />
+
                     {phases.map((phase, i) => {
                       const Icon = phase.icon;
                       const isNext = phase.id === nextPhase.id;
                       return (
-                        <div key={phase.id} className="flex flex-col items-center gap-1.5 flex-1 min-w-[56px]">
+                        <div key={phase.id} className="flex flex-col items-center gap-2 flex-1 min-w-[60px] relative z-10">
                           <div className={cn(
-                            "w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all",
+                            "w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all bg-white",
                             phase.done
-                              ? 'bg-[#007AFF] border-[#007AFF] text-white'
+                              ? 'border-[#007AFF] text-[#007AFF]'
                               : isNext
-                                ? 'bg-white border-[#007AFF] text-[#007AFF]'
-                                : 'bg-[#F5F5F7] border-[#E5E5EA] text-[#86868B]'
+                                ? 'border-[#007AFF] text-[#007AFF] shadow-md shadow-blue-500/20'
+                                : 'border-[#E5E5EA] text-[#86868B]'
                           )}>
                             {phase.done ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
                           </div>
-                          <span className={cn(
-                            "text-[9px] font-bold text-center leading-none",
-                            phase.done ? 'text-[#007AFF]' : isNext ? 'text-[#1D1D1F]' : 'text-[#86868B]'
-                          )}>
-                            {phase.label}
-                          </span>
+
+                          <div className="flex flex-col items-center gap-1 mt-0.5">
+                            <span className="text-[8px] font-black uppercase tracking-widest text-[#86868B]">
+                              Étape {i + 1}
+                            </span>
+                            <span className={cn(
+                              "text-[10px] font-bold text-center leading-none",
+                              phase.done ? 'text-[#007AFF]' : isNext ? 'text-[#1D1D1F]' : 'text-[#86868B]'
+                            )}>
+                              {phase.label}
+                            </span>
+                          </div>
                         </div>
                       );
                     })}
@@ -300,8 +323,6 @@ export default async function DashboardPage() {
             {/* ── RIGHT (1/3) ── */}
             <div className="space-y-6">
 
-
-
               {/* Weekly Calendar */}
               <div className="bg-white rounded-[28px] border border-black/[0.06] shadow-apple p-6 space-y-4">
                 <div className="flex items-center justify-between">
@@ -345,6 +366,29 @@ export default async function DashboardPage() {
                     ))}
                   </div>
                 )}
+              </div>
+
+              {/* Shopify Promo Banner (Below Calendar) */}
+              <div className="relative overflow-hidden rounded-[28px] bg-[#000000] p-6 text-white shadow-apple">
+                <div className="absolute -top-12 -right-12 w-40 h-40 bg-[#95BF47]/20 rounded-full blur-[50px] pointer-events-none" />
+                <div className="relative z-10 space-y-4">
+                  <div className="h-8 mb-1">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/shopify-logo.png" alt="Shopify" className="h-full object-contain" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <h3 className="font-bold text-lg text-white leading-tight">Lancez votre boutique</h3>
+                    <p className="text-[#86868B] text-[13px] font-medium leading-relaxed">
+                      Essayez gratuitement pendant 3 jours, puis payez <strong className="text-white font-bold">1 €/mois</strong> pendant 3 mois.
+                    </p>
+                  </div>
+                  <Link href="https://shopify.com" target="_blank" rel="noopener noreferrer" className="block pt-1">
+                    <Button className="w-full bg-[#95BF47] hover:bg-[#7A9D3A] text-white font-bold rounded-full h-10 text-[13px] border-0 transition-all active:scale-[0.98]">
+                      Profiter de l'offre
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
               </div>
 
               {/* Paywall Upsell for free users */}

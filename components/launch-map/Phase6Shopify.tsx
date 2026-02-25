@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Send, Store, ExternalLink, RefreshCw, ArrowRight, Check, Sparkles, X, ShoppingBag, Loader2, ArrowLeft
+  Send, Store, ExternalLink, RefreshCw, ArrowRight, Check, Sparkles, X, ShoppingBag, Loader2, ArrowLeft, MessageCircle, LayoutTemplate, Paintbrush
 } from 'lucide-react';
 import Link from 'next/link';
 import type { SiteCreationTodoStep } from '@/lib/api/claude';
@@ -306,107 +306,160 @@ export function Phase6Shopify({
       </div>
 
       {/* ── Messages Chat UI ── */}
-      <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 pb-4 stylish-scrollbar relative z-0 flex flex-col gap-3.5 sm:gap-4">
-        {messages.map((msg) => {
-          const isUser = msg.role === 'user';
-          return (
-            <div key={msg.id} className={cn("flex items-end gap-1.5 sm:gap-2 max-w-[98%] sm:max-w-[95%] md:max-w-[90%] lg:max-w-[85%] group", isUser ? 'self-end flex-row-reverse' : 'self-start')}>
-              {!isUser && (
-                <div className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 rounded-full bg-gradient-to-br from-[#95BF47] to-[#5E8E3E] flex items-center justify-center shadow-sm text-white mb-0.5">
-                  <Store className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </div>
-              )}
-              <div
-                className={cn(
-                  "px-3.5 py-2 sm:px-4 sm:py-3 rounded-[18px] sm:rounded-[24px] text-[14px] sm:text-[15px] leading-relaxed shadow-sm break-words relative transition-apple",
-                  isUser
-                    ? "bg-[#5E8E3E] text-white rounded-br-[4px] sm:rounded-br-[8px]"
-                    : "bg-white text-[#1D1D1F] border border-black/[0.05] rounded-bl-[4px] sm:rounded-bl-[8px]"
-                )}
+      {userMessagesCount === 0 && !isTyping && !showConnect ? (
+        /* Écran d'accueil Shopify Hub */
+        <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 animate-in fade-in zoom-in-95 duration-500 overflow-y-auto stylish-scrollbar">
+          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl relative mb-6 shadow-2xl border-4 border-white shrink-0">
+            <img src="/images/agents/johan_final_cut.png" className="w-full h-full object-cover rounded-[20px]" alt="Johan" />
+            <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full border-4 border-[#F5F5F7] flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+          </div>
+
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#1D1D1F] text-center tracking-tight mb-3">
+            Créez votre boutique
+          </h2>
+          <p className="text-center text-[#86868B] text-sm sm:text-base max-w-md mx-auto leading-relaxed mb-8">
+            Je suis <b>Johan</b>, ton Web Designer. Je t'aide à configurer Shopify, choisir un thème et optimiser ton site pour convertir au maximum.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl mx-auto mb-8">
+            {[
+              "Je n'ai pas encore de compte Shopify",
+              "Comment personnaliser mon thème ?",
+              "Je dois ajouter mes produits / mockups",
+              "Comment optimiser mon taux de conversion ?"
+            ].map((prompt, i) => (
+              <button
+                key={i}
+                onClick={() => sendMessage(prompt)}
+                className="p-4 rounded-2xl bg-white border border-black/5 hover:border-[#5E8E3E]/30 hover:shadow-md text-left transition-all group flex items-start gap-3 active:scale-95"
               >
-                <div className="max-w-none">
-                  <MessageContent content={msg.content} isUser={isUser} />
+                <div className="w-8 h-8 rounded-full bg-[#95BF47]/10 flex items-center justify-center shrink-0 group-hover:bg-[#5E8E3E] transition-colors">
+                  <MessageCircle className="w-4 h-4 text-[#5E8E3E] group-hover:text-white transition-colors" />
                 </div>
-                <div className={cn(
-                  "absolute -bottom-5 text-[10px] text-[#86868B] font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap",
-                  isUser ? "right-1" : "left-1"
-                )}>
-                  {msg.timestamp.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                </div>
-              </div>
-            </div>
-          );
-        })}
+                <span className="text-[13px] sm:text-[14px] text-[#1D1D1F] font-medium leading-snug group-hover:text-[#5E8E3E] transition-colors mt-0.5">
+                  {prompt}
+                </span>
+              </button>
+            ))}
+          </div>
 
-        {isTyping && (
-          <div className="flex items-end gap-2 self-start max-w-[85%] sm:max-w-[75%]">
-            <div className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 rounded-full bg-gradient-to-br from-[#95BF47] to-[#5E8E3E] flex items-center justify-center shadow-sm text-white mb-0.5">
-              <Store className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-12 opacity-40">
+            <div className="flex items-center gap-2">
+              <Store className="w-5 h-5" />
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">Expert Shopify</span>
             </div>
-            <div className="px-3 py-2 sm:px-4 sm:py-3 rounded-[18px] sm:rounded-[24px] rounded-bl-[4px] sm:rounded-bl-[8px] bg-white border border-black/[0.05] shadow-sm">
-              <div className="flex items-center gap-1.5 h-4">
-                <div className="w-1.5 h-1.5 bg-[#95BF47]/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-1.5 h-1.5 bg-[#95BF47]/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-1.5 h-1.5 bg-[#95BF47]/50 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-              </div>
+            <div className="flex items-center gap-2">
+              <LayoutTemplate className="w-5 h-5" />
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">Design & UI</span>
             </div>
           </div>
-        )}
-
-        {showConnect && (
-          <div className="self-center w-full max-w-sm my-4 animate-in fade-in zoom-in-95 duration-500">
-            <div className="bg-white rounded-[28px] border border-black/[0.08] shadow-apple-lg p-6 sm:p-8 space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-[#95BF47]/10 flex items-center justify-center">
-                  <ShoppingBag className="w-6 h-6 text-[#5E8E3E]" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-[#1D1D1F]">Connecter Shopify</h4>
-                  <p className="text-xs text-[#86868B]">Reliez votre boutique existante</p>
+        </div>
+      ) : (
+        /* Historique du Chat régulier */
+        <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 pb-4 stylish-scrollbar relative z-0 flex flex-col gap-3.5 sm:gap-4">
+          {messages.map((msg) => {
+            const isUser = msg.role === 'user';
+            return (
+              <div key={msg.id} className={cn("flex items-end gap-1.5 sm:gap-2 max-w-[98%] sm:max-w-[95%] md:max-w-[90%] lg:max-w-[85%] group", isUser ? 'self-end flex-row-reverse' : 'self-start')}>
+                {!isUser && (
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 rounded-full bg-gradient-to-br from-[#95BF47] to-[#5E8E3E] flex items-center justify-center shadow-sm text-white mb-0.5">
+                    <Store className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  </div>
+                )}
+                <div
+                  className={cn(
+                    "px-3.5 py-2 sm:px-4 sm:py-3 rounded-[18px] sm:rounded-[24px] text-[14px] sm:text-[15px] leading-relaxed shadow-sm break-words relative transition-apple",
+                    isUser
+                      ? "bg-[#5E8E3E] text-white rounded-br-[4px] sm:rounded-br-[8px]"
+                      : "bg-white text-[#1D1D1F] border border-black/[0.05] rounded-bl-[4px] sm:rounded-bl-[8px]"
+                  )}
+                >
+                  <div className="max-w-none">
+                    <MessageContent content={msg.content} isUser={isUser} />
+                  </div>
+                  <div className={cn(
+                    "absolute -bottom-5 text-[10px] text-[#86868B] font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap",
+                    isUser ? "right-1" : "left-1"
+                  )}>
+                    {msg.timestamp.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                  </div>
                 </div>
               </div>
+            );
+          })}
 
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black uppercase tracking-widest ml-1 text-black/30">Domaine .myshopify.com</Label>
-                  <Input
-                    placeholder="ma-boutique.myshopify.com"
-                    value={domain}
-                    onChange={e => setDomain(e.target.value)}
-                    className="h-12 rounded-xl border-black/[0.08] focus:ring-[#95BF47]/10 focus:border-[#95BF47]/40 font-medium"
-                  />
+          {isTyping && (
+            <div className="flex items-end gap-2 self-start max-w-[85%] sm:max-w-[75%]">
+              <div className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 rounded-full bg-gradient-to-br from-[#95BF47] to-[#5E8E3E] flex items-center justify-center shadow-sm text-white mb-0.5">
+                <Store className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </div>
+              <div className="px-3 py-2 sm:px-4 sm:py-3 rounded-[18px] sm:rounded-[24px] rounded-bl-[4px] sm:rounded-bl-[8px] bg-white border border-black/[0.05] shadow-sm">
+                <div className="flex items-center gap-1.5 h-4">
+                  <div className="w-1.5 h-1.5 bg-[#95BF47]/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-1.5 h-1.5 bg-[#95BF47]/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-1.5 h-1.5 bg-[#95BF47]/50 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black uppercase tracking-widest ml-1 text-black/30">Access Token (Admin API)</Label>
-                  <Input
-                    type="password"
-                    placeholder="shpat_xxxxxxxxxxxxxxxx"
-                    value={accessToken}
-                    onChange={e => setAccessToken(e.target.value)}
-                    className="h-12 rounded-xl border-black/[0.08] focus:ring-[#95BF47]/10 focus:border-[#95BF47]/40 font-medium"
-                  />
-                </div>
-                {connectError && <p className="text-xs font-bold text-rose-500 px-1 italic">! {connectError}</p>}
-                <Button
-                  onClick={handleConnect}
-                  disabled={connecting || !domain || !accessToken}
-                  className="w-full h-12 rounded-xl bg-[#5E8E3E] hover:bg-[#4A7231] text-white font-bold shadow-sm transition-apple"
-                >
-                  {connecting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Lancer la synchronisation'}
-                </Button>
-                <Button
-                  variant="ghost"
-                  onClick={() => setShowConnect(false)}
-                  className="w-full h-10 rounded-xl text-xs font-bold text-[#86868B] hover:text-[#1D1D1F]"
-                >
-                  Plus tard
-                </Button>
               </div>
             </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} className="h-4" />
-      </div>
+          )}
+
+          {showConnect && (
+            <div className="self-center w-full max-w-sm my-4 animate-in fade-in zoom-in-95 duration-500">
+              <div className="bg-white rounded-[28px] border border-black/[0.08] shadow-apple-lg p-6 sm:p-8 space-y-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-[#95BF47]/10 flex items-center justify-center">
+                    <ShoppingBag className="w-6 h-6 text-[#5E8E3E]" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-[#1D1D1F]">Connecter Shopify</h4>
+                    <p className="text-xs text-[#86868B]">Reliez votre boutique existante</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-black uppercase tracking-widest ml-1 text-black/30">Domaine .myshopify.com</Label>
+                    <Input
+                      placeholder="ma-boutique.myshopify.com"
+                      value={domain}
+                      onChange={e => setDomain(e.target.value)}
+                      className="h-12 rounded-xl border-black/[0.08] focus:ring-[#95BF47]/10 focus:border-[#95BF47]/40 font-medium"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-black uppercase tracking-widest ml-1 text-black/30">Access Token (Admin API)</Label>
+                    <Input
+                      type="password"
+                      placeholder="shpat_xxxxxxxxxxxxxxxx"
+                      value={accessToken}
+                      onChange={e => setAccessToken(e.target.value)}
+                      className="h-12 rounded-xl border-black/[0.08] focus:ring-[#95BF47]/10 focus:border-[#95BF47]/40 font-medium"
+                    />
+                  </div>
+                  {connectError && <p className="text-xs font-bold text-rose-500 px-1 italic">! {connectError}</p>}
+                  <Button
+                    onClick={handleConnect}
+                    disabled={connecting || !domain || !accessToken}
+                    className="w-full h-12 rounded-xl bg-[#5E8E3E] hover:bg-[#4A7231] text-white font-bold shadow-sm transition-apple"
+                  >
+                    {connecting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Lancer la synchronisation'}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowConnect(false)}
+                    className="w-full h-10 rounded-xl text-xs font-bold text-[#86868B] hover:text-[#1D1D1F]"
+                  >
+                    Plus tard
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} className="h-4" />
+        </div>
+      )}
 
       {/* ── Input Box (Gemini-style) ── */}
       <div className="shrink-0 pt-2 bg-[#F5F5F7] z-20 border-t border-black/[0.05] px-3 sm:px-6 pb-safe-bottom">
@@ -421,7 +474,7 @@ export function Phase6Shopify({
           </div>
         ) : (
           <>
-            {QUICK_REPLIES.length > 0 && !isTyping && (
+            {userMessagesCount > 0 && QUICK_REPLIES.length > 0 && !isTyping && (
               <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 pt-1 animate-in slide-in-from-bottom-2 duration-500">
                 {QUICK_REPLIES.map(reply => (
                   <button

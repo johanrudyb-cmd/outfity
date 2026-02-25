@@ -127,42 +127,8 @@ export function PhasePageView({
   // Mode messagerie/immersif full width (Atelier phases 0,1,2 + Sourcing Ada 4 + Shopify 5)
   if ([0, 1, 2, 4, 5].includes(phaseId) && !isLocked) {
 
-    // Si la phase est complétée et qu'on n'est pas en mode édition, on affiche le RECAP
-    if (isCompleted && !isEditing) {
-      if (phaseId === 1 && strategyText) {
-        return (
-          <div className="flex-1 w-full bg-[#F5F5F7] relative">
-            <div className="absolute inset-0 flex flex-col overflow-hidden">
-              <div className="px-3 py-2 sm:px-4 sm:py-3 flex items-center justify-between bg-white/95 backdrop-blur-xl border-b border-black/[0.05] sticky top-0 z-[60]">
-                <Link href="/launch-map" className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-[#86868B] hover:text-[#1D1D1F] transition-all rounded-full px-3 py-1.5 hover:bg-black/5 uppercase tracking-widest leading-none">
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Launch Map</span>
-                </Link>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsEditing(true)}
-                  className="rounded-full border-black/10 hover:bg-black/5 gap-1.5 h-8 sm:h-9 px-3 sm:px-4 text-[10px] sm:text-xs font-bold transition-apple shadow-sm"
-                >
-                  <Pencil className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                  Modifier
-                </Button>
-              </div>
-              <div className="flex-1 overflow-y-auto stylish-scrollbar">
-                <StrategyPresentationView
-                  isOpen={true}
-                  strategyText={strategyText}
-                  brandName={brand.name}
-                  embedded={true}
-                  isFree={isFreePlan(userPlan)}
-                />
-              </div>
-            </div>
-          </div>
-        );
-      }
-
-      // Recap générique pour les autres phases immersives (0, 2, 4, 5)
+    // Si la phase est complétée et qu'on n'est pas en mode édition, on affiche le RECAP (Sauf pour la phase 2 et 1 qui sont vécus via le chat)
+    if (isCompleted && !isEditing && phaseId !== 2 && phaseId !== 1) {
       return (
         <div className="flex-1 w-full bg-[#F5F5F7] relative">
           <div className="absolute inset-0 flex flex-col overflow-hidden">
@@ -299,7 +265,7 @@ export function PhasePageView({
 
           {!isLocked ? (
             <div className="bg-white">
-              {isCompleted && !isEditing ? (
+              {isCompleted && !isEditing && phaseId !== 2 && phaseId !== 1 ? (
                 <div className="p-8 sm:p-16 flex flex-col items-center space-y-6 sm:space-y-10">
                   <div className="text-center space-y-3 sm:space-y-4">
                     <div className={cn("w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] sm:rounded-[22px] mx-auto flex items-center justify-center shadow-lg", currentColor.bg, currentColor.text)}>
