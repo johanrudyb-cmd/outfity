@@ -74,14 +74,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
         token.plan = (user as any).plan;
       }
 
-      if (trigger === 'update' && session?.plan) {
-        token.plan = session.plan;
+      // Lors d'un update() côté client (ex: après paiement Stripe),
+      // on relit TOUJOURS le plan depuis la DB pour garantir la cohérence
+      if (trigger === 'update' && token.id) {
+        try {
+          const { prisma } = await import('./prisma');
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.id as string },
+            select: { plan: true },
+          });
+          if (dbUser) {
+            token.plan = dbUser.plan;
+          }
+        } catch (error) {
+          console.error('[JWT Update] DB read error:', error);
+        }
       }
 
       return token;

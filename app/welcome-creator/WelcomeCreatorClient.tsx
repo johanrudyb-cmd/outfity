@@ -317,7 +317,7 @@ export function WelcomeCreatorClient({ userName }: { userName: string }) {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.7 }}
-                                onClick={() => router.push('/dashboard')}
+                                onClick={() => router.push('/dashboard?tutorial=1')}
                                 className="w-full h-14 rounded-2xl bg-white text-black font-bold text-lg flex items-center justify-center gap-2 hover:bg-white/90 active:scale-[0.98] transition-all shadow-xl"
                             >
                                 Explorer mon dashboard <ArrowRight className="w-5 h-5" />

@@ -61,7 +61,7 @@ function getTutorialDone(): boolean {
   }
 }
 
-export function DashboardTutorial() {
+export function DashboardTutorial({ forceShow = false }: { forceShow?: boolean }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
@@ -70,10 +70,11 @@ export function DashboardTutorial() {
 
   useEffect(() => {
     setMounted(true);
-    if (!getTutorialDone()) {
+    // forceShow ignore le localStorage (cas post-onboarding ou post-upgrade)
+    if (forceShow || !getTutorialDone()) {
       setIsVisible(true);
     }
-  }, []);
+  }, [forceShow]);
 
   const currentStep = useMemo(() => TUTORIAL_STEPS[step], [step]);
   const isLast = step === TUTORIAL_STEPS.length - 1;
@@ -119,7 +120,10 @@ export function DashboardTutorial() {
       localStorage.setItem(STORAGE_KEY, '1');
     } catch (_) { }
     setIsVisible(false);
-    setTimeout(() => router.replace('/dashboard'), 500);
+    // Retirer ?tutorial=1 de l'URL proprement
+    const url = new URL(window.location.href);
+    url.searchParams.delete('tutorial');
+    setTimeout(() => router.replace(url.pathname + (url.search || '')), 500);
   };
 
   if (!mounted || !isVisible || !currentStep) return null;

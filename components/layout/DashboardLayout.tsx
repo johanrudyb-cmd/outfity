@@ -14,8 +14,10 @@ import { MobileNav } from './MobileNav';
 function DashboardTutorialGate() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const showTutorial = pathname === '/dashboard' && searchParams.get('tutorial') === '1';
-  return showTutorial ? <DashboardTutorial /> : null;
+  // Affiche le tuto si on est sur /dashboard avec ?tutorial=1
+  // On ignore le localStorage pour forcer l'affichage après onboarding/upgrade
+  const forceTutorial = pathname === '/dashboard' && searchParams.get('tutorial') === '1';
+  return forceTutorial ? <DashboardTutorial forceShow /> : null;
 }
 
 export function DashboardLayout({
