@@ -4,6 +4,7 @@ import { DashboardRefresh } from '@/components/dashboard/DashboardRefresh';
 import { DashboardNotifications } from '@/components/dashboard/DashboardNotifications';
 import { DashboardStatsSkeleton } from '@/components/dashboard/DashboardStats';
 import { StrategyUpdateBanner } from '@/components/dashboard/StrategyUpdateBanner';
+import { UpgradeSessionRefresh } from '@/components/dashboard/UpgradeSessionRefresh';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
@@ -122,6 +123,10 @@ export default async function DashboardPage() {
     <DashboardLayout>
       <div className="min-h-screen bg-[#F5F5F7] pb-24 sm:pb-12">
         <div className="px-4 sm:px-6 lg:px-12 py-8 sm:py-10 max-w-7xl mx-auto space-y-8 sm:space-y-10">
+          {/* Refresh JWT silencieux si retour de paiement Stripe */}
+          <Suspense fallback={null}>
+            <UpgradeSessionRefresh />
+          </Suspense>
 
           {/* ── Header ── */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
