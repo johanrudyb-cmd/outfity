@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { User, Mail, Lock, Image as ImageIcon, Save, CheckCircle2, FileText, Download, Loader2 } from 'lucide-react';
+import { User, Mail, Lock, Image as ImageIcon, Save, CheckCircle2, FileText, Download, Loader2, Crown, Sparkles, ArrowRight, CheckCircle } from 'lucide-react';
 import { SubscriptionWarning } from '@/components/subscription/SubscriptionWarning';
 import { cn } from '@/lib/utils';
 
@@ -256,51 +256,117 @@ export function SettingsForm({ user: initialUser }: SettingsFormProps) {
         <div className="bg-white rounded-[24px] border border-black/[0.06] shadow-apple overflow-hidden">
           <div className="px-6 py-5 bg-black/[0.02] border-b border-black/[0.04] flex items-center gap-4">
             <div className="w-12 h-12 rounded-[14px] bg-[#34C759]/10 text-[#34C759] flex items-center justify-center shrink-0">
-              <Mail className="w-6 h-6" />
+              <Crown className="w-6 h-6" />
             </div>
             <div>
               <h3 className="text-[17px] font-semibold text-[#1D1D1F]">Abonnement</h3>
               <p className="text-[13px] text-[#86868B]">Gérez votre plan actuel et vos accès.</p>
             </div>
           </div>
-          <div className="p-6 md:p-8 space-y-6">
-            <SubscriptionWarning context="cancel" />
+          <div className="p-6 md:p-8 space-y-5">
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 bg-[#F5F5F7] rounded-[16px] border border-black/[0.04] gap-6">
-              <div>
-                <div className="flex items-center gap-3">
-                  <p className="font-bold text-[19px] text-[#1D1D1F]">
-                    {user.plan === 'starter' ? 'Plan Starter' : 'Plan Créateur'}
-                  </p>
-                  <span className={cn(
-                    "px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider",
-                    user.plan === 'starter' ? "bg-black/10 text-black/70" : "bg-emerald-500/15 text-emerald-700"
-                  )}>
-                    {user.plan === 'starter' ? 'RESTREINT' : 'ACTIF'}
-                  </span>
+            {/* Bloc plan Créateur */}
+            {user.plan === 'creator' ? (
+              <div className="space-y-4">
+                {/* Badge Créateur actif */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 bg-gradient-to-br from-[#007AFF]/8 to-[#5AC8FA]/5 rounded-[16px] border border-[#007AFF]/20 gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-[#007AFF] flex items-center justify-center">
+                      <Crown className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold text-[18px] text-[#1D1D1F]">Plan Créateur</p>
+                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-[#34C759]/15 text-[#34C759]">
+                          ACTIF
+                        </span>
+                      </div>
+                      <p className="text-[13px] text-[#86868B] mt-0.5">Accès intégral à tous les outils Outfity.</p>
+                    </div>
+                  </div>
+                  {/* Prix */}
+                  <div className="text-right shrink-0">
+                    <p className="text-2xl font-black text-[#1D1D1F]">29€<span className="text-sm font-normal text-[#86868B]">/mois</span></p>
+                    <p className="text-[11px] text-[#86868B]">Offre à vie · Annulable</p>
+                  </div>
                 </div>
-                <p className="text-[13px] text-[#86868B] font-medium mt-1.5 max-w-sm leading-relaxed">
-                  {user.plan === 'starter' ? 'Débloquez tout le potentiel de vos données avec les quotas illimités et l\'IA complète.' : 'Accès intégral à l\'écosystème Créateur. Tous les outils débloqués.'}
+
+                {/* Checklist features actives */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {[
+                    'Studio Design illimité',
+                    'Tech Packs professionnels',
+                    'Radar Tendances premium',
+                    'Agent Johan (E-shop & Ventes)',
+                    'Support prioritaire 24/7',
+                    '4 Agents IA complets',
+                  ].map(feat => (
+                    <div key={feat} className="flex items-center gap-2 text-[13px] text-[#1D1D1F]">
+                      <CheckCircle className="w-3.5 h-3.5 text-[#34C759] shrink-0" />
+                      {feat}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Boutons gestion */}
+                <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                  {user.stripeCustomerId && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-10 rounded-xl font-semibold border-black/10 hover:bg-black/5 hover:border-black/20 transition-all"
+                      onClick={handlePortal}
+                      disabled={portalLoading}
+                    >
+                      {portalLoading ? 'Connexion...' : '⚙️ Gérer la facturation Stripe'}
+                    </Button>
+                  )}
+                  {user.stripeCustomerId && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-10 rounded-xl font-semibold border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 transition-all"
+                      onClick={handlePortal}
+                      disabled={portalLoading}
+                    >
+                      Annuler l&apos;abonnement
+                    </Button>
+                  )}
+                </div>
+                <p className="text-[11px] text-[#86868B]">
+                  La résiliation se fait via le portail Stripe. Votre accès reste actif jusqu&apos;à la fin de la période en cours.
                 </p>
               </div>
-              <div className="flex flex-col gap-2 w-full sm:w-auto">
-                <Link href="/auth/choose-plan">
-                  <Button variant="outline" className="w-full sm:w-auto h-10 rounded-xl font-semibold border-black/10 hover:bg-black/5 hover:border-black/20 transition-all">
-                    Changer de plan
-                  </Button>
-                </Link>
-                {user.stripeCustomerId && (
-                  <Button
-                    variant="outline"
-                    className="w-full sm:w-auto h-10 rounded-xl font-semibold border-black/10 hover:bg-black/5 hover:border-black/20 transition-all"
-                    onClick={handlePortal}
-                    disabled={portalLoading}
-                  >
-                    {portalLoading ? 'Connexion à Stripe...' : 'Gérer la facturation'}
-                  </Button>
-                )}
+            ) : (
+              /* Bloc plan Starter — CTA upgrade */
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 bg-[#F5F5F7] rounded-[16px] border border-black/[0.04] gap-6">
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <p className="font-bold text-[19px] text-[#1D1D1F]">Plan Starter</p>
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-black/10 text-black/70">
+                        GRATUIT
+                      </span>
+                    </div>
+                    <p className="text-[13px] text-[#86868B] font-medium mt-1.5 max-w-sm leading-relaxed">
+                      Débloquez tous les outils Creator : designs illimités, Tech Packs, Johan et plus.
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-2 w-full sm:w-auto shrink-0">
+                    <a href="/auth/choose-plan">
+                      <Button className="w-full sm:w-auto h-10 rounded-xl font-bold bg-[#007AFF] hover:bg-[#0056CC] text-white border-0 shadow-md shadow-blue-500/20">
+                        <Sparkles className="w-4 h-4 mr-1.5" />
+                        Passer Créateur — 29€/mois
+                        <ArrowRight className="w-4 h-4 ml-1.5" />
+                      </Button>
+                    </a>
+                    <p className="text-[11px] text-[#86868B] text-center">3 jours d&apos;essai gratuit · Sans engagement</p>
+                  </div>
+                </div>
+                <SubscriptionWarning context="cancel" />
               </div>
-            </div>
+            )}
+
           </div>
         </div>
 

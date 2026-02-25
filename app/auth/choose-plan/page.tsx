@@ -7,5 +7,9 @@ export default async function ChoosePlanPage() {
   if (!user) {
     redirect('/auth/signin?redirect=/auth/choose-plan');
   }
-  return <ChoosePlanClient />;
+  // Un user déjà Creator n'a rien à faire ici
+  if (user.plan === 'creator') {
+    redirect('/settings?tab=billing');
+  }
+  return <ChoosePlanClient userPlan={user.plan} />;
 }

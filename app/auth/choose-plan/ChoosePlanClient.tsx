@@ -72,7 +72,7 @@ const plans = [
   },
 ];
 
-export function ChoosePlanClient() {
+export function ChoosePlanClient({ userPlan }: { userPlan?: string }) {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
