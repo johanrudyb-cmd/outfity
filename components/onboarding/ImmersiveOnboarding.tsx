@@ -559,7 +559,9 @@ function LaunchStep({ plan, brandName }: { plan: string; brandName: string }) {
     useEffect(() => {
         setProgress(0);
         if (stepIndex >= STEPS.length) {
-            router.push('/dashboard?tutorial=1');
+            // Signaler au dashboard d'afficher le tutorial
+            try { localStorage.setItem('show_tutorial_next', '1'); } catch (_) { }
+            router.push('/dashboard');
             return;
         }
         const step = STEPS[stepIndex];

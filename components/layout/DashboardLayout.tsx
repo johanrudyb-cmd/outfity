@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useState, useEffect } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import { DashboardTutorial } from '@/components/dashboard/DashboardTutorial';
@@ -13,11 +13,10 @@ import { MobileNav } from './MobileNav';
 
 function DashboardTutorialGate() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  // Affiche le tuto si on est sur /dashboard avec ?tutorial=1
-  // On ignore le localStorage pour forcer l'affichage après onboarding/upgrade
-  const forceTutorial = pathname === '/dashboard' && searchParams.get('tutorial') === '1';
-  return forceTutorial ? <DashboardTutorial forceShow /> : null;
+  // Le composant DashboardTutorial gère lui-même sa visibilité via localStorage
+  // On le monte sur toutes les pages du dashboard pour capter le flag 'show_tutorial_next'
+  if (pathname !== '/dashboard') return null;
+  return <DashboardTutorial />;
 }
 
 export function DashboardLayout({

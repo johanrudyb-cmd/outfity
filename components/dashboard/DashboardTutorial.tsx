@@ -61,6 +61,17 @@ function getTutorialDone(): boolean {
   }
 }
 
+const SHOW_NEXT_KEY = 'show_tutorial_next';
+
+function shouldShowNow(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return localStorage.getItem(SHOW_NEXT_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
 export function DashboardTutorial({ forceShow = false }: { forceShow?: boolean }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -70,8 +81,10 @@ export function DashboardTutorial({ forceShow = false }: { forceShow?: boolean }
 
   useEffect(() => {
     setMounted(true);
-    // forceShow ignore le localStorage (cas post-onboarding ou post-upgrade)
-    if (forceShow || !getTutorialDone()) {
+    const pendingShow = shouldShowNow();
+    if (forceShow || pendingShow || !getTutorialDone()) {
+      // Consomme le flag immédiatement pour ne pas re-afficher
+      try { localStorage.removeItem(SHOW_NEXT_KEY); } catch (_) { }
       setIsVisible(true);
     }
   }, [forceShow]);
