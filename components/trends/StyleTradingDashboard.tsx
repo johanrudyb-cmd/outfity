@@ -240,9 +240,6 @@ export function StyleTradingDashboard({ data }: { data: StyleDetailProps }) {
                 </div>
             </div>
         </div>
-
-            </div>
-        </div>
     );
 }
 
