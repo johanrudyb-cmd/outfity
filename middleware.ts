@@ -32,7 +32,10 @@ export default auth(async (req) => {
 
   // 2. Pages d'auth => laisser passer
   if (isAuthPage) {
-    if (isAuthenticated && nextUrl.pathname !== '/auth/signout' && nextUrl.pathname !== '/auth/choose-plan') {
+    // On désactive la redirection automatique de signin -> dashboard
+    // car cela créait une boucle infinie si le token était valide mais le compte DB supprimé/erroné.
+    // L'utilisateur peut consulter les pages de connexion même connecté, sans être bloqué en boucle.
+    if (isAuthenticated && nextUrl.pathname === '/auth/signup') {
       return NextResponse.redirect(new URL('/dashboard', nextUrl));
     }
     return NextResponse.next();
