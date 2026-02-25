@@ -186,15 +186,6 @@ export function PhasePageView({
                           </div>
                         </div>
                       )}
-                      {phaseId === 2 && (
-                        <div className="p-4 sm:p-8 rounded-[24px] sm:rounded-[40px] bg-[#1D1D1F] text-white shadow-apple-lg flex items-center justify-between">
-                          <div className="space-y-0.5 sm:space-y-1">
-                            <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-white/40">Mockup Studio</p>
-                            <p className="text-lg sm:text-2xl font-bold">{designCount} Créations</p>
-                          </div>
-                          <PenTool className="w-6 h-6 sm:w-8 sm:h-8 text-[#007AFF]" />
-                        </div>
-                      )}
                     </div>
                   </div>
 
