@@ -17,10 +17,26 @@ export async function POST() {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
+    // Détecter si l'onboarding est déjà complété pour choisir la bonne URL de redirection
+    let onboardingCompleted = false;
+    try {
+      const { prisma } = await import('@/lib/prisma');
+      const dbUser = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { onboardingCompleted: true },
+      });
+      onboardingCompleted = dbUser?.onboardingCompleted ?? false;
+    } catch (_) { /* ignore */ }
+
     const baseUrl =
       process.env.NEXT_PUBLIC_APP_URL ||
       (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
     const origin = baseUrl.replace(/\/$/, '');
+
+    // Si l'onboarding est déjà fait → dashboard directement ; sinon → finir l'onboarding
+    const successUrl = onboardingCompleted
+      ? `${origin}/dashboard?upgraded=true`
+      : `${origin}/onboarding?subscribed=true`;
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -48,7 +64,7 @@ export async function POST() {
           planId: SUBSCRIPTION_PLAN_ID,
         },
       },
-      success_url: `${origin}/onboarding?subscribed=true`,
+      success_url: successUrl,
       cancel_url: `${origin}/auth/choose-plan?canceled=true`,
       metadata: {
         userId: user.id,

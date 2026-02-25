@@ -77,10 +77,14 @@ export async function POST(request: Request) {
         const dbUser = await prisma.user.findUnique({ where: { id: authUser.id }, select: { plan: true } });
         const currentPlan = dbUser?.plan || authUser.plan;
 
-        // Seule l'évolution vers 'starter' est autorisée par cette route (onboarding). 
-        // Le passage à 'creator' se fait exclusivement via les webhooks Stripe.
-        let targetPlan = currentPlan;
-        if (currentPlan === 'free') {
+        // Calculer le plan cible :
+        // - Si le client a envoyé plan='creator' (paiement Stripe confirmé côté front), on le respecte.
+        // - Si le plan actuel en DB est 'creator' (webhook Stripe déjà arrivé), on le garde.
+        // - Sinon, on passe au minimum à 'starter' (onboarding complété = plus "free").
+        let targetPlan: string;
+        if (plan === 'creator' || currentPlan === 'creator') {
+            targetPlan = 'creator';
+        } else {
             targetPlan = 'starter';
         }
 
