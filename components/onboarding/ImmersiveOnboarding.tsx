@@ -454,19 +454,15 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                 </button>
                                 <button
                                     disabled={!data.pitch || isSubmitting}
-                                    onClick={handleComplete}
+                                    onClick={goNext}
                                     className="flex-[2] h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all disabled:opacity-50 shadow-lg"
                                 >
-                                    {isSubmitting ? (
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                    ) : (
-                                        <>Finaliser <ArrowRight className="w-4 h-4" /></>
-                                    )}
+                                    Continuer <ArrowRight className="w-4 h-4" />
                                 </button>
                             </div>
 
                             <button
-                                onClick={() => { setData(d => ({ ...d, pitch: 'À compléter' })); handleComplete(); }}
+                                onClick={() => { setData(d => ({ ...d, pitch: 'À compléter' })); goNext(); }}
                                 className="w-full text-[#86868B] text-sm hover:text-[#1D1D1F] transition-colors py-2"
                             >
                                 Passer cette étape →
@@ -518,10 +514,15 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                     Retour
                                 </button>
                                 <button
-                                    onClick={goNext}
-                                    className="flex-[2] h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-base flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all shadow-lg shadow-blue-500/25"
+                                    disabled={isSubmitting}
+                                    onClick={handleComplete}
+                                    className="flex-[2] h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-base flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all shadow-lg shadow-blue-500/25 disabled:opacity-50"
                                 >
-                                    Lancer ! <ArrowRight className="w-4 h-4" />
+                                    {isSubmitting ? (
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                    ) : (
+                                        <>Lancer ! <ArrowRight className="w-4 h-4" /></>
+                                    )}
                                 </button>
                             </div>
                         </motion.div>
