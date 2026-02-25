@@ -82,9 +82,8 @@ export const AI_FEATURE_COSTS: Record<AIFeatureKey, number> = {
 
 /** Budget mensuel en € par plan (base = 34€) */
 export const AI_BUDGET_BY_PLAN: Record<string, number> = {
-  free: 5,
   starter: 5,
-  base: 34,
+  creator: 34,
   growth: 75,
   pro: 150,
   enterprise: -1, // illimité
@@ -92,9 +91,8 @@ export const AI_BUDGET_BY_PLAN: Record<string, number> = {
 
 /** Virtual try-on : max utilisations par mois par plan (-1 = illimité) */
 export const MAX_VIRTUAL_TRYON_BY_PLAN: Record<string, number> = {
-  free: 1,
   starter: 1,
-  base: 5,
+  creator: 5,
   growth: 15,
   pro: 50,
   enterprise: -1,
@@ -105,19 +103,13 @@ export const MAX_VIRTUAL_TRYON_BY_PLAN: Record<string, number> = {
  * Ex: stratégie = 3 changements/mois, recommandations = 12/mois.
  */
 export const MAX_PER_MONTH_BY_PLAN: Record<string, Partial<Record<AIFeatureKey, number>>> = {
-  free: {
-    brand_strategy: 3,
-    launch_map_recommendations: 12,
-    trends_hybrid_scan: 3,
-    trends_analyse: 3, // Offre réelle : 3 / mois
-  },
   starter: {
     brand_strategy: 3,
     launch_map_recommendations: 12,
     trends_hybrid_scan: 1,
     trends_analyse: 3,
   },
-  base: {
+  creator: {
     brand_strategy: 10,
     launch_map_recommendations: 30,
     trends_hybrid_scan: 10,
@@ -142,15 +134,11 @@ export const MAX_PER_MONTH_BY_PLAN: Record<string, Partial<Record<AIFeatureKey, 
  * Limites journalières pour l'assistant (éviter consommation excessive).
  */
 export const MAX_PER_DAY_BY_PLAN: Record<string, Partial<Record<AIFeatureKey, number>>> = {
-  free: {
-    assistant_chat_qa: 5, // Très conservateur pour free
-    assistant_chat_analysis: 1,
-  },
   starter: {
     assistant_chat_qa: 5,
     assistant_chat_analysis: 1,
   },
-  base: {
+  creator: {
     assistant_chat_qa: 20,
     assistant_chat_analysis: 5,
   },
@@ -169,8 +157,8 @@ export const MAX_PER_DAY_BY_PLAN: Record<string, Partial<Record<AIFeatureKey, nu
 };
 
 export function getBudgetForPlan(plan: string): number {
-  const key = (plan || 'free').toLowerCase();
-  return AI_BUDGET_BY_PLAN[key] ?? AI_BUDGET_BY_PLAN.free;
+  const key = (plan || 'starter').toLowerCase();
+  return AI_BUDGET_BY_PLAN[key] ?? AI_BUDGET_BY_PLAN.starter;
 }
 
 export function getCostForFeature(feature: AIFeatureKey): number {
@@ -178,8 +166,8 @@ export function getCostForFeature(feature: AIFeatureKey): number {
 }
 
 export function getMaxVirtualTryOnForPlan(plan: string): number {
-  const key = (plan || 'free').toLowerCase();
-  return MAX_VIRTUAL_TRYON_BY_PLAN[key] ?? MAX_VIRTUAL_TRYON_BY_PLAN.free;
+  const key = (plan || 'starter').toLowerCase();
+  return MAX_VIRTUAL_TRYON_BY_PLAN[key] ?? MAX_VIRTUAL_TRYON_BY_PLAN.starter;
 }
 
 /** Jetons mensuels par plan (5€ = 500, 34€ = 3400, etc.) */
@@ -197,16 +185,16 @@ export function getTokensForFeature(feature: AIFeatureKey): number {
 
 /** Limite mensuelle d'une feature pour un plan (-1 = illimité) */
 export function getMaxPerMonthForFeature(plan: string, feature: AIFeatureKey): number {
-  const key = (plan || 'free').toLowerCase();
-  const limits = MAX_PER_MONTH_BY_PLAN[key] ?? MAX_PER_MONTH_BY_PLAN.free ?? {};
+  const key = (plan || 'starter').toLowerCase();
+  const limits = MAX_PER_MONTH_BY_PLAN[key] ?? MAX_PER_MONTH_BY_PLAN.starter ?? {};
   const val = limits[feature];
   return val ?? -1;
 }
 
 /** Limite journalière d'une feature pour un plan (-1 = illimité) */
 export function getMaxPerDayForFeature(plan: string, feature: AIFeatureKey): number {
-  const key = (plan || 'free').toLowerCase();
-  const limits = MAX_PER_DAY_BY_PLAN[key] ?? MAX_PER_DAY_BY_PLAN.free ?? {};
+  const key = (plan || 'starter').toLowerCase();
+  const limits = MAX_PER_DAY_BY_PLAN[key] ?? MAX_PER_DAY_BY_PLAN.starter ?? {};
   const val = limits[feature];
   return val ?? -1;
 }

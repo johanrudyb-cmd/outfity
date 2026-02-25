@@ -78,7 +78,7 @@ export async function POST(request: Request) {
             where: { id: authUser.id },
             data: {
                 onboardingCompleted: true,
-                plan: (plan === 'creator' || plan === 'free') ? plan : authUser.plan,
+                plan: (plan === 'creator' || plan === 'starter') ? plan : authUser.plan,
                 onboardingData: {
                     universe,
                     universeId,

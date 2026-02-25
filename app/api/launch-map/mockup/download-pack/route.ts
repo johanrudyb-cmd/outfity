@@ -21,7 +21,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'brandId requis' }, { status: 400 });
     }
 
-    if (user.plan === 'free') {
+    if (user.plan === 'free' || user.plan === 'starter') {
       return NextResponse.json({ error: 'Plan insuffisant (upgrade requis)' }, { status: 403 });
     }
 

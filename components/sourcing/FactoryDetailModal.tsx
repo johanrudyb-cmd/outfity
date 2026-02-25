@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { X, Star, Mail, Phone, ExternalLink } from 'lucide-react';
+import { isFreePlan } from '@/lib/plan-utils';
 
 interface Factory {
   id: string;
@@ -30,7 +31,7 @@ export function FactoryDetailModal({
   isFavorite,
   onToggleFavorite,
   onClose,
-  userPlan = 'free',
+  userPlan = 'starter',
 }: FactoryDetailModalProps) {
 
   return (
@@ -39,7 +40,7 @@ export function FactoryDetailModal({
         <div className="bg-background rounded-xl shadow-modern-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-border">
           <div className="sticky top-0 bg-background border-b border-border p-4 flex items-center justify-between z-10">
             <h2 className="text-xl font-bold text-foreground truncate pr-4">
-              {userPlan === 'free' ? `Usine Partenaire #${factory.id.slice(-4).toUpperCase()}` : factory.name}
+              {isFreePlan(userPlan) ? `Usine Partenaire #${factory.id.slice(-4).toUpperCase()}` : factory.name}
             </h2>
             <div className="flex items-center gap-2 flex-shrink-0">
               <button
@@ -101,7 +102,7 @@ export function FactoryDetailModal({
             {(factory.contactEmail || factory.contactPhone) && (
               <div>
                 <p className="text-muted-foreground font-medium text-sm mb-2">Coordonnées</p>
-                {userPlan === 'free' ? (
+                {isFreePlan(userPlan) ? (
                   <div className="rounded-lg border-2 border-dashed border-primary/20 bg-primary/5 p-4 flex flex-col items-center text-center gap-2">
                     <p className="text-xs font-semibold text-primary uppercase tracking-tight">🔒 Contenu Réservé</p>
                     <p className="text-xs text-muted-foreground">Les coordonnées directes des usines sont réservées aux membres Créateur.</p>
@@ -141,7 +142,7 @@ export function FactoryDetailModal({
 
             {factory.website && (
               <div className="flex gap-2 pt-2 border-t border-border">
-                {userPlan === 'free' ? (
+                {isFreePlan(userPlan) ? (
                   <Button
                     className="flex-1 gap-2 grayscale-[0.5] opacity-80"
                     variant="secondary"

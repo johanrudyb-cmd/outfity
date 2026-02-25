@@ -53,7 +53,7 @@ export default async function DashboardPage() {
 
   const hasIdentity = !!(brand.logo || brand.colorPalette || brand.typography);
   const weekEvents = getWeekEvents(launchMap?.contentCalendar ?? null);
-  const isFree = user.plan === 'free';
+  const isFree = user.plan === 'starter';
 
   // Launch Map phases
   const phases = [
@@ -177,17 +177,19 @@ export default async function DashboardPage() {
                       <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight leading-tight">
                         {nextPhase.label}
                       </h2>
-                      <p className="text-[#86868B] mt-2 text-base leading-relaxed">
+                      <p className="text-[#86868B] mt-2 text-base leading-relaxed max-w-lg">
                         Complétez cette phase pour faire avancer <strong className="text-[#1D1D1F]">{brand.name}</strong> vers son lancement.
                       </p>
                     </div>
 
-                    <Link href="/launch-map">
-                      <Button className="bg-[#007AFF] hover:bg-[#0056CC] text-white rounded-full px-7 h-12 font-bold text-sm shadow-lg shadow-blue-500/20 active:scale-[0.97] transition-all border-0">
-                        Continuer
-                        <ArrowRight className="ml-2 w-4 h-4" />
-                      </Button>
-                    </Link>
+                    <div className="pt-2">
+                      <Link href="/launch-map" className="inline-block">
+                        <Button className="bg-[#007AFF] hover:bg-[#0056CC] text-white rounded-full px-7 h-12 font-bold text-sm shadow-lg shadow-blue-500/20 active:scale-[0.97] transition-all border-0">
+                          Continuer
+                          <ArrowRight className="ml-2 w-4 h-4" />
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
 
                   {/* Right: Circular progress */}

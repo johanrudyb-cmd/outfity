@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import type { BrandIdentity } from './LaunchMapStepper';
+import { isFreePlan } from '@/lib/plan-utils';
 
 interface Message {
     id: string;
@@ -250,7 +251,7 @@ export function Phase3SourcingChat({
     };
 
     const userMessagesCount = messages.filter(m => m.role === 'user').length;
-    const isFreeLimitReached = userPlan === 'free' && userMessagesCount >= 10;
+    const isFreeLimitReached = isFreePlan(userPlan) && userMessagesCount >= 10;
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -472,6 +473,9 @@ export function Phase3SourcingChat({
                                     {isTyping ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 ml-0.5" />}
                                 </button>
                             </form>
+                            <p className="text-[10px] text-[#86868B] text-center mt-2 font-medium">
+                                Ada peut commettre des erreurs. Vérifiez les informations importantes.
+                            </p>
                         </div>
                     </>
                 )}

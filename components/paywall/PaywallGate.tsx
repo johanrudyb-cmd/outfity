@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { Lock, Sparkles, ArrowLeft } from 'lucide-react';
+import { isFreePlan } from '@/lib/plan-utils';
 
 /** Chemins ou préfixes paywalled (tous les autres sont gratuits) */
 const PAYWALLED_PATHS: { path: string; exact?: boolean }[] = [
@@ -52,7 +53,7 @@ export function PaywallGate({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (loading) return;
-    const isFree = user?.plan === 'free';
+    const isFree = isFreePlan(user?.plan);
     const isPathPaywalled = isPaywalledPath(pathname || '');
     setShowPaywall(!!(isFree && isPathPaywalled));
   }, [loading, user?.plan, pathname]);

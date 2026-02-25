@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Download, Loader2, Check, Lock } from 'lucide-react';
 import { useSurplusModal } from '@/components/usage/SurplusModalContext';
+import { isFreePlan } from '@/lib/plan-utils';
 
 interface MockupCategory {
   id: string;
@@ -59,7 +60,7 @@ export function MockupPackSelector({ brandId, brandName, inline, userPlan, typeF
   const deselectAll = () => setSelected(new Set());
 
   const handleDownload = async () => {
-    if (userPlan === 'free') {
+    if (isFreePlan(userPlan)) {
       openSurplusModal();
       return;
     }
@@ -151,7 +152,7 @@ export function MockupPackSelector({ brandId, brandName, inline, userPlan, typeF
         size={inline ? 'sm' : 'md'}
         className="gap-2 w-full sm:w-auto"
       >
-        {isDownloading ? <Loader2 className="w-5 h-5 animate-spin" /> : (userPlan === 'free' ? <Lock className="w-5 h-5" /> : <Download className="w-5 h-5" />)}
+        {isDownloading ? <Loader2 className="w-5 h-5 animate-spin" /> : (isFreePlan(userPlan) ? <Lock className="w-5 h-5" /> : <Download className="w-5 h-5" />)}
         Télécharger ({selected.size} type{selected.size > 1 ? 's' : ''} sélectionné{selected.size > 1 ? 's' : ''})
       </Button>
     </>

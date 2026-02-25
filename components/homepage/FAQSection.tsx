@@ -26,8 +26,8 @@ const faqs = [
     answer: 'La plateforme est conçue pour les créateurs de marques de vêtements, e-commerçants et influenceurs qui veulent sécuriser leur stratégie en s\'appuyant sur des données concrètes plutôt que sur des suppositions.',
   },
   {
-    question: 'La plateforme possède-t-elle un plan gratuit ?',
-    answer: 'Oui, vous pouvez créer un compte gratuitement pour explorer la plateforme et accéder à un nombre limité de tendances et d\'outils de validation.',
+    question: 'La plateforme possède-t-elle un plan Starter ?',
+    answer: 'Oui, vous pouvez créer un compte Starter gratuitement pour explorer la plateforme et accéder à un nombre limité de tendances et d\'outils de validation.',
   },
 ];
 

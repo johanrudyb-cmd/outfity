@@ -69,7 +69,7 @@ export function QuoteList({ quotes, userPlan = 'free' }: QuoteListProps) {
               >
                 <div>
                   <div className="font-medium text-stone-900">
-                    {userPlan === 'free' ? `Usine Partenaire #${quote.factoryId.slice(-4).toUpperCase()}` : quote.factory.name}
+                    {(userPlan === 'free' || userPlan === 'starter') ? `Usine Partenaire #${quote.factoryId.slice(-4).toUpperCase()}` : quote.factory.name}
                   </div>
                   <div className="text-sm text-stone-600 font-light">
                     {quote.factory.country} •{' '}

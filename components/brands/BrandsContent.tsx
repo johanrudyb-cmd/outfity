@@ -144,7 +144,7 @@ export function BrandsContent() {
     }
   };
 
-  if (user?.plan === 'free') {
+  if (user?.plan === 'free' || user?.plan === 'starter') {
     return (
       <div className="space-y-6">
         {/* Header (visible but content locked) */}

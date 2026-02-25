@@ -113,6 +113,10 @@ export function MarginCalculator() {
               Accéder au calculateur complet
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
+            <p className="text-[10px] sm:text-[11px] text-white/40 text-center mt-6 font-medium leading-relaxed">
+              Vérifiez les taux d'imposition selon votre statut. <br className="hidden sm:block" />
+              Les prix affichés sont des moyennes du marché à titre indicatif.
+            </p>
           </div>
         </div>
       </div>

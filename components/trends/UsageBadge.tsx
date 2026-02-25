@@ -12,7 +12,7 @@ interface UsageBadgeProps {
 }
 
 export function UsageBadge({ count, plan, limit, className }: UsageBadgeProps) {
-    const isFree = plan === 'free';
+    const isFree = plan === 'free' || plan === 'starter';
     // Use passed limit, or fallback to config-based defaults (3 for free, 10 for others as safe default)
     const maxAnalyses = limit ?? (isFree ? 3 : 10);
     const safeCount = count ?? 0;

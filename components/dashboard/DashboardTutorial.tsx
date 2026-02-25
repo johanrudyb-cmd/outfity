@@ -124,38 +124,48 @@ export function DashboardTutorial() {
 
   if (!mounted || !isVisible || !currentStep) return null;
 
+  // On mobile/tablet (<1024px) sidebar is hidden — no target elements visible, so we show modal centered
+  const isMobileTablet = typeof window !== 'undefined' && window.innerWidth < 1024;
+  const showSpotlight = !isMobileTablet && targetRect !== null;
+
   return (
-    <div className="fixed inset-0 z-[100] pointer-events-none flex flex-col justify-end">
-      {/* Overlay avec "Spotlight" via SVG Mask ou Radial Gradient */}
+    <div className={cn(
+      "fixed inset-0 z-[100] pointer-events-none",
+      isMobileTablet ? "flex items-center justify-center px-4" : "flex flex-col justify-end"
+    )}>
+      {/* Overlay */}
       <div
         className="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px] pointer-events-auto transition-opacity duration-500"
-        style={{
-          maskImage: targetRect ? `radial-gradient(circle ${Math.max(targetRect.width, targetRect.height) * 0.8}px at ${targetRect.left + targetRect.width / 2}px ${targetRect.top + targetRect.height / 2}px, transparent 100%, black 100%)` : 'none',
-          WebkitMaskImage: targetRect ? `radial-gradient(circle ${Math.max(targetRect.width, targetRect.height) * 0.8}px at ${targetRect.left + targetRect.width / 2}px ${targetRect.top + targetRect.height / 2}px, transparent 100%, black 100%)` : 'none',
-        }}
+        style={showSpotlight ? {
+          maskImage: `radial-gradient(circle ${Math.max(targetRect!.width, targetRect!.height) * 0.8}px at ${targetRect!.left + targetRect!.width / 2}px ${targetRect!.top + targetRect!.height / 2}px, transparent 100%, black 100%)`,
+          WebkitMaskImage: `radial-gradient(circle ${Math.max(targetRect!.width, targetRect!.height) * 0.8}px at ${targetRect!.left + targetRect!.width / 2}px ${targetRect!.top + targetRect!.height / 2}px, transparent 100%, black 100%)`,
+        } : undefined}
         onClick={handleComplete}
       />
 
-      {/* Anneau de focus élégant */}
+      {/* Anneau de focus (desktop uniquement) */}
       <AnimatePresence mode="wait">
-        {targetRect && (
+        {showSpotlight && (
           <motion.div
             key={`ring-${step}`}
             initial={{ opacity: 0, scale: 1.1 }}
             animate={{ opacity: 1, scale: 1 }}
             className="absolute rounded-xl sm:rounded-2xl border-2 border-[#007AFF] shadow-[0_0_15px_rgba(0,122,255,0.4)] sm:shadow-[0_0_20px_rgba(0,122,255,0.4)] pointer-events-none"
             style={{
-              left: targetRect.left - (window.innerWidth < 640 ? 4 : 6),
-              top: targetRect.top - (window.innerWidth < 640 ? 4 : 6),
-              width: targetRect.width + (window.innerWidth < 640 ? 8 : 12),
-              height: targetRect.height + (window.innerWidth < 640 ? 8 : 12),
+              left: targetRect!.left - 6,
+              top: targetRect!.top - 6,
+              width: targetRect!.width + 12,
+              height: targetRect!.height + 12,
             }}
           />
         )}
       </AnimatePresence>
 
-      {/* Tooltip Card Apple Style */}
-      <div className="relative pointer-events-auto flex justify-center pb-8 sm:pb-12 px-4 sm:px-6">
+      {/* Tooltip Card */}
+      <div className={cn(
+        "relative pointer-events-auto flex justify-center",
+        isMobileTablet ? "w-full max-w-sm" : "pb-8 sm:pb-12 px-4 sm:px-6"
+      )}>
         <motion.div
           key={`card-${step}`}
           initial={{ opacity: 0, y: 30, scale: 0.95 }}

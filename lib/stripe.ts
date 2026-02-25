@@ -37,6 +37,6 @@ export const SURPLUS_PACKS_STRIPE: Record<
   },
 };
 
-/** Plan d'abonnement mensuel (Créateur 29€/mois à vie). Clé utilisée en BDD : user.plan (base = 29€ dans ai-usage-config) */
-export const SUBSCRIPTION_PLAN_ID = 'base';
+/** Plan d'abonnement mensuel (Créateur 29€/mois à vie). Clé utilisée en BDD : user.plan (ex: 'creator') */
+export const SUBSCRIPTION_PLAN_ID = 'creator';
 export const SUBSCRIPTION_PRICE_EUR = 29;

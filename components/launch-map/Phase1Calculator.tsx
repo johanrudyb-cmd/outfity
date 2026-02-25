@@ -503,6 +503,10 @@ export function Phase1Calculator({ brandId, brand, initialData, onComplete }: an
                   </span>
                 </Button>
               </div>
+              <p className="text-[10px] text-[#86868B] text-center mt-6 font-medium leading-relaxed">
+                Vérifiez les taux d'imposition selon votre statut. <br />
+                Les prix affichés sont des moyennes du marché à titre indicatif.
+              </p>
             </div>
           </div>
         </div>

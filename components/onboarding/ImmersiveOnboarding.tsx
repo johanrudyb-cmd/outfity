@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Sparkles, Zap, Moon, ShieldCheck, Leaf, ArrowRight,
-    Check, Loader2, CheckCircle2, Crown, Star, TrendingUp, Clock
+    Check, Loader2, CheckCircle2, Crown, Star, TrendingUp, Clock, Rocket
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 // Types & constants
 // ─────────────────────────────────────────────────────────────
 
-type Step = 'welcome' | 'plan' | 'universe' | 'product' | 'identity' | 'pitch' | 'agents' | 'launch';
+type Step = 'welcome' | 'universe' | 'product' | 'identity' | 'pitch' | 'agents' | 'launch';
 
 interface OnboardingData {
     universe: string;
@@ -25,30 +25,6 @@ interface OnboardingData {
     instagram?: string;
     plan?: string;
 }
-
-const PLANS = [
-    {
-        id: 'free',
-        name: 'Starter',
-        price: 'Gratuit',
-        description: 'Ton équipe d\'experts IA (Virgil, Pharrell, Ada, Johan) t\'accompagne.',
-        features: ['Accès limité aux 4 agents IA', '5 designs / mois', '3 analyses trends', 'Sourcing Hub'],
-        icon: Zap,
-        color: '#86868B'
-    },
-    {
-        id: 'creator',
-        name: 'Créateur',
-        price: '29€',
-        oldPrice: '39€',
-        period: '/mois*',
-        description: 'Offre limitée : 29€/mois à vie (au lieu de 39€).',
-        features: ['3 JOURS D\'ESSAI GRATUIT', 'Les 4 agents IA inclus', 'Stratégie marketing complète', 'Designs illimités', 'Tech Packs IA', 'Sourcing Premium'],
-        icon: Crown,
-        color: '#007AFF',
-        popular: true
-    }
-];
 
 const UNIVERSES = [
     {
@@ -122,8 +98,8 @@ const PRODUCTS = [
     { id: 'ensemble', label: 'Ensemble', emoji: '🎽', trend: 94, desc: 'Niche premium rentable' },
 ];
 
-const STEP_ORDER: Step[] = ['welcome', 'plan', 'universe', 'product', 'identity', 'pitch', 'agents', 'launch'];
-const STEP_LABELS = ['Offre', 'Univers', 'Produit', 'Identité', 'Mission', 'Ton Équipe'];
+const STEP_ORDER: Step[] = ['welcome', 'universe', 'product', 'identity', 'pitch', 'agents', 'launch'];
+const STEP_LABELS = ['Univers', 'Produit', 'Identité', 'Mission', 'Équipe IA'];
 
 import { AgentRevealCard, AGENTS_TEAM } from './AgentRevealCard';
 
@@ -138,275 +114,123 @@ interface ImmersiveOnboardingProps {
 export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const subscribed = searchParams.get('subscribed') === 'true';
-
-    const [plan, setPlan] = useState(initialPlan);
     const [step, setStep] = useState<Step>('welcome');
-    const [data, setData] = useState<Partial<OnboardingData>>({});
-    const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
-    const [loadingSuggestions, setLoadingSuggestions] = useState(false);
-    const [saving, setSaving] = useState(false);
-    const [error, setError] = useState('');
+    const [plan, setPlan] = useState(initialPlan || 'starter');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [data, setData] = useState<OnboardingData>({
+        universe: '',
+        universeId: '',
+        productType: '',
+        brandName: '',
+        pitch: '',
+    });
 
     const isCreator = plan === 'creator';
     const stepIndex = STEP_ORDER.indexOf(step);
-    const progressSteps = ['plan', 'universe', 'product', 'identity', 'pitch', 'agents'] as Step[];
-    const progressIndex = progressSteps.indexOf(step);
-
-    // Re-check plan réel depuis la DB après retour Stripe
-    useEffect(() => {
-        if (subscribed) {
-            fetch('/api/user/plan')
-                .then(r => r.ok ? r.json() : null)
-                .then(d => { if (d?.plan) setPlan(d.plan); })
-                .catch(() => { });
-        }
-    }, [subscribed]);
-
-    // Suggestions de noms IA pour plan Créateur
-    const fetchNameSuggestions = useCallback(async () => {
-        if (!data.universeId || plan !== 'creator') return;
-        setLoadingSuggestions(true);
-        try {
-            const res = await fetch('/api/brands/generate-identity', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    concept: UNIVERSES.find(u => u.id === data.universeId)?.description,
-                    style: data.universe,
-                    target: data.productType,
-                }),
-            });
-            const json = await res.json();
-            if (res.ok && json.names) setNameSuggestions(json.names.slice(0, 5));
-        } catch { }
-        finally { setLoadingSuggestions(false); }
-    }, [data.universeId, data.universe, data.productType, plan]);
 
     useEffect(() => {
-        if (step === 'identity' && nameSuggestions.length === 0) {
-            fetchNameSuggestions();
-        }
-    }, [step, nameSuggestions.length, fetchNameSuggestions]);
+        const p = searchParams.get('plan');
+        if (p === 'creator') setPlan('creator');
+        else setPlan('starter');
+    }, [searchParams]);
 
-    const goNext = () => {
-        const next = STEP_ORDER[stepIndex + 1];
-        if (next) setStep(next);
-    };
+    const goNext = useCallback(() => {
+        const nextIdx = stepIndex + 1;
+        if (nextIdx < STEP_ORDER.length) {
+            setStep(STEP_ORDER[nextIdx]);
+        }
+    }, [stepIndex]);
+
+    const goBack = useCallback(() => {
+        const prevIdx = stepIndex - 1;
+        if (prevIdx >= 0) {
+            setStep(STEP_ORDER[prevIdx]);
+        }
+    }, [stepIndex]);
 
     const handleComplete = async () => {
-        setSaving(true);
-        setError('');
+        setIsSubmitting(true);
         try {
             const res = await fetch('/api/user/complete-onboarding', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...data, plan }),
+                body: JSON.stringify({ ...data, plan: plan === 'starter' ? 'starter' : plan }),
             });
             if (!res.ok) {
                 const json = await res.json();
-                throw new Error(json.error || 'Erreur');
+                throw new Error(json.error || 'Erreur lors de la sauvegarde');
             }
-            setStep('agents');
-        } catch (e) {
-            setError((e as Error).message);
-            setSaving(false);
+            setStep('launch');
+        } catch (err) {
+            console.error(err);
+            alert('Impossible de finaliser l\'onboarding. Réessayez.');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-[#F5F5F7] font-sans flex flex-col">
-
-            {/* Creator badge */}
-            {subscribed && isCreator && step === 'welcome' && (
-                <motion.div
-                    initial={{ opacity: 0, y: -16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-[#007AFF] text-white px-5 py-2 rounded-full shadow-lg text-sm font-semibold"
-                >
-                    <Crown className="w-4 h-4" />
-                    Plan Créateur activé !
-                </motion.div>
-            )}
-
-            {/* Progress stepper — visible uniquement sur les étapes 2-5 */}
-            {progressIndex >= 0 && (
-                <div className="fixed top-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-sm border-b border-[#E5E5EA]">
-                    <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between gap-2">
-                        {STEP_LABELS.map((label, i) => {
-                            const isActive = i === progressIndex;
-                            const isDone = i < progressIndex;
-                            return (
-                                <div key={label} className="flex items-center gap-2 flex-1">
-                                    <div className={cn(
-                                        'w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all',
-                                        isDone ? 'bg-[#007AFF] text-white' :
-                                            isActive ? 'bg-[#007AFF] text-white ring-4 ring-[#007AFF]/20' :
-                                                'bg-[#E5E5EA] text-[#86868B]'
-                                    )}>
-                                        {isDone ? <Check className="w-3 h-3" /> : i + 1}
-                                    </div>
-                                    <span className={cn(
-                                        'text-xs font-semibold hidden sm:block',
-                                        isActive ? 'text-[#1D1D1F]' : isDone ? 'text-[#007AFF]' : 'text-[#86868B]'
-                                    )}>{label}</span>
-                                    {i < STEP_LABELS.length - 1 && (
-                                        <div className={cn(
-                                            'h-0.5 flex-1 rounded transition-all',
-                                            isDone ? 'bg-[#007AFF]' : 'bg-[#E5E5EA]'
-                                        )} />
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
+        <div className="min-h-screen bg-[#F5F5F7] text-[#1D1D1F] font-sans selection:bg-[#007AFF]/20 selection:text-[#007AFF]">
+            {/* PROGRESS BAR */}
+            {step !== 'launch' && (
+                <div className="fixed top-0 left-0 w-full h-1.5 bg-white/50 z-50">
+                    <motion.div
+                        className="h-full bg-gradient-to-r from-[#007AFF] to-[#5AC8FA]"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${(stepIndex / (STEP_ORDER.length - 1)) * 100}%` }}
+                        transition={{ duration: 0.5 }}
+                    />
                 </div>
             )}
 
-            {/* Main content */}
-            <div className={cn(
-                'flex-1 flex items-center justify-center px-4',
-                progressIndex >= 0 ? 'pt-28 pb-10' : 'py-10'
-            )}>
+            {/* BACK BUTTON */}
+            {step !== 'welcome' && step !== 'launch' && (
+                <button
+                    onClick={goBack}
+                    className="fixed top-8 left-8 p-3 rounded-full hover:bg-white/80 transition-all z-40 group border border-transparent hover:border-black/5"
+                >
+                    <ArrowRight className="w-5 h-5 rotate-180 text-[#86868B] group-hover:text-black" />
+                </button>
+            )}
+
+            <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
                 <AnimatePresence mode="wait">
 
                     {/* ── WELCOME ── */}
                     {step === 'welcome' && (
                         <motion.div key="welcome"
-                            initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}
-                            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                            className="max-w-lg w-full text-center space-y-8"
+                            initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }}
+                            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                            className="max-w-xl text-center space-y-8"
                         >
-                            {/* Logo / App mark */}
-                            <div className="flex flex-col items-center gap-4">
-                                <div className="w-20 h-20 rounded-[28px] bg-[#007AFF] flex items-center justify-center shadow-xl shadow-blue-300/40">
-                                    <Sparkles className="w-10 h-10 text-white" />
-                                </div>
+                            <div className="space-y-4">
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.2 }}
+                                    className="w-20 h-20 bg-white rounded-[22px] shadow-apple flex items-center justify-center mx-auto mb-8 cursor-default"
+                                >
+                                    <Sparkles className="w-10 h-10 text-[#007AFF]" />
+                                </motion.div>
                                 <div>
                                     <h1 className="text-4xl font-bold text-[#1D1D1F] tracking-tight leading-tight">
-                                        {isCreator ? 'Bienvenue dans\nle studio Créateur.' : 'Construisons\nta marque ensemble.'}
+                                        {isCreator ? 'Bienvenue dans\nle studio Créateur.' : 'Bienvenue dans\nle studio Starter.'}
                                     </h1>
                                     <p className="text-[#86868B] text-lg mt-3 leading-relaxed">
                                         {isCreator
-                                            ? 'En 3 minutes, ton studio est configuré avec l\'IA. Suggestions de noms, tendances et visuels — tout est prêt.'
-                                            : 'En 5 questions simples, je pose les fondations de ta marque de mode.'
-                                        }
+                                            ? 'Prêt à transformer tes idées en marque rentable avec ton équipe IA complète ?'
+                                            : 'Commençons par définir les bases de ta future marque de vêtement.'}
                                     </p>
                                 </div>
                             </div>
-
-                            {!isCreator && (
-                                <div className="rounded-2xl bg-white border border-[#E5E5EA] p-4 flex items-start gap-3 text-left shadow-sm">
-                                    <Star className="w-5 h-5 text-[#FF9F0A] shrink-0 mt-0.5" />
-                                    <p className="text-sm text-[#1D1D1F]">
-                                        Passe au plan <span className="font-semibold text-[#007AFF]">Créateur</span> pour les suggestions de noms IA, l'analyse de tendances et le studio visuel complet.
-                                    </p>
-                                </div>
-                            )}
-
-                            <button
-                                onClick={goNext}
-                                className="group w-full h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all shadow-lg shadow-blue-500/25"
-                            >
-                                Commencer
-                                <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
-                            </button>
-                            <p className="text-[#86868B] text-sm">Environ 3 minutes · Gratuit</p>
-                        </motion.div>
-                    )}
-
-                    {/* ── PLAN SELECTION ── */}
-                    {step === 'plan' && (
-                        <motion.div key="plan"
-                            initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
-                            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                            className="max-w-2xl w-full space-y-8"
-                        >
-                            <div className="text-center space-y-2">
-                                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Choisis ton plan</h2>
-                                <p className="text-[#86868B]">Tu pourras changer à tout moment depuis tes paramètres.</p>
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                {PLANS.map(p => (
-                                    <button
-                                        key={p.id}
-                                        onClick={() => setPlan(p.id)}
-                                        className={cn(
-                                            'relative text-left p-6 rounded-3xl border-2 transition-all duration-300 flex flex-col h-full bg-white',
-                                            plan === p.id
-                                                ? 'border-[#007AFF] shadow-xl shadow-blue-500/10 scale-[1.02]'
-                                                : 'border-[#E5E5EA] hover:border-[#C7C7CC] opacity-80 hover:opacity-100'
-                                        )}
-                                    >
-                                        {p.popular && (
-                                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#007AFF] text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
-                                                Recommandé
-                                            </div>
-                                        )}
-
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div className={cn('p-2 rounded-xl bg-opacity-10', plan === p.id ? 'bg-[#007AFF]/10' : 'bg-slate-100')}>
-                                                <p.icon className={cn('w-6 h-6', plan === p.id ? 'text-[#007AFF]' : 'text-slate-400')} />
-                                            </div>
-                                            {plan === p.id && (
-                                                <div className="w-6 h-6 rounded-full bg-[#007AFF] flex items-center justify-center">
-                                                    <Check className="w-4 h-4 text-white" />
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div className="mb-6">
-                                            <h3 className="text-xl font-bold text-[#1D1D1F]">{p.name}</h3>
-                                            <div className="flex items-baseline gap-2 mt-1">
-                                                <span className="text-2xl font-black text-[#1D1D1F]">{p.price}</span>
-                                                {p.oldPrice && (
-                                                    <span className="text-lg text-[#86868B] line-through decoration-red-500/50">{p.oldPrice}</span>
-                                                )}
-                                                {p.id === 'creator' && (
-                                                    <div className="flex items-center gap-1.5 text-red-500 font-bold text-[10px] mb-2 px-2 py-0.5 bg-red-50 rounded-full border border-red-100 animate-pulse uppercase tracking-tight">
-                                                        <Clock className="w-3 h-3" />
-                                                        OFFRE : 29 JOURS RESTANTS
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <p className="text-sm text-[#86868B] mt-2 leading-relaxed">{p.description}</p>
-                                        </div>
-
-                                        <ul className="space-y-3 mb-8 flex-1">
-                                            {p.features.map(f => (
-                                                <li key={f} className="flex items-center gap-2 text-sm">
-                                                    <Check className="w-4 h-4 text-[#34C759] shrink-0" />
-                                                    <span className={cn(
-                                                        f === "3 JOURS D'ESSAI GRATUIT" ? "text-[#007AFF] font-bold" : "text-[#1D1D1F]/80"
-                                                    )}>
-                                                        {f}
-                                                    </span>
-                                                </li>
-                                            ))}
-                                        </ul>
-
-                                        <div className={cn(
-                                            'mt-auto w-full py-3 rounded-xl text-center font-bold text-sm transition-all',
-                                            plan === p.id ? 'bg-[#007AFF] text-white' : 'bg-[#F2F2F7] text-[#1D1D1F]'
-                                        )}>
-                                            {plan === p.id ? 'Plan sélectionné' : 'Sélectionner'}
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-
                             <button
                                 onClick={goNext}
                                 className="w-full h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all shadow-lg shadow-blue-500/25"
                             >
-                                Valider et continuer <ArrowRight className="w-5 h-5" />
+                                Commencer <ArrowRight className="w-5 h-5" />
                             </button>
-                            <p className="text-center text-[10px] text-slate-500 mt-4 px-4">
-                                *Offre limitée : 29€/mois à vie (au lieu de 39€) si vous souscrivez pendant la promo. 3 jours d'essai gratuit. Annulable à tout moment.
-                            </p>
                         </motion.div>
                     )}
+
 
                     {/* ── UNIVERSE ── */}
                     {step === 'universe' && (
@@ -453,13 +277,21 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                     </button>
                                 ))}
                             </div>
-                            <button
-                                onClick={goNext}
-                                disabled={!data.universeId}
-                                className="w-full h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-base flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#0056CC] active:scale-[0.98] transition-all shadow-lg shadow-blue-500/25"
-                            >
-                                Continuer <ArrowRight className="w-4 h-4" />
-                            </button>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={goBack}
+                                    className="flex-1 h-14 rounded-2xl border-2 border-[#E5E5EA] text-[#86868B] font-semibold text-lg flex items-center justify-center gap-2 hover:bg-white active:scale-[0.98] transition-all"
+                                >
+                                    Retour
+                                </button>
+                                <button
+                                    disabled={!data.universeId}
+                                    onClick={goNext}
+                                    className="flex-[2] h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 shadow-lg shadow-blue-500/20"
+                                >
+                                    Continuer <ArrowRight className="w-4 h-4" />
+                                </button>
+                            </div>
                         </motion.div>
                     )}
 
@@ -467,12 +299,12 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                     {step === 'product' && (
                         <motion.div key="product"
                             initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
-                            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                            transition={{ duration: 0.35 }}
                             className="max-w-2xl w-full space-y-6"
                         >
                             <div className="space-y-1">
-                                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Ton produit phare ?</h2>
-                                <p className="text-[#86868B]">Ta pièce de lancement. Tu pourras diversifier plus tard.</p>
+                                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Que veux-tu lancer ?</h2>
+                                <p className="text-[#86868B]">Chaque produit a son propre potentiel de viralité et ses marges.</p>
                             </div>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                 {PRODUCTS.map(p => (
@@ -480,48 +312,36 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                         key={p.id}
                                         onClick={() => setData(d => ({ ...d, productType: p.label }))}
                                         className={cn(
-                                            'relative text-left p-4 rounded-2xl border-2 bg-white transition-all duration-200',
+                                            'p-4 rounded-2xl border-2 bg-white transition-all text-center flex flex-col items-center group',
                                             data.productType === p.label
-                                                ? 'border-[#007AFF] bg-blue-50 shadow-md'
-                                                : 'border-[#E5E5EA] hover:border-[#C7C7CC] hover:shadow-sm'
+                                                ? 'border-[#007AFF] bg-blue-50/30'
+                                                : 'border-[#E5E5EA] hover:border-[#C7C7CC]'
                                         )}
                                     >
-                                        <div className="text-2xl mb-2">{p.emoji}</div>
-                                        <p className="font-semibold text-sm text-[#1D1D1F]">{p.label}</p>
-                                        <p className="text-[#86868B] text-[11px] mt-0.5">{p.desc}</p>
-                                        {/* Score de tendance — visible pour les Créateurs uniquement */}
-                                        <div className={cn(
-                                            'absolute top-3 right-3 flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full',
-                                            isCreator
-                                                ? p.trend >= 90 ? 'bg-green-100 text-green-700' : p.trend >= 80 ? 'bg-blue-100 text-blue-700' : 'bg-[#F2F2F7] text-[#86868B]'
-                                                : 'bg-[#F2F2F7] text-[#C7C7CC]'
-                                        )}>
-                                            {isCreator ? (
-                                                <><TrendingUp className="w-2.5 h-2.5" />{p.trend}</>
-                                            ) : (
-                                                '🔒'
-                                            )}
+                                        <span className="text-3xl mb-3 group-hover:scale-110 transition-transform">{p.emoji}</span>
+                                        <p className="font-bold text-sm text-[#1D1D1F]">{p.label}</p>
+                                        <div className="mt-2 flex items-center gap-1 text-[9px] font-bold text-[#34C759] uppercase tracking-wider">
+                                            <TrendingUp className="w-3 h-3" />
+                                            {p.trend}% Trend
                                         </div>
-                                        {data.productType === p.label && (
-                                            <div className="absolute bottom-3 right-3 w-4 h-4 rounded-full bg-[#007AFF] flex items-center justify-center">
-                                                <Check className="w-2.5 h-2.5 text-white" />
-                                            </div>
-                                        )}
                                     </button>
                                 ))}
                             </div>
-                            {!isCreator && (
-                                <p className="text-center text-[#86868B] text-xs">
-                                    🔒 Les scores de tendance en temps réel sont disponibles avec le plan Créateur.
-                                </p>
-                            )}
-                            <button
-                                onClick={goNext}
-                                disabled={!data.productType}
-                                className="w-full h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-base flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#0056CC] active:scale-[0.98] transition-all shadow-lg shadow-blue-500/25"
-                            >
-                                Continuer <ArrowRight className="w-4 h-4" />
-                            </button>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={goBack}
+                                    className="flex-1 h-14 rounded-2xl border-2 border-[#E5E5EA] text-[#86868B] font-semibold text-lg flex items-center justify-center gap-2 hover:bg-white active:scale-[0.98] transition-all"
+                                >
+                                    Retour
+                                </button>
+                                <button
+                                    disabled={!data.productType}
+                                    onClick={goNext}
+                                    className="flex-[2] h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 shadow-lg shadow-blue-500/20"
+                                >
+                                    Continuer <ArrowRight className="w-4 h-4" />
+                                </button>
+                            </div>
                         </motion.div>
                     )}
 
@@ -529,82 +349,61 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                     {step === 'identity' && (
                         <motion.div key="identity"
                             initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
-                            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                            className="max-w-xl w-full space-y-6"
+                            transition={{ duration: 0.35 }}
+                            className="max-w-xl w-full space-y-8"
                         >
-                            <div className="space-y-1">
+                            <div className="space-y-2">
                                 <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Le nom de ta marque</h2>
-                                <p className="text-[#86868B]">Ton premier actif. Choisis-le avec soin.</p>
+                                <p className="text-[#86868B]">C'est l'identité qui te suivra partout. Pas d'inquiétude, tu pourras le modifier.</p>
                             </div>
 
-                            {/* IA suggestions — Creator only */}
-                            {isCreator && (
-                                <div className="bg-white rounded-2xl border border-[#E5E5EA] p-4 space-y-3 shadow-sm">
-                                    <p className="text-xs font-semibold text-[#007AFF] flex items-center gap-1.5 uppercase tracking-wider">
-                                        <Sparkles className="w-3 h-3" /> Suggestions IA · {UNIVERSES.find(u => u.id === data.universeId)?.name}
-                                    </p>
-                                    {loadingSuggestions ? (
-                                        <div className="flex items-center gap-2 text-[#86868B] text-sm">
-                                            <Loader2 className="w-4 h-4 animate-spin text-[#007AFF]" />
-                                            Génération en cours...
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <input
+                                        autoFocus
+                                        type="text"
+                                        placeholder="Ex: OUTFIT STUDIO"
+                                        value={data.brandName}
+                                        onChange={(e) => setData(d => ({ ...d, brandName: e.target.value }))}
+                                        className="w-full h-14 px-6 rounded-2xl bg-white border-2 border-[#E5E5EA] focus:border-[#007AFF] focus:ring-4 focus:ring-[#007AFF]/10 transition-all text-lg font-semibold"
+                                    />
+                                </div>
+
+                                {isCreator && (
+                                    <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
+                                        <div className="flex items-center gap-2 text-[#007AFF] font-bold text-xs uppercase tracking-widest">
+                                            <Sparkles className="w-4 h-4" /> Suggestions IA Créateur
                                         </div>
-                                    ) : (
                                         <div className="flex flex-wrap gap-2">
-                                            {nameSuggestions.map(n => (
+                                            {['Studio Noir', 'Raw Aesthetic', 'Urban Flow', 'Vibe Gallery'].map(name => (
                                                 <button
-                                                    key={n}
-                                                    onClick={() => setData(d => ({ ...d, brandName: n }))}
-                                                    className={cn(
-                                                        'px-3 py-1.5 rounded-xl text-sm font-semibold border transition-all',
-                                                        data.brandName === n
-                                                            ? 'bg-[#007AFF] border-[#007AFF] text-white'
-                                                            : 'border-[#E5E5EA] text-[#1D1D1F] hover:border-[#007AFF] hover:text-[#007AFF]'
-                                                    )}
+                                                    key={name}
+                                                    onClick={() => setData(d => ({ ...d, brandName: name }))}
+                                                    className="px-3 py-1.5 bg-white rounded-lg border border-slate-200 text-xs font-medium hover:border-[#007AFF] hover:text-[#007AFF] transition-colors"
                                                 >
-                                                    {n}
+                                                    {name}
                                                 </button>
                                             ))}
                                         </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* Name input */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-[#1D1D1F]">Nom de la marque *</label>
-                                <input
-                                    type="text"
-                                    value={data.brandName || ''}
-                                    onChange={e => setData(d => ({ ...d, brandName: e.target.value }))}
-                                    placeholder={isCreator ? 'Ou tape ton propre nom...' : 'Ex. Nomad Studio'}
-                                    className="w-full h-14 rounded-2xl bg-white border-2 border-[#E5E5EA] px-5 text-lg font-semibold text-[#1D1D1F] placeholder:text-[#C7C7CC] placeholder:font-normal focus:outline-none focus:border-[#007AFF] transition-colors"
-                                />
-                                {!isCreator && (
-                                    <p className="text-[#86868B] text-xs pl-1">
-                                        💡 Le plan Créateur génère 5 suggestions de noms IA adaptées à ton univers.
-                                    </p>
+                                    </div>
                                 )}
                             </div>
 
-                            {/* Instagram (optional) */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-[#1D1D1F]">Instagram <span className="font-normal text-[#86868B]">(optionnel)</span></label>
-                                <input
-                                    type="text"
-                                    value={data.instagram || ''}
-                                    onChange={e => setData(d => ({ ...d, instagram: e.target.value }))}
-                                    placeholder="@ta_marque"
-                                    className="w-full h-12 rounded-xl bg-white border-2 border-[#E5E5EA] px-4 text-sm text-[#1D1D1F] placeholder:text-[#C7C7CC] focus:outline-none focus:border-[#007AFF] transition-colors"
-                                />
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={goBack}
+                                    className="flex-1 h-14 rounded-2xl border-2 border-[#E5E5EA] text-[#86868B] font-semibold text-lg flex items-center justify-center gap-2 hover:bg-white active:scale-[0.98] transition-all"
+                                >
+                                    Retour
+                                </button>
+                                <button
+                                    disabled={!data.brandName}
+                                    onClick={goNext}
+                                    className="flex-[2] h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 shadow-lg shadow-blue-500/20"
+                                >
+                                    Continuer <ArrowRight className="w-4 h-4" />
+                                </button>
                             </div>
-
-                            <button
-                                onClick={goNext}
-                                disabled={(data.brandName?.trim()?.length || 0) < 2}
-                                className="w-full h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-base flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#0056CC] active:scale-[0.98] transition-all shadow-lg shadow-blue-500/25"
-                            >
-                                Continuer <ArrowRight className="w-4 h-4" />
-                            </button>
                         </motion.div>
                     )}
 
@@ -612,44 +411,51 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                     {step === 'pitch' && (
                         <motion.div key="pitch"
                             initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
-                            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                            className="max-w-xl w-full space-y-6"
+                            transition={{ duration: 0.35 }}
+                            className="max-w-xl w-full space-y-8"
                         >
-                            <div className="space-y-1">
+                            <div className="space-y-2">
                                 <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Ta mission en une phrase</h2>
-                                <p className="text-[#86868B]">Ce texte alimentera ton dashboard, ta bio et tes mots-clés IA.</p>
+                                <p className="text-[#86868B]">Quel message veux-tu porter avec {data.brandName} ?</p>
                             </div>
 
-                            <div className="rounded-2xl bg-white border border-[#E5E5EA] p-4 shadow-sm">
-                                <p className="text-xs font-semibold text-[#86868B] uppercase tracking-wider mb-2">Exemple</p>
-                                <p className="text-sm text-[#1D1D1F] italic leading-relaxed">
-                                    "Je crée des hoodies oversize haut de gamme pour les créatifs urbains qui refusent le compromis entre style et confort."
-                                </p>
-                            </div>
-
-                            <textarea
-                                value={data.pitch || ''}
-                                onChange={e => setData(d => ({ ...d, pitch: e.target.value }))}
-                                placeholder="Je crée des [produit] pour [cible] qui..."
-                                rows={4}
-                                className="w-full rounded-2xl bg-white border-2 border-[#E5E5EA] px-5 py-4 text-base text-[#1D1D1F] placeholder:text-[#C7C7CC] focus:outline-none focus:border-[#007AFF] transition-colors resize-none"
-                            />
-
-                            {error && (
-                                <p className="text-red-500 text-sm text-center">{error}</p>
-                            )}
-
-                            <button
-                                onClick={handleComplete}
-                                disabled={saving || (data.pitch?.trim()?.length || 0) < 10}
-                                className="w-full h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-base flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#0056CC] active:scale-[0.98] transition-all shadow-lg shadow-blue-500/25"
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.98 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="bg-white rounded-3xl p-6 shadow-apple border border-[#E5E5EA] space-y-4"
                             >
-                                {saving ? (
-                                    <><Loader2 className="w-4 h-4 animate-spin" /> Enregistrement...</>
-                                ) : (
-                                    <>Finaliser ma marque <ArrowRight className="w-4 h-4" /></>
-                                )}
-                            </button>
+                                <textarea
+                                    autoFocus
+                                    placeholder="Ex: Créer des basiques premium éco-responsables pour les urbains exigeants."
+                                    value={data.pitch}
+                                    onChange={(e) => setData(d => ({ ...d, pitch: e.target.value }))}
+                                    className="w-full min-h-[160px] p-4 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-[#007AFF] transition-all resize-none text-base font-medium"
+                                />
+
+                                <div className="flex items-center gap-2 text-[10px] text-[#86868B] font-medium px-1">
+                                    <ShieldCheck className="w-3.5 h-3.5" /> Ton pitch sert de base à ton équipe IA pour tes futurs contenus.
+                                </div>
+                            </motion.div>
+
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={goBack}
+                                    className="flex-1 h-14 rounded-2xl border-2 border-[#E5E5EA] text-[#86868B] font-semibold text-lg flex items-center justify-center gap-2 hover:bg-white active:scale-[0.98] transition-all"
+                                >
+                                    Retour
+                                </button>
+                                <button
+                                    disabled={!data.pitch || isSubmitting}
+                                    onClick={handleComplete}
+                                    className="flex-[2] h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all disabled:opacity-50 shadow-lg"
+                                >
+                                    {isSubmitting ? (
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                    ) : (
+                                        <>Finaliser <ArrowRight className="w-4 h-4" /></>
+                                    )}
+                                </button>
+                            </div>
 
                             <button
                                 onClick={() => { setData(d => ({ ...d, pitch: 'À compléter' })); handleComplete(); }}
@@ -686,7 +492,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                             <div className="w-full max-w-5xl px-4 sm:px-6">
                                 <div className={cn(
                                     "grid gap-6 sm:gap-8 justify-items-center",
-                                    plan === 'free' ? "grid-cols-1 xs:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 xs:grid-cols-2 lg:grid-cols-4"
+                                    plan === 'starter' ? "grid-cols-1 xs:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 xs:grid-cols-2 lg:grid-cols-4"
                                 )}>
                                     {AGENTS_TEAM.filter(a => plan === 'creator' || a.id !== 'johan').map((agent, idx) => (
                                         <div key={agent.id} className="w-full flex justify-center">
@@ -696,15 +502,20 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                 </div>
                             </div>
 
-                            <motion.button
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 3, duration: 0.5 }}
-                                onClick={goNext}
-                                className="w-full max-w-sm h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-base flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all shadow-lg shadow-blue-500/25"
-                            >
-                                Commencer le Lancement <ArrowRight className="w-4 h-4" />
-                            </motion.button>
+                            <div className="flex gap-3 w-full max-w-sm">
+                                <button
+                                    onClick={goBack}
+                                    className="flex-1 h-14 rounded-2xl border-2 border-[#E5E5EA] text-[#86868B] font-semibold text-base flex items-center justify-center gap-2 hover:bg-white active:scale-[0.98] transition-all"
+                                >
+                                    Retour
+                                </button>
+                                <button
+                                    onClick={goNext}
+                                    className="flex-[2] h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-base flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all shadow-lg shadow-blue-500/25"
+                                >
+                                    Lancer ! <ArrowRight className="w-4 h-4" />
+                                </button>
+                            </div>
                         </motion.div>
                     )}
 
@@ -748,71 +559,56 @@ function LaunchStep({ plan, brandName }: { plan: string; brandName: string }) {
             const elapsed = Date.now() - start;
             const p = Math.min(100, (elapsed / step.duration) * 100);
             setProgress(p);
-            if (elapsed >= step.duration) {
+            if (p >= 100) {
                 clearInterval(interval);
-                setStepIndex(i => i + 1);
+                setTimeout(() => setStepIndex(s => s + 1), 200);
             }
-        }, 50);
+        }, 30);
         return () => clearInterval(interval);
-    }, [stepIndex]); // eslint-disable-line
+    }, [stepIndex, router]);
 
     return (
-        <motion.div
-            initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="max-w-md w-full text-center space-y-8"
-        >
-            <div className="space-y-4">
+        <div className="flex flex-col items-center justify-center space-y-12 max-w-md w-full">
+            <div className="relative">
                 <motion.div
-                    initial={{ scale: 0 }} animate={{ scale: 1 }}
-                    transition={{ type: 'spring', stiffness: 260, delay: 0.15 }}
-                    className="text-6xl"
+                    className="w-32 h-32 rounded-[38px] bg-white shadow-apple-lg flex items-center justify-center"
+                    animate={{ rotate: [0, 10, -10, 0] }}
+                    transition={{ repeat: Infinity, duration: 4 }}
                 >
-                    {isCreator ? '🏆' : '🎉'}
+                    <Rocket className="w-14 h-14 text-[#007AFF]" />
                 </motion.div>
-                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">
-                    {isCreator ? 'Studio Créateur prêt !' : 'Ta marque est en ligne !'}
-                </h2>
-                <p className="text-[#86868B]">
-                    <span className="font-semibold text-[#1D1D1F]">{brandName}</span> — l'aventure commence maintenant.
-                </p>
+                <motion.div
+                    className="absolute -top-4 -right-4 w-12 h-12 bg-[#34C759] rounded-2xl flex items-center justify-center text-white shadow-lg"
+                    initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1 }}
+                >
+                    <Check className="w-6 h-6" />
+                </motion.div>
             </div>
 
-            <div className="space-y-2">
-                {STEPS.map((s, i) => (
-                    <div
-                        key={s.label}
-                        className={cn(
-                            'flex items-center gap-3 p-3 rounded-2xl border transition-colors bg-white',
-                            i < stepIndex ? 'border-green-200 bg-green-50' :
-                                i === stepIndex ? 'border-[#007AFF]/30 bg-blue-50' : 'border-[#E5E5EA]'
-                        )}
-                    >
-                        {i < stepIndex ? (
-                            <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                        ) : i === stepIndex ? (
-                            <Loader2 className="w-5 h-5 text-[#007AFF] animate-spin shrink-0" />
-                        ) : (
-                            <div className="w-5 h-5 rounded-full border-2 border-[#E5E5EA] shrink-0" />
-                        )}
-                        <span className={cn(
-                            'text-sm font-medium flex-1 text-left',
-                            i < stepIndex ? 'text-green-700' :
-                                i === stepIndex ? 'text-[#007AFF]' : 'text-[#86868B]'
-                        )}>
-                            {s.label}
-                        </span>
-                        {i === stepIndex && (
-                            <div className="w-16 h-1 bg-[#E5E5EA] rounded-full overflow-hidden shrink-0">
-                                <div
-                                    className="h-full bg-[#007AFF] rounded-full transition-all duration-100"
-                                    style={{ width: `${progress}%` }}
-                                />
-                            </div>
-                        )}
+            <div className="w-full space-y-6 text-center">
+                <div className="space-y-2">
+                    <h2 className="text-3xl font-bold tracking-tight">C'est parti !</h2>
+                    <p className="text-[#86868B] font-medium">On prépare {brandName}...</p>
+                </div>
+
+                <div className="space-y-4">
+                    <div className="h-2 w-full bg-white rounded-full overflow-hidden shadow-inner">
+                        <motion.div
+                            className="h-full bg-[#007AFF] rounded-full"
+                            style={{ width: `${progress}%` }}
+                        />
                     </div>
-                ))}
+                    <AnimatePresence mode="wait">
+                        <motion.p
+                            key={stepIndex}
+                            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                            className="text-sm font-bold text-[#007AFF] uppercase tracking-widest"
+                        >
+                            {STEPS[stepIndex]?.label || 'Initialisation...'}
+                        </motion.p>
+                    </AnimatePresence>
+                </div>
             </div>
-        </motion.div>
+        </div>
     );
 }

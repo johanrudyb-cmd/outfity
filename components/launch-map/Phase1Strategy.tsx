@@ -35,6 +35,7 @@ import { Phase1StrategyChat } from './Phase1StrategyChat';
 import { StrategyPresentationView } from './StrategyPresentationView';
 import type { BrandIdentity } from './LaunchMapStepper';
 import { cn } from '@/lib/utils';
+import { isFreePlan } from '@/lib/plan-utils';
 import { useToast } from '@/components/ui/toast';
 import { USAGE_REFRESH_EVENT } from '@/lib/hooks/useAIUsage';
 import { useSurplusModal } from '@/components/usage/SurplusModalContext';
@@ -150,7 +151,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
   );
 
   const handleCalquerStrategie = async (slug: string) => {
-    if (userPlan === 'free') { openSurplusModal(); return; }
+    if (isFreePlan(userPlan)) { openSurplusModal(); return; }
     const templateName = referenceBrands.find(b => b.slug === slug)?.brandName || slug;
     setStrategyLoading(true);
     try {
@@ -249,15 +250,15 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
           <Button variant="ghost" onClick={() => setShowLogoStep(false)} className="rounded-full h-10 px-6">Retour</Button>
         </div>
 
-        <div className="flex-1 w-full max-w-6xl px-6 sm:px-8 flex flex-col z-20 py-6 sm:py-10">
-          <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-20 items-center">
+        <div className="flex-1 w-full max-w-6xl px-4 sm:px-6 lg:px-8 flex flex-col z-20 py-4 sm:py-6 lg:py-10">
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 lg:gap-20 items-center">
             <div className="space-y-8 sm:space-y-10">
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-[24px] sm:rounded-[28px] bg-white border border-black/5 shadow-xl flex items-center justify-center text-[#007AFF]">
                 <Sparkles className="w-8 h-8 sm:w-10 sm:h-10" />
               </div>
               <div className="space-y-4">
-                <h3 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">L&apos;Emblème.</h3>
-                <p className="text-xl sm:text-2xl text-[#86868B] max-w-md font-medium leading-relaxed">
+                <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">L&apos;Emblème.</h3>
+                <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#86868B] max-w-md font-medium leading-relaxed">
                   La synthèse visuelle de votre stratégie inspirée par <span className="text-[#1D1D1F]">{inspirationName}</span>.
                 </p>
               </div>
@@ -369,24 +370,24 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
       </div>
 
       {/* Main Stage */}
-      <div className="flex-1 w-full max-w-6xl px-6 sm:px-8 flex flex-col z-20 py-4 sm:py-8">
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+      <div className="flex-1 w-full max-w-6xl px-4 sm:px-6 lg:px-8 flex flex-col z-20 py-4 sm:py-6 lg:py-8">
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 lg:gap-20 items-center">
 
           {/* Left Side: Context */}
-          <div className="space-y-10 animate-in fade-in slide-in-from-left-8 duration-1000">
+          <div className="space-y-6 md:space-y-8 lg:space-y-10 animate-in fade-in slide-in-from-left-8 duration-1000">
             <div className={cn("w-20 h-20 rounded-[28px] flex items-center justify-center shadow-xl text-white transition-all duration-700 bg-white border border-black/5")}>
               <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-white", currentStep.accent)}>
                 {currentStep.icon}
               </div>
             </div>
             <div className="space-y-4">
-              <h3 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] text-[#1D1D1F]">{currentStep.title}</h3>
-              <p className="text-xl sm:text-2xl text-[#86868B] max-w-md font-medium leading-relaxed">{currentStep.subtitle}</p>
+              <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] text-[#1D1D1F]">{currentStep.title}</h3>
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#86868B] max-w-md font-medium leading-relaxed">{currentStep.subtitle}</p>
             </div>
           </div>
 
           {/* Right Side: Interaction */}
-          <div className="relative min-h-[450px] flex flex-col justify-center">
+          <div className="relative min-h-[280px] sm:min-h-[360px] md:min-h-[400px] lg:min-h-[450px] flex flex-col justify-center">
             <div className="max-w-xl w-full mx-auto">
 
               {currentStep.id === 'positioning' && (
@@ -512,7 +513,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
       </div>
 
       {/* Control Architecture */}
-      <div className="w-full max-w-7xl px-6 sm:px-8 pb-8 sm:pb-12 z-20">
+      <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8 lg:pb-12 z-20">
         <div className="flex items-center justify-between pt-6 sm:pt-10 border-t border-black/5">
           <div className="flex gap-4">
             <button
@@ -584,7 +585,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
                 brandName={brandName || brand?.name || ''}
                 isTemplateView={false}
                 embedded={true}
-                isFree={userPlan === 'free' && !demoMode}
+                isFree={isFreePlan(userPlan) && !demoMode}
               />
             </div>
           </div>

@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
             phases.phase7 && "Shopify"
         ].filter(Boolean).join(", ") : "Non démarré";
 
-        const isFree = user?.plan === 'free';
+        const isFree = user?.plan === 'free' || user?.plan === 'starter';
 
         const systemPrompt = `Tu es Virgil, le Directeur Stratégique et Marketing personnel de l'utilisateur. Tu es un compagnon de haut niveau intégré à la plateforme Outfity pour piloter la vision créative et stratégique de SA MARQUE.
 

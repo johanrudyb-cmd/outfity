@@ -31,15 +31,14 @@ function CountdownTimer() {
 
 const plans = [
   {
-    name: 'Gratuit',
+    name: 'Starter',
     price: 0,
-    period: 'Gratuit',
+    period: 'Starter',
     description: 'Ton équipe d\'experts IA (Virgil, Pharrell, Ada) t\'accompagne.',
     features: [
-      'Accès limité à 3 agents IA',
-      'Accès limité au radar de tendances',
-      'Calculateur de marge',
-      'Aperçu des outils de création',
+      'Accès à 3 Agents IA (Virgil, Pharrell, Ada)',
+      'Studio Design (5 designs / mois)',
+      'Sourcing Hub (Aperçu)',
     ],
     cta: 'Commencer gratuitement',
     ctaStyle: 'border',
@@ -53,13 +52,13 @@ const plans = [
     description: 'Offre limitée : 29€/mois à vie (au lieu de 39€).',
     features: [
       '3 JOURS D\'ESSAI GRATUIT',
-      'Les 4 agents IA inclus',
-      'Stratégie marketing complète',
-      'Accès complet au Radar de tendances',
-      'Analyses de style détaillées',
-      'Shooting Virtuel & Mannequin IA',
-      'Mockups & Tech Packs',
-      'Support prioritaire',
+      'Équipe Complète (4 Agents IA dont Johan)',
+      'Stratégie Marketing & ADN de Marque',
+      'Designs & Mockups en Illimité',
+      'Tech Packs Professionnels IA',
+      'Radar de Tendances Premium',
+      'Sourcing Premium & Accès Usines',
+      'Support Prioritaire 24/7',
     ],
     cta: 'Profiter de l\'offre',
     ctaStyle: 'solid',
@@ -103,7 +102,7 @@ export function SalesPricing() {
             Choisissez votre plan
           </h2>
           <p className="text-xl text-[#6e6e73] font-normal max-w-2xl mx-auto">
-            Commencez gratuitement, puis évoluez selon votre croissance
+            Commencez avec le plan Starter, puis évoluez selon votre croissance
           </p>
         </div>
 

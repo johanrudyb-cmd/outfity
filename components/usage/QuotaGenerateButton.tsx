@@ -29,7 +29,7 @@ export function QuotaGenerateButton({
 }: QuotaGenerateButtonProps) {
     const { data: session } = useSession();
     const user = session?.user as any;
-    const isFree = user?.plan === 'free';
+    const isFree = user?.plan === 'free' || user?.plan === 'starter';
     const status = useQuota(featureKey);
 
     // Fallback states as loading

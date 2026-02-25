@@ -3,6 +3,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Star, Info, ExternalLink } from 'lucide-react';
+import { isFreePlan } from '@/lib/plan-utils';
 
 interface Factory {
   id: string;
@@ -26,7 +27,7 @@ interface FactoryCardProps {
   userPlan?: string;
 }
 
-export function FactoryCard({ factory, isFavorite = false, onToggleFavorite, onViewDetail, userPlan = 'free' }: FactoryCardProps) {
+export function FactoryCard({ factory, isFavorite = false, onToggleFavorite, onViewDetail, userPlan = 'starter' }: FactoryCardProps) {
 
   return (
     <>
@@ -37,7 +38,7 @@ export function FactoryCard({ factory, isFavorite = false, onToggleFavorite, onV
             <div>
               <div className="flex items-start justify-between mb-2 gap-2">
                 <h3 className="text-lg font-semibold text-foreground flex-1 min-w-0">
-                  {userPlan === 'free' ? `Usine Partenaire #${factory.id.slice(-4).toUpperCase()}` : factory.name}
+                  {isFreePlan(userPlan) ? `Usine Partenaire #${factory.id.slice(-4).toUpperCase()}` : factory.name}
                 </h3>
                 <div className="flex items-center gap-1 flex-shrink-0">
                   {onToggleFavorite && (
@@ -122,7 +123,7 @@ export function FactoryCard({ factory, isFavorite = false, onToggleFavorite, onV
                 </Button>
               )}
               {factory.website && (
-                userPlan === 'free' ? (
+                isFreePlan(userPlan) ? (
                   <Button
                     variant="ghost"
                     size="sm"

@@ -322,9 +322,9 @@ export function StructuredPostCreator({ brandId, brandName, onSaved, initialImag
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 sm:gap-6 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_280px] lg:grid-cols-[1fr_320px] gap-4 sm:gap-6 items-start">
         {/* Colonne gauche : formulaire */}
-        <div className="space-y-4 sm:space-y-6 order-2 lg:order-1">
+        <div className="space-y-4 sm:space-y-6 order-2 md:order-1">
           <Card>
             <CardHeader>
               <CardTitle className="text-xl font-bold flex items-center gap-2">
@@ -612,7 +612,7 @@ export function StructuredPostCreator({ brandId, brandName, onSaved, initialImag
         </div>
 
         {/* Colonne droite : calendrier */}
-        <div className="order-1 lg:order-2 lg:sticky lg:top-4">
+        <div className="order-1 md:order-2 md:sticky md:top-4">
           <Card className="border-none shadow-none bg-transparent sm:bg-card sm:border sm:shadow-sm">
             <CardHeader className="pb-4 pt-2 px-2 sm:px-6">
               <div className="flex items-center justify-between">

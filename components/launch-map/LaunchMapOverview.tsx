@@ -17,6 +17,7 @@ import {
   Lock,
 } from 'lucide-react';
 import { LAUNCH_MAP_PHASES } from '@/lib/launch-map-constants';
+import { isFreePlan } from '@/lib/plan-utils';
 import type { BrandIdentity, LaunchMapData } from './LaunchMapStepper';
 import { PHASE_ICONS } from './PhaseShared';
 
@@ -61,7 +62,7 @@ export function LaunchMapOverview({
   quoteCount,
   suppliers = [],
   progressPercentage,
-  userPlan = 'free',
+  userPlan = 'starter',
 }: LaunchMapOverviewProps) {
   const phaseProgress: Record<string, boolean> = {
     phase0: hasIdentity,
@@ -74,7 +75,7 @@ export function LaunchMapOverview({
 
   const completedCount = Object.values(phaseProgress).filter(Boolean).length;
   const total = LAUNCH_MAP_PHASES.length;
-  const isLocked = (phaseId: number) => userPlan === 'free' && ![0, 1, 2, 4].includes(phaseId);
+  const isLocked = (phaseId: number) => isFreePlan(userPlan) && ![0, 1, 2, 4].includes(phaseId);
   const nextPhase = LAUNCH_MAP_PHASES.find(p => !phaseProgress[`phase${p.id}`]);
 
   // Brand color palette
@@ -102,7 +103,7 @@ export function LaunchMapOverview({
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <h1 className="text-2xl font-bold text-[#1D1D1F] leading-none">{brand.name}</h1>
-                  {userPlan !== 'free' && (
+                  {!isFreePlan(userPlan) && (
                     <span className="px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] text-[10px] font-bold uppercase tracking-widest border border-[#007AFF]/20">
                       Créateur
                     </span>
@@ -166,10 +167,10 @@ export function LaunchMapOverview({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
 
           {/* ── LEFT — Phases Grid ── */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="md:col-span-2 space-y-6">
 
             {/* Next step focus */}
             {nextPhase && (
@@ -368,7 +369,7 @@ export function LaunchMapOverview({
             )}
 
             {/* Upsell for free plan */}
-            {userPlan === 'free' && (
+            {isFreePlan(userPlan) && (
               <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#1D1D1F] to-[#3a3a3c] p-6 text-white">
                 <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-[#007AFF]/20 rounded-full blur-[50px]" />
                 <div className="relative z-10 space-y-3">

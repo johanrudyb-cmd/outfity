@@ -27,7 +27,7 @@ export function TrendCheckCard({ fullWidth }: TrendCheckCardProps = {}) {
   const [showConfirmAnalyze, setShowConfirmAnalyze] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { data: session } = useSession();
-  const isFree = (session?.user as any)?.plan === 'free';
+  const isFree = (session?.user as any)?.plan === 'free' || (session?.user as any)?.plan === 'starter';
   const trendsCheckQuota = useQuota('trends_check_image');
 
   const handleUpload = async () => {

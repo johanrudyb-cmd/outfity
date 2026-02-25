@@ -55,7 +55,7 @@ export async function POST(request: Request) {
       where: { brandId },
     });
 
-    if (user.plan === 'free' && designCount >= 3) {
+    if ((user.plan === 'free' || user.plan === 'starter') && designCount >= 3) {
       return NextResponse.json(
         { error: 'Limite atteinte. Passez au plan Pro pour générer plus de designs.' },
         { status: 403 }
@@ -76,15 +76,15 @@ export async function POST(request: Request) {
     try {
       // Construire le prompt de base
       let basePrompt = `${type}, ${cut} cut, ${material}`;
-      
+
       // Ajouter l'identité de marque si activée
       if (autoApplyIdentity && brand.logo && brand.colorPalette) {
-        const colorInfo = typeof brand.colorPalette === 'object' 
+        const colorInfo = typeof brand.colorPalette === 'object'
           ? Object.entries(brand.colorPalette).map(([key, value]) => `${key}: ${value}`).join(', ')
           : '';
         basePrompt += `, marque ${brand.name}, logo ${brand.logo}, couleurs ${colorInfo}`;
       }
-      
+
       const detailsList = Object.entries(details)
         .filter(([_, value]) => value)
         .map(([key]) => key)
@@ -102,9 +102,9 @@ export async function POST(request: Request) {
           data: { status: 'failed' },
         });
         return NextResponse.json(
-          { 
+          {
             error: 'Clé API OpenAI non configurée. Veuillez configurer OPENAI_API_KEY ou CHATGPT_API_KEY dans les variables d\'environnement.',
-            designId: design.id 
+            designId: design.id
           },
           { status: 503 }
         );
@@ -124,9 +124,9 @@ export async function POST(request: Request) {
           data: { status: 'failed' },
         });
         return NextResponse.json(
-          { 
+          {
             error: 'Clé API Ideogram non configurée. Veuillez configurer IDEogram_API_KEY dans les variables d\'environnement.',
-            designId: design.id 
+            designId: design.id
           },
           { status: 503 }
         );

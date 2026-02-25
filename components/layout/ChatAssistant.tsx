@@ -226,6 +226,9 @@ export function ChatAssistant() {
                                     <Send className="w-4 h-4" />
                                 </button>
                             </div>
+                            <p className="text-[10px] text-[#86868B] text-center mt-2 font-medium">
+                                Virgil peut commettre des erreurs. Vérifiez les informations importantes.
+                            </p>
                         </div>
                     </motion.div>
                 )}

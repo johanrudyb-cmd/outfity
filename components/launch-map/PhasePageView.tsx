@@ -24,6 +24,7 @@ import { LaunchMapStepper, type BrandIdentity } from './LaunchMapStepper';
 import { LAUNCH_MAP_PHASES } from '@/lib/launch-map-constants';
 import type { LaunchMapData } from './LaunchMapStepper';
 import { PhaseRecap, PHASE_PRESENTATIONS, PHASE_ICONS, type SupplierRecap } from './PhaseShared';
+import { isFreePlan } from '@/lib/plan-utils';
 
 export interface PhasePageViewProps {
   phaseId: number;
@@ -48,7 +49,7 @@ export function PhasePageView({
   quoteCount,
   ugcCount,
   suppliers = [],
-  userPlan = 'free',
+  userPlan = 'starter',
 }: PhasePageViewProps) {
   const [isShowingDetail, setShowingDetail] = useState(false);
   const [strategyText, setStrategyText] = useState<string | null>(null);
@@ -88,7 +89,7 @@ export function PhasePageView({
     }
   }, [isShowingDetail]);
 
-  const isLocked = userPlan === 'free' && ![0, 1, 2, 4].includes(phaseId);
+  const isLocked = isFreePlan(userPlan) && ![0, 1, 2, 4].includes(phaseId);
 
   if (!phase || !presentation) {
     return (
@@ -153,7 +154,7 @@ export function PhasePageView({
                   strategyText={strategyText}
                   brandName={brand.name}
                   embedded={true}
-                  isFree={userPlan === 'free'}
+                  isFree={isFreePlan(userPlan)}
                 />
               </div>
             </div>

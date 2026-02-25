@@ -15,6 +15,7 @@ import type { BrandIdentity } from '@/components/launch-map/LaunchMapStepper';
 import { WelcomeValidationAnimation } from '@/components/launch-map/WelcomeValidationAnimation';
 import { FASHION_UNIVERSES, FashionUniverse } from '@/lib/onboarding-universes';
 import { cn } from '@/lib/utils';
+import { isFreePlan } from '@/lib/plan-utils';
 
 type Step = 'start' | 'universe' | 'identity' | 'validation';
 
@@ -26,7 +27,7 @@ interface OnboardingFlowCreateBrandProps {
   userPlan?: string;
 }
 
-export function OnboardingFlowCreateBrand({ onBack, demoMode = false, userPlan = 'free' }: OnboardingFlowCreateBrandProps) {
+export function OnboardingFlowCreateBrand({ onBack, demoMode = false, userPlan = 'starter' }: OnboardingFlowCreateBrandProps) {
   const [step, setStep] = useState<Step>('start');
   const [selectedUniverse, setSelectedUniverse] = useState<FashionUniverse | null>(null);
 
@@ -89,7 +90,7 @@ export function OnboardingFlowCreateBrand({ onBack, demoMode = false, userPlan =
   };
 
   const fetchNameSuggestions = useCallback(async () => {
-    if (!selectedUniverse || userPlan === 'free') return;
+    if (!selectedUniverse || isFreePlan(userPlan)) return;
     setNameSuggestionsLoading(true);
     try {
       if (demoMode) {
@@ -265,7 +266,7 @@ export function OnboardingFlowCreateBrand({ onBack, demoMode = false, userPlan =
                     placeholder="Saisissez un nom ici"
                     className="h-14 text-xl border-2 px-6 focus:ring-4 focus:ring-primary/10 rounded-2xl"
                   />
-                  {userPlan === 'free' && (
+                  {isFreePlan(userPlan) && (
                     <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-2 ml-2">
                       <Sparkles className="w-3 h-3 text-primary" />
                       L'IA peut suggérer des noms experts pour vous en Plan Créateur.

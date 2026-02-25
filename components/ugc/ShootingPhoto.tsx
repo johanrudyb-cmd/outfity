@@ -295,7 +295,7 @@ export function ShootingPhoto({ brandId, designs: initialDesigns, onSwitchToTryO
   const photoQuota = useQuota('ugc_shooting_photo');
   const productQuota = useQuota('ugc_shooting_product');
   const { data: session } = useSession();
-  const isFree = (session?.user as any)?.plan === 'free';
+  const isFree = (session?.user as any)?.plan === 'free' || (session?.user as any)?.plan === 'starter';
   const openSurplusModal = useSurplusModal();
   const [shootingMode, setShootingMode] = useState<ShootingMode>('mannequin');
   const [designs, setDesigns] = useState<ShootingDesign[]>(initialDesigns ?? []);

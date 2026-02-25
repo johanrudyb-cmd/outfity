@@ -110,7 +110,7 @@ function OnboardingContent({ userPlan, isAdmin }: OnboardingViewProps) {
             </div>
             <CardTitle className="text-xl">Créer mon concept</CardTitle>
             <CardDescription>
-              {userPlan === 'free'
+              {(userPlan === 'free' || userPlan === 'starter')
                 ? "Je n'ai pas encore de nom ou d'idée précise. Guidez-moi pour poser les bases de ma future marque."
                 : "L'IA m'aide à transformer ma vision en une marque concrète avec un nom expert et un univers visuel."
               }

@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils';
 function UsagePageContent() {
   const { data: session } = useSession();
   const user = session?.user as any;
-  const isFree = user?.plan === 'free';
+  const isFree = user?.plan === 'starter';
 
   const router = useRouter();
   const openSurplusModal = useSurplusModal();
@@ -59,7 +59,7 @@ function UsagePageContent() {
       <PageHeader
         title="Mes quotas"
         description={isFree
-          ? 'Suivez votre utilisation du plan Gratuit et découvrez nos offres'
+          ? 'Suivez votre utilisation du plan Starter et découvrez nos offres'
           : 'Pack Fashion Launch — suivez vos utilisations et rechargez si besoin'}
         icon={Zap}
       >

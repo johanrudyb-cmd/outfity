@@ -59,7 +59,7 @@ export const getCurrentUser = cache(async () => {
         id: session.user.id,
         email: session.user.email,
         name: session.user.name,
-        plan: (session.user as any).plan || 'free', // Fallback plan
+        plan: (session.user as any).plan || 'starter', // Fallback plan
         subscribedAt: new Date(), // Simulé
         createdAt: new Date(), // Simulé
       };

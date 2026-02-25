@@ -176,7 +176,7 @@ export function BrandAnalysisView({ slug }: BrandAnalysisViewProps) {
 
   const { data: session } = useSession();
   const user = session?.user;
-  const isFree = (user as any)?.plan === 'free';
+  const isFree = (user as any)?.plan === 'free' || (user as any)?.plan === 'starter';
 
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [visualIdentity, setVisualIdentity] = useState<{

@@ -270,17 +270,17 @@ export function SettingsForm({ user: initialUser }: SettingsFormProps) {
               <div>
                 <div className="flex items-center gap-3">
                   <p className="font-bold text-[19px] text-[#1D1D1F]">
-                    {user.plan === 'free' ? 'Plan Gratuit' : 'Plan Créateur'}
+                    {user.plan === 'starter' ? 'Plan Starter' : 'Plan Créateur'}
                   </p>
                   <span className={cn(
                     "px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider",
-                    user.plan === 'free' ? "bg-black/10 text-black/70" : "bg-emerald-500/15 text-emerald-700"
+                    user.plan === 'starter' ? "bg-black/10 text-black/70" : "bg-emerald-500/15 text-emerald-700"
                   )}>
-                    {user.plan === 'free' ? 'RESTREINT' : 'ACTIF'}
+                    {user.plan === 'starter' ? 'RESTREINT' : 'ACTIF'}
                   </span>
                 </div>
                 <p className="text-[13px] text-[#86868B] font-medium mt-1.5 max-w-sm leading-relaxed">
-                  {user.plan === 'free' ? 'Débloquez tout le potentiel de vos données avec les quotas illimités et l\'IA complète.' : 'Accès intégral à l\'écosystème Créateur. Tous les outils débloqués.'}
+                  {user.plan === 'starter' ? 'Débloquez tout le potentiel de vos données avec les quotas illimités et l\'IA complète.' : 'Accès intégral à l\'écosystème Créateur. Tous les outils débloqués.'}
                 </p>
               </div>
               <div className="flex flex-col gap-2 w-full sm:w-auto">

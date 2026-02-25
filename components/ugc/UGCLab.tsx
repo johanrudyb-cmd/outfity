@@ -17,6 +17,7 @@ import {
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { FeatureUsageBadge } from '@/components/usage/FeatureUsageBadge';
+import { isFreePlan } from '@/lib/plan-utils';
 
 interface Design {
   id: string;
@@ -151,18 +152,18 @@ export function UGCLab({ brandId, brandName, designs = [], brand, userPlan = 'fr
           <div className="flex items-center gap-2 sm:gap-3">
             {activeTab === 'tryon' && (
               <>
-                <FeatureUsageBadge featureKey="ugc_virtual_tryon" isFree={userPlan === 'free'} />
+                <FeatureUsageBadge featureKey="ugc_virtual_tryon" isFree={isFreePlan(userPlan)} />
                 <Link href="/usage" className="text-[10px] font-bold text-[#FF9500] underline hover:no-underline hidden sm:inline">Crédits</Link>
               </>
             )}
             {activeTab === 'shooting' && (
-              <FeatureUsageBadge featureKey="ugc_shooting_photo" isFree={userPlan === 'free'} />
+              <FeatureUsageBadge featureKey="ugc_shooting_photo" isFree={isFreePlan(userPlan)} />
             )}
             {activeTab === 'logo' && (
-              <FeatureUsageBadge featureKey="brand_logo" isFree={userPlan === 'free'} />
+              <FeatureUsageBadge featureKey="brand_logo" isFree={isFreePlan(userPlan)} />
             )}
             {activeTab === 'scripts' && (
-              <FeatureUsageBadge featureKey="ugc_scripts" isFree={userPlan === 'free'} />
+              <FeatureUsageBadge featureKey="ugc_scripts" isFree={isFreePlan(userPlan)} />
             )}
           </div>
         </div>
@@ -170,7 +171,7 @@ export function UGCLab({ brandId, brandName, designs = [], brand, userPlan = 'fr
         {/* Tool area */}
         <div className="relative p-4 sm:p-6 lg:p-8">
           {/* Shadow State Overlay for Free Plan */}
-          {userPlan === 'free' && (
+          {isFreePlan(userPlan) && (
             <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/40 backdrop-blur-[4px] rounded-b-[24px] sm:rounded-b-[32px]">
               <div className="bg-white p-6 sm:p-8 rounded-[20px] sm:rounded-[24px] shadow-2xl border border-black/10 text-center max-w-sm space-y-5 mx-4 transform translate-y-[-5%] transition-all">
                 <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-black to-zinc-800 flex items-center justify-center mx-auto shadow-lg">
@@ -194,7 +195,7 @@ export function UGCLab({ brandId, brandName, designs = [], brand, userPlan = 'fr
           )}
 
           {/* Actual Tools (Blurred if Free) */}
-          <div className={cn(userPlan === 'free' && "opacity-40 pointer-events-none select-none blur-[2px]")}>
+          <div className={cn(isFreePlan(userPlan) && "opacity-40 pointer-events-none select-none blur-[2px]")}>
             {activeTab === 'tryon' && (
               <div className="space-y-4">
                 <div className="flex items-start gap-3 p-3 sm:p-4 bg-[#FF9500]/5 border border-[#FF9500]/15 rounded-xl sm:rounded-2xl">

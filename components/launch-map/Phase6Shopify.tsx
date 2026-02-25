@@ -12,6 +12,7 @@ import type { SiteCreationTodoStep } from '@/lib/api/claude';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/toast';
 import { AppleLoader } from '@/components/ui/apple-loader';
+import { isFreePlan } from '@/lib/plan-utils';
 
 interface Phase6ShopifyProps {
   brandId: string;
@@ -213,7 +214,7 @@ export function Phase6Shopify({
   };
 
   const userMessagesCount = messages.filter(m => m.role === 'user').length;
-  const isFreeLimitReached = userPlan === 'free' && userMessagesCount >= 10;
+  const isFreeLimitReached = isFreePlan(userPlan) && userMessagesCount >= 10;
 
   async function handleConnect(e: React.FormEvent) {
     e.preventDefault();
@@ -463,6 +464,9 @@ export function Phase6Shopify({
                   {isTyping ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 ml-0.5" />}
                 </button>
               </form>
+              <p className="text-[10px] text-[#86868B] text-center mt-2 font-medium">
+                Johan peut commettre des erreurs. Vérifiez les informations importantes.
+              </p>
             </div>
           </>
         )}

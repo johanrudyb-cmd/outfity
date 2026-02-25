@@ -33,7 +33,7 @@ interface AnalysisResult {
 
 export function VisualTrendScanner() {
     const { data: session } = useSession();
-    const isFree = (session?.user as any)?.plan === 'free';
+    const isFree = (session?.user as any)?.plan === 'free' || (session?.user as any)?.plan === 'starter';
     const { toast } = useToast();
 
     const [image, setImage] = useState<string | null>(null);

@@ -54,7 +54,7 @@ export function CTASection() {
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm">
             <Sparkles className="w-4 h-4 text-white shrink-0" />
             <span className="text-sm font-medium text-white">
-              Commencez gratuitement
+              Commencez avec le plan Starter
             </span>
           </div>
 
@@ -68,7 +68,7 @@ export function CTASection() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-6 sm:pt-8">
             <Link href="/auth/signup" className="w-full sm:w-auto">
               <button type="button" className="w-full sm:w-auto min-h-[44px] px-6 sm:px-8 py-3.5 sm:py-4 bg-[#007AFF] text-white rounded-full text-base font-semibold hover:bg-[#0056CC] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] touch-manipulation shadow-lg shadow-[#007AFF]/20">
-                Créer mon compte gratuit
+                Créer mon compte Starter
               </button>
             </Link>
             <Link href="/auth/signin" className="w-full sm:w-auto">

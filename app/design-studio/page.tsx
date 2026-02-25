@@ -18,7 +18,7 @@ export default async function DesignStudioPage({
     redirect('/auth/signin');
   }
 
-  if (user.plan === 'free') {
+  if (user.plan === 'free' || user.plan === 'starter') {
     return (
       <DashboardLayout>
         <div className="p-8 max-w-4xl mx-auto min-h-[calc(100vh-8rem)] flex flex-col justify-center">

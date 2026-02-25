@@ -33,17 +33,18 @@ function CountdownTimer() {
 
 const plans = [
   {
-    name: 'Gratuit',
+    name: 'Starter',
     price: 0,
-    period: 'Gratuit',
+    period: '/ mois',
     description: 'Ton équipe d\'experts IA (Virgil, Pharrell, Ada) t\'accompagne.',
     features: [
-      'Accès limité à 3 agents IA',
-      'Accès limité au radar de tendances',
-      'Calculateur de marge',
-      'Aperçu des outils de création',
+      'Accès à 3 Agents IA (Virgil, Pharrell, Ada)',
+      'Radar de Tendances (Limité)',
+      'Calculateur de Rentabilité',
+      'Studio Design (5 designs / mois)',
+      'Sourcing Hub (Aperçu)',
     ],
-    cta: 'Rester en gratuit',
+    cta: 'Continuer gratuitement',
     ctaStyle: 'border',
     popular: false,
     isFree: true,
@@ -56,13 +57,13 @@ const plans = [
     description: 'Offre limitée : 29€/mois à vie (au lieu de 39€).',
     features: [
       '3 JOURS D\'ESSAI GRATUIT',
-      'Les 4 agents IA inclus',
-      'Stratégie marketing complète',
-      'Accès complet au Radar de tendances',
-      'Analyses de style détaillées',
-      'Shooting Virtuel & Mannequin IA',
-      'Mockups & Tech Packs',
-      'Support prioritaire',
+      'Équipe Complète (4 Agents IA dont Johan)',
+      'Stratégie Marketing & ADN de Marque',
+      'Designs & Mockups en Illimité',
+      'Tech Packs Professionnels IA',
+      'Radar de Tendances Premium',
+      'Sourcing Premium & Accès Usines',
+      'Support Prioritaire 24/7',
     ],
     cta: 'S\'abonner au plan Créateur',
     ctaStyle: 'solid',
@@ -153,7 +154,7 @@ export function ChoosePlanClient() {
                 <h3 className="text-2xl font-bold tracking-tight text-[#000000] mb-4">
                   {plan.name}
                 </h3>
-                {plan.price !== null && plan.price !== 0 ? (
+                {plan.price !== null ? (
                   <div className="flex items-baseline gap-2">
                     <span className="text-5xl font-bold text-[#000000]">
                       {plan.price}€
@@ -169,7 +170,7 @@ export function ChoosePlanClient() {
                   </div>
                 ) : (
                   <div className="text-3xl font-bold text-[#000000]">
-                    {plan.period}
+                    Sur mesure
                   </div>
                 )}
                 <p className="text-sm text-[#6e6e73] font-normal mt-3 mb-4">
@@ -181,7 +182,7 @@ export function ChoosePlanClient() {
                     { name: 'Virgil', img: '/images/agents/virgil_final.png' },
                     { name: 'Pharrell', img: '/images/agents/pharrell_final.png' },
                     { name: 'Ada', img: '/images/agents/ada_final.png' },
-                    { name: 'Johan', img: '/images/agents/johan_final.png', locked: plan.isFree }
+                    { name: 'Johan', img: '/images/agents/johan_final.png', locked: plan.name === 'Starter' }
                   ].map((agent) => (
                     <div key={agent.name} className="relative group/agent">
                       <img

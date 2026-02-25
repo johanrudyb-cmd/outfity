@@ -312,8 +312,8 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
       </div>
 
       {/* Immersive Stage - Light & Airy */}
-      <div className="flex-1 w-full max-w-6xl px-6 sm:px-8 flex flex-col z-20 py-8 sm:py-12">
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
+      <div className="flex-1 w-full max-w-6xl px-4 sm:px-6 lg:px-8 flex flex-col z-20 py-6 sm:py-8 lg:py-12">
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 lg:gap-20 items-center">
 
           {/* Left Side: Context & Philosophy */}
           <div className="space-y-6 sm:space-y-10 animate-in fade-in slide-in-from-left-8 duration-1000">
@@ -323,8 +323,8 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
               </div>
             </div>
             <div className="space-y-3 sm:space-y-4">
-              <h3 className="text-4xl sm:text-7xl font-bold tracking-tight leading-[1] text-[#1D1D1F] break-words">{currentStep.title}</h3>
-              <p className="text-lg sm:text-2xl text-[#86868B] max-w-md font-medium leading-relaxed">{currentStep.subtitle}</p>
+              <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight leading-[1] text-[#1D1D1F] break-words">{currentStep.title}</h3>
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#86868B] max-w-md font-medium leading-relaxed">{currentStep.subtitle}</p>
             </div>
 
             <div className="pt-6 sm:pt-10 border-t border-black/5 grid grid-cols-2 gap-4 sm:gap-8">
@@ -340,7 +340,7 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
           </div>
 
           {/* Right Side: High-End Interactive Workspace */}
-          <div className="relative min-h-[300px] sm:min-h-[450px] flex flex-col justify-center">
+          <div className="relative min-h-[260px] sm:min-h-[350px] md:min-h-[380px] lg:min-h-[450px] flex flex-col justify-center">
             <div className="max-w-xl w-full mx-auto">
 
               {currentStep.id === 'name' && (
@@ -350,7 +350,7 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
                     onChange={(e) => { setName(e.target.value); setError(''); }}
                     placeholder="Écrivez ici..."
                     autoFocus
-                    className="w-full bg-transparent border-none text-4xl sm:text-7xl font-bold text-[#1D1D1F] placeholder:text-black/10 focus:outline-none focus:ring-0 transition-all caret-[#007AFF] text-right uppercase tracking-tighter"
+                    className="w-full bg-transparent border-none text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-[#1D1D1F] placeholder:text-black/10 focus:outline-none focus:ring-0 transition-all caret-[#007AFF] text-right uppercase tracking-tighter"
                   />
                   <div className="h-1.5 w-full bg-black/5 mt-4 sm:mt-6 relative overflow-hidden rounded-full">
                     <div className={cn("absolute inset-0 bg-[#007AFF] transition-all duration-1000", name.length >= 2 ? "translate-x-0" : "-translate-x-full")} />
@@ -499,8 +499,8 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
       </div>
 
       {/* Cinematic Control Dock - Mobile Optimized */}
-      <div className="w-full max-w-7xl px-6 sm:px-8 pb-10 sm:pb-16 z-30">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-8 sm:pt-12 border-t border-black/5">
+      <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 lg:pb-16 z-30">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 pt-6 sm:pt-8 lg:pt-12 border-t border-black/5">
           <div className="flex gap-4 w-full sm:w-auto">
             <button
               onClick={handlePrev}

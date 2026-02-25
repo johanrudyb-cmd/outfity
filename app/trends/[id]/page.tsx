@@ -53,7 +53,7 @@ export default async function ProductDetailPage({
     }
   } catch (e) { }
 
-  const isFree = user.plan === 'free';
+  const isFree = user.plan === 'free' || user.plan === 'starter';
   const shouldLockTrend = isFree && !isFeatured;
 
   // Quota check
@@ -106,7 +106,7 @@ export default async function ProductDetailPage({
 
   return (
     <DashboardLayout>
-      {user.plan === 'free' && <TrendViewRecorder trendId={product.id} />}
+      {(user.plan === 'free' || user.plan === 'starter') && <TrendViewRecorder trendId={product.id} />}
       <ProductDetailEnricher productId={product.id} product={product}>
         <div className="min-h-screen bg-[#F5F5F7] pb-24 font-sans">
 

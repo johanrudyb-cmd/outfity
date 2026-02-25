@@ -86,7 +86,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
 
     const { data: session } = useSession();
     const user = session?.user as any;
-    const isFree = user?.plan === 'free';
+    const isFree = user?.plan === 'free' || user?.plan === 'starter';
 
     // Force 1M leadTime for free users
     useEffect(() => {

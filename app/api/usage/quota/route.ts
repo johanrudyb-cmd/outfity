@@ -41,7 +41,7 @@ export async function GET() {
       });
     }
 
-    const packId: PackId = user.plan === 'free' ? 'free' : 'fashion_launch';
+    const packId: PackId = (user.plan === 'free' || user.plan === 'starter') ? 'free' : 'fashion_launch';
     const planLimits = QUOTA_CONFIG[packId];
 
     // Mapper les clés du plan vers les clés QuotaFeatureKey

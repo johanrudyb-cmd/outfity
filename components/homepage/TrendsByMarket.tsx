@@ -75,7 +75,7 @@ export function TrendsByMarket({ initialTrends }: { initialTrends?: TrendProduct
       }
 
       // Toujours vérifier le quota d'analyses si plan free
-      if (user?.plan === 'free') {
+      if (user?.plan === 'starter') {
         try {
           const analysesRes = await fetch('/api/trends/analyses-count');
           if (analysesRes.ok) {
@@ -166,7 +166,7 @@ export function TrendsByMarket({ initialTrends }: { initialTrends?: TrendProduct
       return;
     }
 
-    if (user.plan === 'free' && analysesCount !== null && analysesCount >= 3) {
+    if (user.plan === 'starter' && analysesCount !== null && analysesCount >= 3) {
       router.push('/auth/choose-plan');
       return;
     }
@@ -218,7 +218,7 @@ export function TrendsByMarket({ initialTrends }: { initialTrends?: TrendProduct
             <AnimatePresence mode="popLayout">
               {displayedTrends.map((product, index) => {
                 const segmentLabel = product.segment === 'homme' ? 'Homme' : 'Femme';
-                const isFree = user?.plan === 'free';
+                const isFree = user?.plan === 'starter';
                 const isPubliclyVisible = !isFree || homepageIds.has(product.id);
 
                 return (
@@ -246,7 +246,7 @@ export function TrendsByMarket({ initialTrends }: { initialTrends?: TrendProduct
                             href="/auth/signup"
                             className="w-full py-3 bg-black text-white rounded-full text-xs font-bold hover:bg-black/90 transition-all active:scale-95 shadow-xl"
                           >
-                            Accès Gratuit
+                            Accès Starter
                           </Link>
                         </div>
                       )}

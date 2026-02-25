@@ -13,6 +13,7 @@ import {
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import type { BrandIdentity } from './LaunchMapStepper';
+import { isFreePlan } from '@/lib/plan-utils';
 
 interface Message {
     id: string;
@@ -226,7 +227,7 @@ export function Phase1StrategyChat({
     };
 
     const userMessagesCount = messages.filter(m => m.role === 'user').length;
-    const isFreeLimitReached = userPlan === 'free' && userMessagesCount >= 10;
+    const isFreeLimitReached = isFreePlan(userPlan) && userMessagesCount >= 10;
 
     return (
         <div className="flex flex-col h-full w-full bg-[#F5F5F7] font-sans relative overflow-hidden flex-1 min-h-0">
@@ -392,6 +393,9 @@ export function Phase1StrategyChat({
                                     {isTyping ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 ml-0.5" />}
                                 </button>
                             </form>
+                            <p className="text-[10px] text-[#86868B] text-center mt-2 font-medium">
+                                Virgil peut commettre des erreurs. Vérifiez les informations importantes.
+                            </p>
                         </div>
                     </>
                 )}
