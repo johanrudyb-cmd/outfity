@@ -408,6 +408,10 @@ export function SourcingHub({ brandId, sentQuotes, favoriteFactoryIds = [], pref
           userPlan={userPlan}
         />
       )}
+      <p className="max-w-7xl mx-auto px-6 text-[10px] text-[#86868B] text-center mt-12 font-medium leading-relaxed italic">
+        Les informations sur les usines et les prix de gros sont indicatifs. <br className="hidden sm:block" />
+        Effectuez toujours vos propres vérifications (échantillonnage, audit) avant d'engager des fonds.
+      </p>
     </div>
   );
 }

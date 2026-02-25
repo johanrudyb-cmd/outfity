@@ -345,6 +345,13 @@ export function TechPackSheet({ design, designerName, manufacturer, mainPlacemen
           </div>
         </div>
       </div>
+      {/* Disclaimer */}
+      <div className="border-t-[2px] sm:border-t-[3px] border-black bg-stone-50 p-3 sm:p-4">
+        <p className="text-[9px] sm:text-[10px] text-gray-500 text-center font-bold uppercase tracking-tight leading-relaxed">
+          Technical specifications are for prototyping guidance only. <br className="hidden sm:block" />
+          Verify all measurements with a professional pattern maker before mass production.
+        </p>
+      </div>
     </div>
   );
 }

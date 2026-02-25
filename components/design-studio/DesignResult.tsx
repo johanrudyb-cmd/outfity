@@ -182,6 +182,12 @@ export function DesignResult({ design }: DesignResultProps) {
           )}
         </div>
       </CardContent>
+      <div className="px-6 pb-6 pt-2">
+        <p className="text-[10px] text-stone-400 text-center font-medium leading-relaxed italic">
+          Images générées par intelligence artificielle à but de visualisation créative. <br className="hidden sm:block" />
+          Le rendu final physique peut varier selon les matières et techniques de fabrication choisies.
+        </p>
+      </div>
     </Card>
   );
 }

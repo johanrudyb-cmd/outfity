@@ -82,7 +82,7 @@ export async function POST(request: Request) {
                 name,
                 email,
                 password: hashedPassword,
-                plan: 'free',
+                plan: 'starter',
             },
         });
 
@@ -102,7 +102,9 @@ export async function POST(request: Request) {
         try {
             const ONBOARDING_WEBHOOK_URL = process.env.ONBOARDING_WEBHOOK_URL || 'http://localhost:5678/webhook/outfity-onboarding';
 
-            fetch(ONBOARDING_WEBHOOK_URL, {
+            console.log('[Signup] Appel Webhook n8n:', ONBOARDING_WEBHOOK_URL);
+
+            await fetch(ONBOARDING_WEBHOOK_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -111,9 +113,10 @@ export async function POST(request: Request) {
                     name: user.name,
                     plan: user.plan
                 }),
-            }).catch(e => console.error('[Signup] Erreur Webhook n8n onboarding:', e));
+            });
+            console.log('[Signup] Signal n8n envoyé avec succès.');
         } catch (e) {
-            console.error('[Signup] Erreur critique déclenchement n8n:', e);
+            console.error('[Signup] Erreur déclenchement n8n:', e instanceof Error ? e.message : String(e));
         }
 
         return NextResponse.json(

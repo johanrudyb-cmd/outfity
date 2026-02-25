@@ -267,6 +267,10 @@ export function TrendPredictions({ userId }: TrendPredictionsProps) {
           ))}
         </div>
       )}
+      <p className="max-w-7xl mx-auto px-6 text-[10px] text-[#86868B] text-center mt-8 font-medium leading-relaxed">
+        Les analyses et prédictions de tendances sont basées sur des algorithmes de données et constituent un outil d'aide à la décision. <br />
+        Elles ne garantissent pas les ventes futures ni le succès commercial.
+      </p>
     </div>
   );
 

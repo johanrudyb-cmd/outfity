@@ -885,6 +885,10 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
                 )}
               </Button>
             </div>
+            <p className="text-[10px] text-muted-foreground text-center mt-6 font-medium leading-relaxed italic">
+              Les spécifications techniques sont fournies à titre indicatif pour le prototypage. <br />
+              Nous recommandons de faire valider ces mesures par un modéliste professionnel avant toute production en série.
+            </p>
           </div>
         </div>
 
