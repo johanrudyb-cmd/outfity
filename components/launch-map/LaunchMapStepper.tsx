@@ -33,7 +33,7 @@ export interface LaunchMapData {
   phase6?: boolean;
   phase7?: boolean;
   shopifyShopDomain?: string | null;
-  phase1Data: any;
+  phase1Data: Record<string, unknown> | null;
   baseMockupByProductType?: Record<string, string> | null;
   phaseSummaries?: Record<string, string> | null;
   siteCreationTodo?: unknown;
@@ -249,7 +249,7 @@ export function LaunchMapStepper({
             </h2>
             <div className="ml-auto h-px flex-1 bg-black/5 max-w-[150px] hidden sm:block" />
             <div className="flex gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar py-1">
-              {[0, 1, 2, 3, 4, 5].map((idx) => (
+              {LAUNCH_MAP_PHASES.map((p: { id: number; title: string; subtitle: string }, idx) => (
                 <button
                   key={idx}
                   onClick={() => setCurrentPhase(idx)}

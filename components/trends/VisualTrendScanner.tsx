@@ -17,6 +17,16 @@ import { useSession } from 'next-auth/react';
 import { History as HistoryIcon, X, Lock as LockIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/components/ui/toast';
+import { SectionHeader } from '@/components/ui/section-header';
+import { LoadingState } from '@/components/ui/loading-state';
+import { EmptyState } from '@/components/ui/empty-state';
+
+interface ProductMatch {
+    id: string;
+    imageUrl: string;
+    name: string;
+    style: string;
+}
 
 interface AnalysisResult {
     category: string;
@@ -28,12 +38,19 @@ interface AnalysisResult {
     analysis: string;
     cyclePhase: 'emergent' | 'croissance' | 'pic' | 'declin';
     marketAdvice: string;
-    dbMatches: any[];
+    dbMatches: ProductMatch[];
+}
+
+interface HistoryItem {
+    id: string;
+    image: string;
+    analysis: AnalysisResult;
+    date: string;
 }
 
 export function VisualTrendScanner() {
     const { data: session } = useSession();
-    const isFree = (session?.user as any)?.plan === 'free' || (session?.user as any)?.plan === 'starter';
+    const isFree = (session?.user as { plan?: string })?.plan === 'free' || (session?.user as { plan?: string })?.plan === 'starter';
     const { toast } = useToast();
 
     const [image, setImage] = useState<string | null>(null);
@@ -42,7 +59,7 @@ export function VisualTrendScanner() {
     const [error, setError] = useState<string | null>(null);
     const [leadTime, setLeadTime] = useState(60);
     const [segment, setSegment] = useState<'homme' | 'femme'>('homme');
-    const [history, setHistory] = useState<any[]>(() => {
+    const [history, setHistory] = useState<HistoryItem[]>(() => {
         if (typeof window !== 'undefined') {
             const saved = localStorage.getItem('trend_scan_history');
             return saved ? JSON.parse(saved) : [];
@@ -52,7 +69,7 @@ export function VisualTrendScanner() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Sauvegarde de l'historique
-    const saveToHistory = (item: any) => {
+    const saveToHistory = (item: HistoryItem) => {
         const newHistory = [item, ...history].slice(0, 10);
         setHistory(newHistory);
         localStorage.setItem('trend_scan_history', JSON.stringify(newHistory));
@@ -241,8 +258,8 @@ export function VisualTrendScanner() {
                 analysis: data.analysis,
                 date: new Date().toISOString()
             });
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Une erreur est survenue');
         } finally {
             setIsScanning(false);
         }
@@ -258,15 +275,12 @@ export function VisualTrendScanner() {
         <div className="min-h-screen bg-[#F5F5F7] font-sans text-[#1a1a1a] -mt-8 -mx-8 pb-20">
             {!result ? (
                 <div className="max-w-4xl mx-auto py-12 px-6 space-y-8 animate-in fade-in duration-500">
-                    <div className="flex flex-col items-center text-center space-y-4">
-                        <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-2">
-                            <Camera className="w-8 h-8 text-[#007AFF]" />
-                        </div>
-                        <h2 className="text-3xl font-black tracking-tight text-black uppercase italic">Analyse de Style Visuel</h2>
-                        <p className="text-muted-foreground text-lg max-w-2xl font-medium">
-                            Uploadez une photo. Notre scanner l&apos;analyse et projette sa viabilité sur les 90 prochains jours.
-                        </p>
-                    </div>
+                    <SectionHeader
+                        title="Analyse de Style Visuel"
+                        icon={Camera}
+                        description="Uploadez une photo. Notre scanner l'analyse et projette sa viabilité sur les 90 prochains jours."
+                        className="items-center text-center"
+                    />
 
                     <div className="grid grid-cols-1 gap-8 items-start">
                         <div className="space-y-6">
@@ -317,10 +331,10 @@ export function VisualTrendScanner() {
                             )}
 
                             {isScanning && (
-                                <div className="flex flex-col items-center justify-center py-12 gap-4">
-                                    <Loader2 className="w-10 h-10 animate-spin text-[#007AFF]" />
-                                    <p className="text-xs font-black uppercase tracking-widest text-gray-400">Analyse en cours...</p>
-                                </div>
+                                <LoadingState
+                                    title="Analyse en cours..."
+                                    className="py-12"
+                                />
                             )}
 
                             {error && (
@@ -400,7 +414,7 @@ export function VisualTrendScanner() {
                                 {['homme', 'femme'].map(s => (
                                     <button
                                         key={s}
-                                        onClick={() => setSegment(s as any)}
+                                        onClick={() => setSegment(s as 'homme' | 'femme')}
                                         className={cn(
                                             "px-4 md:px-6 py-1.5 md:py-2 text-[9px] md:text-[10px] font-black uppercase tracking-widest rounded-full transition-all",
                                             segment === s ? "bg-[#007AFF] text-white shadow-lg shadow-blue-500/10" : "text-gray-400 hover:text-black"
@@ -598,7 +612,7 @@ export function VisualTrendScanner() {
                                     <div className="h-px bg-gray-200 flex-1" />
                                 </div>
                                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                                    {result.dbMatches.map((match: any) => (
+                                    {result.dbMatches.map((match: ProductMatch) => (
                                         <Card key={match.id} className="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all overflow-hidden group">
                                             <div className="aspect-[4/5] rounded-xl overflow-hidden bg-gray-50 mb-3 relative">
                                                 <img src={match.imageUrl} alt={match.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />

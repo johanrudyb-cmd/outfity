@@ -3,7 +3,12 @@
 import { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { motion } from 'framer-motion';
+import useSWR from 'swr';
 import { MarketChart } from '@/components/trends/MarketChart';
+import { SectionHeader } from '@/components/ui/section-header';
+import { LoadingState } from '@/components/ui/loading-state';
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 type MarketMover = {
     category: string;
@@ -15,36 +20,31 @@ type MarketMover = {
 
 export default function MarketOverview() {
     const [segment, setSegment] = useState<'homme' | 'femme'>('femme');
-    const [data, setData] = useState<{ winners: MarketMover[], losers: MarketMover[] } | null>(null);
-    const [loading, setLoading] = useState(true);
 
     // État pour le Graphique Boursier
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [isChartOpen, setIsChartOpen] = useState(false);
 
-    useEffect(() => {
-        setLoading(true);
-        fetch(`/api/market-index?segment=${segment}&marketZone=EU`)
-            .then(res => res.json())
-            .then(resData => {
-                setData({
-                    winners: resData.winners || [],
-                    losers: resData.losers || []
-                });
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error(err);
-                setLoading(false);
-            });
-    }, [segment]);
+    const { data: resData, error, isLoading } = useSWR(`/api/market-index?segment=${segment}&marketZone=EU`, fetcher);
+
+    const data = resData ? {
+        winners: resData.winners || [],
+        losers: resData.losers || []
+    } : null;
+
+    const loading = isLoading;
 
     const openChart = (category: string) => {
         setSelectedCategory(category);
         setIsChartOpen(true);
     };
 
-    if (loading) return <div className="h-48 w-full bg-white/50 animate-pulse rounded-2xl" />;
+    if (loading) return (
+        <LoadingState
+            title="Analyse du marché en cours..."
+            className="h-48 bg-white/50 rounded-2xl"
+        />
+    );
 
     if (!data || (data.winners.length === 0 && data.losers.length === 0)) {
         return null;
@@ -52,29 +52,29 @@ export default function MarketOverview() {
 
     return (
         <section className="mb-12">
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h2 className="text-xl font-bold text-[#1D1D1F]">Analyse du Marché - Bourse</h2>
-                    <p className="text-sm text-gray-500">Cliquez sur une catégorie pour voir sa courbe boursière</p>
-                </div>
-
-                <div className="flex bg-gray-100 p-1 rounded-lg">
-                    <button
-                        onClick={() => setSegment('femme')}
-                        className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${segment === 'femme' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-gray-700'
-                            }`}
-                    >
-                        Femme
-                    </button>
-                    <button
-                        onClick={() => setSegment('homme')}
-                        className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${segment === 'homme' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-gray-700'
-                            }`}
-                    >
-                        Homme
-                    </button>
-                </div>
-            </div>
+            <SectionHeader
+                title="Analyse du Marché - Bourse"
+                description="Cliquez sur une catégorie pour voir sa courbe boursière"
+                className="mb-6"
+                action={
+                    <div className="flex bg-gray-100 p-1 rounded-lg">
+                        <button
+                            onClick={() => setSegment('femme')}
+                            className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${segment === 'femme' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-gray-700'
+                                }`}
+                        >
+                            Femme
+                        </button>
+                        <button
+                            onClick={() => setSegment('homme')}
+                            className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${segment === 'homme' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-gray-700'
+                                }`}
+                        >
+                            Homme
+                        </button>
+                    </div>
+                }
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* WINNERS */}
@@ -84,7 +84,7 @@ export default function MarketOverview() {
                         <h3 className="font-bold text-sm uppercase tracking-wider text-gray-900">Hausse (Buy)</h3>
                     </div>
                     <div className="space-y-3">
-                        {data.winners.map((item, i) => (
+                        {data.winners.map((item: MarketMover, i: number) => (
                             <MoverCard
                                 key={i}
                                 item={item}
@@ -103,7 +103,7 @@ export default function MarketOverview() {
                         <h3 className="font-bold text-sm uppercase tracking-wider text-gray-900">Baisse / Vente (Sell)</h3>
                     </div>
                     <div className="space-y-3">
-                        {data.losers.map((item, i) => (
+                        {data.losers.map((item: MarketMover, i: number) => (
                             <MoverCard
                                 key={i}
                                 item={item}

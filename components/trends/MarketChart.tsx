@@ -5,7 +5,8 @@ import {
 } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, TrendingUp, TrendingDown } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
+import useSWR from 'swr';
 
 interface MarketDataPoint {
     date: string;
@@ -24,9 +25,6 @@ interface MarketChartProps {
 }
 
 export function MarketChart({ isOpen = true, onClose, category, segment, marketZone = 'EU', variant = 'modal' }: MarketChartProps) {
-    const [data, setData] = useState<MarketDataPoint[]>([]);
-    const [loading, setLoading] = useState(true);
-
     const getStableNoise = (seed: string, offset: number) => {
         let h = 0;
         const str = seed + offset;
@@ -36,65 +34,64 @@ export function MarketChart({ isOpen = true, onClose, category, segment, marketZ
         return (Math.abs(h % 100) / 10) - 5; // -5 à +5
     };
 
-    useEffect(() => {
-        const fetchRealData = async () => {
-            if (!(isOpen || variant === 'embedded') || !category) return;
-            setLoading(true);
-            try {
-                const params = new URLSearchParams();
-                params.set('segment', segment);
-                const res = await fetch(`/api/trends/hybrid-radar?${params.toString()}`);
-                if (res.ok) {
-                    const dbData = await res.json();
-                    const products = (dbData.trends || []).filter((p: any) => p.category === category);
+    const fetcher = (url: string) => fetch(url).then(res => res.json());
+    const { data: dbData, isLoading: swrLoading } = useSWR(
+        (isOpen || variant === 'embedded') && category
+            ? `/api/trends/hybrid-radar?segment=${segment}`
+            : null,
+        fetcher
+    );
 
-                    let realBaseScore = 50;
-                    if (products.length > 0) {
-                        const totalScore = products.reduce((acc: number, p: any) => acc + (p.trendScore || 50), 0);
-                        const avg = totalScore / products.length;
-                        const volumeBonus = Math.min(15, Math.floor(products.length / 5));
-                        realBaseScore = Math.round(avg + volumeBonus);
-                    }
+    const fullData = useMemo(() => {
+        if (!dbData || !category) return [];
 
-                    const historicalDays = 60;
-                    const predictiveDays = 60;
-                    const seed = category + segment + marketZone;
-                    const today = new Date();
-                    const currentMonth = today.getMonth();
-                    const isHeavyItem = category.toLowerCase().includes('sweat') || category.toLowerCase().includes('hoodie') || category.toLowerCase().includes('jackex') || category.toLowerCase().includes('veste');
-                    const isSunSeason = currentMonth >= 2 && currentMonth <= 7;
-                    let seasonalBias = isSunSeason ? (isHeavyItem ? -2.5 : 2.5) : (isHeavyItem ? 2.5 : -2.5);
+        const products = (dbData.trends || []).filter((p: { category: string; trendScore?: number }) => p.category === category);
 
-                    const fullData: MarketDataPoint[] = [];
-                    for (let i = 0; i < historicalDays; i += 7) {
-                        const date = new Date(today);
-                        date.setDate(date.getDate() - (historicalDays - i));
-                        const noise = getStableNoise(seed, i);
-                        fullData.push({
-                            date: date.toISOString().split('T')[0],
-                            avgTrendScore: Math.max(10, Math.round(realBaseScore - (historicalDays - i) * 0.1 + noise)),
-                            isPredictive: false
-                        });
-                    }
-                    let currentScore = realBaseScore;
-                    for (let i = 7; i <= predictiveDays; i += 7) {
-                        const date = new Date(today);
-                        date.setDate(date.getDate() + i);
-                        const noise = getStableNoise(seed, i + 1000);
-                        currentScore += noise + seasonalBias;
-                        fullData.push({
-                            date: date.toISOString().split('T')[0],
-                            avgTrendScore: Math.max(10, Math.min(98, Math.round(currentScore))),
-                            isPredictive: true
-                        });
-                    }
-                    setData(fullData);
-                }
-            } catch (err) { console.error('Error fetching data:', err); }
-            finally { setLoading(false); }
-        };
-        fetchRealData();
-    }, [isOpen, category, segment, variant, marketZone]);
+        let realBaseScore = 50;
+        if (products.length > 0) {
+            const totalScore = products.reduce((acc: number, p: { trendScore?: number }) => acc + (p.trendScore || 50), 0);
+            const avg = totalScore / products.length;
+            const volumeBonus = Math.min(15, Math.floor(products.length / 5));
+            realBaseScore = Math.round(avg + volumeBonus);
+        }
+
+        const historicalDays = 60;
+        const predictiveDays = 60;
+        const seed = category + segment + marketZone;
+        const today = new Date();
+        const currentMonth = today.getMonth();
+        const isHeavyItem = category.toLowerCase().includes('sweat') || category.toLowerCase().includes('hoodie') || category.toLowerCase().includes('jackex') || category.toLowerCase().includes('veste');
+        const isSunSeason = currentMonth >= 2 && currentMonth <= 7;
+        let seasonalBias = isSunSeason ? (isHeavyItem ? -2.5 : 2.5) : (isHeavyItem ? 2.5 : -2.5);
+
+        const result: MarketDataPoint[] = [];
+        for (let i = 0; i < historicalDays; i += 7) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - (historicalDays - i));
+            const noise = getStableNoise(seed, i);
+            result.push({
+                date: date.toISOString().split('T')[0],
+                avgTrendScore: Math.max(10, Math.round(realBaseScore - (historicalDays - i) * 0.1 + noise)),
+                isPredictive: false
+            });
+        }
+        let currentScore = realBaseScore;
+        for (let i = 7; i <= predictiveDays; i += 7) {
+            const date = new Date(today);
+            date.setDate(date.getDate() + i);
+            const noise = getStableNoise(seed, i + 1000);
+            currentScore += noise + seasonalBias;
+            result.push({
+                date: date.toISOString().split('T')[0],
+                avgTrendScore: Math.max(10, Math.min(98, Math.round(currentScore))),
+                isPredictive: true
+            });
+        }
+        return result;
+    }, [dbData, category, segment, marketZone]);
+
+    const loading = swrLoading;
+    const data = fullData;
 
     // Calcul de la tendance globale (Dernier vs Premier)
     // Calcul de la tendance immédiate pour la couleur (Aujourd'hui vs Précédent)
@@ -173,8 +170,9 @@ export function MarketChart({ isOpen = true, onClose, category, segment, marketZ
                             <Tooltip
                                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                                 itemStyle={{ color: '#000', fontWeight: 'bold' }}
-                                formatter={(value: any, name: any, props: any) => {
-                                    const isPred = props.payload.isPredictive;
+                                formatter={(value: number | undefined, _name: string | undefined, props: { payload?: MarketDataPoint }) => {
+                                    if (value === undefined) return ['', ''];
+                                    const isPred = props?.payload?.isPredictive;
                                     return [
                                         `${value.toFixed(0)} pts`,
                                         isPred ? '⏳ Prédiction (Sortie)' : '✅ Relevé Marché'

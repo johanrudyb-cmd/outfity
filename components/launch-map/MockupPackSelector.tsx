@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Download, Loader2, Check, Lock } from 'lucide-react';
 import { useSurplusModal } from '@/components/usage/SurplusModalContext';
 import { isFreePlan } from '@/lib/plan-utils';
+import { useRouter } from 'next/navigation';
 
 interface MockupCategory {
   id: string;
@@ -25,6 +26,7 @@ interface MockupPackSelectorProps {
 
 export function MockupPackSelector({ brandId, brandName, inline, userPlan, typeFilter }: MockupPackSelectorProps) {
   const openSurplusModal = useSurplusModal();
+  const router = useRouter();
   const [categories, setCategories] = useState<MockupCategory[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
@@ -37,7 +39,7 @@ export function MockupPackSelector({ brandId, brandName, inline, userPlan, typeF
         setCategories(data.categories || []);
         setSelected(new Set());
         if (typeFilter) {
-          const matched = data.categories?.find((c: any) => c.id.toLowerCase() === typeFilter.toLowerCase() || c.label.toLowerCase().includes(typeFilter.toLowerCase()));
+          const matched = data.categories?.find((c: MockupCategory) => c.id.toLowerCase() === typeFilter.toLowerCase() || c.label.toLowerCase().includes(typeFilter.toLowerCase()));
           if (matched) {
             setSelected(new Set([matched.id]));
           }
@@ -61,7 +63,7 @@ export function MockupPackSelector({ brandId, brandName, inline, userPlan, typeF
 
   const handleDownload = async () => {
     if (isFreePlan(userPlan)) {
-      openSurplusModal();
+      router.push('/auth/choose-plan');
       return;
     }
     if (selected.size === 0) return;

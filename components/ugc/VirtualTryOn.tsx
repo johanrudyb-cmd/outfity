@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import useSWR from 'swr';
 import { USAGE_REFRESH_EVENT } from '@/lib/hooks/useAIUsage';
 import { GenerationCostBadge } from '@/components/ui/generation-cost-badge';
 import { GenerationLoadingPopup } from '@/components/ui/generation-loading-popup';
@@ -14,8 +15,14 @@ import {
   mapTargetAudienceToGender,
   mapTargetAudienceToAgeRange,
   type MannequinQuestionnaireAnswers,
-  type MannequinStrategyContext,
 } from '@/lib/mannequin-questionnaire-types';
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
+interface StrategyContext {
+  targetAudience?: string | null;
+  positioning?: string | null;
+}
 
 const STEPS = [
   { id: 'identity', title: '1. Identité / Cible' },
@@ -80,8 +87,26 @@ interface VirtualTryOnProps {
 
 export function VirtualTryOn({ brandId, designs, onSelectImage }: VirtualTryOnProps) {
   const [stepIndex, setStepIndex] = useState(0);
-  const [strategyContext, setStrategyContext] = useState<MannequinStrategyContext | null>(null);
-  const [strategyLocked, setStrategyLocked] = useState<{ gender?: boolean; ageRange?: boolean }>({});
+
+  const { data: strategyData } = useSWR<StrategyContext>(
+    brandId ? `/api/ugc/mannequin-strategy-context?brandId=${encodeURIComponent(brandId)}` : null,
+    fetcher
+  );
+
+  const strategyContext = useMemo(() => ({
+    targetAudience: strategyData?.targetAudience ?? null,
+    positioning: strategyData?.positioning ?? null,
+  }), [strategyData]);
+
+  const strategyLocked = useMemo(() => {
+    const gender = mapTargetAudienceToGender(strategyData?.targetAudience);
+    const ageRange = mapTargetAudienceToAgeRange(strategyData?.targetAudience);
+    return {
+      gender: !!gender,
+      ageRange: !!ageRange,
+    };
+  }, [strategyData]);
+
   const [answers, setAnswers] = useState<MannequinQuestionnaireAnswers>({ ...DEFAULT_MANNEQUIN_ANSWERS });
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
@@ -94,32 +119,18 @@ export function VirtualTryOn({ brandId, designs, onSelectImage }: VirtualTryOnPr
   const [referencePreviewUrl, setReferencePreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
-    fetch(`/api/ugc/mannequin-strategy-context?brandId=${encodeURIComponent(brandId)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (cancelled) return;
-        setStrategyContext({
-          targetAudience: data.targetAudience ?? null,
-          positioning: data.positioning ?? null,
-        });
-        const gender = mapTargetAudienceToGender(data.targetAudience);
-        const ageRange = mapTargetAudienceToAgeRange(data.targetAudience);
-        setStrategyLocked({
-          gender: !!gender,
-          ageRange: !!ageRange,
-        });
-        if (gender || ageRange) {
-          setAnswers((a) => ({
-            ...a,
-            ...(gender && { gender }),
-            ...(ageRange && { ageRange }),
-          }));
-        }
-      })
-      .catch(() => { if (!cancelled) setStrategyContext({}); });
-    return () => { cancelled = true; };
-  }, [brandId]);
+    if (strategyData?.targetAudience) {
+      const gender = mapTargetAudienceToGender(strategyData.targetAudience);
+      const ageRange = mapTargetAudienceToAgeRange(strategyData.targetAudience);
+      if (gender || ageRange) {
+        setAnswers((a) => ({
+          ...a,
+          ...(gender && { gender }),
+          ...(ageRange && { ageRange }),
+        }));
+      }
+    }
+  }, [strategyData]);
 
   const update = (partial: Partial<MannequinQuestionnaireAnswers>) => {
     setAnswers((a) => ({ ...a, ...partial }));

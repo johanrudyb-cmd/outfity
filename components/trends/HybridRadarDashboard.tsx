@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import useSWR from 'swr';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Globe, Zap, Upload, Loader2, AlertTriangle, Sparkles, Eye, ChevronDown, ChevronUp, TrendingUp, Shirt, ArrowRight, Tag, Layers } from 'lucide-react';
@@ -8,6 +9,8 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { GenerationCostBadge } from '@/components/ui/generation-cost-badge';
 import { GenerationLoadingPopup } from '@/components/ui/generation-loading-popup';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SectionHeader } from '@/components/ui/section-header';
 import { getProductBrand } from '@/lib/brand-utils';
 import { safeDisplayBrand } from '@/lib/constants/retailer-exclusion';
 
@@ -34,9 +37,9 @@ const CATEGORY_LABELS: Record<string, string> = {
   'AUTRE': 'Autres Styles'
 };
 
+const fetcher = (url: string) => fetch(url).then(r => r.json());
+
 export function HybridRadarDashboard() {
-  const [trends, setTrends] = useState<HybridTrend[]>([]);
-  const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
   const [zone, setZone] = useState<string>('');
   const [globalOnly, setGlobalOnly] = useState(false);
@@ -73,26 +76,17 @@ export function HybridRadarDashboard() {
   } | null>(null);
   const [scrapeOnlyExpanded, setScrapeOnlyExpanded] = useState<string | null>(null);
 
-  const loadTrends = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (zone) params.set('marketZone', zone);
-      if (globalOnly) params.set('globalOnly', 'true');
-      params.set('limit', '50');
-      const res = await fetch(`/api/trends/hybrid-radar?${params.toString()}`);
-      const data = await res.json().catch(() => ({}));
-      setTrends(data.trends || []);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  }, [zone, globalOnly]);
+  const params = new URLSearchParams();
+  if (zone) params.set('marketZone', zone);
+  if (globalOnly) params.set('globalOnly', 'true');
+  params.set('limit', '50');
 
-  useEffect(() => {
-    loadTrends();
-  }, [loadTrends]);
+  const { data, error, isLoading: loading, mutate: loadTrends } = useSWR(
+    `/api/trends/hybrid-radar?${params.toString()}`,
+    fetcher
+  );
+
+  const trends: HybridTrend[] = data?.trends || [];
 
   const handleScan = async () => {
     setScanning(true);
@@ -226,15 +220,11 @@ export function HybridRadarDashboard() {
           "Normalisation des informations...",
         ]}
       />
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <Globe className="w-7 h-7" />
-          Analyse de Potentiel Global
-        </h1>
-        <p className="text-muted-foreground mt-1 text-sm max-w-2xl">
-          Données réelles + Analyse Visuelle. Tendances par zone (France, Europe, USA, Asie). Badge Potentiel Global si tendance présente dans 2+ zones.
-        </p>
-      </div>
+      <SectionHeader
+        title="Analyse de Potentiel Global"
+        icon={Globe}
+        description="Données réelles + Analyse Visuelle. Tendances par zone (France, Europe, USA, Asie). Badge Potentiel Global si tendance présente dans 2+ zones."
+      />
 
       {/* Actions */}
       <Card>
@@ -443,16 +433,10 @@ export function HybridRadarDashboard() {
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Synchronisation globale...</p>
           </div>
         ) : trends.length === 0 ? (
-          <Card className="border-2 border-dashed border-gray-100 bg-white/50 backdrop-blur-sm">
-            <CardContent className="py-20 text-center space-y-4">
-              <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto">
-                <AlertTriangle className="w-10 h-10 text-gray-200" />
-              </div>
-              <p className="text-xs font-bold text-gray-400 max-w-sm mx-auto">
-                Aucun flux détecté. Lancez un scan pour peupler votre radar de potentiel.
-              </p>
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={AlertTriangle}
+            description="Aucun flux détecté. Lancez un scan pour peupler votre radar de potentiel."
+          />
         ) : (
           <div className="space-y-16">
             {Object.entries(

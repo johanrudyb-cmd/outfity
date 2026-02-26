@@ -1,10 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Sparkles, TrendingUp, AlertCircle, Clock, Globe, Palette, Mail } from 'lucide-react';
+import { Sparkles, TrendingUp, AlertCircle, Clock, Globe, Palette, Mail, BarChart3 } from 'lucide-react';
 import { TrendsSubNav } from './TrendsSubNav';
+import useSWR from 'swr';
+import { LoadingState } from '@/components/ui/loading-state';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SectionHeader } from '@/components/ui/section-header';
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 interface TrendPrediction {
   productKey: string;
@@ -39,34 +45,18 @@ interface TrendPredictionsProps {
 }
 
 export function TrendPredictions({ userId }: TrendPredictionsProps) {
-  const [predictions, setPredictions] = useState<TrendPrediction[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [selectedPhase, setSelectedPhase] = useState<string>('all');
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [selectedTrend, setSelectedTrend] = useState<TrendPrediction | null>(null);
 
-  useEffect(() => {
-    loadPredictions();
-  }, [selectedPhase]);
+  const params = new URLSearchParams();
+  if (selectedPhase !== 'all') {
+    params.append('phase', selectedPhase);
+  }
+  params.append('limit', '30');
 
-  const loadPredictions = async () => {
-    try {
-      setIsLoading(true);
-      const params = new URLSearchParams();
-      if (selectedPhase !== 'all') {
-        params.append('phase', selectedPhase);
-      }
-      params.append('limit', '30');
-
-      const response = await fetch(`/api/trends/predict?${params.toString()}`);
-      const data = await response.json();
-      setPredictions(data.predictions || []);
-    } catch (error) {
-      console.error('Erreur lors du chargement des prédictions:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { data, isLoading, mutate } = useSWR(`/api/trends/predict?${params.toString()}`, fetcher);
+  const predictions: TrendPrediction[] = data?.predictions || [];
 
   const getPhaseColor = (phase: string) => {
     switch (phase) {
@@ -115,9 +105,7 @@ export function TrendPredictions({ userId }: TrendPredictionsProps) {
     return (
       <div className="space-y-6">
         <TrendsSubNav active="phases" />
-        <div className="flex items-center justify-center p-8">
-          <div className="text-muted-foreground">Chargement des phases…</div>
-        </div>
+        <LoadingState title="Chargement des phases…" />
       </div>
     );
   }
@@ -125,22 +113,11 @@ export function TrendPredictions({ userId }: TrendPredictionsProps) {
   return (
     <div className="space-y-6">
       <TrendsSubNav active="phases" />
-      {/* Header */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-2xl font-semibold flex items-center gap-2">
-                <Sparkles className="w-6 h-6" />
-                Cycle de Vie Radar
-              </CardTitle>
-              <CardDescription className="mt-2 max-w-xl">
-                Émergent → Croissance → Pic → Déclin. Scores calculés à partir des données de scan (vitesse, diversité marques/pays, émergence, stabilité des prix). Ce n’est pas un rapport texte IA ; pour ça, utilisez « Synthèse du Radar » ou « Analyser » sur le classement.
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
+      <SectionHeader
+        title="Cycle de Vie Radar"
+        icon={Sparkles}
+        description="Émergent → Croissance → Pic → Déclin. Scores calculés à partir des données de scan (vitesse, diversité marques/pays, émergence, stabilité des prix). Ce n’est pas un rapport texte IA ; pour ça, utilisez « Synthèse du Radar » ou « Analyser » sur le classement."
+      />
 
       {/* Filtres par phase */}
       <Card>
@@ -176,12 +153,9 @@ export function TrendPredictions({ userId }: TrendPredictionsProps) {
 
       {/* Liste des prédictions */}
       {predictions.length === 0 ? (
-        <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
-            <p>Aucune prédiction disponible pour le moment.</p>
-            <p className="mt-2">Scannez les marques pour générer des prédictions.</p>
-          </CardContent>
-        </Card>
+        <EmptyState
+          description="Aucune prédiction disponible pour le moment. Scannez les marques pour générer des prédictions."
+        />
       ) : (
         <div className="space-y-4">
           {predictions.map((prediction, index) => (
@@ -305,8 +279,8 @@ export function TrendPredictions({ userId }: TrendPredictionsProps) {
       } else {
         throw new Error(data.error || 'Erreur lors de la création');
       }
-    } catch (error: any) {
-      alert(`Erreur: ${error.message}`);
+    } catch (error: unknown) {
+      alert(`Erreur: ${error instanceof Error ? error.message : 'Une erreur est survenue'}`);
     }
   };
 
@@ -342,8 +316,8 @@ export function TrendPredictions({ userId }: TrendPredictionsProps) {
       } else {
         throw new Error(data.error || 'Erreur lors de la génération');
       }
-    } catch (error: any) {
-      alert(`Erreur: ${error.message}`);
+    } catch (error: unknown) {
+      alert(`Erreur: ${error instanceof Error ? error.message : 'Une erreur est survenue'}`);
     }
   };
 }

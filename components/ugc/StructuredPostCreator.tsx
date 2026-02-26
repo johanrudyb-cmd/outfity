@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import {
   format,
@@ -26,6 +26,9 @@ import { GenerationCostBadge } from '@/components/ui/generation-cost-badge';
 import { GenerationLoadingPopup } from '@/components/ui/generation-loading-popup';
 import { QuotaGenerateButton } from '@/components/usage/QuotaGenerateButton';
 import { cn } from '@/lib/utils';
+import useSWR from 'swr';
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());
 import type {
   ContentCalendarEvent,
   ContentCalendarPlatform,
@@ -54,16 +57,47 @@ interface StructuredPostCreatorProps {
 }
 
 export function StructuredPostCreator({ brandId, brandName, onSaved, initialImageUrl }: StructuredPostCreatorProps) {
-  const [events, setEvents] = useState<ContentCalendarEvent[]>([]);
-  const [calendarMeta, setCalendarMeta] = useState<ContentCalendarMeta | undefined>(undefined);
+  const { data: calendarData, isLoading: loading, mutate: mutateCalendar } = useSWR<{ events: ContentCalendarEvent[], meta?: ContentCalendarMeta }>(
+    brandId ? `/api/launch-map/calendar?brandId=${encodeURIComponent(brandId)}` : null,
+    fetcher
+  );
+
+  const events = calendarData?.events || [];
+  const calendarMeta = calendarData?.meta;
+
+  const { data: frequencyData, isLoading: contentFrequencyLoading } = useSWR<{ maxPostsPerDay: number, label: string, recommendedPostTime: string }>(
+    (brandId && !calendarMeta?.contentStrategyFrequency) ? { url: '/api/launch-map/extract-content-frequency', brandId } : null,
+    ({ url, brandId }: { url: string, brandId: string }) => fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ brandId }),
+    }).then(res => res.json())
+  );
+
   const [selectedHook, setSelectedHook] = useState<string>('');
-  const [contentFrequency, setContentFrequency] = useState({
-    maxPostsPerDay: 1,
-    label: '1 post par jour (par défaut)',
-    recommendedPostTime: '18:00',
-  });
-  const [contentFrequencyLoading, setContentFrequencyLoading] = useState(false);
-  const [loading, setLoading] = useState(true);
+
+  const contentFrequency = useMemo(() => {
+    if (calendarMeta?.contentStrategyFrequency) {
+      const fromMeta = calendarMeta.contentStrategyFrequency;
+      return {
+        maxPostsPerDay: fromMeta.maxPostsPerDay,
+        label: fromMeta.label ?? `${fromMeta.maxPostsPerDay} post${fromMeta.maxPostsPerDay > 1 ? 's' : ''} par jour`,
+        recommendedPostTime: fromMeta.recommendedPostTime ?? '18:00',
+      };
+    }
+    if (frequencyData) {
+      const max = typeof frequencyData.maxPostsPerDay === 'number' && frequencyData.maxPostsPerDay >= 1 ? Math.min(10, frequencyData.maxPostsPerDay) : 1;
+      const label = typeof frequencyData.label === 'string' && frequencyData.label.trim() ? frequencyData.label.trim() : `${max} post${max > 1 ? 's' : ''} par jour`;
+      const recommendedPostTime = typeof frequencyData.recommendedPostTime === 'string' && /^\d{2}:\d{2}$/.test(frequencyData.recommendedPostTime) ? frequencyData.recommendedPostTime : '18:00';
+      return { maxPostsPerDay: max, label, recommendedPostTime };
+    }
+    return {
+      maxPostsPerDay: 1,
+      label: '1 post par jour (par défaut)',
+      recommendedPostTime: '18:00',
+    };
+  }, [calendarMeta?.contentStrategyFrequency, frequencyData]);
+
   const [saving, setSaving] = useState(false);
 
   const [clothesReceived, setClothesReceived] = useState<boolean | null>(null);
@@ -85,56 +119,7 @@ export function StructuredPostCreator({ brandId, brandName, onSaved, initialImag
   const [isDropOrSalePeriod, setIsDropOrSalePeriod] = useState(false);
   const [showUgcSavingsBannerAfterSave, setShowUgcSavingsBannerAfterSave] = useState(false);
 
-  const fetchEvents = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/launch-map/calendar?brandId=${encodeURIComponent(brandId)}`);
-      const data = await res.json();
-      if (res.ok && Array.isArray(data.events)) setEvents(data.events);
-      if (res.ok && data.meta) setCalendarMeta(data.meta);
-    } finally {
-      setLoading(false);
-    }
-  }, [brandId]);
 
-  useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
-
-  useEffect(() => {
-    if (loading || !brandId) return;
-    const fromMeta = calendarMeta?.contentStrategyFrequency;
-    if (fromMeta && fromMeta.maxPostsPerDay >= 1) {
-      setContentFrequency({
-        maxPostsPerDay: fromMeta.maxPostsPerDay,
-        label: fromMeta.label ?? `${fromMeta.maxPostsPerDay} post${fromMeta.maxPostsPerDay > 1 ? 's' : ''} par jour`,
-        recommendedPostTime: fromMeta.recommendedPostTime ?? '18:00',
-      });
-      return;
-    }
-    let cancelled = false;
-    setContentFrequencyLoading(true);
-    fetch('/api/launch-map/extract-content-frequency', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ brandId }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (cancelled) return;
-        const max = typeof data.maxPostsPerDay === 'number' && data.maxPostsPerDay >= 1 ? Math.min(10, data.maxPostsPerDay) : 1;
-        const label = typeof data.label === 'string' && data.label.trim() ? data.label.trim() : `${max} post${max > 1 ? 's' : ''} par jour`;
-        const recommendedPostTime = typeof data.recommendedPostTime === 'string' && /^\d{2}:\d{2}$/.test(data.recommendedPostTime) ? data.recommendedPostTime : '18:00';
-        setContentFrequency({ maxPostsPerDay: max, label, recommendedPostTime });
-        setCalendarMeta((prev) => ({ ...prev, contentStrategyFrequency: { maxPostsPerDay: max, label, recommendedPostTime } }));
-      })
-      .catch(() => {
-        if (!cancelled) setContentFrequency({ maxPostsPerDay: 1, label: '1 post par jour (par défaut)', recommendedPostTime: '18:00' });
-      })
-      .finally(() => {
-        if (!cancelled) setContentFrequencyLoading(false);
-      });
-    return () => { cancelled = true; };
-  }, [brandId, loading, calendarMeta?.contentStrategyFrequency]);
 
   const saveEvents = useCallback(
     async (nextEvents: ContentCalendarEvent[], options?: { meta?: ContentCalendarMeta; showUgcSavingsBanner?: boolean }) => {
@@ -145,10 +130,8 @@ export function StructuredPostCreator({ brandId, brandName, onSaved, initialImag
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ brandId, events: nextEvents, meta: options?.meta ?? calendarMeta }),
         });
-        const data = await res.json();
-        if (res.ok && Array.isArray(data.events)) {
-          setEvents(data.events);
-          if (data.meta) setCalendarMeta(data.meta);
+        if (res.ok) {
+          mutateCalendar();
           if (options?.showUgcSavingsBanner) setShowUgcSavingsBannerAfterSave(true);
           setFormStructured({ headline: '', body: '', cta: '', hashtags: '', description: '' });
           onSaved?.();
@@ -157,7 +140,7 @@ export function StructuredPostCreator({ brandId, brandName, onSaved, initialImag
         setSaving(false);
       }
     },
-    [brandId, calendarMeta, onSaved]
+    [brandId, calendarMeta, onSaved, mutateCalendar]
   );
 
   async function handleGenerate() {

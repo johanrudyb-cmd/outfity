@@ -111,9 +111,9 @@ export function LaunchMapNav({
             <span className="text-center xl:text-left leading-tight">Calendrier</span>
           </Link>
 
-          {LAUNCH_MAP_PHASES.map((p: any) => {
+          {LAUNCH_MAP_PHASES.map((p: { id: number; title: string; subtitle: string }) => {
             const Icon = PHASE_ICONS[p.id] || Circle;
-            const completed = (progress as any)[`phase${p.id}`];
+            const completed = (progress as Record<string, boolean>)[`phase${p.id}` as keyof typeof progress];
             const accessible = isPhaseAccessible();
 
             // Correction des liens pour correspondre aux IDs 0-5

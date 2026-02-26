@@ -75,10 +75,11 @@ export function PredictiveChart({ data, color, predictionColor = '#007AFF' }: Pr
                     }}
                     itemStyle={{ fontWeight: '900', fontSize: '13px', textTransform: 'uppercase' }}
                     labelStyle={{ color: '#8E8E93', marginBottom: '4px', fontSize: '9px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}
-                    formatter={(value: any, name: string | undefined) => {
+                    formatter={(value: number | undefined, name: string | undefined) => {
+                        if (value === undefined) return ['', ''];
                         if (name === 'valHistory') return [`${value} pts`, 'Score Réel'];
                         if (name === 'valPrediction') return [`${value} pts`, 'Potentiel'];
-                        return [value, name || ''];
+                        return [value.toString(), name || ''];
                     }}
                 />
 

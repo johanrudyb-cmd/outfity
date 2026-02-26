@@ -70,6 +70,7 @@ export async function POST() {
         userId: user.id,
         planId: SUBSCRIPTION_PLAN_ID,
       },
+      client_reference_id: user.id,
       customer_email: user.email ?? undefined,
     });
 

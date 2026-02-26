@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -60,8 +61,20 @@ function SignUpContent() {
         return;
       }
 
-      // Redirection intelligente
-      router.push(`/auth/signin?registered=true&callbackUrl=${encodeURIComponent(callbackUrl)}`);
+      // Connexion automatique après inscription
+      const signInResult = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (signInResult?.error) {
+        // Fallback si la connexion auto échoue
+        router.push(`/auth/signin?registered=true&callbackUrl=${encodeURIComponent(callbackUrl)}`);
+      } else {
+        // Connecté avec succès, redirection directe
+        router.push(callbackUrl);
+      }
     } catch (err) {
       setError('Une erreur est survenue');
       setLoading(false);

@@ -14,6 +14,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast';
 import { Loader2, Copy, Edit2, Save, X, FileText, Sparkles, FolderPlus } from 'lucide-react';
 import { UGCContentHistory } from './UGCContentHistory';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import useSWR from 'swr';
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 interface ScriptGeneratorProps {
   brandId: string;
@@ -26,10 +31,23 @@ interface Script {
   isEditing?: boolean;
 }
 
+interface Collection {
+  id: string;
+  name: string;
+}
+
 export function ScriptGenerator({ brandId, brandName }: ScriptGeneratorProps) {
   const scriptsQuota = useQuota('ugc_scripts');
   const { toast } = useToast();
   const openSurplusModal = useSurplusModal();
+  const router = useRouter();
+  const { data: session } = useSession();
+  const isFree = (session?.user as { plan?: string })?.plan === 'free' || (session?.user as { plan?: string })?.plan === 'starter';
+
+  const handleUpgradeClick = () => {
+    if (isFree) router.push('/auth/choose-plan');
+    else openSurplusModal();
+  };
   const [productDescription, setProductDescription] = useState('');
   const [count, setCount] = useState(5);
   const [tone, setTone] = useState('décontracté');
@@ -40,7 +58,13 @@ export function ScriptGenerator({ brandId, brandName }: ScriptGeneratorProps) {
   const [editingScript, setEditingScript] = useState<{ id: string; content: string } | null>(null);
   // Ajouter script à un fichier (collection)
   const [addToFileScriptId, setAddToFileScriptId] = useState<string | null>(null);
-  const [collections, setCollections] = useState<{ id: string; name: string }[]>([]);
+
+  const { data: collectionsData } = useSWR<{ collections: Collection[] }>(
+    addToFileScriptId && brandId ? `/api/collections?brandId=${encodeURIComponent(brandId)}` : null,
+    fetcher
+  );
+  const collections = collectionsData?.collections || [];
+
   const [fileCollectionId, setFileCollectionId] = useState('');
   const [fileNewName, setFileNewName] = useState('');
   const [fileArticleLabel, setFileArticleLabel] = useState('');
@@ -78,7 +102,7 @@ export function ScriptGenerator({ brandId, brandName }: ScriptGeneratorProps) {
       }
 
       // Les scripts retournés ont maintenant des IDs
-      setScripts(data.scripts.map((s: any) => ({
+      setScripts(data.scripts.map((s: { id: string; content: string }) => ({
         id: s.id,
         content: typeof s === 'string' ? s : s.content,
       })));
@@ -89,8 +113,9 @@ export function ScriptGenerator({ brandId, brandName }: ScriptGeneratorProps) {
       });
       setShowHistory(false);
       window.dispatchEvent(new CustomEvent(USAGE_REFRESH_EVENT));
-    } catch (err: any) {
-      setError(err.message || 'Une erreur est survenue');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Une erreur est survenue';
+      setError(errorMessage);
     } finally {
       setIsGenerating(false);
     }
@@ -140,18 +165,10 @@ export function ScriptGenerator({ brandId, brandName }: ScriptGeneratorProps) {
     }
   };
 
-  const handleSelectFromHistory = (content: any) => {
+  const handleSelectFromHistory = (content: { id: string; content: string }) => {
     setScripts([{ id: content.id, content: content.content }]);
     setShowHistory(false);
   };
-
-  useEffect(() => {
-    if (!addToFileScriptId || !brandId) return;
-    fetch(`/api/collections?brandId=${encodeURIComponent(brandId)}`)
-      .then((res) => (res.ok ? res.json() : { collections: [] }))
-      .then((data) => setCollections(data.collections ?? []))
-      .catch(() => setCollections([]));
-  }, [addToFileScriptId, brandId]);
 
   const handleAddScriptToFile = async () => {
     if (!addToFileScriptId) return;
@@ -294,19 +311,19 @@ export function ScriptGenerator({ brandId, brandName }: ScriptGeneratorProps) {
 
               {scriptsQuota?.isExhausted ? (
                 <Button
-                  onClick={openSurplusModal}
+                  onClick={handleUpgradeClick}
                   className="w-full shadow-modern-lg bg-gradient-to-r from-primary to-primary/80"
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
-                  Recharger ce module
+                  {isFree ? 'Passer Créateur' : 'Recharger ce module'}
                 </Button>
               ) : (
                 <>
                   {scriptsQuota?.isAlmostFinished && (
                     <div className="flex items-center justify-between gap-2 rounded-md bg-amber-500/15 px-3 py-2 text-amber-800 dark:text-amber-200 mb-3">
                       <span className="text-xs font-medium">Stock épuisé bientôt !</span>
-                      <button type="button" onClick={openSurplusModal} className="text-xs font-semibold underline hover:no-underline">
-                        Prendre une recharge
+                      <button type="button" onClick={handleUpgradeClick} className="text-xs font-semibold underline hover:no-underline">
+                        {isFree ? 'Passer Créateur' : 'Prendre une recharge'}
                       </button>
                     </div>
                   )}

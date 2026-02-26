@@ -1,7 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
+import useSWR from 'swr';
 import { UGCLab } from '@/components/ugc/UGCLab';
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 interface Phase4MarketingProps {
   brandId: string;
@@ -19,59 +22,38 @@ interface DesignItem {
 }
 
 export function Phase4Marketing({ brandId, brandName, brand, onComplete, isCompleted, userPlan = 'free' }: Phase4MarketingProps) {
-  const [designs, setDesigns] = useState<DesignItem[]>([]);
-  const [scriptsCount, setScriptsCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const { data: calendarData } = useSWR(
+    brandId ? `/api/launch-map/calendar?brandId=${encodeURIComponent(brandId)}` : null,
+    fetcher,
+    { refreshInterval: 10000 }
+  );
 
-  // Phase 5 validée quand au moins un post structuré est planifié dans le calendrier
-  useEffect(() => {
-    const checkStructuredPosts = async () => {
-      try {
-        const response = await fetch(`/api/launch-map/calendar?brandId=${encodeURIComponent(brandId)}`);
-        if (response.ok) {
-          const data = await response.json();
-          const events = Array.isArray(data.events) ? data.events : [];
-          const structuredCount = events.filter(
-            (ev: { type?: string; structuredContent?: unknown }) =>
-              ev.type === 'content' && ev.structuredContent && typeof ev.structuredContent === 'object'
-          ).length;
-          setScriptsCount(structuredCount);
-          if (structuredCount >= 1 && !isCompleted) {
-            if (onComplete) onComplete();
-          }
-        }
-      } catch (error) {
-        console.error('Error checking calendar structured posts:', error);
-      }
-    };
+  const { data: designsData, isLoading: loading } = useSWR(
+    brandId ? `/api/designs?brandId=${encodeURIComponent(brandId)}` : null,
+    fetcher
+  );
 
-    checkStructuredPosts();
-    const interval = setInterval(checkStructuredPosts, 10000);
-    return () => clearInterval(interval);
-  }, [brandId, onComplete, isCompleted]);
+  const designs = useMemo(() => {
+    return (designsData?.designs || []).slice(0, 10).map((d: { id: string; type: string; flatSketchUrl?: string | null }) => ({
+      id: d.id,
+      type: d.type,
+      flatSketchUrl: d.flatSketchUrl ?? null,
+    }));
+  }, [designsData]);
+
+  const scriptsCount = useMemo(() => {
+    const events = Array.isArray(calendarData?.events) ? calendarData.events : [];
+    return events.filter(
+      (ev: { type?: string; structuredContent?: unknown }) =>
+        ev.type === 'content' && ev.structuredContent && typeof ev.structuredContent === 'object'
+    ).length;
+  }, [calendarData]);
 
   useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    fetch(`/api/designs?brandId=${encodeURIComponent(brandId)}`)
-      .then((res) => (res.ok ? res.json() : { designs: [] }))
-      .then((data) => {
-        if (cancelled) return;
-        const list = (data.designs || []).slice(0, 10).map((d: { id: string; type: string; flatSketchUrl?: string | null }) => ({
-          id: d.id,
-          type: d.type,
-          flatSketchUrl: d.flatSketchUrl ?? null,
-        }));
-        setDesigns(list);
-      })
-      .catch(() => {
-        if (!cancelled) setDesigns([]);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => { cancelled = true; };
-  }, [brandId]);
+    if (scriptsCount >= 1 && !isCompleted && onComplete) {
+      onComplete();
+    }
+  }, [scriptsCount, isCompleted, onComplete]);
 
   if (loading && designs.length === 0) {
     return (

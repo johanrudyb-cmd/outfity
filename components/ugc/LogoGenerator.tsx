@@ -72,8 +72,8 @@ export function LogoGenerator({ brandId }: LogoGeneratorProps) {
 
             setResultUrl(data.url);
             reloadQuota(); // Rafraîchir les quotas après génération
-        } catch (err: any) {
-            setError(err.message || 'Une erreur est survenue');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Une erreur est survenue');
         } finally {
             setIsGenerating(false);
         }

@@ -60,6 +60,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   session: {
     strategy: 'jwt',
+    maxAge: 7 * 24 * 60 * 60, // 7 days (Balance between security and UX: Users don't need to sign in every day, but idle sessions clear after a week)
   },
   useSecureCookies: process.env.NODE_ENV === 'production',
   cookies: {

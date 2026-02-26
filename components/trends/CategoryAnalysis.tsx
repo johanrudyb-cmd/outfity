@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import useSWR from 'swr';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { TrendProduct, User, ColorHex } from '@/types';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell
 } from 'recharts';
@@ -31,7 +33,7 @@ interface CategoryAnalysisProps {
     initialSegment?: string;
 }
 
-function aggregateProductsToStyles(products: any[], categoryId: string): TrendStyleGroup[] {
+function aggregateProductsToStyles(products: TrendProduct[], categoryId: string): TrendStyleGroup[] {
     const groups: Record<string, TrendStyleGroup> = {};
 
     products.forEach(p => {
@@ -73,11 +75,13 @@ function aggregateProductsToStyles(products: any[], categoryId: string): TrendSt
     }).sort((a, b) => b.avgScore - a.avgScore);
 }
 
+const fetcher = (url: string) => fetch(url).then(r => r.json());
+
 export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = 'homme' }: CategoryAnalysisProps) {
     const [styles, setStyles] = useState<TrendStyleGroup[]>([]);
-    const [rawProducts, setRawProducts] = useState<any[]>([]);
+    const [rawProducts, setRawProducts] = useState<TrendProduct[]>([]);
     const [stats, setStats] = useState({ lastUpdate: '', newCount: 0 });
-    const [loading, setLoading] = useState(true);
+
     const [segment, setSegment] = useState<string>(initialSegment);
     const [subFilter, setSubFilter] = useState('ALL');
     const [leadTime, setLeadTime] = useState(30);
@@ -85,7 +89,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
     const [globalDiff, setGlobalDiff] = useState(0);
 
     const { data: session } = useSession();
-    const user = session?.user as any;
+    const user = session?.user as User | undefined;
     const isFree = user?.plan === 'free' || user?.plan === 'starter';
 
     // Force 1M leadTime for free users
@@ -95,94 +99,87 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
         }
     }, [isFree, leadTime]);
 
+    const { data: trendsData, isLoading: loading, mutate } = useSWR(`/api/trends/hybrid-radar?segment=${segment}&limit=150`, fetcher);
+
     useEffect(() => {
-        const fetchTrends = async () => {
-            setLoading(true);
-            try {
-                const params = new URLSearchParams();
-                params.set('segment', segment);
-                params.set('limit', '150'); // 150 suffisant pour une catégorie (ex: T-Shirts Homme)
-                const res = await fetch(`/api/trends/hybrid-radar?${params.toString()}`);
-                if (res.ok) {
-                    const data = await res.json();
-                    const products = data.trends || [];
-                    const filteredRaw = products.filter((p: any) => p.category === categoryId);
-                    setRawProducts(filteredRaw);
+        if (!trendsData?.trends) return;
 
-                    // Calcul des stats de fraîcheur
-                    const now = new Date();
-                    const lastProd = products.length > 0
-                        ? products.reduce((latest: any, p: any) => {
-                            const d = new Date(p.updatedAt);
-                            return d > latest ? d : latest;
-                        }, new Date(0))
-                        : null;
-                    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-                    const newlyAdded = filteredRaw.filter((p: any) => new Date(p.createdAt) > twentyFourHoursAgo).length;
+        try {
+            const products = trendsData.trends;
+            const filteredRaw = products.filter((p: TrendProduct) => p.category === categoryId);
+            setRawProducts(filteredRaw);
 
-                    // Calcul du temps relatif
-                    let lastUpdateStr = "--:--";
-                    if (lastProd) {
-                        const diffMs = now.getTime() - lastProd.getTime();
-                        const diffMins = Math.floor(diffMs / (1000 * 60));
-                        const diffHours = Math.floor(diffMins / 60);
-                        if (diffHours > 0) lastUpdateStr = `Il y a ${diffHours}h`;
-                        else if (diffMins > 0) lastUpdateStr = `Il y a ${diffMins}m`;
-                        else lastUpdateStr = "À l'instant";
-                    }
+            // Calcul des stats de fraîcheur
+            const now = new Date();
+            const lastProd = products.length > 0
+                ? products.reduce((latest: Date, p: TrendProduct) => {
+                    const d = p.updatedAt ? new Date(p.updatedAt) : new Date(0);
+                    return d > latest ? d : latest;
+                }, new Date(0))
+                : null;
+            const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            const newlyAdded = filteredRaw.filter((p: TrendProduct) => p.createdAt && new Date(p.createdAt) > twentyFourHoursAgo).length;
 
-                    setStats({
-                        lastUpdate: lastUpdateStr,
-                        newCount: newlyAdded
+            // Calcul du temps relatif
+            let lastUpdateStr = "--:--";
+            if (lastProd) {
+                const diffMs = now.getTime() - lastProd.getTime();
+                const diffMins = Math.floor(diffMs / (1000 * 60));
+                const diffHours = Math.floor(diffMins / 60);
+                if (diffHours > 0) lastUpdateStr = `Il y a ${diffHours}h`;
+                else if (diffMins > 0) lastUpdateStr = `Il y a ${diffMins}m`;
+                else lastUpdateStr = "À l'instant";
+            }
+
+            setStats({
+                lastUpdate: lastUpdateStr,
+                newCount: newlyAdded
+            });
+
+            // Aggrégation et mélange avec les signatures populaires de CETTE catégorie
+            const aggregated = aggregateProductsToStyles(products, categoryId);
+
+            // On garde les styles trouvés
+            const finalStyles = [...aggregated.filter(s => s.category === categoryId)];
+
+            const categorySignatures = (FASHION_CUTS_BY_CATEGORY as Record<string, readonly string[]>)[categoryId] || [];
+
+            categorySignatures.forEach((sig: string) => {
+                if (!finalStyles.find(fs => fs.name.toUpperCase() === sig.toUpperCase())) {
+                    finalStyles.push({
+                        id: sig,
+                        name: sig,
+                        category: categoryId,
+                        styleKey: sig,
+                        avgScore: 0,
+                        productCount: 0,
+                        avgPrice: 0,
+                        topImageUrl: null
                     });
-
-                    // Aggrégation et mélange avec les signatures populaires de CETTE catégorie
-                    const aggregated = aggregateProductsToStyles(products, categoryId);
-
-                    // On garde les styles trouvés
-                    const finalStyles = [...aggregated.filter(s => s.category === categoryId)];
-
-                    // On ajoute les populaires SI elles correspondent à la catégorie actuelle
-                    const categorySignatures = (FASHION_CUTS_BY_CATEGORY as any)[categoryId] || [];
-
-                    categorySignatures.forEach((sig: string) => {
-                        if (!finalStyles.find(fs => fs.name.toUpperCase() === sig.toUpperCase())) {
-                            finalStyles.push({
-                                id: sig,
-                                name: sig,
-                                category: categoryId,
-                                styleKey: sig,
-                                avgScore: 0,
-                                productCount: 0,
-                                avgPrice: 0,
-                                topImageUrl: null
-                            });
-                        }
-                    });
-
-                    setStyles(finalStyles);
-
-                    // Calcul du Score Global de la catégorie
-                    if (filteredRaw.length > 0) {
-                        const sum = filteredRaw.reduce((acc: number, p: any) => acc + (p.trendScore || 50), 0);
-                        const avg = sum / filteredRaw.length;
-                        const bonus = Math.min(15, Math.floor(filteredRaw.length / 5));
-                        setGlobalScore(Math.round(avg + bonus));
-
-                        const diff = newlyAdded > 0
-                            ? Math.max(1, Math.min(12, Math.floor(newlyAdded / 2)))
-                            : -0.2;
-
-                        setGlobalDiff(diff);
-                    }
                 }
-            } catch (e) { console.error(e); }
-            finally { setLoading(false); }
-        };
+            });
 
-        fetchTrends();
-        (window as any).refreshCategoryTrends = fetchTrends;
-    }, [segment, categoryId]);
+            setStyles(finalStyles);
+
+            // Calcul du Score Global de la catégorie
+            if (filteredRaw.length > 0) {
+                const sum = filteredRaw.reduce((acc: number, p: TrendProduct) => acc + (p.trendScore || 50), 0);
+                const avg = sum / filteredRaw.length;
+                const bonus = Math.min(15, Math.floor(filteredRaw.length / 5));
+                setGlobalScore(Math.round(avg + bonus));
+
+                const diff = newlyAdded > 0
+                    ? Math.max(1, Math.min(12, Math.floor(newlyAdded / 2)))
+                    : -0.2;
+
+                setGlobalDiff(diff);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+
+        window.refreshCategoryTrends = mutate;
+    }, [trendsData, segment, categoryId, mutate]);
 
     const filteredStyles = useMemo(() => {
         if (subFilter === 'ALL') return styles.filter(s => s.productCount > 0); // On ne montre que ce qui a de la data en grille
@@ -456,7 +453,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                             <div className="flex items-center gap-2">
                                 <p className="text-[8px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate">DIAGNOSTIC ANALYSE</p>
                                 <button
-                                    onClick={() => (window as any).refreshCategoryTrends?.()}
+                                    onClick={() => window.refreshCategoryTrends?.()}
                                     className="p-1 hover:bg-gray-100 rounded-full transition-colors"
                                 >
                                     <Loader2 className={cn("w-3 h-3 text-[#007AFF]", loading && "animate-spin")} />
@@ -588,7 +585,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                                 <div className="flex flex-col flex-1">
                                     <span className="text-[8px] md:text-[9px] font-black text-[#007AFF] uppercase tracking-widest mb-1.5 whitespace-nowrap">COULEURS VIRALES PROJETÉES</span>
                                     <div className="flex items-center gap-1.5 bg-blue-50/30 px-2.5 py-1.5 rounded-xl border border-blue-100/30">
-                                        {strategicAnalysis.targetColors.map((color: any, idx: number) => (
+                                        {strategicAnalysis.targetColors.map((color: ColorHex, idx: number) => (
                                             <div key={idx} className="w-3 h-3 md:w-3.5 md:h-3.5 rounded-sm shadow-inner" style={{ backgroundColor: color.hex }} />
                                         ))}
                                     </div>

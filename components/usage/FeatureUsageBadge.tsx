@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, AlertCircle } from 'lucide-react';
 import { useSurplusModal } from './SurplusModalContext';
-
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 interface FeatureUsageBadgeProps {
@@ -16,10 +16,15 @@ interface FeatureUsageBadgeProps {
     isFree?: boolean;
 }
 
-export function FeatureUsageBadge({ featureKey, showLabel = true, className, isFree = false }: FeatureUsageBadgeProps) {
+export function FeatureUsageBadge({ featureKey, showLabel = true, className, isFree: isFreeProp }: FeatureUsageBadgeProps) {
     const status = useQuota(featureKey);
     const openSurplusModal = useSurplusModal();
     const router = useRouter();
+    const { data: session } = useSession();
+
+    const user = session?.user as any;
+    const isFreeUser = user?.plan === 'free' || user?.plan === 'starter';
+    const isFree = isFreeProp !== undefined ? isFreeProp : isFreeUser;
 
     if (!status || status.isUnlimited) return null;
 

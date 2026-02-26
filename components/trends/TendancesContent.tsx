@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
+import useSWR from 'swr';
 import Link from 'next/link';
+import { TrendProduct } from '@/types';
 import { useSearchParams } from 'next/navigation';
-import { Loader2, TrendingUp, Tag, Layers, Sparkles, Shirt, ArrowRight } from 'lucide-react';
+import { LucideIcon, Loader2, TrendingUp, Tag, Layers, Sparkles, Shirt, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
@@ -29,7 +31,19 @@ const CATEGORY_IMAGES: Record<string, Record<string, string>> = {
   }
 };
 
-const MAIN_CATEGORIES: any[] = [
+type CategoryDesc = string | { homme: string; femme: string };
+type CategoryLabel = string | { homme: string; femme: string };
+
+interface CategoryItem {
+  id: string;
+  dbId: string;
+  label: CategoryLabel;
+  icon: LucideIcon;
+  desc: CategoryDesc;
+  onlyFemme?: boolean;
+}
+
+const MAIN_CATEGORIES: CategoryItem[] = [
   {
     id: 't-shirts',
     dbId: 'TSHIRT',
@@ -75,56 +89,39 @@ const MAIN_CATEGORIES: any[] = [
   },
 ];
 
-export function TendancesContent({ initialData }: { initialData?: any }) {
+const fetcher = (url: string) => fetch(url).then(r => r.json());
+
+export function TendancesContent({ initialData }: { initialData?: unknown }) {
   const [segment, setSegment] = useState<string>('homme');
-  const [previews, setPreviews] = useState<any>(null);
-  const [realStats, setRealStats] = useState<Record<string, { score: number, diff: number, pct: string, newItems: number }>>({});
-  const [loadingStats, setLoadingStats] = useState(true);
 
-  useEffect(() => {
-    const loadAll = async () => {
-      setLoadingStats(true);
-      try {
-        // Les 2 fetches partent en parallèle (gagne 300-800ms)
-        const [previewsRes, trendsRes] = await Promise.all([
-          fetch('/style-previews.json'),
-          fetch(`/api/trends/hybrid-radar?segment=${segment}&limit=120`),
-        ]);
+  const { data: previews } = useSWR('/style-previews.json', fetcher);
+  const { data: trendsData, isLoading: loadingStats } = useSWR(
+    `/api/trends/hybrid-radar?segment=${segment}&limit=120`,
+    fetcher
+  );
 
-        if (previewsRes.ok) {
-          const data = await previewsRes.json();
-          setPreviews(data);
-        }
+  const realStats = useMemo(() => {
+    if (!trendsData?.trends) return {};
 
-        if (trendsRes.ok) {
-          const { trends } = await trendsRes.json();
-          const statsMap: Record<string, { score: number, diff: number, pct: string, newItems: number }> = {};
-          const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const statsMap: Record<string, { score: number, diff: number, pct: string, newItems: number }> = {};
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-          MAIN_CATEGORIES.forEach(cat => {
-            const catProducts = trends.filter((p: any) => p.category === cat.dbId);
-            if (catProducts.length > 0) {
-              const avgScore = catProducts.reduce((acc: number, p: any) => acc + (p.trendScore || 50), 0) / catProducts.length;
-              const volumeBonus = Math.min(15, Math.floor(catProducts.length / 5));
-              const finalScore = Math.round(avgScore + volumeBonus);
-              const newItems = catProducts.filter((p: any) => new Date(p.createdAt) > twentyFourHoursAgo).length;
-              const diff = newItems > 0 ? Math.max(1, Math.min(10, Math.floor(newItems / 2))) : -0.2;
-              const pct = ((diff / (finalScore || 1)) * 100).toFixed(1);
-              statsMap[cat.dbId] = { score: finalScore, diff, pct, newItems };
-            } else {
-              statsMap[cat.dbId] = { score: 50, diff: 0, pct: '0.0', newItems: 0 };
-            }
-          });
-          setRealStats(statsMap as any);
-        }
-      } catch (e) {
-        console.error('Failed to load trends data:', e);
-      } finally {
-        setLoadingStats(false);
+    MAIN_CATEGORIES.forEach(cat => {
+      const catProducts = trendsData.trends.filter((p: TrendProduct) => p.category === cat.dbId);
+      if (catProducts.length > 0) {
+        const avgScore = catProducts.reduce((acc: number, p: TrendProduct) => acc + (p.trendScore || 50), 0) / catProducts.length;
+        const volumeBonus = Math.min(15, Math.floor(catProducts.length / 5));
+        const finalScore = Math.round(avgScore + volumeBonus);
+        const newItems = catProducts.filter((p: TrendProduct) => p.createdAt && new Date(p.createdAt) > twentyFourHoursAgo).length;
+        const diff = newItems > 0 ? Math.max(1, Math.min(10, Math.floor(newItems / 2))) : -0.2;
+        const pct = ((diff / (finalScore || 1)) * 100).toFixed(1);
+        statsMap[cat.dbId] = { score: finalScore, diff, pct, newItems };
+      } else {
+        statsMap[cat.dbId] = { score: 50, diff: 0, pct: '0.0', newItems: 0 };
       }
-    };
-    loadAll();
-  }, [segment]);
+    });
+    return statsMap;
+  }, [trendsData]);
 
   return (
     <div className="min-h-screen pb-32 font-sans transition-colors duration-1000 bg-[#F5F5F7]">
@@ -163,8 +160,8 @@ export function TendancesContent({ initialData }: { initialData?: any }) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {MAIN_CATEGORIES.filter(c => !c.onlyFemme || segment === 'femme').map((cat, idx) => {
             const categoryImage = CATEGORY_IMAGES[segment]?.[cat.id] || '';
-            const label = typeof cat.label === 'string' ? cat.label : cat.label[segment];
-            const desc = typeof cat.desc === 'string' ? cat.desc : cat.desc[segment];
+            const label = typeof cat.label === 'string' ? cat.label : cat.label[segment as 'homme' | 'femme'];
+            const desc = typeof cat.desc === 'string' ? cat.desc : cat.desc[segment as 'homme' | 'femme'];
 
             return (
               <Link key={cat.id} href={`/trends/category/${cat.id}?segment=${segment}`}>

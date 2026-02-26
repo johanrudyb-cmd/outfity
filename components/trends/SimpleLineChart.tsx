@@ -34,7 +34,7 @@ export function SimpleLineChart({ data, color }: SimpleLineChartProps) {
                     cursor={{ stroke: color, strokeWidth: 1, strokeDasharray: '4 4' }}
                     contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                     itemStyle={{ color: color, fontWeight: 'bold' }}
-                    formatter={(value: any) => [`${value} pts`, 'Score']}
+                    formatter={(value: number | undefined) => [`${value ?? 0} pts`, 'Score']}
                 />
                 <Area
                     type="monotone"

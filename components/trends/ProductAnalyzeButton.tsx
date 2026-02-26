@@ -49,8 +49,8 @@ export function ProductAnalyzeButton({ productName }: ProductAnalyzeButtonProps)
 
       // Rediriger vers la page de détail de l'analyse
       router.push(`/spy/${data.analysis.id}`);
-    } catch (err: any) {
-      setError(err.message || 'Une erreur est survenue');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
       setIsAnalyzing(false);
     }
   };

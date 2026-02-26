@@ -451,10 +451,10 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
                     <div key={idx} className="space-y-3 sm:space-y-5">
                       <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.4em] text-black/30 ml-2">{field.label}</p>
                       <div className="flex flex-wrap gap-2 sm:gap-2.5">
-                        {field.opt.slice(0, 6).map((o: any) => (
+                        {field.opt.slice(0, 6).map((o: { v: string; l: string }) => (
                           <button
                             key={o.v}
-                            onClick={() => field.set(o.v)}
+                            onClick={() => (field.set as (v: string) => void)(o.v)}
                             className={cn(
                               "px-5 py-3 sm:px-8 sm:py-4 rounded-2xl sm:rounded-3xl text-xs sm:text-sm font-bold tracking-tight transition-all duration-500 border",
                               field.val === o.v

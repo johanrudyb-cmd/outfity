@@ -65,7 +65,21 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
   const sg = brand?.styleGuide && typeof brand.styleGuide === 'object' ? brand.styleGuide as Record<string, unknown> : null;
 
   // --- States ---
-  const [viewMode, setViewMode] = useState<'chat' | 'classic'>('chat');
+  const [viewMode, setViewMode] = useState<'chat' | 'classic'>('classic');
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(`virgil-chat-${brandId}`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setViewMode('chat');
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [brandId]);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [positioning, setPositioning] = useState(() => styleGuideField(sg, 'preferredStyle') || styleGuideField(sg, 'positioning') || '');
   const [targetAudience, setTargetAudience] = useState(() => styleGuideField(sg, 'targetAudience') || '');
@@ -148,7 +162,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
   );
 
   const handleCalquerStrategie = async (slug: string) => {
-    if (isFreePlan(userPlan)) { openSurplusModal(); return; }
+    if (isFreePlan(userPlan)) { router.push('/auth/choose-plan'); return; }
     const templateName = referenceBrands.find(b => b.slug === slug)?.brandName || slug;
     setStrategyLoading(true);
     try {

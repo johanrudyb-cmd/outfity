@@ -30,13 +30,13 @@ export async function POST(request: Request) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
-        const userId = session.metadata?.userId;
+        const userId = session.client_reference_id || session.metadata?.userId;
         const packId = session.metadata?.packId;
-        const planId = session.metadata?.planId;
+        const planId = session.metadata?.planId || SUBSCRIPTION_PLAN_ID;
         const sessionId = session.id;
 
         if (!userId) {
-          console.warn('[Stripe webhook] Missing userId in metadata');
+          console.warn('[Stripe webhook] Missing userId in client_reference_id and metadata');
           break;
         }
 

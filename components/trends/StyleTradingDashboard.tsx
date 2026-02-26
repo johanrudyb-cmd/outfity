@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, TrendingUp, TrendingDown, Layers, Activity, BarChart2, Zap, RefreshCw, Info, ArrowRight, DollarSign, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, TrendingUp, TrendingDown, Layers, Activity, BarChart2, Zap, RefreshCw, Info, ArrowRight, DollarSign, AlertTriangle, LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { PredictiveChart } from '@/components/trends/PredictiveChart';
@@ -243,7 +243,16 @@ export function StyleTradingDashboard({ data }: { data: StyleDetailProps }) {
     );
 }
 
-function KPICard({ label, value, sub, icon: Icon, active, onClick }: any) {
+interface KPICardProps {
+    label: string;
+    value: string;
+    sub: string;
+    icon: LucideIcon;
+    active: boolean;
+    onClick: () => void;
+}
+
+function KPICard({ label, value, sub, icon: Icon, active, onClick }: KPICardProps) {
     return (
         <button onClick={onClick} className={cn("h-full flex flex-col items-center justify-center p-4 hover:bg-white/5 transition-colors relative outline-none", active && "bg-white/5")}>
             {active && <motion.div layoutId="active-kpi" className="absolute top-0 left-0 w-full h-0.5 bg-blue-500" />}

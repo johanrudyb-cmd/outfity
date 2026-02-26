@@ -1,37 +1,79 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import useSWR from 'swr';
 import { MarketChart } from './MarketChart';
-import { TrendingUp, TrendingDown, BarChart2, Zap, Activity, Info, AlertCircle, ArrowRight, RefreshCw } from 'lucide-react';
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+import { TrendingUp, TrendingDown, BarChart2, Zap, Activity, Info, AlertCircle, ArrowRight, RefreshCw, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { LoadingState } from '@/components/ui/loading-state';
+import { EmptyState } from '@/components/ui/empty-state';
+
+interface Catalyst {
+    name: string;
+    impact: string;
+    source: string;
+}
+
+interface Supplier {
+    name: string;
+    country: string;
+}
+
+interface TradingSignal {
+    id: string;
+    name: string;
+    segment: string;
+    change: number;
+    potential: number;
+    saturation: number;
+    opportunityReason?: string;
+    saturationReason?: string;
+    retailPriceEst: string;
+    markup: string;
+    conversionRate: string;
+    demandGrowth: string;
+    marketRegion: string;
+    weatherSignal: string;
+    predictedScore60d: number;
+    productionSafety: string;
+    upcomingCatalysts: Catalyst[];
+    matchedSupplier: Supplier;
+    suggestedPrice: number;
+    aiConfidence: number;
+    lastScan: string;
+    theme: string;
+    signal: string;
+    advice: string;
+    risk: string;
+}
 
 export function TradingDashboard() {
-    const [products, setProducts] = useState<any[]>([]);
-    const [selectedAsset, setSelectedAsset] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
+    const { data, isLoading: swrLoading, mutate } = useSWR<{ products: TradingSignal[] }>('/api/trends/trading-signals', fetcher);
+
+    const products = data?.products || [];
+    const [manualAsset, setManualAsset] = useState<TradingSignal | null>(null);
+    const selectedAsset = manualAsset || products[0] || null;
+
     const [timeframe, setTimeframe] = useState('1S');
     const [showScoreDetail, setShowScoreDetail] = useState(false);
     const [activeKPIDetail, setActiveKPIDetail] = useState<string | null>(null);
     const [isSyncing, setIsSyncing] = useState(false);
+    const loading = swrLoading && !data;
 
     const triggerSync = async () => {
         setIsSyncing(true);
         try {
-            // On active le mode turbo (rapide) pour le bouton manuel
             await fetch('/api/trends/brain-cycle?turbo=true', {
                 method: 'POST',
                 headers: {
                     'x-n8n-secret': 'bmad_n8n_secret_2024_ultra_secure'
                 }
             });
-            // Refresh local data after sync
-            const res = await fetch('/api/trends/trading-signals');
-            const data = await res.json();
-            if (data.products && data.products.length > 0) {
-                setProducts(data.products);
-                setSelectedAsset(data.products[0]);
-            }
+            await mutate(); // Refresh signals
+            setManualAsset(null);
         } catch (err) {
             console.error("Sync failed", err);
         } finally {
@@ -39,62 +81,38 @@ export function TradingDashboard() {
         }
     };
 
-    useEffect(() => {
-        const fetchSignals = async () => {
-            try {
-                const res = await fetch('/api/trends/trading-signals');
-                const data = await res.json();
-                if (data.products && data.products.length > 0) {
-                    setProducts(data.products);
-                    setSelectedAsset(data.products[0]);
-                }
-            } catch (err) {
-                console.error("Failed to fetch trading signals", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchSignals();
-    }, []);
-
-    if (loading) return (
-        <div className="flex items-center justify-center h-[600px] w-full">
-            <div className="flex flex-col items-center gap-4">
-                <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                <p className="text-xs font-black text-gray-400 uppercase tracking-widest animate-pulse">Calcul des signaux live...</p>
-            </div>
-        </div>
-    );
+    if (loading) return <LoadingState title="Calcul des signaux live..." description="Moteur de signaux en cours de synchronisation" className="h-[600px] bg-white rounded-[40px] border border-gray-100" />;
 
     if (!selectedAsset && !isSyncing) return (
-        <div className="flex flex-col items-center justify-center h-[600px] w-full bg-gray-50 rounded-[40px] border border-dashed border-gray-200 gap-6">
-            <div className="text-center">
-                <p className="text-gray-400 font-bold uppercase tracking-widest text-sm mb-2">Aucun signal détecté pour le moment</p>
-                <p className="text-gray-400 text-xs font-medium">Lancer le premier scan pour peupler votre veille de marché.</p>
-            </div>
-            <button
-                onClick={triggerSync}
-                className="flex items-center gap-3 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl shadow-blue-500/20 active:scale-95"
-            >
-                <RefreshCw className="w-5 h-5" />
-                Lancer l'analyse des tendances
-            </button>
-        </div>
+        <EmptyState
+            icon={AlertTriangle}
+            title="Aucun signal détecté pour le moment"
+            description="Lancer le premier scan pour peupler votre veille de marché."
+            className="flex flex-col items-center justify-center h-[600px] bg-gray-50 rounded-[40px] border border-dashed border-gray-200"
+            action={
+                <button
+                    onClick={triggerSync}
+                    className="flex items-center gap-3 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl shadow-blue-500/20 active:scale-95"
+                >
+                    <RefreshCw className="w-5 h-5" />
+                    Lancer l'analyse des tendances
+                </button>
+            }
+        />
     );
 
     if (isSyncing && products.length === 0) return (
-        <div className="flex items-center justify-center h-[600px] w-full bg-white rounded-[40px] border border-gray-100">
-            <div className="flex flex-col items-center gap-6">
+        <LoadingState
+            title="Moteur Vision en éveil..."
+            description="Scan des retailers (Zara/Asos) + Analyse News & Social en cours"
+            icon={
                 <div className="relative">
                     <div className="w-16 h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
                     <Zap className="w-6 h-6 text-yellow-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
                 </div>
-                <div className="text-center">
-                    <p className="text-sm font-black text-gray-900 uppercase tracking-widest mb-1">Moteur Vision en éveil...</p>
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Scan des retailers (Zara/Asos) + Analyse News & Social en cours</p>
-                </div>
-            </div>
-        </div>
+            }
+            className="flex items-center justify-center h-[600px] bg-white rounded-[40px] border border-gray-100"
+        />
     );
 
     if (!selectedAsset) return null;
@@ -229,11 +247,11 @@ export function TradingDashboard() {
                         </div>
                     </div>
                     <div className="flex-1 overflow-y-auto pr-1 space-y-2 scrollbar-none">
-                        {products.map((item: any) => (
+                        {products.map((item: TradingSignal) => (
                             <button
                                 key={item.id}
                                 onClick={() => {
-                                    setSelectedAsset(item);
+                                    setManualAsset(item);
                                     setShowScoreDetail(false);
                                 }}
                                 className={cn(
@@ -433,7 +451,7 @@ export function TradingDashboard() {
                                             </div>
 
                                             <div className="space-y-3">
-                                                {selectedAsset.upcomingCatalysts?.map((catalyst: any) => (
+                                                {selectedAsset.upcomingCatalysts?.map((catalyst: Catalyst) => (
                                                     <div key={catalyst.name} className="flex items-center justify-between group/cat">
                                                         <div className="min-w-0 pr-2">
                                                             <div className="text-[10px] font-black text-white uppercase tracking-tight flex items-center gap-2 truncate">
@@ -533,7 +551,7 @@ export function TradingDashboard() {
     );
 }
 
-function KPICard({ title, value, subtitle, icon, onClick }: { title: string, value: string, subtitle: string, icon: any, onClick?: () => void }) {
+function KPICard({ title, value, subtitle, icon, onClick }: { title: string, value: string, subtitle: string, icon: React.ReactNode, onClick?: () => void }) {
     return (
         <div
             onClick={onClick}

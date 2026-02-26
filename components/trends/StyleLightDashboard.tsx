@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, TrendingUp, TrendingDown, Layers, Activity, Zap, ArrowRight, DollarSign, AlertTriangle, Clock, Calendar, ThermometerSun, Snowflake } from 'lucide-react';
+import { ArrowLeft, TrendingUp, TrendingDown, Layers, Activity, Zap, ArrowRight, DollarSign, AlertTriangle, Clock, Calendar, ThermometerSun, Snowflake, LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { PredictiveChart } from '@/components/trends/PredictiveChart';
@@ -206,7 +206,7 @@ export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
                                 {['1S', '1M'].map(t => (
                                     <button
                                         key={t}
-                                        onClick={() => setViewMode(t as any)}
+                                        onClick={() => setViewMode(t as '1S' | '1M')}
                                         className={cn(
                                             "text-[10px] font-bold px-3 py-1.5 rounded transition-all",
                                             viewMode === t
@@ -375,7 +375,16 @@ export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
     );
 }
 
-function TopKpiCard({ title, value, sub, icon: Icon, color, highlight }: any) {
+interface TopKpiCardProps {
+    title: string;
+    value: string | number;
+    sub: string;
+    icon: LucideIcon;
+    color: string;
+    highlight?: boolean;
+}
+
+function TopKpiCard({ title, value, sub, icon: Icon, color, highlight }: TopKpiCardProps) {
     return (
         <div className={cn("rounded-2xl p-6 shadow-sm border flex items-start justify-between transition-all", highlight ? "bg-[#F0F9FF] border-blue-200 ring-4 ring-blue-50" : "bg-white border-gray-100")}>
             <div>

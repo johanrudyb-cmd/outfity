@@ -4,7 +4,7 @@ import { TendancesContent } from '@/components/trends/TendancesContent';
 import { motion } from 'framer-motion';
 
 interface TrendsPageLayoutProps {
-    initialData: any;
+    initialData: unknown;
 }
 
 export function TrendsPageLayout({ initialData }: TrendsPageLayoutProps) {

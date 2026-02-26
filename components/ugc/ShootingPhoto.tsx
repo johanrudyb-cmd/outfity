@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { USAGE_REFRESH_EVENT } from '@/lib/hooks/useAIUsage';
 import { useQuota } from '@/lib/hooks/useQuota';
 import { useSession } from 'next-auth/react';
-import { useSurplusModal } from '@/components/usage/SurplusModalContext';
+import useSWR, { useSWRConfig } from 'swr';
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());
 import { GenerationCostBadge } from '@/components/ui/generation-cost-badge';
 import { ConfirmGenerateModal } from '@/components/ui/confirm-generate-modal';
 import { GenerationLoadingPopup } from '@/components/ui/generation-loading-popup';
@@ -295,13 +297,26 @@ export function ShootingPhoto({ brandId, designs: initialDesigns, onSwitchToTryO
   const photoQuota = useQuota('ugc_shooting_photo');
   const productQuota = useQuota('ugc_shooting_product');
   const { data: session } = useSession();
-  const isFree = (session?.user as any)?.plan === 'free' || (session?.user as any)?.plan === 'starter';
-  const openSurplusModal = useSurplusModal();
+  const { mutate } = useSWRConfig();
+  const isFree = (session?.user as { plan?: string })?.plan === 'free' || (session?.user as { plan?: string })?.plan === 'starter';
   const [shootingMode, setShootingMode] = useState<ShootingMode>('mannequin');
-  const [designs, setDesigns] = useState<ShootingDesign[]>(initialDesigns ?? []);
-  const [loadingDesigns, setLoadingDesigns] = useState(!initialDesigns?.length);
-  const [mannequins, setMannequins] = useState<Mannequin[]>([]);
-  const [loadingMannequins, setLoadingMannequins] = useState(true);
+
+  const { data: mannequinsData, isLoading: loadingMannequins } = useSWR<Mannequin[]>(
+    brandId ? `/api/ugc/mannequins?brandId=${encodeURIComponent(brandId)}` : null,
+    fetcher
+  );
+  const mannequins = mannequinsData || [];
+
+  const { data: designsData, isLoading: swrLoadingDesigns } = useSWR<{ designs: ShootingDesign[] }>(
+    brandId ? `/api/designs?brandId=${encodeURIComponent(brandId)}` : null,
+    fetcher
+  );
+
+  const designs = initialDesigns?.length ? initialDesigns : (designsData?.designs || [])
+    .filter((d: ShootingDesign & { status?: string }) => (d.status === 'completed' || !d.status) && getDesignImageUrl(d));
+
+  const loadingDesigns = !initialDesigns?.length && swrLoadingDesigns;
+
   const [selectedMannequinIds, setSelectedMannequinIds] = useState<string[]>([]);
   const [selectedDesignId, setSelectedDesignId] = useState<string>('');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -362,42 +377,7 @@ export function ShootingPhoto({ brandId, designs: initialDesigns, onSwitchToTryO
   const [showConfirmPhoto, setShowConfirmPhoto] = useState(false);
   const [showConfirmProduct, setShowConfirmProduct] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    setLoadingMannequins(true);
-    fetch(`/api/ugc/mannequins?brandId=${encodeURIComponent(brandId)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (!cancelled && Array.isArray(data)) setMannequins(data);
-      })
-      .catch(() => {
-        if (!cancelled) setMannequins([]);
-      })
-      .finally(() => {
-        if (!cancelled) setLoadingMannequins(false);
-      });
-    return () => { cancelled = true; };
-  }, [brandId]);
 
-  useEffect(() => {
-    let cancelled = false;
-    setLoadingDesigns(true);
-    fetch(`/api/designs?brandId=${encodeURIComponent(brandId)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (cancelled) return;
-        const list = Array.isArray(data.designs) ? data.designs : [];
-        setDesigns(list.filter((d: ShootingDesign & { status?: string }) => (d.status === 'completed' || !d.status) && getDesignImageUrl(d)));
-        setLoadingDesigns(false);
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setDesigns(initialDesigns ?? []);
-          setLoadingDesigns(false);
-        }
-      });
-    return () => { cancelled = true; };
-  }, [brandId, initialDesigns]);
 
   const handleGenerateMannequin = async () => {
     if (selectedMannequinIds.length === 0) {
@@ -461,7 +441,7 @@ export function ShootingPhoto({ brandId, designs: initialDesigns, onSwitchToTryO
       setResult(data.imageUrl);
       window.dispatchEvent(new CustomEvent(USAGE_REFRESH_EVENT));
       const mannequinNames = selectedMannequinIds
-        .map((id) => mannequins.find((m) => m.id === id)?.name ?? 'Mannequin')
+        .map((id: string) => mannequins.find((m) => m.id === id)?.name ?? 'Mannequin')
         .join(', ');
       setLastRealizationDetails({
         mode: 'mannequin',
@@ -569,8 +549,7 @@ export function ShootingPhoto({ brandId, designs: initialDesigns, onSwitchToTryO
         const d = await createRes.json();
         throw new Error(d.error || 'Erreur');
       }
-      const mannequin = await createRes.json();
-      setMannequins((prev) => [mannequin, ...prev]);
+      mutate(`/api/ugc/mannequins?brandId=${encodeURIComponent(brandId)}`);
       setShowAddMannequinUpload(false);
       setNewMannequinName('');
       setNewMannequinFile(null);
@@ -810,7 +789,7 @@ export function ShootingPhoto({ brandId, designs: initialDesigns, onSwitchToTryO
                             const wasSingle = selectedMannequinIds.length <= 1;
                             let next: string[];
                             if (selected) {
-                              next = selectedMannequinIds.filter((id) => id !== m.id);
+                              next = selectedMannequinIds.filter((id: string) => id !== m.id);
                             } else if (selectedMannequinIds.length < 3) {
                               next = [...selectedMannequinIds, m.id];
                             } else return;
@@ -1139,7 +1118,7 @@ export function ShootingPhoto({ brandId, designs: initialDesigns, onSwitchToTryO
                               <button
                                 key={o.id}
                                 type="button"
-                                onClick={() => setSelectedAccessories(prev => prev.includes(o.id) ? prev.filter(id => id !== o.id) : [...prev, o.id])}
+                                onClick={() => setSelectedAccessories((prev: string[]) => prev.includes(o.id) ? prev.filter((id: string) => id !== o.id) : [...prev, o.id])}
                                 className={cn(
                                   "px-2 py-1 rounded text-[10px] font-medium transition-colors border",
                                   selectedAccessories.includes(o.id) ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted border-input"
@@ -1159,7 +1138,7 @@ export function ShootingPhoto({ brandId, designs: initialDesigns, onSwitchToTryO
                               <button
                                 key={o.id}
                                 type="button"
-                                onClick={() => setSelectedProps(prev => prev.includes(o.id) ? prev.filter(id => id !== o.id) : [...prev, o.id])}
+                                onClick={() => setSelectedProps((prev: string[]) => prev.includes(o.id) ? prev.filter((id: string) => id !== o.id) : [...prev, o.id])}
                                 className={cn(
                                   "px-2 py-1 rounded text-[10px] font-medium transition-colors border",
                                   selectedProps.includes(o.id) ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted border-input"
@@ -1198,7 +1177,7 @@ export function ShootingPhoto({ brandId, designs: initialDesigns, onSwitchToTryO
                   <div className="pt-2 border-t border-border">
                     <p className="font-medium text-xs text-foreground mb-1">Récapitulatif</p>
                     <ul className="space-y-0.5 text-[10px] text-muted-foreground">
-                      <li>Mannequin(s) : <span className="text-foreground">{selectedMannequinIds.length > 0 ? selectedMannequinIds.map((id) => mannequins.find((m) => m.id === id)?.name ?? '—').join(', ') : '—'}</span></li>
+                      <li>Mannequin(s) : <span className="text-foreground">{selectedMannequinIds.length > 0 ? selectedMannequinIds.map((id: string) => mannequins.find((m) => m.id === id)?.name ?? '—').join(', ') : '—'}</span></li>
                       <li>Vêtement : <span className="text-foreground">{selectedDesignId ? (() => { const d = designs.find((x) => x.id === selectedDesignId); return d ? getDesignDisplayName(d) : '—'; })() : uploadedFile ? uploadedFile.name : '—'}</span></li>
                     </ul>
                   </div>
@@ -1245,7 +1224,7 @@ export function ShootingPhoto({ brandId, designs: initialDesigns, onSwitchToTryO
             )}
             {resultProductUrls.length > 0 && (
               <div className="grid grid-cols-2 gap-4">
-                {resultProductUrls.map((url, i) => (
+                {resultProductUrls.map((url: string, i: number) => (
                   <div key={i} className="space-y-1">
                     <p className="text-xs font-medium text-muted-foreground">{PRODUCT_ANGLE_LABELS[i] ?? `Photo ${i + 1}`}</p>
                     <div

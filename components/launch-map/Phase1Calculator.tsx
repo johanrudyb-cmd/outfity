@@ -128,7 +128,22 @@ function StatCard({ label, value, sub, colorClass }: { label: string; value: str
 
 // ─── MAIN CALCULATOR ───────────────────────────────────────────────────────
 
-export function Phase1Calculator({ brandId, brand, initialData, onComplete }: any) {
+interface Phase1CalculatorProps {
+  brandId: string;
+  brand: BrandIdentity | null;
+  initialData?: {
+    sellingPrice?: number;
+    quantity?: number;
+    marketingCost?: number;
+    productionCost?: number;
+    completed?: boolean;
+    productType?: string;
+    weight?: string;
+  } | null;
+  onComplete?: () => void;
+}
+
+export function Phase1Calculator({ brandId, brand, initialData, onComplete }: Phase1CalculatorProps) {
   const { toast } = useToast();
 
   // ── States ──

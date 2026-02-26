@@ -1,16 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import useSWR from 'swr';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Image as ImageIcon, FileText, Download, Trash2, Edit2, Search, Upload } from 'lucide-react';
 
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
 interface UGCContent {
   id: string;
   type: string;
   content: string;
-  createdAt: Date;
+  createdAt: string | Date;
 }
 
 interface UGCContentHistoryProps {
@@ -21,27 +24,13 @@ interface UGCContentHistoryProps {
 }
 
 export function UGCContentHistory({ brandId, contentType, onSelect, onEdit }: UGCContentHistoryProps) {
-  const [contents, setContents] = useState<UGCContent[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading, mutate } = useSWR<{ contents: UGCContent[] }>(
+    brandId ? `/api/ugc/history?brandId=${brandId}&type=${contentType}` : null,
+    fetcher
+  );
+
+  const contents = data?.contents || [];
   const [searchQuery, setSearchQuery] = useState('');
-
-  useEffect(() => {
-    fetchContents();
-  }, [brandId, contentType]);
-
-  const fetchContents = async () => {
-    try {
-      const response = await fetch(`/api/ugc/history?brandId=${brandId}&type=${contentType}`);
-      const data = await response.json();
-      if (response.ok) {
-        setContents(data.contents || []);
-      }
-    } catch (error) {
-      console.error('Erreur chargement historique:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce contenu ?')) {
@@ -54,7 +43,7 @@ export function UGCContentHistory({ brandId, contentType, onSelect, onEdit }: UG
       });
 
       if (response.ok) {
-        setContents(contents.filter((c) => c.id !== id));
+        mutate();
       }
     } catch (error) {
       console.error('Erreur suppression:', error);
@@ -68,7 +57,7 @@ export function UGCContentHistory({ brandId, contentType, onSelect, onEdit }: UG
     return true;
   });
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Card className="border-2">
         <CardContent className="pt-6">

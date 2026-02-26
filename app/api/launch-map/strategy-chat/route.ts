@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
+import { rateLimitByUser } from '@/lib/rate-limit';
 
 const anthropic = process.env.ANTHROPIC_API_KEY
     ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -15,6 +16,14 @@ export async function POST(req: NextRequest) {
 
         const currentUser = await getCurrentUser();
         if (!currentUser) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+
+        const { success } = await rateLimitByUser(currentUser.id, 'strategy-chat', {
+            maxRequests: 20,
+            windowMs: 60000,
+        });
+        if (!success) {
+            return NextResponse.json({ error: 'Trop de requêtes, veuillez patienter un instant.' }, { status: 429 });
+        }
 
         const body = await req.json();
         const { brandId, messages } = body as {

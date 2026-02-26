@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
+import useSWR from 'swr';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,6 +34,8 @@ import { ConfirmGenerateModal } from '@/components/ui/confirm-generate-modal';
 import { BrandLogo } from './BrandLogo';
 import { StrategyPresentationView } from '@/components/launch-map/StrategyPresentationView';
 import { GenerationLoadingPopup } from '@/components/ui/generation-loading-popup';
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 function AnalysisProse({ text }: { text: string }) {
   return (
@@ -71,7 +74,6 @@ const CALQUER_CONFIRM_MESSAGE =
 
 export function BrandTrendsAnalyzer() {
   const router = useRouter();
-  const [userBrandId, setUserBrandId] = useState<string | null>(null);
   const [selectedBrand, setSelectedBrand] = useState<CuratedBrand | null>(null);
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -90,15 +92,14 @@ export function BrandTrendsAnalyzer() {
   const [brandToAnalyze, setBrandToAnalyze] = useState<CuratedBrand | null>(null);
   const analyzeQuota = useQuota('brand_analyze');
 
-  useEffect(() => {
-    fetch('/api/brands')
-      .then((res) => res.ok ? res.json() : null)
-      .then((data: { brands?: { id: string }[] } | null) => {
-        const id = data?.brands?.[0]?.id ?? null;
-        setUserBrandId(id);
-      })
-      .catch(() => setUserBrandId(null));
-  }, []);
+  const { data: brandsData } = useSWR<{ brands?: { id: string }[] }>(
+    '/api/brands',
+    fetcher
+  );
+
+  const userBrandId = useMemo(() => {
+    return brandsData?.brands?.[0]?.id ?? null;
+  }, [brandsData]);
 
   const handleAnalyze = async (brand: CuratedBrand) => {
     setSelectedBrand(brand);

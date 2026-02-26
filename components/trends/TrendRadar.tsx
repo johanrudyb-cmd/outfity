@@ -1,7 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
+import useSWR from 'swr';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());
 import { Button } from '@/components/ui/button';
 import { TrendingUp, AlertCircle, Zap, Mail, Palette, Eye } from 'lucide-react';
 import { TrendDetailModal, type TrendDetailModalTrend } from './TrendDetailModal';
@@ -49,9 +52,6 @@ interface TrendRadarProps {
 }
 
 export function TrendRadar({ userId }: TrendRadarProps) {
-  const [trends, setTrends] = useState<TrendSignal[]>([]);
-  const [stats, setStats] = useState<TrendStats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [isScanning, setIsScanning] = useState(false);
   const [isEnriching, setIsEnriching] = useState(false);
 
@@ -70,53 +70,35 @@ export function TrendRadar({ userId }: TrendRadarProps) {
   // Modal détail d'une tendance
   const [detailTrend, setDetailTrend] = useState<TrendSignal | null>(null);
 
-  useEffect(() => {
-    loadTrends();
-    loadStats();
-  }, [debouncedCountry, debouncedStyle, debouncedProductType, debouncedSegment]);
+  const trendsParams = new URLSearchParams();
+  if (debouncedCountry) trendsParams.append('country', debouncedCountry);
+  if (debouncedStyle) trendsParams.append('style', debouncedStyle);
+  if (debouncedProductType) trendsParams.append('productType', debouncedProductType);
+  if (debouncedSegment) trendsParams.append('segment', debouncedSegment);
+  trendsParams.append('limit', '50');
 
-  const loadTrends = async () => {
-    try {
-      setIsLoading(true);
-      const params = new URLSearchParams();
-      if (debouncedCountry) params.append('country', debouncedCountry);
-      if (debouncedStyle) params.append('style', debouncedStyle);
-      if (debouncedProductType) params.append('productType', debouncedProductType);
-      if (debouncedSegment) params.append('segment', debouncedSegment);
-      params.append('limit', '50');
+  const { data: trendsData, isLoading: isTrendsLoading, mutate: mutateTrends } = useSWR(
+    `/api/trends/confirmed?${trendsParams.toString()}`,
+    fetcher
+  );
 
-      const response = await fetch(`/api/trends/confirmed?${params.toString()}`);
-      const data = await response.json();
-      setTrends(data.trends || []);
-    } catch (error) {
-      console.error('Erreur lors du chargement des tendances:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { data: statsData, mutate: mutateStats } = useSWR(
+    '/api/trends/stats',
+    fetcher
+  );
 
-  const loadStats = async () => {
-    try {
-      const response = await fetch('/api/trends/stats');
-      const data = await response.json();
-      // S'assurer que toutes les propriétés existent
-      setStats({
-        byCountry: data.byCountry || [],
-        byStyle: data.byStyle || [],
-        byProductType: data.byProductType || [],
-        byCountryAndStyle: data.byCountryAndStyle || [],
-      });
-    } catch (error) {
-      console.error('Erreur lors du chargement des statistiques:', error);
-      // Initialiser avec des tableaux vides en cas d'erreur
-      setStats({
-        byCountry: [],
-        byStyle: [],
-        byProductType: [],
-        byCountryAndStyle: [],
-      });
-    }
-  };
+  const trends = trendsData?.trends || [];
+  const isLoading = isTrendsLoading;
+
+  const stats = useMemo<TrendStats>(() => ({
+    byCountry: statsData?.byCountry || [],
+    byStyle: statsData?.byStyle || [],
+    byProductType: statsData?.byProductType || [],
+    byCountryAndStyle: statsData?.byCountryAndStyle || [],
+  }), [statsData]);
+
+  const loadTrends = () => mutateTrends();
+  const loadStats = () => mutateStats();
 
   const handleScan = async () => {
     setIsScanning(true);
@@ -136,8 +118,8 @@ export function TrendRadar({ userId }: TrendRadarProps) {
       } else {
         throw new Error(data.error || 'Erreur lors du scan');
       }
-    } catch (error: any) {
-      alert(`Erreur: ${error.message}`);
+    } catch (error: unknown) {
+      alert(`Erreur: ${error instanceof Error ? error.message : 'Une erreur est survenue'}`);
     } finally {
       setIsScanning(false);
     }
@@ -195,8 +177,8 @@ export function TrendRadar({ userId }: TrendRadarProps) {
       } else {
         throw new Error(data.error || 'Erreur lors de la création');
       }
-    } catch (error: any) {
-      alert(`Erreur: ${error.message}`);
+    } catch (error: unknown) {
+      alert(`Erreur: ${error instanceof Error ? error.message : 'Une erreur est survenue'}`);
     }
   };
 
@@ -233,8 +215,8 @@ export function TrendRadar({ userId }: TrendRadarProps) {
       } else {
         throw new Error(data.error || 'Erreur lors de la génération');
       }
-    } catch (error: any) {
-      alert(`Erreur: ${error.message}`);
+    } catch (error: unknown) {
+      alert(`Erreur: ${error instanceof Error ? error.message : 'Une erreur est survenue'}`);
     }
   };
 
@@ -402,7 +384,7 @@ export function TrendRadar({ userId }: TrendRadarProps) {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {trends.map((trend, index) => {
+          {trends.map((trend: TrendSignal, index: number) => {
             const rank = index + 1;
             const isRecommended = trend.recommendation === 'recommended';
             const isAvoid = trend.recommendation === 'avoid';

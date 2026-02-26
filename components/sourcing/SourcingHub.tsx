@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import useSWR from 'swr';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,11 @@ import { QuoteList } from './QuoteList';
 import { ActivePreferencesBadge } from '@/components/common/ActivePreferencesBadge';
 import { filterFactoriesByProduct } from '@/lib/factory-product-matcher';
 import { Truck } from 'lucide-react';
+import { SectionHeader } from '@/components/ui/section-header';
+import { LoadingState } from '@/components/ui/loading-state';
+import { EmptyState } from '@/components/ui/empty-state';
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 interface Factory {
   id: string;
@@ -54,36 +60,23 @@ interface SourcingHubProps {
 }
 
 export function SourcingHub({ brandId, sentQuotes, favoriteFactoryIds = [], preferences, trendEmailData, autoFilterData, userPlan = 'free' }: SourcingHubProps) {
-  const [factories, setFactories] = useState<Factory[]>([]);
-  const [filteredFactories, setFilteredFactories] = useState<Factory[]>([]);
-  const [loading, setLoading] = useState(true);
   const [favoriteIds, setFavoriteIds] = useState<string[]>(favoriteFactoryIds);
-  const [favoriteFactories, setFavoriteFactories] = useState<Factory[]>([]);
+  const [filteredFactories, setFilteredFactories] = useState<Factory[]>([]);
   const [detailFactory, setDetailFactory] = useState<Factory | null>(null);
+
+  const { data: factoriesData, isLoading } = useSWR('/api/factories', fetcher);
+  const factories: Factory[] = factoriesData?.factories || [];
+  const loading = isLoading;
+
+  const { data: favData, mutate: mutateFav } = useSWR(
+    favoriteIds.length > 0 ? `/api/brands/${brandId}/favorite-factories` : null,
+    fetcher
+  );
+  const favoriteFactories: Factory[] = favData?.factories || [];
 
   useEffect(() => {
     setFavoriteIds(favoriteFactoryIds);
   }, [favoriteFactoryIds]);
-
-  // Charger les détails des fournisseurs favoris
-  useEffect(() => {
-    const loadFavoriteFactories = async () => {
-      if (favoriteIds.length === 0) {
-        setFavoriteFactories([]);
-        return;
-      }
-      try {
-        const res = await fetch(`/api/brands/${brandId}/favorite-factories`);
-        if (res.ok) {
-          const data = await res.json();
-          setFavoriteFactories(data.factories || []);
-        }
-      } catch (err) {
-        console.error('Erreur chargement favoris:', err);
-      }
-    };
-    loadFavoriteFactories();
-  }, [brandId, favoriteIds]);
 
   const toggleFavorite = async (factoryId: string) => {
     const isFav = favoriteIds.includes(factoryId);
@@ -99,12 +92,7 @@ export function SourcingHub({ brandId, sentQuotes, favoriteFactoryIds = [], pref
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || `Erreur ${res.status}`);
       }
-      // Recharger les favoris après modification
-      const favRes = await fetch(`/api/brands/${brandId}/favorite-factories`);
-      if (favRes.ok) {
-        const favData = await favRes.json();
-        setFavoriteFactories(favData.factories || []);
-      }
+      await mutateFav();
     } catch (err) {
       setFavoriteIds(favoriteIds);
       const msg = err instanceof Error ? err.message : 'Impossible d\'enregistrer le fournisseur en favori.';
@@ -128,25 +116,8 @@ export function SourcingHub({ brandId, sentQuotes, favoriteFactoryIds = [], pref
   });
 
   useEffect(() => {
-    fetchFactories();
-  }, []);
-
-  useEffect(() => {
     applyFilters();
   }, [filters, factories, autoFilterData]);
-
-  const fetchFactories = async () => {
-    try {
-      const response = await fetch('/api/factories');
-      const data = await response.json();
-      setFactories(data.factories || []);
-      setFilteredFactories(data.factories || []);
-    } catch (error) {
-      console.error('Erreur lors du chargement des usines:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const applyFilters = () => {
     let filtered = [...factories];
@@ -207,9 +178,7 @@ export function SourcingHub({ brandId, sentQuotes, favoriteFactoryIds = [], pref
       {/* Filtres */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">
-            Filtres de recherche
-          </CardTitle>
+          <SectionHeader title="Filtres de recherche" className="text-lg" />
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -366,17 +335,12 @@ export function SourcingHub({ brandId, sentQuotes, favoriteFactoryIds = [], pref
         </div>
 
         {loading ? (
-          <div className="text-center py-12 text-muted-foreground font-medium">
-            Chargement des usines...
-          </div>
+          <LoadingState title="Chargement des usines..." />
         ) : filteredFactories.length === 0 ? (
-          <Card className="border-2">
-            <CardContent className="pt-6">
-              <p className="text-center text-muted-foreground font-medium py-8">
-                Aucune usine ne correspond à vos critères
-              </p>
-            </CardContent>
-          </Card>
+          <EmptyState
+            description="Aucune usine ne correspond à vos critères"
+            className="border-2"
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredFactories.map((factory) => (
