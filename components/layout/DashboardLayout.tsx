@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import { DashboardTutorial } from '@/components/dashboard/DashboardTutorial';
+import { CreatorTutorial } from '@/components/dashboard/CreatorTutorial';
 import { PageTransition } from './PageTransition';
 import { PaywallGate } from '@/components/paywall/PaywallGate';
 import { ErrorBoundary } from '@/components/error/ErrorBoundary';
@@ -21,6 +22,14 @@ function DashboardTutorialGate() {
   // On le monte sur toutes les pages du dashboard pour capter le flag 'show_tutorial_next'
   if (pathname !== '/dashboard') return null;
   return <DashboardTutorial forceShow={forceShow} />;
+}
+
+function CreatorTutorialGate() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const forceShow = searchParams.get('creator_tour') === '1';
+  if (pathname !== '/dashboard') return null;
+  return <CreatorTutorial forceShow={forceShow} />;
 }
 
 export function DashboardLayout({
@@ -75,6 +84,7 @@ export function DashboardLayout({
       </div>
       <Suspense fallback={null}>
         <DashboardTutorialGate />
+        <CreatorTutorialGate />
         <UpgradeSessionRefresh />
       </Suspense>
       {/* Bottom Mobile Navigation removed as per user request */}

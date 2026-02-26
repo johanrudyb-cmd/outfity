@@ -317,8 +317,8 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo }: { userN
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: i * 0.15 + 0.2 }}
                                         className={`flex items-center gap-4 p-4 rounded-2xl border transition-all group ${item.locked
-                                                ? 'bg-white/2 border-white/5 cursor-not-allowed opacity-40'
-                                                : 'bg-white/5 border-white/10 hover:border-white/25 cursor-pointer'
+                                            ? 'bg-white/2 border-white/5 cursor-not-allowed opacity-40'
+                                            : 'bg-white/5 border-white/10 hover:border-white/25 cursor-pointer'
                                             }`}
                                     >
                                         <div
@@ -344,7 +344,10 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo }: { userN
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.7 }}
-                                    onClick={() => { try { localStorage.setItem('show_tutorial_next', '1'); } catch (_) { } router.push('/dashboard?tutorial=1'); }}
+                                    onClick={() => {
+                                        try { localStorage.setItem('show_creator_tutorial', '1'); } catch (_) { }
+                                        router.push('/dashboard?creator_tour=1');
+                                    }}
                                     className="w-full h-14 rounded-2xl bg-white text-black font-bold text-lg flex items-center justify-center gap-2 hover:bg-white/90 active:scale-[0.98] transition-all shadow-xl"
                                 >
                                     Explorer mon dashboard <ArrowRight className="w-5 h-5" />
