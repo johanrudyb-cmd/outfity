@@ -7,12 +7,11 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { X, Settings, LogOut, Zap } from 'lucide-react';
-import { InstallAppBanner } from './InstallAppBanner';
 
 const navigation = [
   { name: 'Dashboard', description: 'Vue d\'ensemble Outfity', href: '/dashboard', tourId: 'tour-dashboard', badge: undefined as string | undefined },
   { name: 'Viral sur Tiktok', description: 'Le Top 15 des tendances validées par Outfity Intelligence (TikTok & Instagram)', href: '/trends', tourId: 'tour-trends', badge: undefined as string | undefined },
-  { name: 'Détecter une tendance', description: 'Analyse la viralité d\'un vêtement par IA via photo', href: '/trends/visual', tourId: 'tour-spy', badge: 'NOUVEAU' },
+  { name: 'Détecter une tendance', description: 'Analyse la viralité d\'un vêtement par IA via photo', href: '/trends/visual', tourId: 'tour-spy', badge: undefined as string | undefined },
 ];
 
 const tools = [
@@ -118,9 +117,6 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
             })}
           </div>
         </div>
-
-        {/* Bannière Install App */}
-        <InstallAppBanner />
 
         {/* Section Compte */}
         <div className="lg:mt-auto pt-4 space-y-1 pb-4">
