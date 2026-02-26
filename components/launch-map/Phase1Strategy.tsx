@@ -65,21 +65,15 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
   const sg = brand?.styleGuide && typeof brand.styleGuide === 'object' ? brand.styleGuide as Record<string, unknown> : null;
 
   // --- States ---
-  const [viewMode, setViewMode] = useState<'chat' | 'classic'>('classic');
+  const [viewMode, setViewMode] = useState<'chat' | 'classic'>(
+    // Gratuit : toujours vue classique de choix
+    // Créateur avec marque déjà choisie : aller au chat directement
+    !isFreePlan(userPlan) && !!brand?.templateBrandSlug ? 'chat' : 'classic'
+  );
 
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(`virgil-chat-${brandId}`);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setViewMode('chat');
-        }
-      }
-    } catch (e) {
-      // ignore
-    }
-  }, [brandId]);
+  // Compteur de changements restants pour la marque d'inspiration
+  const [changesRemaining, setChangesRemaining] = useState(3);
+  const [savingInspiration, setSavingInspiration] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [positioning, setPositioning] = useState(() => styleGuideField(sg, 'preferredStyle') || styleGuideField(sg, 'positioning') || '');
   const [targetAudience, setTargetAudience] = useState(() => styleGuideField(sg, 'targetAudience') || '');
@@ -161,6 +155,17 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
     [positioning]
   );
 
+  // Charger le compteur de changements depuis l'API
+  useEffect(() => {
+    if (!brandId || demoMode) return;
+    fetch(`/api/launch-map/inspiration?brandId=${encodeURIComponent(brandId)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.remaining !== undefined) setChangesRemaining(d.remaining);
+      })
+      .catch(() => { });
+  }, [brandId, demoMode]);
+
   const handleCalquerStrategie = async (slug: string) => {
     if (isFreePlan(userPlan)) { router.push('/auth/choose-plan'); return; }
     const templateName = referenceBrands.find(b => b.slug === slug)?.brandName || slug;
@@ -195,6 +200,41 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
       setStrategyLoading(false);
     }
   };
+
+  // Sauvegarder le choix d'inspiration (plan gratuit, pas d'appel IA)
+  const handleSaveInspirationOnly = async () => {
+    if (!selectedSlug || !brandId) return;
+    setSavingInspiration(true);
+    try {
+      const res = await fetch('/api/launch-map/inspiration', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          brandId,
+          templateBrandSlug: selectedSlug,
+          positioning,
+          targetAudience,
+        }),
+      });
+      const data = await res.json();
+      if (res.status === 429) {
+        toast({ title: 'Limite atteinte', message: data.message || 'Maximum 3 changements par mois.', type: 'error' });
+        return;
+      }
+      if (!res.ok) throw new Error(data.error || 'Erreur');
+      setChangesRemaining(data.remaining ?? 3);
+      toast({ title: 'Marque sauvegardée ✅', message: `${getInspirationBrandName()} sera ton modèle d'inspiration.`, type: 'success' });
+      onComplete();
+    } catch (e) {
+      toast({ title: 'Erreur', message: 'Impossible de sauvegarder.', type: 'error' });
+    } finally {
+      setSavingInspiration(false);
+    }
+  };
+
+  // Nom lisible de la marque d'inspiration actuellement sélectionnée
+  const getInspirationBrandName = () =>
+    referenceBrands.find(b => b.slug === selectedSlug)?.brandName || selectedSlug || '';
 
   const handleValidate = async () => {
     setValidateLoading(true);
@@ -326,6 +366,9 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
   if (showLogoStep) return renderLogoStep();
 
   if (viewMode === 'chat') {
+    const inspirName = referenceBrands.find(b => b.slug === selectedSlug)?.brandName
+      || referenceBrands.find(b => b.slug === brand?.templateBrandSlug)?.brandName
+      || (brand?.templateBrandSlug ?? null);
     return (
       <Phase1StrategyChat
         brandId={brandId}
@@ -333,6 +376,9 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
         onComplete={onComplete}
         userPlan={userPlan}
         onShowClassic={() => setViewMode('classic')}
+        inspirationBrandName={inspirName}
+        inspirationBrandSlug={selectedSlug || brand?.templateBrandSlug || null}
+        changesRemaining={changesRemaining}
       />
     );
   }
@@ -540,19 +586,34 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
 
           <Button
             onClick={() => {
-              if (currentStepIndex === steps.length - 1) handleValidate();
-              else setCurrentStepIndex(i => i + 1);
+              if (currentStepIndex < steps.length - 1) {
+                setCurrentStepIndex(i => i + 1);
+              } else if (isFreePlan(userPlan)) {
+                // Plan gratuit : sauvegarder le choix sans appel IA
+                handleSaveInspirationOnly();
+              } else {
+                // Plan créateur : générer la stratégie avec l'IA puis passer au chat
+                if (selectedSlug) {
+                  handleCalquerStrategie(selectedSlug).then(() => {
+                    setViewMode('chat');
+                  });
+                } else {
+                  handleValidate();
+                }
+              }
             }}
-            disabled={!canGoNext() || validateLoading || strategyLoading}
+            disabled={!canGoNext() || validateLoading || strategyLoading || savingInspiration}
             className="h-12 sm:h-14 px-12 sm:px-16 rounded-2xl bg-[#1D1D1F] hover:bg-black text-white font-bold text-[13px] sm:text-[14px] uppercase tracking-[0.2em] sm:tracking-[0.3em] transition-all shadow-2xl active:scale-95 group overflow-hidden relative"
           >
             <span className="relative z-10 flex items-center gap-4">
-              {validateLoading ? (
+              {validateLoading || savingInspiration || strategyLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
-              ) : currentStepIndex === steps.length - 1 ? (
-                "Valider l'ADN"
-              ) : (
+              ) : currentStepIndex < steps.length - 1 ? (
                 <>Suivant <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></>
+              ) : isFreePlan(userPlan) ? (
+                <>Valider ma Marque ✓</>
+              ) : (
+                <>Générer ma Stratégie <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></>
               )}
             </span>
             <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />

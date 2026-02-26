@@ -1,11 +1,14 @@
 'use client';
 
-import { ArrowRight, Pencil, Target, PenTool } from 'lucide-react';
+import { ArrowRight, Pencil, Target, PenTool, RefreshCw, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import type { BrandIdentity } from './LaunchMapStepper';
 import { BaseAgentChat } from './BaseAgentChat';
+import { getBrandLogoUrl } from '@/lib/curated-brands';
+import { BrandLogo } from '@/components/brands/BrandLogo';
 
 interface Phase1StrategyChatProps {
     brandId: string;
@@ -13,9 +16,12 @@ interface Phase1StrategyChatProps {
     onComplete: () => void;
     userPlan?: string;
     onShowClassic?: () => void;
+    inspirationBrandName?: string | null;  // nom de la marque d'inspiration
+    inspirationBrandSlug?: string | null;  // slug pour le logo
+    changesRemaining?: number;             // combien de changements restants ce mois
 }
 
-export function Phase1StrategyChat({ brandId, brand, onComplete, userPlan = 'free', onShowClassic }: Phase1StrategyChatProps) {
+export function Phase1StrategyChat({ brandId, brand, onComplete, userPlan = 'free', onShowClassic, inspirationBrandName, inspirationBrandSlug, changesRemaining = 3 }: Phase1StrategyChatProps) {
     const renderMessageContent = (content: string, isUser: boolean) => {
         const parts = content.split(/(\[.*?\]\(.*?\))/g);
         return (
@@ -53,15 +59,41 @@ export function Phase1StrategyChat({ brandId, brand, onComplete, userPlan = 'fre
         );
     };
 
-    const headerActions = onShowClassic ? (
-        <Button
-            onClick={onShowClassic}
-            variant="ghost"
-            className="h-8 sm:h-9 text-[10px] sm:text-xs font-bold rounded-xl gap-1.5 px-2.5 sm:px-4 bg-black/[0.03] hover:bg-black/[0.06] transition-apple"
-        >
-            <Pencil className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-            <span className="hidden sm:inline">Modifier</span>
-        </Button>
+    const headerActions = (
+        <div className="flex items-center gap-2">
+            {/* Bouton Modifier (pour changer la marque d'inspiration) */}
+            {onShowClassic && (
+                <Button
+                    onClick={onShowClassic}
+                    variant="ghost"
+                    className="h-8 sm:h-9 text-[10px] sm:text-xs font-bold rounded-xl gap-1.5 px-2.5 sm:px-4 bg-black/[0.03] hover:bg-black/[0.06] transition-apple"
+                    title={changesRemaining === 0 ? 'Limite de 3 changements/mois atteinte' : `Modifier (${changesRemaining} restant${changesRemaining > 1 ? 's' : ''})`}
+                >
+                    <RefreshCw className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                    <span className="hidden sm:inline">
+                        Modifier {changesRemaining < 3 && <span className="text-[9px] opacity-60 ml-1">({changesRemaining}/3)</span>}
+                    </span>
+                </Button>
+            )}
+        </div>
+    );
+
+    // Bandeau d'inspiration à afficher dans le chat
+    const inspirationBanner = inspirationBrandName ? (
+        <div className="mx-3 sm:mx-6 mt-3 mb-1 px-4 py-3 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/60 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-white border border-black/5 shadow-sm flex items-center justify-center p-1.5 shrink-0">
+                <BrandLogo brandName={inspirationBrandName} logoUrl={getBrandLogoUrl(inspirationBrandName)} className="w-full h-full object-contain" />
+            </div>
+            <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Marque d'inspiration</p>
+                <p className="text-sm font-bold text-[#1D1D1F] leading-tight truncate">{inspirationBrandName}</p>
+            </div>
+            {changesRemaining < 3 && (
+                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full whitespace-nowrap">
+                    {changesRemaining} modif. restante{changesRemaining > 1 ? 's' : ''}
+                </span>
+            )}
+        </div>
     ) : null;
 
     return (
@@ -94,6 +126,7 @@ export function Phase1StrategyChat({ brandId, brand, onComplete, userPlan = 'fre
             headerActions={headerActions}
             onComplete={onComplete}
             upgradeLinkText="Débloquer Mon Atelier"
+            customViews={inspirationBanner}
             processBotReply={(rawContent) => {
                 const suggestMatch = rawContent.match(/\[\[(.*?)\]\]/);
                 const newSuggestions = suggestMatch ? suggestMatch[1].split('|') : [];

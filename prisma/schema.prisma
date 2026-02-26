@@ -103,7 +103,9 @@ model Brand {
   styleGuide        Json?
   domain            String?
   socialHandles     Json?
-  templateBrandSlug String?
+  templateBrandSlug String?       // Slug de la marque d'inspiration choisie
+  inspirationChangesCount Int     @default(0)  // Compteur de changements de marque d'inspiration
+  inspirationChangedAt    DateTime?             // Date du dernier changement
   
   creationMode      String   @default("quick")
   autoApplyIdentity Boolean  @default(true)
