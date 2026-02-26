@@ -34,8 +34,9 @@ export async function POST() {
     const origin = baseUrl.replace(/\/$/, '');
 
     // Si l'onboarding est déjà fait → page d'accueil Créateur (animations d'unlock) ; sinon → finir l'onboarding
+    // Le param ?upgraded=true est crucial : UpgradeSessionRefresh l'utilise pour déclencher update() et rafraîchir le JWT
     const successUrl = onboardingCompleted
-      ? `${origin}/welcome-creator`
+      ? `${origin}/welcome-creator?upgraded=true`
       : `${origin}/onboarding?subscribed=true`;
 
     const session = await stripe.checkout.sessions.create({

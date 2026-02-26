@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AgentRevealCard, AGENTS_TEAM } from '@/components/onboarding/AgentRevealCard';
 import {
@@ -44,8 +45,16 @@ const CREATOR_FEATURES = [
 // ─── Main ────────────────────────────────────────────────────
 export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo }: { userName: string, hasStrategy: boolean, hasLogo: boolean }) {
     const router = useRouter();
+    const { update } = useSession();
     const [screen, setScreen] = useState<Screen>('intro');
     const [screenIndex, setScreenIndex] = useState(0);
+
+    // Dès l'arrivée sur cette page, on force le rafraîchissement du JWT
+    // pour que le plan 'creator' soit immédiatement visible dans toute l'UI
+    useEffect(() => {
+        update();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // Auto-avance de l'intro
     useEffect(() => {
