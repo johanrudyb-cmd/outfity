@@ -1,12 +1,13 @@
 /**
- * Configuration des quotas par pack "Fashion Launch" (Coût de revient : 3,15€).
- * Limites par pack acheté — usage mensuel.
+ * Configuration des quotas par plan.
+ * 'creator' est le plan payant à 29€/mois.
+ * 'free'/'starter' sont les plans gratuits.
  */
 
 export type QuotaFeatureKey =
   | 'brand_analyze'
   | 'brand_strategy'
-  | 'strategy_view' // Consultation d'une stratégie template (débitée des quotas)
+  | 'strategy_view'
   | 'ugc_scripts'
   | 'brand_logo'
   | 'trends_check_image'
@@ -15,7 +16,7 @@ export type QuotaFeatureKey =
   | 'launch_map_site_texts'
   | 'factories_match'
   | 'trends_hybrid_scan'
-  | 'ugc_virtual_tryon' // Module Premium (payant à l'essai)
+  | 'ugc_virtual_tryon'
   | 'agent_chat';
 
 /** Clé AIUsage pour le mapping */
@@ -37,55 +38,54 @@ export const QUOTA_TO_AI_FEATURE: Record<QuotaFeatureKey, string> = {
 
 /** -1 = illimité */
 export const QUOTA_CONFIG = {
-  fashion_launch: {
+  creator: {
     brand_analyze_limit: 10,
     brand_strategy_limit: 10,
-    strategy_view_limit: 10, // Consultations de stratégies templates par mois
-    ugc_scripts_limit: -1, // Illimité
-    brand_logo_limit: 5,
-    trends_check_limit: -1,
-    trends_hybrid_scan_limit: -1,
-    ugc_shooting_photo_limit: 10,
-    ugc_shooting_product_limit: 10,
-    site_texts_limit: -1, // Illimité
-    factories_match: -1, // Illimité (base de données statique)
-    agent_chat_limit: 40, // 40 par jour
+    strategy_view_limit: 10,
+    ugc_scripts_limit: 60, // 60 scripts par mois (Lot de 5 x 12 ou direct)
+    brand_logo_limit: 5, // 5 par mois
+    trends_check_limit: -1, // Viral sur TikTok : Illimité
+    trends_hybrid_scan_limit: 10, // Scanner IVS : 10 par mois
+    ugc_shooting_photo_limit: 10, // 10 par mois
+    ugc_shooting_product_limit: 5, // 5 par mois (Lot de 4)
+    site_texts_limit: -1,
+    factories_match: -1,
+    agent_chat_limit: 40, // 40 messages par jour
   },
   free: {
     brand_analyze_limit: 0,
     brand_strategy_limit: 0,
     strategy_view_limit: 0,
-    ugc_scripts_limit: 3, // 3 scripts gratuits (total via UI ou mois)
+    ugc_scripts_limit: 3,
     brand_logo_limit: 0,
-    trends_check_limit: 0, // Désactivé en gratuit sauf démo
-    trends_hybrid_scan_limit: 1, // 1 scan visuel free demo
+    trends_check_limit: 0,
+    trends_hybrid_scan_limit: 1,
     ugc_shooting_photo_limit: 0,
     ugc_shooting_product_limit: 0,
     site_texts_limit: 0,
     factories_match: 0,
-    agent_chat_limit: 3, // 3 par jour
+    agent_chat_limit: 3,
   },
 } as const;
 
-/** Limite consultation stratégie en onboarding (3 vues max) */
 export const STRATEGY_VIEW_ONBOARDING_LIMIT = 3;
 
 export type PackId = keyof typeof QUOTA_CONFIG;
 
 export const QUOTA_LIMITS: Record<QuotaFeatureKey, number> = {
-  brand_analyze: QUOTA_CONFIG.fashion_launch.brand_analyze_limit,
-  brand_strategy: QUOTA_CONFIG.fashion_launch.brand_strategy_limit,
-  strategy_view: QUOTA_CONFIG.fashion_launch.strategy_view_limit,
-  ugc_scripts: QUOTA_CONFIG.fashion_launch.ugc_scripts_limit,
-  brand_logo: QUOTA_CONFIG.fashion_launch.brand_logo_limit,
-  trends_check_image: QUOTA_CONFIG.fashion_launch.trends_check_limit,
-  trends_hybrid_scan: QUOTA_CONFIG.fashion_launch.trends_hybrid_scan_limit,
-  ugc_shooting_photo: QUOTA_CONFIG.fashion_launch.ugc_shooting_photo_limit,
-  ugc_shooting_product: QUOTA_CONFIG.fashion_launch.ugc_shooting_product_limit,
-  launch_map_site_texts: QUOTA_CONFIG.fashion_launch.site_texts_limit,
-  factories_match: QUOTA_CONFIG.fashion_launch.factories_match,
-  ugc_virtual_tryon: -1, // Premium : payant à l'essai (7,90€)
-  agent_chat: QUOTA_CONFIG.fashion_launch.agent_chat_limit,
+  brand_analyze: QUOTA_CONFIG.creator.brand_analyze_limit,
+  brand_strategy: QUOTA_CONFIG.creator.brand_strategy_limit,
+  strategy_view: QUOTA_CONFIG.creator.strategy_view_limit,
+  ugc_scripts: QUOTA_CONFIG.creator.ugc_scripts_limit,
+  brand_logo: QUOTA_CONFIG.creator.brand_logo_limit,
+  trends_check_image: QUOTA_CONFIG.creator.trends_check_limit,
+  trends_hybrid_scan: QUOTA_CONFIG.creator.trends_hybrid_scan_limit,
+  ugc_shooting_photo: QUOTA_CONFIG.creator.ugc_shooting_photo_limit,
+  ugc_shooting_product: QUOTA_CONFIG.creator.ugc_shooting_product_limit,
+  launch_map_site_texts: QUOTA_CONFIG.creator.site_texts_limit,
+  factories_match: QUOTA_CONFIG.creator.factories_match,
+  ugc_virtual_tryon: -1,
+  agent_chat: QUOTA_CONFIG.creator.agent_chat_limit,
 };
 
 /** Labels pour l'UI */
@@ -93,7 +93,7 @@ export const QUOTA_LABELS: Record<QuotaFeatureKey, string> = {
   brand_analyze: 'Analyse de marque',
   brand_strategy: 'Stratégie marque',
   strategy_view: 'Consultation stratégies',
-  ugc_scripts: 'Scripts UGC (lots de 5)',
+  ugc_scripts: 'Scripts UGC',
   brand_logo: 'Génération logos',
   trends_check_image: 'Vérification tendance (image)',
   trends_hybrid_scan: 'Scanner visuel IA',
@@ -105,7 +105,6 @@ export const QUOTA_LABELS: Record<QuotaFeatureKey, string> = {
   agent_chat: 'Assistant IA',
 };
 
-/** Catégories pour le regroupement UI */
 export type QuotaCategory = 'intelligence' | 'identite' | 'marketing' | 'premium';
 
 export const QUOTA_CATEGORIES: Record<QuotaCategory, QuotaFeatureKey[]> = {
@@ -122,5 +121,4 @@ export const CATEGORY_LABELS: Record<QuotaCategory, string> = {
   premium: 'Premium',
 };
 
-/** Prix module Try-On à l'essai */
 export const TRYON_PREMIUM_PRICE = 7.9;

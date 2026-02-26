@@ -1,10 +1,8 @@
 /**
  * Configuration des coûts IA par fonctionnalité (en euros).
  * Système de jetons : 1€ = 100 jetons, 5€ = 500 jetons.
- * Tech pack, mockups, design : créés par l'utilisateur (pas d'IA) → coût 0.
  */
 
-/** 1€ = 100 jetons. Plan base 34€ = 3400 jetons. */
 export const TOKENS_PER_EUR = 100;
 
 export type AIFeatureKey =
@@ -41,14 +39,11 @@ export type AIFeatureKey =
   | 'assistant_chat_analysis'
   | 'other';
 
-/**
- * Coût estimé en € par appel.
- * Calibré pour ~3 cycles complets / 5€ avec virtual try-on à 2,50 $.
- */
+/** Coût estimé en € par appel (fallback si pas de quota fixe) */
 export const AI_FEATURE_COSTS: Record<AIFeatureKey, number> = {
   ugc_scripts: 0.03,
   brand_strategy: 0.06,
-  strategy_view: 0.01, // Consultation (coût symbolique)
+  strategy_view: 0.01,
   brand_analyze: 0.04,
   brand_logo: 0.10,
   brand_parse_website: 0.02,
@@ -68,28 +63,28 @@ export const AI_FEATURE_COSTS: Record<AIFeatureKey, number> = {
   trends_generate_image: 0.10,
   trends_analyse: 0.05,
   trends_check_image: 0.03,
-  trends_detail_view: 0, // Vue détail tendance (comptée pour limite free)
+  trends_detail_view: 0,
   trends_hybrid_scan: 0.04,
   ugc_shooting_photo: 0.12,
-  ugc_shooting_product: 0.40, // 4 images par appel
+  ugc_shooting_product: 0.40,
   ugc_generate_mannequin: 0.12,
-  ugc_virtual_tryon: 2.5,    // ~2,50 $ coût réel
+  ugc_virtual_tryon: 2.5,
   factories_match: 0.02,
   assistant_chat_qa: 0.01,
   assistant_chat_analysis: 0.05,
   other: 0.04,
 };
 
-/** Budget mensuel en € par plan (base = 34€) */
+/** Budget mensuel en € par plan (pas utilisé pour les quotas fixes) */
 export const AI_BUDGET_BY_PLAN: Record<string, number> = {
   starter: 5,
   creator: 34,
   growth: 75,
   pro: 150,
-  enterprise: -1, // illimité
+  enterprise: -1,
 };
 
-/** Virtual try-on : max utilisations par mois par plan (-1 = illimité) */
+/** Virtual try-on : max utilisations par mois par plan */
 export const MAX_VIRTUAL_TRYON_BY_PLAN: Record<string, number> = {
   starter: 1,
   creator: 5,
@@ -99,58 +94,58 @@ export const MAX_VIRTUAL_TRYON_BY_PLAN: Record<string, number> = {
 };
 
 /**
- * Limites par feature : max utilisations/mois par plan (-1 = illimité).
- * Ex: stratégie = 3 changements/mois, recommandations = 12/mois.
+ * Limites par feature : max utilisations/mois par plan.
+ * Aligné sur quota-config.ts pour cohérence.
  */
 export const MAX_PER_MONTH_BY_PLAN: Record<string, Partial<Record<AIFeatureKey, number>>> = {
   starter: {
-    brand_strategy: 3,
-    launch_map_recommendations: 12,
+    brand_strategy: 0,
     trends_hybrid_scan: 1,
-    trends_analyse: 3,
+    ugc_scripts: 3,
   },
   creator: {
     brand_strategy: 10,
-    launch_map_recommendations: 30,
     trends_hybrid_scan: 10,
-    trends_analyse: 10, // Plan Créateur : 10 / mois
+    ugc_scripts: 60,
+    brand_logo: 5,
+    trends_check_image: -1, // Illimité "Viral sur tiktok"
+    ugc_shooting_photo: 10,
+    ugc_shooting_product: 5,
   },
   growth: {
     brand_strategy: 15,
-    launch_map_recommendations: 60,
     trends_hybrid_scan: 30,
-    trends_analyse: 30,
+    ugc_scripts: -1,
+    brand_logo: 10,
+    ugc_shooting_photo: 25,
+    ugc_shooting_product: 15,
   },
   pro: {
     brand_strategy: 50,
-    launch_map_recommendations: 200,
     trends_hybrid_scan: 100,
-    trends_analyse: 100,
+    ugc_scripts: -1,
+    brand_logo: 25,
+    ugc_shooting_photo: 50,
+    ugc_shooting_product: 30,
   },
-  enterprise: {}, // illimité
+  enterprise: {},
 };
 
-/**
- * Limites journalières pour l'assistant (éviter consommation excessive).
- */
+/** Limites journalières (Assistant) */
 export const MAX_PER_DAY_BY_PLAN: Record<string, Partial<Record<AIFeatureKey, number>>> = {
   starter: {
     assistant_chat_qa: 5,
     assistant_chat_analysis: 1,
   },
   creator: {
-    assistant_chat_qa: 20,
-    assistant_chat_analysis: 5,
+    assistant_chat_qa: 40, // 40 par jour demandé
+    assistant_chat_analysis: 10,
   },
   growth: {
-    assistant_chat_qa: 40,
-    assistant_chat_analysis: 15,
+    assistant_chat_qa: 100,
+    assistant_chat_analysis: 25,
   },
   pro: {
-    assistant_chat_qa: 100,
-    assistant_chat_analysis: 50,
-  },
-  enterprise: {
     assistant_chat_qa: -1,
     assistant_chat_analysis: -1,
   },
@@ -170,20 +165,17 @@ export function getMaxVirtualTryOnForPlan(plan: string): number {
   return MAX_VIRTUAL_TRYON_BY_PLAN[key] ?? MAX_VIRTUAL_TRYON_BY_PLAN.starter;
 }
 
-/** Jetons mensuels par plan (5€ = 500, 34€ = 3400, etc.) */
 export function getTokensForPlan(plan: string): number {
   const budget = getBudgetForPlan(plan);
-  if (budget < 0) return -1; // illimité
+  if (budget < 0) return -1;
   return Math.round(budget * TOKENS_PER_EUR);
 }
 
-/** Coût en jetons par feature */
 export function getTokensForFeature(feature: AIFeatureKey): number {
   const costEur = getCostForFeature(feature);
   return Math.round(costEur * TOKENS_PER_EUR);
 }
 
-/** Limite mensuelle d'une feature pour un plan (-1 = illimité) */
 export function getMaxPerMonthForFeature(plan: string, feature: AIFeatureKey): number {
   const key = (plan || 'starter').toLowerCase();
   const limits = MAX_PER_MONTH_BY_PLAN[key] ?? MAX_PER_MONTH_BY_PLAN.starter ?? {};
@@ -191,7 +183,6 @@ export function getMaxPerMonthForFeature(plan: string, feature: AIFeatureKey): n
   return val ?? -1;
 }
 
-/** Limite journalière d'une feature pour un plan (-1 = illimité) */
 export function getMaxPerDayForFeature(plan: string, feature: AIFeatureKey): number {
   const key = (plan || 'starter').toLowerCase();
   const limits = MAX_PER_DAY_BY_PLAN[key] ?? MAX_PER_DAY_BY_PLAN.starter ?? {};

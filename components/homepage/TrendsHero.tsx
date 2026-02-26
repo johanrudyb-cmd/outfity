@@ -45,11 +45,11 @@ export function TrendsHero() {
         >
           {/* Titre principal */}
           <div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-[#000000] mb-4 sm:mb-6 px-2">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-black mb-4 sm:mb-6 px-2">
               Créez votre marque de vêtement avec les données des géants
             </h1>
-            <p className="text-base sm:text-lg lg:text-xl text-[#6e6e73] font-light max-w-2xl mx-auto mb-6 sm:mb-8 px-2">
-              Créez vos designs avec les tendances virales de <span className="font-semibold text-[#000000]">TikTok</span> et <span className="font-semibold text-[#000000]">Instagram</span>.
+            <p className="text-base sm:text-lg lg:text-xl text-gray-600 font-light max-w-2xl mx-auto mb-6 sm:mb-8 px-2">
+              Créez vos designs avec les tendances virales de <span className="font-semibold text-black">TikTok</span> et <span className="font-semibold text-black">Instagram</span>.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link

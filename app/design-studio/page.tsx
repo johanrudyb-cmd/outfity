@@ -4,6 +4,7 @@ import { getCurrentUser } from '@/lib/auth-helpers';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { Palette, FileText, Sparkles } from 'lucide-react';
+import { isFreePlan } from '@/lib/plan-utils';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,7 +19,7 @@ export default async function DesignStudioPage({
     redirect('/auth/signin');
   }
 
-  if (user.plan === 'free' || user.plan === 'starter') {
+  if (isFreePlan(user.plan)) {
     return (
       <DashboardLayout>
         <div className="p-8 max-w-4xl mx-auto min-h-[calc(100vh-8rem)] flex flex-col justify-center">

@@ -10,6 +10,7 @@ import { computeSaturability, computeTrendScore } from '@/lib/trend-product-kpis
 import { inferCategory } from '@/lib/infer-trend-category';
 import { cleanProductTitle } from '@/lib/utils';
 import { prisma } from '@/lib/prisma';
+import { broadcastWebPushNotification } from '@/lib/web-push';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -105,9 +106,9 @@ export async function POST(request: Request) {
     const urls = toSave.map((t) => t.url);
     const existingList = urls.length > 0
       ? await prisma.trendProduct.findMany({
-          where: { sourceUrl: { in: urls }, marketZone, sourceBrand: brand },
-          select: { id: true, sourceUrl: true },
-        })
+        where: { sourceUrl: { in: urls }, marketZone, sourceBrand: brand },
+        select: { id: true, sourceUrl: true },
+      })
       : [];
     const existingByUrl = new Map(existingList.map((e) => [e.sourceUrl ?? '', e.id]));
     let savedCount = 0;
@@ -191,6 +192,20 @@ export async function POST(request: Request) {
 
     const skippedTotal = skippedNoUrl + skippedInvalidUrl + skippedDuplicate;
     console.log('[Save From Preview] result:', { savedCount, skippedNoUrl, skippedInvalidUrl, skippedDuplicate, toSaveLength: toSave.length });
+
+    // Si on a enregistré des nouvelles tendances, envoyer une notification PUSH
+    if (savedCount > 0) {
+      try {
+        await broadcastWebPushNotification({
+          title: "📈 Radar Tendance Mis à jour",
+          body: `${savedCount} Nouveaux articles Viraux ajoutés ! Va voir ça 🔥`,
+          url: "/trends"
+        });
+      } catch (err) {
+        console.error("Erreur push tendance:", err);
+      }
+    }
+
     const message =
       savedCount > 0
         ? `${savedCount} tendance(s) enregistrée(s) pour ${sourceId}.`

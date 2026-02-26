@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { X, Settings, LogOut, Zap } from 'lucide-react';
+import { InstallAppBanner } from './InstallAppBanner';
 
 const navigation = [
   { name: 'Dashboard', description: 'Vue d\'ensemble Outfity', href: '/dashboard', tourId: 'tour-dashboard', badge: undefined as string | undefined },
@@ -117,6 +118,9 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
             })}
           </div>
         </div>
+
+        {/* Bannière Install App */}
+        <InstallAppBanner />
 
         {/* Section Compte */}
         <div className="lg:mt-auto pt-4 space-y-1 pb-4">

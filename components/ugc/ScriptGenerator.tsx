@@ -17,6 +17,7 @@ import { UGCContentHistory } from './UGCContentHistory';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
+import { isFreePlan } from '@/lib/plan-utils';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
@@ -42,7 +43,7 @@ export function ScriptGenerator({ brandId, brandName }: ScriptGeneratorProps) {
   const openSurplusModal = useSurplusModal();
   const router = useRouter();
   const { data: session } = useSession();
-  const isFree = (session?.user as { plan?: string })?.plan === 'free' || (session?.user as { plan?: string })?.plan === 'starter';
+  const isFree = isFreePlan((session?.user as any)?.plan);
 
   const handleUpgradeClick = () => {
     if (isFree) router.push('/auth/choose-plan');

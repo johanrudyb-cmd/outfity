@@ -11,6 +11,7 @@ import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { getWeekEvents } from '@/lib/calendar-week-events';
+import { isFreePlan } from '@/lib/plan-utils';
 import {
   TrendingUp,
   ArrowRight,
@@ -54,7 +55,7 @@ export default async function DashboardPage() {
 
   const hasIdentity = !!(brand.logo || brand.colorPalette || brand.typography);
   const weekEvents = getWeekEvents(launchMap?.contentCalendar ?? null);
-  const isFree = user.plan === 'starter';
+  const isFree = isFreePlan(user.plan);
 
   // Launch Map phases
   const phases = [
@@ -171,7 +172,7 @@ export default async function DashboardPage() {
             <div className="lg:col-span-2 space-y-6">
 
               {/* Launch Map — Focus / CTA Hero */}
-              <div className="relative overflow-hidden rounded-[32px] bg-white border border-black/[0.06] shadow-apple p-8">
+              <div data-tour="tour-journey" className="relative overflow-hidden rounded-[32px] bg-white border border-black/[0.06] shadow-apple p-8">
                 {/* Decorative glow */}
                 <div className="absolute -top-20 -right-20 w-80 h-80 bg-[#007AFF]/8 rounded-full blur-[100px] pointer-events-none" />
 

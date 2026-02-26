@@ -8,6 +8,7 @@ import { Zap, AlertCircle } from 'lucide-react';
 import { useSurplusModal } from './SurplusModalContext';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { isFreePlan } from '@/lib/plan-utils';
 
 interface FeatureUsageBadgeProps {
     featureKey: QuotaFeatureKey;
@@ -23,7 +24,7 @@ export function FeatureUsageBadge({ featureKey, showLabel = true, className, isF
     const { data: session } = useSession();
 
     const user = session?.user as any;
-    const isFreeUser = user?.plan === 'free' || user?.plan === 'starter';
+    const isFreeUser = isFreePlan(user?.plan);
     const isFree = isFreeProp !== undefined ? isFreeProp : isFreeUser;
 
     if (!status || status.isUnlimited) return null;

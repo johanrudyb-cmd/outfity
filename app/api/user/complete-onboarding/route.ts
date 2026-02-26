@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth-helpers';
+import { isPaidPlan } from '@/lib/plan-utils';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
@@ -77,12 +78,9 @@ export async function POST(request: Request) {
         const dbUser = await prisma.user.findUnique({ where: { id: authUser.id }, select: { plan: true } });
         const currentPlan = dbUser?.plan || authUser.plan;
 
-        // Calculer le plan cible :
-        // - Si le client a envoyé plan='creator' (paiement Stripe confirmé côté front), on le respecte.
-        // - Si le plan actuel en DB est 'creator' (webhook Stripe déjà arrivé), on le garde.
-        // - Sinon, on passe au minimum à 'starter' (onboarding complété = plus "free").
+        // Ne JAMAIS rétrograder un plan Créateur vers Starter lors de l'onboarding
         let targetPlan: string;
-        if (plan === 'creator' || currentPlan === 'creator') {
+        if (isPaidPlan(plan) || isPaidPlan(currentPlan)) {
             targetPlan = 'creator';
         } else {
             targetPlan = 'starter';
@@ -104,7 +102,30 @@ export async function POST(request: Request) {
             },
         });
 
-        return NextResponse.json({ success: true });
+        // 3. Notifier n8n/webhook (Optionnel)
+        if (process.env.ONBOARDING_WEBHOOK_URL) {
+            fetch(process.env.ONBOARDING_WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    event: 'onboarding.completed',
+                    user: {
+                        id: authUser.id,
+                        email: authUser.email,
+                        name: authUser.name,
+                        plan: targetPlan
+                    },
+                    brand: {
+                        name: brandName.trim(),
+                        universe,
+                        productType,
+                        pitch
+                    }
+                })
+            }).catch(e => console.error('[Webhook] Failed:', e));
+        }
+
+        return NextResponse.json({ success: true, plan: targetPlan });
     } catch (err) {
         console.error('[complete-onboarding]', err);
         return NextResponse.json({ error: 'Erreur interne' }, { status: 500 });

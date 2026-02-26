@@ -33,9 +33,9 @@ export async function POST() {
       (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
     const origin = baseUrl.replace(/\/$/, '');
 
-    // Si l'onboarding est déjà fait → dashboard directement ; sinon → finir l'onboarding
+    // Si l'onboarding est déjà fait → page d'accueil Créateur (animations d'unlock) ; sinon → finir l'onboarding
     const successUrl = onboardingCompleted
-      ? `${origin}/dashboard?upgraded=true`
+      ? `${origin}/welcome-creator`
       : `${origin}/onboarding?subscribed=true`;
 
     const session = await stripe.checkout.sessions.create({

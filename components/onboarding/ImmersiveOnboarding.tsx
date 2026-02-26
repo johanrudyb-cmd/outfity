@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSession } from 'next-auth/react';
+import { isFreePlan, isPaidPlan } from '@/lib/plan-utils';
 
 // ─────────────────────────────────────────────────────────────
 // Types & constants
@@ -127,7 +128,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
         pitch: '',
     });
 
-    const isCreator = plan === 'creator';
+    const isCreator = isPaidPlan(plan);
     const stepIndex = STEP_ORDER.indexOf(step);
 
     useEffect(() => {
@@ -135,9 +136,9 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
             setPlan('creator');
         } else if (searchParams.get('plan')) {
             const p = searchParams.get('plan');
-            setPlan(p === 'creator' ? 'creator' : 'starter');
+            setPlan(p === 'creator' || p === 'growth' || p === 'pro' ? 'creator' : 'starter');
         } else {
-            setPlan(initialPlan === 'creator' ? 'creator' : 'starter');
+            setPlan(isPaidPlan(initialPlan) ? 'creator' : 'starter');
         }
     }, [searchParams, initialPlan]);
 
@@ -161,13 +162,13 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
             const res = await fetch('/api/user/complete-onboarding', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...data, plan: plan === 'starter' ? 'starter' : plan }),
+                body: JSON.stringify({ ...data, plan: plan }),
             });
             if (!res.ok) {
                 const json = await res.json();
                 throw new Error(json.error || 'Erreur lors de la sauvegarde');
             }
-            await update({ plan: plan === 'starter' ? 'starter' : plan });
+            await update({ plan: plan });
             setStep('launch');
         } catch (err) {
             console.error(err);
@@ -561,7 +562,7 @@ function LaunchStep({ plan, brandName }: { plan: string; brandName: string }) {
         if (stepIndex >= STEPS.length) {
             // Signaler au dashboard d'afficher le tutorial
             try { localStorage.setItem('show_tutorial_next', '1'); } catch (_) { }
-            router.push('/dashboard');
+            router.push('/dashboard?tutorial=1');
             return;
         }
         const step = STEPS[stepIndex];

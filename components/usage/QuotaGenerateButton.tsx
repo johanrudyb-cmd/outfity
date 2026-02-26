@@ -8,6 +8,7 @@ import { Loader2, Sparkles, Flame, CheckCircle2, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useSurplusModal } from './SurplusModalContext';
+import { isFreePlan } from '@/lib/plan-utils';
 
 interface QuotaGenerateButtonProps {
     featureKey: QuotaFeatureKey;
@@ -29,8 +30,7 @@ export function QuotaGenerateButton({
     buttonText = "Générer une proposition"
 }: QuotaGenerateButtonProps) {
     const { data: session } = useSession();
-    const user = session?.user as any;
-    const isFree = user?.plan === 'free' || user?.plan === 'starter';
+    const isFree = isFreePlan((session?.user as any)?.plan);
     const status = useQuota(featureKey);
     const openSurplusModal = useSurplusModal();
 

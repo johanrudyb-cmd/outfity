@@ -8,6 +8,7 @@ import { getCurrentUser } from '@/lib/auth-helpers';
 import { sanitizeErrorMessage } from '@/lib/utils';
 import { prisma } from '@/lib/prisma';
 import { generateTechPackVisual, isChatGptConfigured } from '@/lib/api/chatgpt';
+import { sendWebPushNotification } from '@/lib/web-push';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -59,6 +60,16 @@ export async function POST(
       where: { id },
       data: { techPack },
     });
+
+    try {
+      await sendWebPushNotification(user.id, {
+        title: "🎨 Ton Tech Pack est prêt !",
+        body: "Pharrell a terminé de générer tes documents d'usine. Va voir ça !",
+        url: "/design-studio"
+      });
+    } catch (e) {
+      console.error('Erreur notification push tech pack:', e);
+    }
 
     return NextResponse.json({ techPack });
   } catch (error: unknown) {

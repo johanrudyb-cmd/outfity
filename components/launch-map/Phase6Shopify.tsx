@@ -84,20 +84,7 @@ export function Phase6Shopify({ brandId, brand, shopifyShopDomain, onComplete, u
     );
   };
 
-  const headerActions = (
-    !showConnect && (
-      <button
-        onClick={() => setShowConnect(true)}
-        className={cn(
-          "h-8 sm:h-9 px-3 sm:px-4 rounded-xl text-[10px] sm:text-xs font-bold flex items-center gap-1.5 transition-apple shadow-sm mr-2",
-          isConnected ? "bg-white border border-black/5 text-[#5E8E3E]" : "bg-black text-white hover:bg-black/80"
-        )}
-      >
-        <Store className="w-3.5 h-3.5" />
-        <span className="hidden xs:inline">{isConnected ? 'Gérer' : 'Lier'}</span>
-      </button>
-    )
-  );
+  const headerActions = undefined;
 
   const customViews = showConnect ? (
     <div className="self-center w-full max-w-sm my-4 animate-in fade-in zoom-in-95 duration-500">
@@ -156,9 +143,9 @@ export function Phase6Shopify({ brandId, brand, shopifyShopDomain, onComplete, u
     <BaseAgentChat
       brandId={brandId}
       userPlan={userPlan}
-      agentName="Shopify Assist"
+      agentName="Johan"
       agentRole="Lancement E-shop"
-      agentImage="/images/agents/johan_final_cut.png"
+      agentImage="/images/agents/johan_final.png"
       themeColor="bg-[#5E8E3E]"
       themeHoverColor="hover:bg-[#4A7231]"
       themeTextColor="text-[#5E8E3E]"

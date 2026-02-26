@@ -42,6 +42,7 @@ import { StrategyPresentationView } from '@/components/launch-map/StrategyPresen
 import { GenerationLoadingPopup } from '@/components/ui/generation-loading-popup';
 import { USAGE_REFRESH_EVENT } from '@/lib/hooks/useAIUsage';
 import { FeatureUsageBadge } from '@/components/usage/FeatureUsageBadge';
+import { isFreePlan } from '@/lib/plan-utils';
 
 function parseSections(analysis: string): { title: string; content: string }[] {
   const blocks = analysis.split(/\n(?=## )/).filter(Boolean);
@@ -176,7 +177,7 @@ export function BrandAnalysisView({ slug }: BrandAnalysisViewProps) {
 
   const { data: session } = useSession();
   const user = session?.user;
-  const isFree = (user as any)?.plan === 'free' || (user as any)?.plan === 'starter';
+  const isFree = isFreePlan((user as any)?.plan);
 
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [visualIdentity, setVisualIdentity] = useState<{

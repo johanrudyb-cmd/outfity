@@ -12,11 +12,11 @@ import { USAGE_REFRESH_EVENT } from '@/lib/hooks/useAIUsage';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Zap, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { isFreePlan } from '@/lib/plan-utils';
 
 function UsagePageContent() {
   const { data: session } = useSession();
-  const user = session?.user as any;
-  const isFree = user?.plan === 'starter';
+  const isFree = isFreePlan((session?.user as any)?.plan);
 
   const router = useRouter();
   const openSurplusModal = useSurplusModal();

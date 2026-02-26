@@ -6,19 +6,10 @@
 
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import {
-  getBudgetForPlan,
-  getCostForFeature,
-  getMaxVirtualTryOnForPlan,
-  getMaxPerMonthForFeature,
-  getTokensForPlan,
-  getTokensForFeature,
-  getMaxPerDayForFeature,
-  TOKENS_PER_EUR,
-  type AIFeatureKey,
-} from './ai-usage-config';
-import { QUOTA_LIMITS, type QuotaFeatureKey } from './quota-config';
+import { getBudgetForPlan, getCostForFeature, getMaxVirtualTryOnForPlan, getMaxPerMonthForFeature, getTokensForPlan, getTokensForFeature, getMaxPerDayForFeature, TOKENS_PER_EUR, type AIFeatureKey } from './ai-usage-config';
+import { QUOTA_CONFIG, type QuotaFeatureKey } from './quota-config';
 import { getSurplusAddedToLimit, getSurplusRemaining } from './surplus-credits';
+import { isFreePlan } from './plan-utils';
 
 /** Emails admin — accès illimité à toutes les fonctionnalités */
 const ADMIN_EMAILS = ['contact@outfity.fr', 'johanrudyb@gmail.com'];
@@ -115,6 +106,7 @@ const FEATURE_LABELS: Partial<Record<AIFeatureKey, string>> = {
   brand_strategy: 'Changement de stratégie',
   launch_map_recommendations: 'Recommandations conseil',
   trends_hybrid_scan: 'Scanner visuel IA',
+  assistant_chat_qa: 'Assistant IA',
 };
 
 export async function checkAIUsageLimit(
@@ -127,11 +119,37 @@ export async function checkAIUsageLimit(
     return { allowed: true, remaining: Number.POSITIVE_INFINITY };
   }
 
+  // Déterminer le quota config basé sur le plan
+  const packId = isFreePlan(plan) ? 'free' : 'creator';
+  const planQuotas = QUOTA_CONFIG[packId];
+
+  // Mapper QuotaFeatureKey (quota-config.ts) vers AIFeatureKey (ai-usage-config.ts)
+  const featureToQuotaLimit: Partial<Record<AIFeatureKey, number>> = {
+    brand_analyze: planQuotas.brand_analyze_limit,
+    brand_strategy: planQuotas.brand_strategy_limit,
+    strategy_view: planQuotas.strategy_view_limit,
+    ugc_scripts: planQuotas.ugc_scripts_limit,
+    brand_logo: planQuotas.brand_logo_limit,
+    trends_check_image: planQuotas.trends_check_limit,
+    trends_hybrid_scan: planQuotas.trends_hybrid_scan_limit,
+    ugc_shooting_photo: planQuotas.ugc_shooting_photo_limit,
+    ugc_shooting_product: planQuotas.ugc_shooting_product_limit,
+    launch_map_site_texts: planQuotas.site_texts_limit,
+    factories_match: planQuotas.factories_match,
+  };
+
   // Pack Fashion Launch : quotas par feature (priorité)
-  if (feature in QUOTA_LIMITS) {
-    const quotaLimit = QUOTA_LIMITS[feature as QuotaFeatureKey];
-    // ugc_virtual_tryon : limit -1 = premium payant, surplus = crédits achetés
+  if (feature in featureToQuotaLimit || feature === 'ugc_virtual_tryon') {
+    const quotaLimit = featureToQuotaLimit[feature] ?? (feature === 'ugc_virtual_tryon' ? -1 : 0);
+
+    // ugc_virtual_tryon : premium avec essais inclus dans le plan Creator
     if (feature === 'ugc_virtual_tryon') {
+      const maxFreeTryOn = getMaxVirtualTryOnForPlan(plan);
+      const usedThisMonth = await getVirtualTryOnCountThisMonth(userId);
+      if (usedThisMonth < maxFreeTryOn) {
+        return { allowed: true, remaining: maxFreeTryOn - usedThisMonth };
+      }
+
       const surplusRemaining = await getSurplusRemaining(userId, feature);
       if (surplusRemaining > 0) {
         return { allowed: true, remaining: surplusRemaining };
@@ -139,37 +157,24 @@ export async function checkAIUsageLimit(
       return {
         allowed: false,
         remaining: 0,
-        message: 'Virtual Try-On payant à l\'essai (7,90€). Achetez un crédit pour continuer.',
+        message: `Essais Virtual Try-On épuisés (${maxFreeTryOn} inclus). Achetez un crédit à l'essai (7,90€) pour continuer.`,
       };
     }
+
     if (quotaLimit < 0) return { allowed: true, remaining: Number.POSITIVE_INFINITY }; // Illimité
     const surplus = await getSurplusAddedToLimit(userId, feature);
     const effectiveLimit = quotaLimit + surplus;
     const used = await getFeatureCountThisMonth(userId, feature);
     const remaining = Math.max(0, effectiveLimit - used);
+
     if (remaining === 0) {
       return {
         allowed: false,
         remaining: 0,
-        message: `Quota épuisé (${effectiveLimit} utilisations ce mois). Rechargez ce module pour continuer.`,
+        message: `Quota épuisé (${effectiveLimit} utilisations ce mois). Rechargez ce module pour continuer ou attendez le mois prochain.`,
       };
     }
     return { allowed: true, remaining };
-  }
-
-  // Limite spécifique virtual try-on (1/mois pour plan base)
-  if (feature === 'ugc_virtual_tryon') {
-    const maxTryOn = getMaxVirtualTryOnForPlan(plan);
-    if (maxTryOn >= 0) {
-      const count = await getVirtualTryOnCountThisMonth(userId);
-      if (count >= maxTryOn) {
-        return {
-          allowed: false,
-          remaining: 0,
-          message: `Virtual try-on limité à ${maxTryOn} utilisation${maxTryOn > 1 ? 's' : ''} par mois. Prochaine utilisation le mois prochain ou passez à un plan supérieur.`,
-        };
-      }
-    }
   }
 
   // Limites journalières (Assistant, etc.)

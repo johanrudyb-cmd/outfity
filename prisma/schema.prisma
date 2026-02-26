@@ -39,6 +39,7 @@ model User {
   surplusCredits  SurplusCredits[]
   posts           BlogPost[]
   affiliateProfile AffiliateProfile?
+  pushSubscriptions PushSubscription[]
 }
 
 model Account {
@@ -74,6 +75,17 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // ============== CORE BUSINESS ==============

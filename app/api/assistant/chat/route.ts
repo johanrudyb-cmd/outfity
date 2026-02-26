@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth-helpers';
+import { isFreePlan } from '@/lib/plan-utils';
 import { prisma } from '@/lib/prisma';
 import OpenAI from 'openai';
 import { withAIUsageLimit } from '@/lib/ai-usage';
@@ -43,7 +44,7 @@ export async function POST(req: NextRequest) {
             phases.phase7 && "Shopify"
         ].filter(Boolean).join(", ") : "Non démarré";
 
-        const isFree = user?.plan === 'free' || user?.plan === 'starter';
+        const isFree = isFreePlan(user.plan);
 
         const systemPrompt = `Tu es Virgil, le Directeur Stratégique et Marketing personnel de l'utilisateur. Tu es un compagnon de haut niveau intégré à la plateforme Outfity pour piloter la vision créative et stratégique de SA MARQUE.
 

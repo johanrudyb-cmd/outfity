@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import { DashboardTutorial } from '@/components/dashboard/DashboardTutorial';
@@ -10,13 +10,17 @@ import { PaywallGate } from '@/components/paywall/PaywallGate';
 import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 
 import { MobileNav } from './MobileNav';
+import { UpgradeSessionRefresh } from '@/components/dashboard/UpgradeSessionRefresh';
 
 function DashboardTutorialGate() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const forceShow = searchParams.get('tutorial') === '1';
+
   // Le composant DashboardTutorial gère lui-même sa visibilité via localStorage
   // On le monte sur toutes les pages du dashboard pour capter le flag 'show_tutorial_next'
   if (pathname !== '/dashboard') return null;
-  return <DashboardTutorial />;
+  return <DashboardTutorial forceShow={forceShow} />;
 }
 
 export function DashboardLayout({
@@ -71,6 +75,7 @@ export function DashboardLayout({
       </div>
       <Suspense fallback={null}>
         <DashboardTutorialGate />
+        <UpgradeSessionRefresh />
       </Suspense>
       {/* Bottom Mobile Navigation removed as per user request */}
       {/* <MobileNav onMenuClick={() => setSidebarOpen(true)} /> */}

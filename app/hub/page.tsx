@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Shirt, DollarSign, Lock, ArrowRight, Video, Target, Users } from 'lucide-react';
+import { isFreePlan, isPaidPlan } from '@/lib/plan-utils';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
@@ -99,7 +100,7 @@ export default function HubPage() {
     // L'Academy et Partners nécessitent des conditions (ou pas, selon stratégie)
     // Ici on simule pour l'UI, on connectera à la DB après
     const isBrandActive = true;
-    const isAcademyActive = user?.plan === 'creator' || user?.isInfluencer;
+    const isAcademyActive = isPaidPlan(user?.plan) || user?.isInfluencer;
     const isPartnersActive = true; // Tout le monde peut devenir affilié
 
     return (

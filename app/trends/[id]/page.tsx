@@ -26,6 +26,7 @@ import {
   ChevronRight,
   Gauge
 } from 'lucide-react';
+import { isFreePlan } from '@/lib/plan-utils';
 import { getBaseUrl, cn } from '@/lib/utils';
 import {
   computeSaturability,
@@ -53,7 +54,7 @@ export default async function ProductDetailPage({
     }
   } catch (e) { }
 
-  const isFree = user.plan === 'free' || user.plan === 'starter';
+  const isFree = isFreePlan(user.plan);
   const shouldLockTrend = isFree && !isFeatured;
 
   // Quota check
@@ -106,7 +107,7 @@ export default async function ProductDetailPage({
 
   return (
     <DashboardLayout>
-      {(user.plan === 'free' || user.plan === 'starter') && <TrendViewRecorder trendId={product.id} />}
+      {isFreePlan(user.plan) && <TrendViewRecorder trendId={product.id} />}
       <ProductDetailEnricher productId={product.id} product={product}>
         <div className="min-h-screen bg-[#F5F5F7] pb-24 font-sans">
 

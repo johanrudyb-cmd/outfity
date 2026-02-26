@@ -15,6 +15,7 @@ import { Loader2, TrendingUp, Tag, Layers, Shirt, ArrowLeft, Clock, Calendar, Th
 import { inferStyle } from '@/lib/infer-trend-category';
 import { FASHION_CUTS_BY_CATEGORY } from '@/lib/constants/fashion-cuts';
 import { useSession } from 'next-auth/react';
+import { isFreePlan } from '@/lib/plan-utils';
 
 interface TrendStyleGroup {
     id: string;
@@ -90,7 +91,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
 
     const { data: session } = useSession();
     const user = session?.user as User | undefined;
-    const isFree = user?.plan === 'free' || user?.plan === 'starter';
+    const isFree = isFreePlan(user?.plan);
 
     // Force 1M leadTime for free users
     useEffect(() => {
@@ -223,15 +224,33 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
+        // On utilise le diff réel (globalDiff) pour piloter la pente historique du graphique
+        // Si subFilter !== 'ALL', on utilise une pente par défaut de 0.2
+        const slope = subFilter === 'ALL' ? globalDiff : 0.2;
+
         // 1. HISTORIQUE (30 derniers jours - AU JOUR LE JOUR)
         for (let i = 30; i >= 0; i--) {
             const d = new Date(today);
             d.setDate(d.getDate() - i);
             const noise = getStableNoise(noiseSeed, d.getTime());
-            // L'historique est une légère tendance passée
+
+            // On calcule l'offset par rapport au baseScore. 
+            // On limite la pente au-delà de 2 jours pour éviter des valeurs délirantes sur 30j.
+            const longTermSlope = Math.max(-1, Math.min(1, slope));
+            const effectiveOffset = i <= 2
+                ? (i * slope)
+                : (2 * slope + (i - 2) * longTermSlope);
+
+            // LOGIQUE CRITIQUE : Au point i=0 (Aujourd'hui), la valeur DOIT être égale à baseScore
+            // pour correspondre aux chiffres affichés ailleurs sur la page.
+            // On applique le bruit uniquement si i > 0, ou on l'amortit.
+            const finalValue = i === 0
+                ? baseScore
+                : Math.round(baseScore - effectiveOffset + noise);
+
             data.push({
                 date: d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
-                value: Math.round(baseScore - (i * 0.2) + noise),
+                value: finalValue,
                 isFuture: false
             });
         }
@@ -243,9 +262,9 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
             d.setDate(d.getDate() + i);
             const month = d.getMonth();
             const bias = getSeasonalTrend(categoryId, month);
-            const noise = getStableNoise(noiseSeed, d.getTime());
+            // On utilise un seed différent pour la prédiction
+            const noise = getStableNoise(noiseSeed + "_pred", d.getTime());
 
-            // On réduit l'impact quotidien du bruit pour garder une courbe lisible au jour le jour
             runningScore += (bias * 0.8) + (noise / 3);
             runningScore = Math.max(10, Math.min(98, runningScore));
 
@@ -256,7 +275,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
             });
         }
         return data;
-    }, [categoryId, subFilter, leadTime, currentScoreValue]);
+    }, [categoryId, subFilter, leadTime, currentScoreValue, globalDiff]);
 
     const futureScore = chartData[chartData.length - 1]?.value || 0;
 
@@ -285,11 +304,12 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
     const yesterdayScore = chartData[29]?.value || 0;
     const computedDiff = todayScore - yesterdayScore;
 
-    const dailyDiff = subFilter === 'ALL' ? globalDiff : computedDiff;
-    const dailyPct = subFilter === 'ALL' ? ((globalDiff / (globalScore || 1)) * 100).toFixed(1) : (yesterdayScore > 0 ? ((computedDiff / yesterdayScore) * 100).toFixed(1) : "0");
+    // On utilise systématiquement computedDiff pour le badge pour garantir qu'il correspond visuellement au graphe
+    const dailyDiff = computedDiff;
+    const dailyPct = yesterdayScore > 0 ? ((computedDiff / yesterdayScore) * 100).toFixed(1) : "0";
 
-    // On se base sur computedDiff pour la couleur de la courbe (réel visuel)
-    const historyColor = computedDiff >= 0 ? "#22C55E" : "#FF3B30";
+    // On se base sur dailyDiff pour la couleur de la courbe (réel visuel)
+    const historyColor = dailyDiff >= 0 ? "#22C55E" : "#FF3B30";
 
     // Moteur Stratégique Local (Instantané)
     const strategicAnalysis = useMemo(() => {
@@ -611,7 +631,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                                             <span className="text-[10px] opacity-50 font-black">PTS</span>
                                             <div className={cn(
                                                 "text-[9px] md:text-[10px] px-2 py-1 rounded-full font-black flex items-center gap-1",
-                                                computedDiff >= 0 ? "bg-[#34C759]/10 text-[#34C759]" : "bg-[#FF3B30]/10 text-[#FF3B30]"
+                                                dailyDiff >= 0 ? "bg-[#34C759]/10 text-[#34C759]" : "bg-[#FF3B30]/10 text-[#FF3B30]"
                                             )}>
                                                 {dailyDiff >= 0 ? `+${dailyDiff}` : dailyDiff}
                                                 <span className="opacity-70">({dailyPct}%)</span>

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { User, Mail, Lock, Image as ImageIcon, Save, CheckCircle2, FileText, Download, Loader2, Crown, Sparkles, ArrowRight, CheckCircle } from 'lucide-react';
 import { SubscriptionWarning } from '@/components/subscription/SubscriptionWarning';
+import { isFreePlan, isPaidPlan } from '@/lib/plan-utils';
 import { cn } from '@/lib/utils';
 
 interface SettingsFormProps {
@@ -266,7 +267,7 @@ export function SettingsForm({ user: initialUser }: SettingsFormProps) {
           <div className="p-6 md:p-8 space-y-5">
 
             {/* Bloc plan Créateur */}
-            {user.plan === 'creator' ? (
+            {isPaidPlan(user.plan) ? (
               <div className="space-y-4">
                 {/* Badge Créateur actif */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 bg-gradient-to-br from-[#007AFF]/8 to-[#5AC8FA]/5 rounded-[16px] border border-[#007AFF]/20 gap-4">

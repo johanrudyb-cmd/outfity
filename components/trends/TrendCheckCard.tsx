@@ -9,6 +9,7 @@ import { GenerationLoadingPopup } from '@/components/ui/generation-loading-popup
 import { useQuota } from '@/lib/hooks/useQuota';
 import { FeatureUsageBadge } from '@/components/usage/FeatureUsageBadge';
 import { useSession } from 'next-auth/react';
+import { isFreePlan } from '@/lib/plan-utils';
 
 interface TrendCheckCardProps {
   /** Afficher sur toute la largeur (ex. page détail produit) */
@@ -27,7 +28,7 @@ export function TrendCheckCard({ fullWidth }: TrendCheckCardProps = {}) {
   const [showConfirmAnalyze, setShowConfirmAnalyze] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { data: session } = useSession();
-  const isFree = (session?.user as { plan?: string })?.plan === 'free' || (session?.user as { plan?: string })?.plan === 'starter';
+  const isFree = isFreePlan((session?.user as any)?.plan);
   const trendsCheckQuota = useQuota('trends_check_image');
 
   const handleUpload = async () => {

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { revalidatePath } from 'next/cache';
+import { broadcastWebPushNotification } from '@/lib/web-push';
 
 export async function POST(req: Request) {
     try {
@@ -44,6 +45,15 @@ export async function POST(req: Request) {
                 sourceUrl,
             },
         });
+
+        if (published) {
+            // Envoyer une notification Push à tout le monde
+            await broadcastWebPushNotification({
+                title: "OUTFITY Magazine 📰",
+                body: `Nouvel article : ${title}`,
+                url: `/blog/${slug}`
+            });
+        }
 
         // Force revalidation of public pages
         revalidatePath('/');

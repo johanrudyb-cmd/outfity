@@ -16,6 +16,7 @@ import { Loader2, Camera, UserPlus, Upload, Download, Image as ImageIcon, Shirt,
 import { cn } from '@/lib/utils';
 import { FeatureUsageBadge } from '@/components/usage/FeatureUsageBadge';
 import { QuotaGenerateButton } from '@/components/usage/QuotaGenerateButton';
+import { isFreePlan } from '@/lib/plan-utils';
 
 /** Design enregistré dans la collection (même source que mockup/tech pack). */
 export interface ShootingDesign {
@@ -298,7 +299,7 @@ export function ShootingPhoto({ brandId, designs: initialDesigns, onSwitchToTryO
   const productQuota = useQuota('ugc_shooting_product');
   const { data: session } = useSession();
   const { mutate } = useSWRConfig();
-  const isFree = (session?.user as { plan?: string })?.plan === 'free' || (session?.user as { plan?: string })?.plan === 'starter';
+  const isFree = isFreePlan((session?.user as any)?.plan);
   const [shootingMode, setShootingMode] = useState<ShootingMode>('mannequin');
 
   const { data: mannequinsData, isLoading: loadingMannequins } = useSWR<Mannequin[]>(

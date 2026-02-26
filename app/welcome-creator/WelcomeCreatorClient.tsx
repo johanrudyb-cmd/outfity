@@ -42,7 +42,7 @@ const CREATOR_FEATURES = [
 ];
 
 // ─── Main ────────────────────────────────────────────────────
-export function WelcomeCreatorClient({ userName }: { userName: string }) {
+export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo }: { userName: string, hasStrategy: boolean, hasLogo: boolean }) {
     const router = useRouter();
     const [screen, setScreen] = useState<Screen>('intro');
     const [screenIndex, setScreenIndex] = useState(0);
@@ -274,22 +274,32 @@ export function WelcomeCreatorClient({ userName }: { userName: string }) {
                         >
                             <div className="space-y-3">
                                 <h2 className="text-4xl font-black tracking-tight">
-                                    Par où<br />commencer ?
+                                    {!hasStrategy || !hasLogo ? 'Action Requise' : 'Par où commencer ?'}
                                 </h2>
-                                <p className="text-white/50">
-                                    Voici les 3 premières actions que recommande Virgil pour lancer ta marque vite.
+                                <p className="text-white/80 font-medium">
+                                    {!hasStrategy || !hasLogo
+                                        ? "🚨 Attention : Tu dois impérativement finaliser ton onboarding. Les agents IA refuseront de te répondre ou te donneront de mauvais résultats sans ta Stratégie et ton Logo."
+                                        : "Voici les 3 premières actions que recommande Virgil pour lancer ta marque vite."}
                                 </p>
                             </div>
 
                             <div className="space-y-3 text-left">
-                                {[
-                                    { num: '01', title: 'Génère ta Stratégie de Marque', href: '/launch-map/phase/1', color: '#007AFF', desc: 'Virgil analyse ton univers et crée ton ADN de marque complet.' },
-                                    { num: '02', title: 'Lance ton premier Design', href: '/launch-map/phase/2', color: '#a032ff', desc: 'Pharrell génère tes mockups et Tech Pack en quelques minutes.' },
-                                    { num: '03', title: 'Configure ton E-shop', href: '/launch-map/phase/5', color: '#ffaa00', desc: 'Johan t\'aide à lancer ta boutique Shopify optimisée.' },
-                                ].map((item, i) => (
+                                {(!hasStrategy || !hasLogo
+                                    ? [
+                                        ...(!hasStrategy ? [{ num: '01', title: 'Générer ma Stratégie', href: '/launch-map/phase/1', color: '#ff3b30', desc: 'Obligatoire. Virgil a besoin de ton ADN pour t\'aider.' }] : []),
+                                        ...(!hasLogo ? [{ num: !hasStrategy ? '02' : '01', title: 'Créer mon Logo', href: '/launch-map/phase/2', color: '#ff3b30', desc: 'Obligatoire. Pharrell en a besoin pour tes designs.' }] : []),
+                                        { num: !hasStrategy && !hasLogo ? '03' : '02', title: 'Plus tard', href: '#', onClick: (e: any) => { e.preventDefault(); try { localStorage.setItem('show_tutorial_next', '1'); } catch (_) { } router.push('/dashboard?tutorial=1'); }, color: '#86868B', desc: 'Je ferai ça plus tard (déconseillé)' }
+                                    ]
+                                    : [
+                                        { num: '01', title: 'Génère ta Stratégie de Marque', href: '/launch-map/phase/1', color: '#007AFF', desc: 'Virgil analyse ton univers et crée ton ADN de marque complet.' },
+                                        { num: '02', title: 'Lance ton premier Design', href: '/launch-map/phase/2', color: '#a032ff', desc: 'Pharrell génère tes mockups et Tech Pack en quelques minutes.' },
+                                        { num: '03', title: 'Configure ton E-shop', href: '/launch-map/phase/5', color: '#ffaa00', desc: 'Johan t\'aide à lancer ta boutique Shopify optimisée.' },
+                                    ]
+                                ).map((item, i) => (
                                     <motion.a
                                         key={item.num}
                                         href={item.href}
+                                        onClick={"onClick" in item ? item.onClick : undefined}
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: i * 0.15 + 0.2 }}
@@ -303,7 +313,7 @@ export function WelcomeCreatorClient({ userName }: { userName: string }) {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="font-bold text-white text-sm">{item.title}</p>
-                                            <p className="text-white/40 text-xs mt-0.5">{item.desc}</p>
+                                            <p className="text-white/60 text-xs mt-0.5">{item.desc}</p>
                                         </div>
                                         <CheckCircle2
                                             className="w-5 h-5 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -313,15 +323,17 @@ export function WelcomeCreatorClient({ userName }: { userName: string }) {
                                 ))}
                             </div>
 
-                            <motion.button
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.7 }}
-                                onClick={() => { try { localStorage.setItem('show_tutorial_next', '1'); } catch (_) { } router.push('/dashboard'); }}
-                                className="w-full h-14 rounded-2xl bg-white text-black font-bold text-lg flex items-center justify-center gap-2 hover:bg-white/90 active:scale-[0.98] transition-all shadow-xl"
-                            >
-                                Explorer mon dashboard <ArrowRight className="w-5 h-5" />
-                            </motion.button>
+                            {hasStrategy && hasLogo && (
+                                <motion.button
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.7 }}
+                                    onClick={() => { try { localStorage.setItem('show_tutorial_next', '1'); } catch (_) { } router.push('/dashboard?tutorial=1'); }}
+                                    className="w-full h-14 rounded-2xl bg-white text-black font-bold text-lg flex items-center justify-center gap-2 hover:bg-white/90 active:scale-[0.98] transition-all shadow-xl"
+                                >
+                                    Explorer mon dashboard <ArrowRight className="w-5 h-5" />
+                                </motion.button>
+                            )}
 
                             <motion.p
                                 initial={{ opacity: 0 }}

@@ -1,5 +1,6 @@
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { redirect } from 'next/navigation';
+import { isPaidPlan } from '@/lib/plan-utils';
 
 export const dynamic = 'force-dynamic';
 import { Card, CardContent } from '@/components/ui/card';
@@ -50,9 +51,10 @@ export default async function AcademyPage() {
         redirect('/auth/signin?callbackUrl=/academy');
     }
 
-    // Vérification basique des droits (à étoffer avec DB)
-    // const isAllowed = user.plan === 'creator' || user.isInfluencer;
-    // if (!isAllowed) redirect('/hub'); 
+    // Vérification des droits d'accès
+    if (!isPaidPlan(user.plan)) {
+        redirect('/dashboard');
+    }
 
     return (
         <div className="min-h-screen bg-black text-white font-sans selection:bg-purple-500 selection:text-white">

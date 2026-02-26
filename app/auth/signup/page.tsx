@@ -191,6 +191,7 @@ function SignUpContent() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
+                    autoComplete="name"
                     className={`h-12 px-4 rounded-xl ${isPartnerFlow
                       ? 'bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:border-[#007AFF] focus:ring-[#007AFF]/20'
                       : 'bg-gray-50 border-gray-200 focus:border-blue-500'}`}
@@ -205,6 +206,7 @@ function SignUpContent() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    autoComplete="email"
                     className={`h-12 px-4 rounded-xl ${isPartnerFlow
                       ? 'bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:border-[#007AFF] focus:ring-[#007AFF]/20'
                       : 'bg-gray-50 border-gray-200 focus:border-blue-500'}`}
@@ -219,6 +221,7 @@ function SignUpContent() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    autoComplete="new-password"
                     className={`h-12 px-4 rounded-xl ${isPartnerFlow
                       ? 'bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:border-[#007AFF] focus:ring-[#007AFF]/20'
                       : 'bg-gray-50 border-gray-200 focus:border-blue-500'}`}
@@ -233,6 +236,7 @@ function SignUpContent() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
+                    autoComplete="new-password"
                     className={`h-12 px-4 rounded-xl ${isPartnerFlow
                       ? 'bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:border-[#007AFF] focus:ring-[#007AFF]/20'
                       : 'bg-gray-50 border-gray-200 focus:border-blue-500'}`}

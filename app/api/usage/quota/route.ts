@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth-helpers';
-import { getFeatureCountThisMonth, getFeatureCountToday } from '@/lib/ai-usage';
+import { getFeatureCountThisMonth, getFeatureCountToday, getVirtualTryOnCountThisMonth } from '@/lib/ai-usage';
 import { isAdminUser } from '@/lib/ai-usage';
 import type { AIFeatureKey } from '@/lib/ai-usage-config';
 import {
@@ -15,7 +15,9 @@ import {
   type QuotaCategory,
   type PackId,
 } from '@/lib/quota-config';
+import { isFreePlan } from '@/lib/plan-utils';
 import { getSurplusAddedToLimit, getSurplusRemaining } from '@/lib/surplus-credits';
+import { getMaxVirtualTryOnForPlan } from '@/lib/ai-usage-config';
 
 export async function GET() {
   try {
@@ -41,7 +43,7 @@ export async function GET() {
       });
     }
 
-    const packId: PackId = (user.plan === 'free' || user.plan === 'starter') ? 'free' : 'fashion_launch';
+    const packId: PackId = isFreePlan(user.plan) ? 'free' : 'creator';
     const planLimits = QUOTA_CONFIG[packId];
 
     // Mapper les clés du plan vers les clés QuotaFeatureKey
@@ -69,15 +71,22 @@ export async function GET() {
       // For free plan, limits are strict. For paid plan (-1), it's unlimited.
       // Special case: some features are limited even in paid plan (like tokens), but here we deal with counts.
 
-      // Special case: ugc_virtual_tryon (premium)
+      // Special case: ugc_virtual_tryon (premium avec quotas inclus)
       if (key === 'ugc_virtual_tryon') {
+        const maxFree = getMaxVirtualTryOnForPlan(user.plan || 'free');
+        const usedFree = await getVirtualTryOnCountThisMonth(user.id);
+        const freeRemaining = Math.max(0, maxFree - usedFree);
         const surplusRemaining = await getSurplusRemaining(user.id, key);
+
+        const totalRemaining = freeRemaining + surplusRemaining;
+        const totalLimit = maxFree + surplusRemaining;
+
         usage[key] = {
-          limit: surplusRemaining > 0 ? surplusRemaining : 999, // placeholder for unlimited
-          used: 0,
-          remaining: surplusRemaining,
+          limit: totalLimit,
+          used: usedFree,
+          remaining: totalRemaining,
           label: QUOTA_LABELS[key],
-          isUnlimited: surplusRemaining <= 0
+          isUnlimited: false
         };
         continue;
       }
@@ -120,7 +129,7 @@ export async function GET() {
       categories: QUOTA_CATEGORIES,
       categoryLabels: CATEGORY_LABELS,
       tryonPremiumPrice: TRYON_PREMIUM_PRICE,
-      packId: 'fashion_launch',
+      packId: isFreePlan(user.plan) ? 'free' : 'creator',
     });
   } catch (error) {
     console.error('[usage/quota]', error);

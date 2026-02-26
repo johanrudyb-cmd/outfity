@@ -102,7 +102,7 @@ export function LogoGenerator({ brandId }: LogoGeneratorProps) {
                                 Générateur de Logo & Identité
                             </CardTitle>
                             <CardDescription>
-                                Créez des logos uniques, des affiches ou des éléments graphiques pour votre marque grâce à l'IA Ideogram.
+                                Créez des logos uniques, des affiches ou des éléments graphiques pour votre marque propulsés par OUTFITY AI.
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="px-0 sm:px-6 space-y-6">
@@ -233,7 +233,7 @@ export function LogoGenerator({ brandId }: LogoGeneratorProps) {
                                             Télécharger HD
                                         </Button>
                                         <p className="text-[10px] text-muted-foreground text-center">
-                                            Image générée par Ideogram v3. Droits d'usage commerciaux inclus.
+                                            Image générée par OUTFITY AI. Droits d'usage commerciaux inclus.
                                         </p>
                                     </div>
                                 </div>

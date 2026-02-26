@@ -63,6 +63,7 @@ import { BrandAnalyzer } from './BrandAnalyzer';
 
 import { useSession } from 'next-auth/react';
 import { Lock } from 'lucide-react';
+import { isFreePlan } from '@/lib/plan-utils';
 
 export function BrandsContent() {
   const { data: session } = useSession();
@@ -144,7 +145,7 @@ export function BrandsContent() {
     }
   };
 
-  if (user?.plan === 'free' || user?.plan === 'starter') {
+  if (isFreePlan(user?.plan)) {
     return (
       <div className="space-y-6">
         {/* Header (visible but content locked) */}

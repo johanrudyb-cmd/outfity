@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth-helpers';
+import { isPaidPlan } from '@/lib/plan-utils';
 import { ChoosePlanClient } from './ChoosePlanClient';
 
 export default async function ChoosePlanPage() {
@@ -8,7 +9,7 @@ export default async function ChoosePlanPage() {
     redirect('/auth/signin?redirect=/auth/choose-plan');
   }
   // Un user déjà Creator n'a rien à faire ici
-  if (user.plan === 'creator') {
+  if (isPaidPlan(user.plan)) {
     redirect('/settings?tab=billing');
   }
   return <ChoosePlanClient userPlan={user.plan} />;

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
+import { isFreePlan } from '@/lib/plan-utils';
 import { rateLimitByUser } from '@/lib/rate-limit';
 import { enhancePrompt, generateTechPack } from '@/lib/api/chatgpt';
 import { generateFlatSketch } from '@/lib/api/ideogram';
@@ -55,7 +56,7 @@ export async function POST(request: Request) {
       where: { brandId },
     });
 
-    if ((user.plan === 'free' || user.plan === 'starter') && designCount >= 3) {
+    if (isFreePlan(user.plan) && designCount >= 3) {
       return NextResponse.json(
         { error: 'Limite atteinte. Passez au plan Pro pour générer plus de designs.' },
         { status: 403 }

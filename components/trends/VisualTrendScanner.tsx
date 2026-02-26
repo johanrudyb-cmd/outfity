@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button';
 import {
     Upload, Camera, Sparkles, Loader2, Target, Zap,
     ArrowRight, AlertCircle, Info, TrendingUp, Activity,
-    Calendar, DollarSign, Palette, Clock
+    Calendar, DollarSign, Palette, Clock, Lock, ChevronDown
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ResponsiveContainer } from 'recharts';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { PredictiveChart } from './PredictiveChart';
@@ -20,6 +22,7 @@ import { useToast } from '@/components/ui/toast';
 import { SectionHeader } from '@/components/ui/section-header';
 import { LoadingState } from '@/components/ui/loading-state';
 import { EmptyState } from '@/components/ui/empty-state';
+import { isFreePlan } from '@/lib/plan-utils';
 
 interface ProductMatch {
     id: string;
@@ -50,7 +53,7 @@ interface HistoryItem {
 
 export function VisualTrendScanner() {
     const { data: session } = useSession();
-    const isFree = (session?.user as { plan?: string })?.plan === 'free' || (session?.user as { plan?: string })?.plan === 'starter';
+    const isFree = isFreePlan((session?.user as { plan?: string })?.plan);
     const { toast } = useToast();
 
     const [image, setImage] = useState<string | null>(null);
@@ -120,26 +123,36 @@ export function VisualTrendScanner() {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        // Historique (30 jours)
+        // 1. HISTORIQUE (30 derniers jours - AU JOUR LE JOUR)
         for (let i = 30; i >= 0; i--) {
             const d = new Date(today);
             d.setDate(d.getDate() - i);
             const noise = getStableNoise(noiseSeed, d.getTime());
+
+            // Pente simulée basée sur la phase du cycle
+            const slope = result.cyclePhase === 'emergent' ? 0.3 : (result.cyclePhase === 'croissance' ? 0.5 : (result.cyclePhase === 'pic' ? 0.1 : -0.3));
+
+            // Logique critique : aujourd'hui est ancré au score réel
+            const finalValue = (i === 0)
+                ? baseScore
+                : Math.round(baseScore - (i * slope) + noise);
+
             data.push({
                 date: d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
-                value: Math.round(baseScore - (i * 0.2) + noise),
+                value: finalValue,
                 isFuture: false
             });
         }
 
-        // Prédiction (leadTime)
+        // 2. PRÉDICTION (Lead Time - AU JOUR LE JOUR)
         let runningScore = baseScore;
         for (let i = 1; i <= leadTime; i++) {
             const d = new Date(today);
             d.setDate(d.getDate() + i);
             const month = d.getMonth();
             const bias = getSeasonalTrend(techCategory, month);
-            const noise = getStableNoise(noiseSeed, d.getTime());
+            const noise = getStableNoise(noiseSeed + "_pred", d.getTime());
+
             runningScore += (bias * 0.8) + (noise / 3);
             runningScore = Math.max(10, Math.min(98, runningScore));
             data.push({
@@ -232,6 +245,10 @@ export function VisualTrendScanner() {
             setImage(base64);
             setResult(null);
             setError(null);
+            // On scroll automatiquement vers le bouton de scan
+            setTimeout(() => {
+                document.getElementById('scan-action-section')?.scrollIntoView({ behavior: 'smooth' });
+            }, 300);
         };
         reader.readAsDataURL(file);
     };
@@ -272,46 +289,68 @@ export function VisualTrendScanner() {
     };
 
     return (
-        <div className="min-h-screen bg-[#F5F5F7] font-sans text-[#1a1a1a] -mt-8 -mx-8 pb-20">
+        <div className="min-h-screen bg-[#F5F5F7] font-sans text-[#1a1a1a] -mt-8 -mx-8 pb-32 relative overflow-hidden">
+            {/* Mesh Gradient Background Decorative */}
+            <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-50">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-100/50 blur-[120px] rounded-full" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-100/30 blur-[120px] rounded-full" />
+            </div>
+
             {!result ? (
-                <div className="max-w-4xl mx-auto py-12 px-6 space-y-8 animate-in fade-in duration-500">
-                    <SectionHeader
-                        title="Analyse de Style Visuel"
-                        icon={Camera}
-                        description="Uploadez une photo. Notre scanner l'analyse et projette sa viabilité sur les 90 prochains jours."
-                        className="items-center text-center"
-                    />
+                <div className="max-w-5xl mx-auto py-20 px-6 space-y-12 relative z-10">
+                    <div className="text-center space-y-4">
+                        <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="w-20 h-20 bg-white rounded-3xl shadow-apple flex items-center justify-center mx-auto mb-6"
+                        >
+                            <Camera className="w-10 h-10 text-[#007AFF]" />
+                        </motion.div>
+                        <h1 className="text-5xl md:text-6xl font-black text-black uppercase tracking-tighter leading-[0.9]">
+                            SCANNER <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#007AFF] to-[#00C6FF]">IVS</span>
+                        </h1>
+                        <p className="text-sm md:text-base font-bold text-gray-500 uppercase tracking-widest max-w-2xl mx-auto leading-relaxed">
+                            ANALYSE VISUELLE & PROJECTION DE VIABILITÉ MARCHÉ SUR 90 JOURS BASÉE SUR LES FLUX MONDIAUX.
+                        </p>
+                    </div>
 
                     <div className="grid grid-cols-1 gap-8 items-start">
-                        <div className="space-y-6">
-                            <Card className="overflow-hidden border-2 border-dashed border-black/10 bg-white hover:bg-black/[0.01] transition-all shadow-sm rounded-[32px]">
-                                <CardContent className="p-0">
-                                    {image ? (
-                                        <div className="relative aspect-video lg:aspect-[21/9] group">
-                                            <img src={image} alt="Preview" className="w-full h-full object-cover" />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-                                                <Button variant="secondary" className="rounded-xl font-bold" onClick={() => fileInputRef.current?.click()}>Changer</Button>
-                                                <Button variant="destructive" className="rounded-xl font-bold" onClick={reset}>Supprimer</Button>
+                        <div className="space-y-8">
+                            <motion.div
+                                whileHover={{ scale: 1.01 }}
+                                className="relative"
+                            >
+                                <Card className="overflow-hidden border-0 bg-white shadow-apple-lg rounded-[48px] transition-all">
+                                    <CardContent className="p-0">
+                                        {image ? (
+                                            <div className="relative aspect-video lg:aspect-[21/9] group">
+                                                <img src={image} alt="Preview" className="w-full h-full object-cover" />
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 backdrop-blur-sm">
+                                                    <Button variant="secondary" className="rounded-2xl font-black uppercase text-[10px] tracking-widest px-8" onClick={() => fileInputRef.current?.click()}>Changer</Button>
+                                                    <Button variant="destructive" className="rounded-2xl font-black uppercase text-[10px] tracking-widest px-8" onClick={reset}>Supprimer</Button>
+                                                </div>
+                                                {isScanning && (
+                                                    <div className="absolute inset-x-0 h-1.5 bg-[#007AFF] shadow-[0_0_25px_rgba(0,122,255,1)] animate-visual-scan z-10" />
+                                                )}
                                             </div>
-                                            {isScanning && (
-                                                <div className="absolute inset-x-0 h-1 bg-[#007AFF] shadow-[0_0_15px_rgba(0,122,255,0.8)] animate-visual-scan z-10" />
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <div
-                                            className="aspect-video lg:aspect-[21/9] flex flex-col items-center justify-center cursor-pointer p-12"
-                                            onClick={() => fileInputRef.current?.click()}
-                                        >
-                                            <div className="w-20 h-20 rounded-full bg-[#F5F5F7] flex items-center justify-center mb-6">
-                                                <Upload className="w-8 h-8 text-[#007AFF]" />
+                                        ) : (
+                                            <div
+                                                className="aspect-video lg:aspect-[21/9] flex flex-col items-center justify-center cursor-pointer p-12 hover:bg-black/[0.01] transition-colors"
+                                                onClick={() => fileInputRef.current?.click()}
+                                            >
+                                                <div className="w-24 h-24 rounded-full bg-[#F5F5F7] flex items-center justify-center mb-8 relative group">
+                                                    <div className="absolute inset-0 bg-[#007AFF] rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 opacity-10" />
+                                                    <Upload className="w-10 h-10 text-[#007AFF] relative z-10" />
+                                                </div>
+                                                <p className="text-2xl font-black uppercase tracking-tighter mb-3">Déposez votre design ici</p>
+                                                <p className="text-gray-400 text-xs font-bold uppercase tracking-[0.2em]">Format WebP, PNG, JPG supportés</p>
                                             </div>
-                                            <p className="text-xl font-black uppercase tracking-tighter mb-2">Glissez une image ou cliquez</p>
-                                            <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest">PNG, JPG ou WEBP jusqu&apos;à 10MB</p>
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
 
+                            {/* Hidden File Input */}
                             <input
                                 type="file"
                                 ref={fileInputRef}
@@ -320,15 +359,16 @@ export function VisualTrendScanner() {
                                 accept="image/*"
                             />
 
-                            {image && !isScanning && (
+                            <div id="scan-action-section" className="pt-4">
                                 <QuotaGenerateButton
                                     featureKey="trends_hybrid_scan"
                                     onClick={handleScan}
                                     title="Scanner Visuel IA"
                                     description="Analyse la viabilité et le cycle de vie de votre design sur le marché actuel."
-                                    buttonText="Lancer l'analyse"
+                                    buttonText={image ? "Lancer le Scan Intelligence" : "Uploadez un design pour scanner"}
+                                    disabled={!image || isScanning}
                                 />
-                            )}
+                            </div>
 
                             {isScanning && (
                                 <LoadingState
@@ -389,35 +429,43 @@ export function VisualTrendScanner() {
                     )}
                 </div>
             ) : (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    {/* Header Premium */}
-                    <div className="bg-white border-b border-gray-100 px-4 md:px-8 py-4 md:py-6 sticky top-0 z-20 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
-                        <div className="flex items-center gap-4 md:gap-8">
-                            <button onClick={reset} className="flex items-center gap-2 text-[10px] md:text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest shrink-0">
-                                <ArrowRight className="w-3.5 h-3.5 rotate-180" />
-                                <span>Nouveau Scan</span>
+                <div className="animate-in fade-in slide-in-from-bottom-6 duration-1000 relative z-10">
+                    {/* Immersive Header */}
+                    <div className="bg-white/80 backdrop-blur-xl border-b border-black/5 px-6 md:px-12 py-6 sticky top-0 z-[50] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="flex items-center gap-8">
+                            <button onClick={reset} className="flex items-center gap-3 text-[10px] font-black text-gray-400 hover:text-black transition-all uppercase tracking-widest group">
+                                <div className="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center group-hover:bg-gray-100 transition-colors">
+                                    <ArrowRight className="w-4 h-4 rotate-180" />
+                                </div>
+                                <span>RETOUR SCAN</span>
                             </button>
-                            <div className="h-6 w-px bg-gray-100" />
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-lg overflow-hidden border border-gray-100 shadow-sm shrink-0">
+                            <div className="h-10 w-px bg-black/5" />
+                            <div className="flex items-center gap-5">
+                                <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-white shadow-apple shrink-0">
                                     <img src={image!} className="w-full h-full object-cover" alt="Scanned" />
                                 </div>
                                 <div className="min-w-0">
-                                    <h1 className="text-sm md:text-xl font-black uppercase tracking-tighter text-black truncate">{result.category}</h1>
-                                    <p className="text-[8px] md:text-[10px] font-bold text-[#007AFF] uppercase tracking-widest truncate">{result.style} Detected</p>
+                                    <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tighter text-black truncate leading-none mb-1">{result.category}</h1>
+                                    <div className="flex items-center gap-2">
+                                        <div className="px-2 py-0.5 bg-blue-50 rounded-md">
+                                            <span className="text-[9px] font-black text-[#007AFF] uppercase tracking-[0.2em]">{result.style}</span>
+                                        </div>
+                                        <div className="w-1.5 h-1.5 rounded-full bg-[#34C759] animate-pulse" />
+                                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Diagnostic Live</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between md:justify-end gap-3 md:gap-6">
-                            <div className="flex p-1 bg-[#F5F5F7] rounded-full shrink-0">
+                        <div className="flex items-center gap-4">
+                            <div className="flex p-1.5 bg-gray-100/50 rounded-2xl shrink-0 border border-black/5">
                                 {['homme', 'femme'].map(s => (
                                     <button
                                         key={s}
                                         onClick={() => setSegment(s as 'homme' | 'femme')}
                                         className={cn(
-                                            "px-4 md:px-6 py-1.5 md:py-2 text-[9px] md:text-[10px] font-black uppercase tracking-widest rounded-full transition-all",
-                                            segment === s ? "bg-[#007AFF] text-white shadow-lg shadow-blue-500/10" : "text-gray-400 hover:text-black"
+                                            "px-8 py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all",
+                                            segment === s ? "bg-white text-black shadow-apple-sm" : "text-gray-400 hover:text-black"
                                         )}
                                     >
                                         {s}
@@ -427,143 +475,118 @@ export function VisualTrendScanner() {
                         </div>
                     </div>
 
-                    <div className="max-w-[1600px] mx-auto p-4 md:p-8 space-y-6 md:space-y-8">
-                        {/* Control Bar */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-center gap-4 lg:gap-6 bg-white rounded-[25px] p-4 md:p-6 shadow-sm border border-gray-100">
-                            <div className="flex flex-col px-2 lg:px-4 lg:border-r lg:border-gray-100">
-                                <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Horizon de Sortie</span>
-                                <div className="flex gap-2">
-                                    {[30, 60, 90].map(days => (
-                                        <button
-                                            key={days}
-                                            onClick={() => setLeadTime(days)}
-                                            className={cn(
-                                                "flex-1 md:flex-none px-3 md:px-4 py-2 rounded-xl text-[9px] md:text-[10px] font-black uppercase transition-all",
-                                                leadTime === days ? "bg-[#007AFF] text-white font-black" : "bg-gray-50 text-gray-400 hover:text-black"
-                                            )}
-                                        >
-                                            {days / 30}M
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col px-2 lg:px-4 lg:border-r lg:border-gray-100">
-                                <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Prix Conseillé</span>
-                                <div className="flex items-center gap-3 bg-[#F5F5F7] px-4 py-2 rounded-xl border border-blue-100">
-                                    <Sparkles className="w-3.5 h-3.5 text-[#007AFF]" />
-                                    <span className="text-xs md:text-sm font-black text-black">
-                                        {strategicAnalysis?.priceRange.min}€ - {strategicAnalysis?.priceRange.max}€
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col px-2 lg:px-4 flex-1">
-                                <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Matières Détectées</span>
-                                <div className="flex flex-wrap gap-1.5">
-                                    {result.materials.map(m => (
-                                        <span key={m} className="px-2 py-1 rounded-md bg-gray-50 border border-gray-100 text-[9px] font-black uppercase text-gray-500 tracking-tighter">{m}</span>
-                                    ))}
-                                </div>
-                            </div>
+                    <div className="max-w-[1600px] mx-auto p-6 md:p-12 space-y-10">
+                        {/* KPI Grid Section */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <TopKpiCard title="SCORE DE VIRALITÉ" value={`${result.trendScore}/100`} sub="Momentum Actuel" icon={Zap} color="text-yellow-500" />
+                            <TopKpiCard title="POTENTIEL SORTIE" value={`${futureScore}/100`} sub={`Le ${chartData[chartData.length - 1]?.date}`} icon={TrendingUp} color={futureScore >= result.trendScore ? "text-green-500" : "text-red-500"} highlight={true} />
+                            <TopKpiCard title="PROJECTION PRIX" value={`${strategicAnalysis?.priceRange.max}€`} sub="Max Target Conseillé" icon={DollarSign} color="text-emerald-500" />
+                            <TopKpiCard title="FIABILITÉ SCAN" value={`${reliabilityIndex}%`} sub="Data Confidence" icon={Target} color="text-blue-500" />
                         </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        {/* Analysis Hub */}
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                             {/* Main Chart Section */}
-                            <div className="lg:col-span-8 bg-white rounded-[32px] md:rounded-[40px] p-6 md:p-10 shadow-sm border border-gray-100 flex flex-col min-h-[500px]">
-                                <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-8">
+                            <div className="lg:col-span-8 bg-white rounded-[48px] p-8 md:p-12 shadow-apple border border-white relative flex flex-col min-h-[600px]">
+                                <div className="flex flex-col sm:flex-row justify-between items-start gap-8 mb-12">
                                     <div>
-                                        <h2 className="text-xl md:text-2xl font-black text-black uppercase tracking-tight mb-2">Demande Globale</h2>
-                                        <p className="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest">Data Viralité TikTok & Instagram</p>
+                                        <h2 className="text-3xl font-black text-black uppercase tracking-tight mb-2">Courbe Prédictive 90j</h2>
+                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Base de données : 12M+ points d&apos;influence</p>
                                     </div>
-                                    <div className="flex flex-col items-start sm:items-end">
-                                        <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Score Actuel</span>
-                                        <div className={cn(
-                                            "text-2xl md:text-3xl font-black flex items-center gap-2",
-                                            result.trendScore >= 80 ? "text-[#34C759]" : result.trendScore > 50 ? "text-[#FF9500]" : "text-[#FF3B30]"
-                                        )}>
-                                            {result.trendScore}
+
+                                    <div className="flex flex-col items-end gap-3 bg-gray-50 px-6 py-4 rounded-3xl border border-black/5">
+                                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Lead Time (Production)</span>
+                                        <div className="flex gap-2">
+                                            {[30, 60, 90].map(days => (
+                                                <button
+                                                    key={days}
+                                                    onClick={() => setLeadTime(days)}
+                                                    className={cn(
+                                                        "px-5 py-2.5 rounded-xl text-[10px] font-black transition-all",
+                                                        leadTime === days ? "bg-black text-white shadow-xl" : "bg-white text-gray-400 border border-black/5 hover:text-black"
+                                                    )}
+                                                >
+                                                    {days / 30} MOIS
+                                                </button>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="flex-1 min-h-[350px] md:min-h-[400px] w-full relative">
-                                    {/* Overlay pour le plan gratuit */}
+                                <div className="flex-1 w-full relative">
                                     {isFree && (
-                                        <div className="absolute inset-0 z-30 flex items-center justify-center p-6 bg-white/20 backdrop-blur-[6px] rounded-3xl">
-                                            <div className="max-w-xs w-full bg-white/95 shadow-2xl rounded-[32px] p-8 text-center border border-blue-100 animate-in zoom-in-95 duration-500">
-                                                <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-[#007AFF]">
-                                                    <LockIcon className="w-7 h-7" />
+                                        <div className="absolute inset-0 z-[30] flex items-center justify-center p-6 bg-white/40 backdrop-blur-[10px] rounded-[32px]">
+                                            <div className="max-w-sm w-full bg-white shadow-2xl rounded-[40px] p-10 text-center border border-black/5 animate-in zoom-in-95 duration-500">
+                                                <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-8 text-[#007AFF]">
+                                                    <LockIcon className="w-8 h-8" />
                                                 </div>
-                                                <h4 className="text-xl font-black uppercase tracking-tight text-black mb-3">Prédictions Verrouillées</h4>
-                                                <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider leading-relaxed mb-6">
-                                                    Débloquez la courbe de tendance à 90 jours et nos algorithmes prédictifs.
+                                                <h4 className="text-2xl font-black uppercase tracking-tight text-black mb-4">Fonction Premium</h4>
+                                                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest leading-relaxed mb-8">
+                                                    Upgradez pour débloquer l&apos;intégralité de la courbe prédictive.
                                                 </p>
-                                                <Link href="/auth/choose-plan" className="inline-flex w-full items-center justify-center h-12 rounded-full bg-[#007AFF] text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 hover:bg-blue-600 transition-all">
+                                                <Link href="/auth/choose-plan" className="inline-flex w-full items-center justify-center h-14 rounded-2xl bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-apple hover:scale-105 transition-all">
                                                     Passer au Plan Créateur
                                                 </Link>
                                             </div>
                                         </div>
                                     )}
 
-                                    {(() => {
-                                        const todayScore = chartData[30]?.value || 0;
-                                        const yesterdayScore = chartData[29]?.value || 0;
-                                        const isPositive = todayScore >= yesterdayScore;
-                                        return (
-                                            <PredictiveChart
-                                                data={chartData}
-                                                color={isPositive ? "#34C759" : "#FF3B30"}
-                                                predictionColor="#007AFF"
-                                            />
-                                        );
-                                    })()}
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PredictiveChart
+                                            data={chartData}
+                                            color={futureScore >= result.trendScore ? "#34C759" : "#FF3B30"}
+                                            predictionColor="#007AFF"
+                                        />
+                                    </ResponsiveContainer>
                                 </div>
                             </div>
 
                             {/* Sidebar Recommendation */}
-                            <div className="lg:col-span-4 space-y-6">
-                                <div className="bg-white rounded-[32px] md:rounded-[40px] p-6 md:p-8 shadow-sm border border-gray-100 relative overflow-hidden h-full flex flex-col">
-                                    <h3 className="text-[10px] md:text-xs font-black uppercase tracking-widest text-[#007AFF] mb-8 flex items-center gap-2">
-                                        <Zap className="w-4 h-4" /> RECOMMANDATIONS
+                            <div className="lg:col-span-4 space-y-8">
+                                <div className="bg-white rounded-[48px] p-8 md:p-10 shadow-apple border border-white flex flex-col h-full overflow-hidden">
+                                    <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#007AFF] mb-10 flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
+                                            <Zap className="w-4 h-4" />
+                                        </div>
+                                        ANALYSE EXPERTE
                                     </h3>
 
-                                    <div className="space-y-6 flex-1 flex flex-col">
-                                        <div className="bg-[#F8F9FA] rounded-[32px] p-6 relative overflow-hidden border border-gray-100">
+                                    <div className="space-y-10 flex-1 flex flex-col">
+                                        {/* Strategic Card Premium */}
+                                        <div className="bg-gray-50/50 rounded-[40px] p-8 relative overflow-hidden border border-black/5">
                                             <div className={cn(
-                                                "absolute top-0 left-0 w-full h-1.5",
+                                                "absolute top-0 left-0 w-full h-1",
                                                 strategicAnalysis?.recommendationLevel === "OPTIMAL" ? "bg-[#34C759]" :
                                                     strategicAnalysis?.recommendationLevel === "PRUDENT" ? "bg-[#FF9500]" : "bg-[#FF3B30]"
                                             )} />
 
-                                            <div className="flex items-center justify-between mb-6">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-2 h-2 rounded-full animate-pulse bg-[#007AFF]" />
-                                                    <span className="text-[8px] md:text-[9px] font-black uppercase text-gray-400">Scan Status</span>
+                                            <div className="flex items-center justify-between mb-8">
+                                                <div className="px-4 py-1.5 bg-white rounded-full shadow-sm border border-black/5">
+                                                    <span className="text-[10px] font-black text-black uppercase tracking-widest">{strategicAnalysis?.targetMonth}</span>
                                                 </div>
-                                                <div className="px-3 py-1 bg-white rounded-full shadow-sm border border-gray-100">
-                                                    <span className="text-[9px] font-black text-black uppercase">{strategicAnalysis?.targetMonth}</span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[9px] font-black uppercase text-gray-400">Fiabilité {reliabilityIndex}%</span>
                                                 </div>
                                             </div>
 
                                             <h4 className={cn(
-                                                "text-lg md:text-xl font-black uppercase tracking-tight leading-tight mb-4",
+                                                "text-2xl font-black uppercase tracking-tighter leading-none mb-6",
                                                 strategicAnalysis?.recommendationLevel === "OPTIMAL" ? "text-[#34C759]" : "text-black"
                                             )}>
                                                 {strategicAnalysis?.recommendationLevel === "OPTIMAL" ? "Lancement Optimal" :
-                                                    strategicAnalysis?.recommendationLevel === "PRUDENT" ? "Lancement Prudent" : "Risque Élevé"}
+                                                    strategicAnalysis?.recommendationLevel === "PRUDENT" ? "Opportunité Prudente" : "Risque Critiqué"}
                                             </h4>
 
-                                            <p className="text-[11px] md:text-sm text-gray-600 font-bold leading-relaxed mb-6 text-center sm:text-justify italic">
+                                            <p className="text-sm text-gray-600 font-bold leading-relaxed mb-8 italic">
                                                 {isFree ? "Analyse détaillée réservée au plan Créateur. Upgradez pour voir les recommandations de lancement spécifiques." : strategicAnalysis?.commentary}
                                             </p>
 
                                             <div className={cn(
-                                                "grid grid-cols-2 gap-4 pt-6 border-t border-gray-200/50",
+                                                "grid grid-cols-2 gap-4 pt-8 border-t border-black/5",
                                                 isFree && "blur-md select-none pointer-events-none opacity-50"
                                             )}>
-                                                <div>
-                                                    <span className="text-[8px] font-black text-gray-400 uppercase block mb-1 text-center">Opportunité</span>
+                                                <div className="bg-white p-4 rounded-3xl border border-black/5 shadow-sm">
+                                                    <span className="text-[8px] font-black text-gray-400 uppercase block mb-1.5 text-center">Opportunité</span>
                                                     <div className={cn(
                                                         "text-center font-black text-[10px] px-2 py-0.5 rounded-full border",
                                                         strategicAnalysis?.marginLevel === "PEAK" ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20" :
@@ -574,52 +597,54 @@ export function VisualTrendScanner() {
                                                             strategicAnalysis?.marginLevel === "STABLE" ? "STABLE" : "LIMITÉE"}
                                                     </div>
                                                 </div>
-                                                <div>
-                                                    <span className="text-[8px] font-black text-gray-400 uppercase block mb-1 text-center">Score Projecté</span>
+                                                <div className="bg-white p-4 rounded-3xl border border-black/5 shadow-sm">
+                                                    <span className="text-[8px] font-black text-gray-400 uppercase block mb-1.5 text-center">Tendance</span>
                                                     <div className={cn(
-                                                        "text-center font-black text-sm",
-                                                        futureScore >= result.trendScore ? "text-[#34C759]" : "text-[#FF3B30]"
-                                                    )}>{futureScore}</div>
+                                                        "text-center font-black text-[10px] px-2 py-0.5 rounded-full border",
+                                                        futureScore >= result.trendScore ? "bg-green-50 text-[#34C759] border-green-100" : "bg-red-50 text-[#FF3B30] border-red-100"
+                                                    )}>
+                                                        {futureScore >= result.trendScore ? 'HAUSSE' : 'BAISSE'}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
 
+                                        {/* Verdict Card */}
                                         <div className={cn(
-                                            "bg-blue-50/30 rounded-[32px] p-6 border border-blue-100/30",
-                                            isFree && "blur-sm select-none pointer-events-none opacity-50"
+                                            "bg-[#007AFF] rounded-[40px] p-8 text-white relative overflow-hidden shadow-apple",
+                                            isFree && "opacity-50 blur-sm"
                                         )}>
-                                            <div className="flex items-center gap-2 bg-gradient-to-r from-[#007AFF15] to-transparent px-3 py-1.5 rounded-full border border-[#007AFF20]">
-                                                <Zap className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500/20" />
-                                                <span className="text-[10px] font-bold text-[#007AFF] uppercase tracking-wider">Verdict Tendance</span>
-                                                <div className="w-1 h-1 rounded-full bg-[#007AFF40]" />
-                                                <span className="text-[9px] font-black uppercase tracking-widest text-[#007AFF60]">Analyse Vision</span>
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
+                                                    <Target className="w-5 h-5 text-white" />
+                                                </div>
+                                                <span className="text-xs font-black uppercase tracking-[0.2em]">Verdict Marché</span>
                                             </div>
-                                            <p className="text-[11px] md:text-xs font-bold italic text-gray-600 leading-relaxed text-center sm:text-justify mt-4">
+                                            <p className="text-sm font-bold leading-relaxed opacity-95">
                                                 "{isFree ? "Le scan visuel a détecté un potentiel intéressant. Upgradez pour lire l'analyse complète de l'IA." : result.analysis}"
                                             </p>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
 
                         {/* DB Matches Section */}
                         {result.dbMatches.length > 0 && (
-                            <div className="space-y-6">
-                                <div className="flex items-center gap-4">
-                                    <h3 className="text-sm font-black uppercase tracking-widest text-black">Références Marché Similaires</h3>
-                                    <div className="h-px bg-gray-200 flex-1" />
+                            <div className="space-y-10 pt-10">
+                                <div className="flex items-center gap-6">
+                                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-black shrink-0">Réseaux similaires</h3>
+                                    <div className="h-px bg-black/5 flex-1" />
                                 </div>
-                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
                                     {result.dbMatches.map((match: ProductMatch) => (
-                                        <Card key={match.id} className="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all overflow-hidden group">
-                                            <div className="aspect-[4/5] rounded-xl overflow-hidden bg-gray-50 mb-3 relative">
-                                                <img src={match.imageUrl} alt={match.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                        <Card key={match.id} className="bg-white p-3 rounded-[32px] shadow-apple-sm border border-white hover:shadow-apple transition-all overflow-hidden group">
+                                            <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-gray-50 mb-4 relative">
+                                                <img src={match.imageUrl} alt={match.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                             </div>
-                                            <div className="px-1 min-w-0">
-                                                <p className="text-[10px] font-black uppercase truncate text-black leading-tight">{match.name}</p>
-                                                <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">{match.style}</p>
+                                            <div className="px-2 min-w-0">
+                                                <p className="text-[11px] font-black uppercase truncate text-black leading-tight mb-1">{match.name}</p>
+                                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{match.style}</p>
                                             </div>
                                         </Card>
                                     ))}
@@ -628,55 +653,55 @@ export function VisualTrendScanner() {
                         )}
 
                         {/* Extra Details Row */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <Card className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center">
-                                        <Palette className="w-5 h-5 text-gray-400" />
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-10">
+                            <Card className="bg-white rounded-[32px] p-8 shadow-apple border border-white">
+                                <div className="flex items-center gap-5">
+                                    <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400">
+                                        <Palette className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <span className="text-[8px] font-black text-gray-400 uppercase block">Couleurs Détectées</span>
-                                        <div className="flex gap-1.5 mt-1">
+                                        <span className="text-[9px] font-black text-gray-400 uppercase block mb-2">Palette débloquée</span>
+                                        <div className="flex gap-2">
                                             {result.colors.map(c => (
-                                                <div key={c} className="w-4 h-4 rounded-full border border-gray-100 shadow-sm" style={{ backgroundColor: c.toLowerCase() }} title={c} />
+                                                <div key={c} className="w-5 h-5 rounded-full border border-black/5 shadow-sm" style={{ backgroundColor: c.toLowerCase() }} />
                                             ))}
                                         </div>
                                     </div>
                                 </div>
                             </Card>
 
-                            <Card className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center">
-                                        <TrendingUp className="w-5 h-5 text-gray-400" />
+                            <Card className="bg-white rounded-[32px] p-8 shadow-apple border border-white">
+                                <div className="flex items-center gap-5">
+                                    <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400">
+                                        <TrendingUp className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <span className="text-[8px] font-black text-gray-400 uppercase block">Cycle de vie</span>
-                                        <span className="text-xs font-black uppercase">{result.cyclePhase}</span>
+                                        <span className="text-[9px] font-black text-gray-400 uppercase block mb-1">Cycle de vie</span>
+                                        <span className="text-sm font-black uppercase text-black">{result.cyclePhase}</span>
                                     </div>
                                 </div>
                             </Card>
 
-                            <Card className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center">
-                                        <Activity className="w-5 h-5 text-gray-400" />
+                            <Card className="bg-white rounded-[32px] p-8 shadow-apple border border-white">
+                                <div className="flex items-center gap-5">
+                                    <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400">
+                                        <Activity className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <span className="text-[8px] font-black text-gray-400 uppercase block">Type de Style</span>
-                                        <span className="text-xs font-black uppercase">{result.style}</span>
+                                        <span className="text-[9px] font-black text-gray-400 uppercase block mb-1">Inférence Style</span>
+                                        <span className="text-sm font-black uppercase text-black">{result.style}</span>
                                     </div>
                                 </div>
                             </Card>
 
-                            <Card className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center">
-                                        <DollarSign className="w-5 h-5 text-gray-400" />
+                            <Card className="bg-white rounded-[32px] p-8 shadow-apple border border-white">
+                                <div className="flex items-center gap-5">
+                                    <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400">
+                                        <DollarSign className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <span className="text-[8px] font-black text-gray-400 uppercase block">Verdict Prix</span>
-                                        <span className="text-xs font-black uppercase">{strategicAnalysis?.priceRange.max}€ Target</span>
+                                        <span className="text-[9px] font-black text-gray-400 uppercase block mb-1">Pricing Target</span>
+                                        <span className="text-sm font-black uppercase text-black">{strategicAnalysis?.priceRange.max}€ TTC</span>
                                     </div>
                                 </div>
                             </Card>
@@ -684,10 +709,45 @@ export function VisualTrendScanner() {
                     </div>
                 </div>
             )}
-            <p className="max-w-4xl mx-auto px-6 text-[10px] text-[#86868B] text-center mt-12 font-medium leading-relaxed">
-                Les analyses et prédictions de tendances sont basées sur des algorithmes de données et constituent un outil d'aide à la décision. <br />
-                Elles ne garantissent pas les ventes futures ni le succès commercial d'un vêtement.
+            <p className="max-w-4xl mx-auto px-6 text-[11px] text-[#86868B] text-center mt-20 font-bold uppercase tracking-widest leading-relaxed opacity-50">
+                PROPELL-IVS V2.4 • MOTEUR PRÉDICTIF NEURONAL • COPYRIGHT BIANGORY 2026
             </p>
         </div>
     );
 }
+
+interface TopKpiCardProps {
+    title: string;
+    value: string | number;
+    sub: string;
+    icon: any;
+    color: string;
+    highlight?: boolean;
+}
+
+function TopKpiCard({ title, value, sub, icon: Icon, color, highlight }: TopKpiCardProps) {
+    return (
+        <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            whileHover={{ y: -5 }}
+            className={cn(
+                "rounded-[40px] p-8 shadow-apple border border-white flex items-start justify-between transition-all relative overflow-hidden",
+                highlight ? "bg-white ring-4 ring-[#007AFF]/5" : "bg-white/90 backdrop-blur-sm"
+            )}
+        >
+            <div className="relative z-10">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-3">{title}</h3>
+                <div className={cn("text-4xl font-black mb-2 tracking-tighter tabular-nums leading-none", highlight ? "text-[#007AFF]" : "text-black")}>{value}</div>
+                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{sub}</div>
+            </div>
+            <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center relative shrink-0", highlight ? "bg-blue-50" : "bg-gray-50", color)}>
+                <Icon className="w-7 h-7" />
+            </div>
+            {highlight && (
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#007AFF]/5 blur-3xl rounded-full translate-x-12 -translate-y-12" />
+            )}
+        </motion.div>
+    );
+}
+
