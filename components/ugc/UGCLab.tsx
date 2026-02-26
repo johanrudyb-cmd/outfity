@@ -31,7 +31,9 @@ interface Brand {
   id: string;
   name: string;
   logo?: string | null;
-  colorPalette?: Record<string, string> | null;
+  colorPalette?: any;
+  typography?: any;
+  styleGuide?: any;
 }
 
 interface UGCLabProps {
