@@ -54,7 +54,7 @@ export async function sendWebPushNotification(userId: string, message: PushMessa
                         p256dh: sub.p256dh,
                         auth: sub.auth
                     }
-                }, payload).catch(async (e) => {
+                }, payload).catch(async (e: any) => {
                     if (e.statusCode === 404 || e.statusCode === 410) {
                         // Subscription expired or unsubscribed
                         await prisma.pushSubscription.delete({ where: { id: sub.id } });
@@ -104,7 +104,7 @@ export async function broadcastWebPushNotification(message: PushMessage) {
                         p256dh: sub.p256dh,
                         auth: sub.auth
                     }
-                }, payload).catch(async (e) => {
+                }, payload).catch(async (e: any) => {
                     if (e.statusCode === 404 || e.statusCode === 410) {
                         try {
                             await prisma.pushSubscription.delete({ where: { id: sub.id } });
