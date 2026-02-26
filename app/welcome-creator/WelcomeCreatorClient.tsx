@@ -295,24 +295,31 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo }: { userN
                             <div className="space-y-3 text-left">
                                 {(!hasStrategy || !hasLogo
                                     ? [
-                                        ...(!hasStrategy ? [{ num: '01', title: 'Générer ma Stratégie', href: '/launch-map/phase/1', color: '#ff3b30', desc: 'Obligatoire. Virgil a besoin de ton ADN pour t\'aider.' }] : []),
-                                        ...(!hasLogo ? [{ num: !hasStrategy ? '02' : '01', title: 'Créer mon Logo', href: '/launch-map/phase/2', color: '#ff3b30', desc: 'Obligatoire. Pharrell en a besoin pour tes designs.' }] : []),
-                                        { num: !hasStrategy && !hasLogo ? '03' : '02', title: 'Plus tard', href: '#', onClick: (e: any) => { e.preventDefault(); try { localStorage.setItem('show_tutorial_next', '1'); } catch (_) { } router.push('/dashboard?tutorial=1'); }, color: '#86868B', desc: 'Je ferai ça plus tard (déconseillé)' }
+                                        // Stratégie en premier, toujours
+                                        ...(!hasStrategy ? [{ num: '01', title: 'Générer ma Stratégie', href: '/launch-map/phase/1', color: '#ff3b30', desc: 'Obligatoire. Virgil a besoin de ton ADN pour t\'aider.', locked: false }] : []),
+                                        // Logo seulement si stratégie déjà faite
+                                        ...(!hasLogo && hasStrategy ? [{ num: '01', title: 'Créer mon Logo', href: '/launch-map/phase/2', color: '#ff3b30', desc: 'Obligatoire. Pharrell en a besoin pour tes designs.', locked: false }] : []),
+                                        // Logo verrouillé si stratégie pas encore faite
+                                        ...(!hasLogo && !hasStrategy ? [{ num: '02', title: 'Créer mon Logo', href: '#', color: '#555', desc: '🔒 Étape disponible après la Stratégie', locked: true }] : []),
+                                        { num: !hasStrategy && !hasLogo ? '03' : '02', title: 'Plus tard', href: '#', onClick: (e: any) => { e.preventDefault(); try { localStorage.setItem('show_tutorial_next', '1'); } catch (_) { } router.push('/dashboard?tutorial=1'); }, color: '#86868B', desc: 'Je ferai ça plus tard (déconseillé)', locked: false }
                                     ]
                                     : [
-                                        { num: '01', title: 'Génère ta Stratégie de Marque', href: '/launch-map/phase/1', color: '#007AFF', desc: 'Virgil analyse ton univers et crée ton ADN de marque complet.' },
-                                        { num: '02', title: 'Lance ton premier Design', href: '/launch-map/phase/2', color: '#a032ff', desc: 'Pharrell génère tes mockups et Tech Pack en quelques minutes.' },
-                                        { num: '03', title: 'Configure ton E-shop', href: '/launch-map/phase/5', color: '#ffaa00', desc: 'Johan t\'aide à lancer ta boutique Shopify optimisée.' },
+                                        { num: '01', title: 'Génère ta Stratégie de Marque', href: '/launch-map/phase/1', color: '#007AFF', desc: 'Virgil analyse ton univers et crée ton ADN de marque complet.', locked: false },
+                                        { num: '02', title: 'Lance ton premier Design', href: '/launch-map/phase/2', color: '#a032ff', desc: 'Pharrell génère tes mockups et Tech Pack en quelques minutes.', locked: false },
+                                        { num: '03', title: 'Configure ton E-shop', href: '/launch-map/phase/5', color: '#ffaa00', desc: 'Johan t\'aide à lancer ta boutique Shopify optimisée.', locked: false },
                                     ]
                                 ).map((item, i) => (
                                     <motion.a
-                                        key={item.num}
-                                        href={item.href}
-                                        onClick={"onClick" in item ? item.onClick : undefined}
+                                        key={item.num + item.title}
+                                        href={item.locked ? undefined : item.href}
+                                        onClick={'onClick' in item ? item.onClick : undefined}
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: i * 0.15 + 0.2 }}
-                                        className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-white/25 hover:bg-white/8 transition-all group"
+                                        className={`flex items-center gap-4 p-4 rounded-2xl border transition-all group ${item.locked
+                                                ? 'bg-white/2 border-white/5 cursor-not-allowed opacity-40'
+                                                : 'bg-white/5 border-white/10 hover:border-white/25 cursor-pointer'
+                                            }`}
                                     >
                                         <div
                                             className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 font-black text-sm"
