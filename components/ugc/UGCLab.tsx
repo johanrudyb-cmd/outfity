@@ -275,6 +275,7 @@ export function UGCLab({ brandId, brandName, designs = [], brand, userPlan = 'fr
                 <VirtualTryOn
                   brandId={brandId}
                   designs={designs}
+                  userPlan={userPlan}
                   onSelectImage={(url) => {
                     setSelectedImageUrl(url);
                     setActiveTab('scripts');
@@ -287,6 +288,7 @@ export function UGCLab({ brandId, brandName, designs = [], brand, userPlan = 'fr
               <ShootingPhoto
                 brandId={brandId}
                 designs={designs}
+                userPlan={userPlan}
                 onSwitchToTryOn={() => setActiveTab('tryon')}
                 onSelectImage={(url) => {
                   setSelectedImageUrl(url);

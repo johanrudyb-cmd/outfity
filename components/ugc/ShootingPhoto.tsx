@@ -42,6 +42,7 @@ interface ShootingPhotoProps {
   designs?: ShootingDesign[];
   onSwitchToTryOn?: () => void;
   onSelectImage?: (url: string) => void;
+  userPlan?: string;
 }
 
 const GARMENT_TYPES = ['T-shirt', 'Hoodie', 'Sweatshirt', 'Pantalon', 'Short', 'Veste'] as const;
@@ -294,12 +295,11 @@ function buildScenePrompt(options: {
 
 type ShootingMode = 'product' | 'mannequin';
 
-export function ShootingPhoto({ brandId, designs: initialDesigns, onSwitchToTryOn, onSelectImage }: ShootingPhotoProps) {
+export function ShootingPhoto({ brandId, designs: initialDesigns, onSwitchToTryOn, onSelectImage, userPlan = 'free' }: ShootingPhotoProps) {
   const photoQuota = useQuota('ugc_shooting_photo');
   const productQuota = useQuota('ugc_shooting_product');
-  const { data: session } = useSession();
   const { mutate } = useSWRConfig();
-  const isFree = isFreePlan((session?.user as any)?.plan);
+  const isFree = isFreePlan(userPlan);
   const [shootingMode, setShootingMode] = useState<ShootingMode>('mannequin');
 
   const { data: mannequinsData, isLoading: loadingMannequins } = useSWR<Mannequin[]>(

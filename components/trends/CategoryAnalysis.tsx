@@ -32,6 +32,7 @@ interface CategoryAnalysisProps {
     categoryId: string;
     categoryLabel: string;
     initialSegment?: string;
+    userPlan?: string;
 }
 
 function aggregateProductsToStyles(products: TrendProduct[], categoryId: string): TrendStyleGroup[] {
@@ -78,7 +79,7 @@ function aggregateProductsToStyles(products: TrendProduct[], categoryId: string)
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
-export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = 'homme' }: CategoryAnalysisProps) {
+export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = 'homme', userPlan = 'free' }: CategoryAnalysisProps) {
     const [styles, setStyles] = useState<TrendStyleGroup[]>([]);
     const [rawProducts, setRawProducts] = useState<TrendProduct[]>([]);
     const [stats, setStats] = useState({ lastUpdate: '', newCount: 0 });
@@ -89,9 +90,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
     const [globalScore, setGlobalScore] = useState(50);
     const [globalDiff, setGlobalDiff] = useState(0);
 
-    const { data: session } = useSession();
-    const user = session?.user as User | undefined;
-    const isFree = isFreePlan(user?.plan);
+    const isFree = isFreePlan(userPlan);
 
     // Force 1M leadTime for free users
     useEffect(() => {

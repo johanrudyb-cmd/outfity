@@ -1,6 +1,7 @@
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { CategoryAnalysis } from '@/components/trends/CategoryAnalysis';
 import { redirect } from 'next/navigation';
+import { getCurrentUser } from '@/lib/auth-helpers';
 
 const CATEGORY_MAP: Record<string, string> = {
     't-shirts': 'TSHIRT',
@@ -27,6 +28,9 @@ export default async function CategoryPage({
     params: Promise<{ catId: string }>,
     searchParams: Promise<{ segment?: string }>
 }) {
+    const user = await getCurrentUser();
+    if (!user) redirect('/auth/signin');
+
     const { catId } = await params;
     const { segment } = await searchParams;
 
@@ -43,6 +47,7 @@ export default async function CategoryPage({
                 categoryId={dbCategory}
                 categoryLabel={label}
                 initialSegment={segment || 'homme'}
+                userPlan={user.plan}
             />
         </DashboardLayout>
     );

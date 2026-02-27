@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import useSWR from 'swr';
 import { Lock, Sparkles, ArrowLeft } from 'lucide-react';
 import { isFreePlan } from '@/lib/plan-utils';
 
@@ -42,21 +43,27 @@ function isPaywalledPath(pathname: string): boolean {
   return false;
 }
 
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
 export function PaywallGate({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session, status } = useSession();
-  const user = session?.user as any;
-  const loading = status === 'loading';
-  const [showPaywall, setShowPaywall] = useState(false);
 
+  const { data: userPlanData, isLoading: isSWRloading } = useSWR('/api/user/plan', fetcher);
+
+  const loading = status === 'loading' || isSWRloading;
+  const user = session?.user as any;
+  const planToUse = userPlanData?.plan ?? user?.plan;
+
+  const [showPaywall, setShowPaywall] = useState(false);
 
   useEffect(() => {
     if (loading) return;
-    const isFree = isFreePlan(user?.plan);
+    const isFree = isFreePlan(planToUse);
     const isPathPaywalled = isPaywalledPath(pathname || '');
     setShowPaywall(!!(isFree && isPathPaywalled));
-  }, [loading, user?.plan, pathname]);
+  }, [loading, planToUse, pathname]);
 
   // Toujours la même structure racine pour éviter hydration mismatch
   if (showPaywall) {

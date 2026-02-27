@@ -24,6 +24,7 @@ const fetcher = (url: string) => fetch(url).then(res => res.json());
 interface ScriptGeneratorProps {
   brandId: string;
   brandName: string;
+  userPlan?: string;
 }
 
 interface Script {
@@ -37,13 +38,12 @@ interface Collection {
   name: string;
 }
 
-export function ScriptGenerator({ brandId, brandName }: ScriptGeneratorProps) {
+export function ScriptGenerator({ brandId, brandName, userPlan = 'free' }: ScriptGeneratorProps) {
   const scriptsQuota = useQuota('ugc_scripts');
   const { toast } = useToast();
   const openSurplusModal = useSurplusModal();
   const router = useRouter();
-  const { data: session } = useSession();
-  const isFree = isFreePlan((session?.user as any)?.plan);
+  const isFree = isFreePlan(userPlan);
 
   const handleUpgradeClick = () => {
     if (isFree) router.push('/auth/choose-plan');

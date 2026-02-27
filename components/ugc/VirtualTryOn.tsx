@@ -83,9 +83,10 @@ interface VirtualTryOnProps {
   brandId: string;
   designs: Design[];
   onSelectImage?: (url: string) => void;
+  userPlan?: string;
 }
 
-export function VirtualTryOn({ brandId, designs, onSelectImage }: VirtualTryOnProps) {
+export function VirtualTryOn({ brandId, designs, onSelectImage, userPlan = 'free' }: VirtualTryOnProps) {
   const [stepIndex, setStepIndex] = useState(0);
 
   const { data: strategyData } = useSWR<StrategyContext>(
