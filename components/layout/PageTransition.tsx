@@ -19,10 +19,8 @@ export function PageTransition({ children, className }: PageTransitionProps) {
 
   return (
     <div
-      key={pathname}
       className={cn(
         'w-full flex-1 flex flex-col',
-        'animate-in fade-in slide-in-from-bottom-2 duration-300 ease-apple',
         className
       )}
     >

@@ -1,27 +1,23 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-
 export default function Loading() {
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    if (!mounted) return null;
-
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/50 backdrop-blur-sm transition-opacity duration-300">
-            <div className="flex flex-col items-center gap-4">
-                {/* Apple Style Spinner */}
-                <div className="relative w-12 h-12">
-                    <div className="absolute inset-0 border-4 border-[#F5F5F7] rounded-full"></div>
-                    <div className="absolute inset-0 border-4 border-t-[#007AFF] rounded-full animate-spin"></div>
+        <div className="flex-1 flex flex-col bg-[#F5F5F7] animate-in fade-in duration-200">
+            {/* Top bar shimmer */}
+            <div className="h-14 bg-white border-b border-black/5 flex items-center px-6 gap-4">
+                <div className="w-8 h-8 rounded-xl bg-[#F5F5F7] animate-pulse" />
+                <div className="w-32 h-4 rounded-lg bg-[#F5F5F7] animate-pulse" />
+            </div>
+            {/* Content skeleton */}
+            <div className="flex-1 p-6 space-y-6 max-w-7xl mx-auto w-full">
+                <div className="space-y-3">
+                    <div className="w-48 h-6 rounded-lg bg-white animate-pulse" />
+                    <div className="w-72 h-4 rounded-lg bg-white/60 animate-pulse" />
                 </div>
-                <p className="text-sm font-medium text-[#1D1D1F]/60 animate-pulse">
-                    Chargement...
-                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="h-32 rounded-3xl bg-white animate-pulse border border-black/5" />
+                    ))}
+                </div>
+                <div className="h-64 rounded-3xl bg-white animate-pulse border border-black/5" />
             </div>
         </div>
     );
