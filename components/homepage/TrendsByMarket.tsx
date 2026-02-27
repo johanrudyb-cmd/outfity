@@ -148,7 +148,7 @@ export default function TrendsByMarket() {
 
                             <Link href="/launch-map" className="block w-full mt-10 relative z-30">
                                 <button className="w-full py-4 bg-white text-black rounded-2xl text-[10px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0 hover:bg-gray-100">
-                                    {isFree ? 'Tester la Stratégie' : 'Consulter les prédictions'}
+                                    {isFree ? 'Analyser la tendance' : 'Consulter les prédictions'}
                                 </button>
                             </Link>
                         </motion.div>
