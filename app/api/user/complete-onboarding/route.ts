@@ -76,15 +76,20 @@ export async function POST(request: Request) {
 
         // 2. Marquer l'onboarding comme complété
         const dbUser = await prisma.user.findUnique({ where: { id: authUser.id }, select: { plan: true } });
-        const currentPlan = dbUser?.plan || authUser.plan;
+        const currentDbPlan = dbUser?.plan;
 
+        console.log('[Onboarding] Plan check - Request body plan:', plan, ' | DB current plan:', currentDbPlan);
+
+        // Déterminer le plan final : Si déjà payant ou si le flux dit payant -> Créateur
         // Ne JAMAIS rétrograder un plan Créateur vers Starter lors de l'onboarding
         let targetPlan: string;
-        if (isPaidPlan(plan) || isPaidPlan(currentPlan)) {
-            targetPlan = 'creator';
+        if (isPaidPlan(currentDbPlan) || isPaidPlan(plan)) {
+            targetPlan = 'creator'; // Unification vers 'creator' pour tous les accès payants
         } else {
             targetPlan = 'starter';
         }
+
+        console.log('[Onboarding] Setting target plan:', targetPlan);
 
         await prisma.user.update({
             where: { id: authUser.id },

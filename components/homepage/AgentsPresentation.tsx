@@ -91,7 +91,7 @@ export function AgentsPresentation() {
                                 className="absolute inset-0 z-0"
                                 animate={{ scale: hoveredAgent === agent.name ? 1.05 : 1 }}
                             >
-                                <img src={agent.image} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt={agent.name} />
+                                <img src={agent.image} className="w-full h-full object-cover transition-all duration-700" alt={agent.name} />
                                 <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-all" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                             </motion.div>
@@ -165,7 +165,7 @@ export function AgentsPresentation() {
                         <div key={agent.name} className="bg-[#F5F5F7] rounded-[32px] overflow-hidden border border-black/[0.03] group active:scale-[0.98] transition-all">
                             <div className="flex flex-col h-full">
                                 <div className="relative h-72 sm:h-80 overflow-hidden">
-                                    <img src={agent.image} className="w-full h-full object-cover object-top grayscale group-active:grayscale-0 transition-all duration-500" alt={agent.name} />
+                                    <img src={agent.image} className="w-full h-full object-cover object-top transition-all duration-500" alt={agent.name} />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                                     <div className="absolute bottom-4 left-6">
                                         <div className="flex items-center gap-2 mb-1">

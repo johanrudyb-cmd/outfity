@@ -68,9 +68,9 @@ export function TrendsHero() {
         >
           {/* Titre principal */}
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-black tracking-tight text-black mb-6 sm:mb-8 px-2 uppercase leading-[0.95] sm:leading-[0.9]">
-              Créez votre marque avec les données <br className="hidden sm:block" />
-              <span className="text-[#007AFF]">des géants.</span>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-black mb-6 sm:mb-8 px-2 uppercase leading-[0.95] sm:leading-[0.9]">
+              Créez votre marque de vêtements <br className="hidden sm:block" />
+              avec les données <span className="text-[#007AFF]">des géants.</span>
             </h1>
             <p className="text-sm sm:text-lg lg:text-lg text-gray-500 font-medium max-w-2xl mx-auto mb-8 sm:mb-12 px-4 leading-relaxed">
               Propulsez votre univers créatif grâce aux tendances virales de <span className="text-black font-bold">TikTok</span>. Plus besoin de deviner ce qui marchera.

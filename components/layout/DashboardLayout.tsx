@@ -57,7 +57,7 @@ export function DashboardLayout({
   }, [sidebarOpen]);
 
   return (
-    <div className="h-[100dvh] bg-[#F5F5F7] overflow-hidden flex">
+    <div className="h-[100dvh] w-full bg-[#F5F5F7] overflow-hidden flex relative">
       {/* Backdrop mobile quand la sidebar est ouverte */}
       {sidebarOpen && (
         <button
@@ -71,9 +71,9 @@ export function DashboardLayout({
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
-      <div className="flex-1 flex flex-col min-w-0 pl-0 md:pl-[68px] lg:pl-72 transition-[padding] duration-200">
+      <div className="flex-1 flex flex-col min-w-0 pl-0 md:pl-[68px] lg:pl-72 transition-[padding] duration-300 ease-apple overflow-x-hidden">
         <Header onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 relative flex flex-col min-h-0 overflow-y-auto no-scrollbar sm:stylish-scrollbar">
+        <main className="flex-1 relative flex flex-col min-h-0 overflow-y-auto overflow-x-hidden no-scrollbar sm:stylish-scrollbar">
           <ErrorBoundary>
             <PageTransition className="flex-1 min-h-0 flex flex-col">
               <PaywallGate>{children}</PaywallGate>

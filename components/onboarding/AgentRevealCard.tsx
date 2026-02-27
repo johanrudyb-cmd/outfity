@@ -140,7 +140,7 @@ export function AgentRevealCard({ agent, delay = 0, onReveal }: { agent: AgentPr
                         <img
                             src={agent.image}
                             alt={agent.name}
-                            className="w-full h-full object-cover object-top opacity-90 brightness-110 contrast-110 grayscale-[0.2]"
+                            className="w-full h-full object-cover object-top opacity-90 brightness-110 contrast-110"
                         />
                         {/* Inner shadow for depth */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />

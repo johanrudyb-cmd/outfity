@@ -20,7 +20,13 @@ const CREATOR_FEATURES = [
         icon: Palette,
         color: '#a032ff',
         title: 'Studio Design illimité',
-        desc: 'Génère des designs, mockups et Tech Packs complets sans limite grâce à Pharrell.',
+        desc: 'Crée tes propres designs et mockups photo ultra-réalistes avec Pharrell.',
+    },
+    {
+        icon: FileText,
+        color: '#ff6b35',
+        title: 'Tech Packs Professionnels',
+        desc: 'Génère tes fiches techniques de production pour tes usines (Phase 4).',
     },
     {
         icon: TrendingUp,
@@ -29,16 +35,16 @@ const CREATOR_FEATURES = [
         desc: 'Accès aux 100 tendances validées en temps réel + prédictions sur 30/60/90 jours.',
     },
     {
-        icon: FileText,
-        color: '#ff6b35',
-        title: 'Tech Packs Professionnels',
-        desc: 'Documents producteurs complets générés par IA — prêts à envoyer à ton usine.',
-    },
-    {
         icon: ShoppingBag,
         color: '#ffaa00',
         title: 'E-shop & Ventes avec Johan',
         desc: 'Ton nouvel agent personnel optimise ta boutique Shopify et booste ta conversion.',
+    },
+    {
+        icon: Sparkles,
+        color: '#AF52DE',
+        title: 'DA & Réseaux Sociaux avec Joy',
+        desc: 'Crée du contenu viral, des scripts TikTok et gère ton image de marque avec Joy.',
     },
 ];
 
@@ -298,15 +304,15 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo }: { userN
                                         // Stratégie en premier, toujours
                                         ...(!hasStrategy ? [{ num: '01', title: 'Générer ma Stratégie', href: '/launch-map/phase/1', color: '#ff3b30', desc: 'Obligatoire. Virgil a besoin de ton ADN pour t\'aider.', locked: false }] : []),
                                         // Logo seulement si stratégie déjà faite
-                                        ...(!hasLogo && hasStrategy ? [{ num: '01', title: 'Créer mon Logo', href: '/launch-map/phase/2', color: '#ff3b30', desc: 'Obligatoire. Pharrell en a besoin pour tes designs.', locked: false }] : []),
+                                        ...(!hasLogo && hasStrategy ? [{ num: '01', title: 'Créer mon Logo', href: '/launch-map/phase/1', color: '#ff3b30', desc: 'Obligatoire. Utilise le Studio Logo de Virgil pour finaliser ton identité.', locked: false }] : []),
                                         // Logo verrouillé si stratégie pas encore faite
-                                        ...(!hasLogo && !hasStrategy ? [{ num: '02', title: 'Créer mon Logo', href: '#', color: '#555', desc: '🔒 Étape disponible après la Stratégie', locked: true }] : []),
+                                        ...(!hasLogo && !hasStrategy ? [{ num: '02', title: 'Créer mon Logo', href: '#', color: '#555', desc: '🔒 Étape disponible après la Stratégie (Phase 1)', locked: true }] : []),
 
                                     ]
                                     : [
                                         { num: '01', title: 'Génère ta Stratégie de Marque', href: '/launch-map/phase/1', color: '#007AFF', desc: 'Virgil analyse ton univers et crée ton ADN de marque complet.', locked: false },
-                                        { num: '02', title: 'Lance ton premier Design', href: '/launch-map/phase/2', color: '#a032ff', desc: 'Pharrell génère tes mockups et Tech Pack en quelques minutes.', locked: false },
-                                        { num: '03', title: 'Configure ton E-shop', href: '/launch-map/phase/5', color: '#ffaa00', desc: 'Johan t\'aide à lancer ta boutique Shopify optimisée.', locked: false },
+                                        { num: '02', title: 'Crée ta Collection & Designs', href: '/launch-map/phase/2', color: '#a032ff', desc: 'Pharrell génère tes designs et mockups ultra-réalistes.', locked: false },
+                                        { num: '03', title: 'Prépare tes Tech Packs (Phase 4)', href: '/launch-map/phase/4', color: '#ff6b35', desc: 'Génère tes fiches techniques d\'usine basées sur tes pièces.', locked: false },
                                     ]
                                 ).map((item, i) => (
                                     <motion.a

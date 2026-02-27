@@ -120,7 +120,7 @@ export function TrendsByMarket() {
                 idx >= 2 ? "hidden md:block" : "block"
               )}
             >
-              <div className={cn("transition-all duration-500", isFree && "blur-[8px] opacity-50 select-none pointer-events-none")}>
+              <div className="transition-all duration-500">
                 <div className="flex justify-between items-start mb-10">
                   <div className="p-3 rounded-2xl bg-white/50 group-hover:bg-white/10 transition-colors">
                     <span className="text-[10px] font-black text-black group-hover:text-white uppercase tracking-widest">Tendance</span>
@@ -144,19 +144,11 @@ export function TrendsByMarket() {
                 </div>
               </div>
 
-              {isFree && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-20">
-                  <div className="w-12 h-12 rounded-2xl bg-white/90 backdrop-blur-md flex items-center justify-center mb-4 shadow-apple border border-black/5">
-                    <Lock className="w-6 h-6 text-[#007AFF]" />
-                  </div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-black mb-1 group-hover:text-white transition-colors">Données Réservées</p>
-                  <p className="text-[12px] font-black text-[#007AFF] uppercase tracking-tighter leading-none">Plan Créateur</p>
-                </div>
-              )}
+              {/* Overlay removed to show fictitious data even for free users */}
 
-              <Link href="/auth/signup" className="block w-full mt-10 relative z-30">
+              <Link href="/launch-map" className="block w-full mt-10 relative z-30">
                 <button className="w-full py-4 bg-white text-black rounded-2xl text-[10px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0 hover:bg-gray-100">
-                  {isFree ? 'Débloquer les Tendances' : 'Consulter les prédictions'}
+                  {isFree ? 'Tester la Stratégie' : 'Consulter les prédictions'}
                 </button>
               </Link>
             </motion.div>

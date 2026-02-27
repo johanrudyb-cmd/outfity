@@ -168,7 +168,8 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
         pitch: '',
     });
 
-    const STEP_ORDER = plan === 'creator' ? STEP_ORDER_CREATOR : STEP_ORDER_STARTER;
+    const isCreator = isPaidPlan(plan);
+    const STEP_ORDER = isCreator ? STEP_ORDER_CREATOR : STEP_ORDER_STARTER;
     const stepIndex = STEP_ORDER.indexOf(step);
 
     const BRAND_SUGGESTIONS: Record<string, string[]> = {
@@ -184,14 +185,15 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
         return () => clearTimeout(timer);
     }, []);
 
-    const isCreator = isPaidPlan(plan);
+
 
     useEffect(() => {
-        if (searchParams.get('subscribed') === 'true') {
+        const isUpgraded = searchParams.get('upgraded') === 'true' || searchParams.get('subscribed') === 'true';
+        if (isUpgraded) {
             setPlan('creator');
         } else if (searchParams.get('plan')) {
             const p = searchParams.get('plan');
-            setPlan(p === 'creator' || p === 'growth' || p === 'pro' ? 'creator' : 'starter');
+            setPlan(isPaidPlan(p) ? 'creator' : 'starter');
         } else {
             setPlan(isPaidPlan(initialPlan) ? 'creator' : 'starter');
         }
@@ -230,11 +232,12 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...data, plan: plan }),
             });
+            const json = await res.json();
             if (!res.ok) {
-                const json = await res.json();
                 throw new Error(json.error || 'Erreur lors de la sauvegarde');
             }
-            await update({ plan: plan });
+            // On utilise le plan renvoyé par le serveur (qui a la protection anti-downgrade)
+            await update({ plan: json.plan });
             setStep('launch');
         } catch (err) {
             console.error(err);
@@ -845,7 +848,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                     "grid gap-6 sm:gap-8 justify-items-center",
                                     "grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-5"
                                 )}>
-                                    {AGENTS_TEAM.filter(a => plan === 'creator' || (a.id !== 'johan' && a.id !== 'joy')).map((agent, idx) => (
+                                    {AGENTS_TEAM.filter(a => isPaidPlan(plan) || (a.id !== 'johan' && a.id !== 'joy')).map((agent, idx) => (
                                         <div key={agent.id} className="w-full flex justify-center">
                                             <AgentRevealCard agent={agent} delay={idx * 0.1 + 0.2} />
                                         </div>

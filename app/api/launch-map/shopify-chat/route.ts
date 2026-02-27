@@ -10,7 +10,8 @@ const anthropic = process.env.ANTHROPIC_API_KEY
     : null;
 
 // Placeholder — replace with affiliate URL once obtained
-const SHOPIFY_AFFILIATE_URL = 'https://shopify.pxf.io/VOyg9a';
+// Fallback Shopify link
+const SHOPIFY_AFFILIATE_URL = process.env.NEXT_PUBLIC_SHOPIFY_AFFILIATE_URL || 'https://www.shopify.com/fr/essai-gratuit';
 
 export async function POST(req: NextRequest) {
     try {
