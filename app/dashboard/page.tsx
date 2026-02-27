@@ -415,12 +415,18 @@ export default async function DashboardPage() {
                       Essayez gratuitement pendant 3 jours, puis payez <strong className="text-white font-bold">1 €/mois</strong> pendant 3 mois.
                     </p>
                   </div>
-                  <Link href={process.env.NEXT_PUBLIC_SHOPIFY_AFFILIATE_URL || "https://www.shopify.com/fr/essai-gratuit"} target="_blank" rel="noopener noreferrer" className="block pt-1">
-                    <Button className="w-full bg-[#95BF47] hover:bg-[#7A9D3A] text-white font-bold rounded-full h-10 text-[13px] border-0 transition-all active:scale-[0.98]">
-                      Profiter de l'offre
-                      <ArrowRight className="ml-2 w-4 h-4" />
-                    </Button>
-                  </Link>
+                  {(() => {
+                    const rawUrl = process.env.NEXT_PUBLIC_SHOPIFY_AFFILIATE_URL || "https://www.shopify.com/fr/essai-gratuit";
+                    const finalUrl = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
+                    return (
+                      <Link href={finalUrl} target="_blank" rel="noopener noreferrer" className="block pt-1">
+                        <Button className="w-full bg-[#95BF47] hover:bg-[#7A9D3A] text-white font-bold rounded-full h-10 text-[13px] border-0 transition-all active:scale-[0.98]">
+                          Profiter de l'offre
+                          <ArrowRight className="ml-2 w-4 h-4" />
+                        </Button>
+                      </Link>
+                    );
+                  })()}
                 </div>
               </div>
 
