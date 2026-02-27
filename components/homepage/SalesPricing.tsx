@@ -7,25 +7,39 @@ import { cn } from '@/lib/utils';
 import { Check, Clock } from 'lucide-react';
 
 function CountdownTimer() {
-  const [timeLeft, setTimeLeft] = useState({ days: 29, hours: 23, minutes: 54, seconds: 12 });
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
+    const targetDate = new Date('2026-04-01T00:00:00');
+
+    const calculateTime = () => {
+      const now = new Date();
+      const diff = targetDate.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      return { days, hours, minutes, seconds };
+    };
+
+    setTimeLeft(calculateTime());
     const timer = setInterval(() => {
-      setTimeLeft((prev: any) => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
-        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        if (prev.days > 0) return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
-        return prev;
-      });
+      setTimeLeft(calculateTime());
     }, 1000);
+
     return () => clearInterval(timer);
   }, []);
 
   return (
     <div className="flex items-center justify-center gap-2 text-[#FF3B30] font-bold text-[10px] sm:text-xs mb-4 bg-red-50 py-1.5 px-3 rounded-full border border-red-100">
       <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-      <span>SÉANCE PROMO : {timeLeft.days}j {String(timeLeft.hours).padStart(2, '0')}h {String(timeLeft.minutes).padStart(2, '0')}m</span>
+      <span>SÉANCE PROMO : {timeLeft.days}j {String(timeLeft.hours).padStart(2, '0')}h {String(timeLeft.minutes).padStart(2, '0')}m {String(timeLeft.seconds).padStart(2, '0')}s</span>
     </div>
   );
 }
