@@ -68,7 +68,7 @@ export function TrendsHero() {
         >
           {/* Titre principal */}
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-black mb-6 sm:mb-8 px-2 uppercase leading-[0.95] sm:leading-[0.9]">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight text-black mb-6 sm:mb-8 px-2 uppercase leading-[0.95] sm:leading-[0.9]">
               Créez votre marque de vêtements <br className="hidden sm:block" />
               avec les données <span className="text-[#007AFF]">des géants.</span>
             </h1>
