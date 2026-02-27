@@ -192,32 +192,32 @@ export function TechPackSheet({ design, designerName, manufacturer, mainPlacemen
           <span className="text-[10px] font-bold uppercase tracking-wide text-center leading-tight">{brandName}</span>
         </div>
         <div className="flex flex-col border-b sm:border-b-0 sm:border-r border-black min-h-0">
-          <div className="grid grid-cols-2 border-b border-black">
-            <div className="border-r border-black py-1 sm:py-1.5 px-2 font-bold uppercase text-[9px] sm:text-[10px] text-gray-500">BRAND</div>
+          <div className="grid grid-cols-2 border-b border-black items-center">
+            <div className="border-r border-black py-1 sm:py-1.5 px-2 font-bold uppercase text-[9px] sm:text-[10px] text-gray-500 h-full flex items-center">BRAND</div>
             <div className="border-black py-1 sm:py-1.5 px-2 text-[10px] sm:text-xs font-medium">{brandName}</div>
           </div>
-          <div className="grid grid-cols-2 border-b border-black">
-            <div className="border-r border-black py-1 sm:py-1.5 px-2 font-bold uppercase text-[9px] sm:text-[10px] text-gray-500">SEASON</div>
+          <div className="grid grid-cols-2 border-b border-black items-center">
+            <div className="border-r border-black py-1 sm:py-1.5 px-2 font-bold uppercase text-[9px] sm:text-[10px] text-gray-500 h-full flex items-center">SEASON</div>
             <div className="border-black py-1 sm:py-1.5 px-2 text-[10px] sm:text-xs font-medium">{season}</div>
           </div>
-          <div className="grid grid-cols-2 border-b border-black">
-            <div className="border-r border-black py-1 sm:py-1.5 px-2 font-bold uppercase text-[9px] sm:text-[10px] text-gray-500">DESIGN NAME</div>
+          <div className="grid grid-cols-2 border-b border-black items-center">
+            <div className="border-r border-black py-1 sm:py-1.5 px-2 font-bold uppercase text-[9px] sm:text-[10px] text-gray-500 h-full flex items-center">DESIGN NAME</div>
             <div className="border-black py-1 sm:py-1.5 px-2 text-[10px] sm:text-xs font-medium">{designName}</div>
           </div>
-          <div className="grid grid-cols-2 border-b border-black">
-            <div className="border-r border-black py-1 sm:py-1.5 px-2 font-bold uppercase text-[9px] sm:text-[10px] text-gray-500">FABRIC</div>
+          <div className="grid grid-cols-2 border-b border-black items-center">
+            <div className="border-r border-black py-1 sm:py-1.5 px-2 font-bold uppercase text-[9px] sm:text-[10px] text-gray-500 h-full flex items-center">FABRIC</div>
             <div className="border-black py-1 sm:py-1.5 px-2 text-[10px] sm:text-xs font-medium">{fabricToEn(fabric)}</div>
           </div>
-          <div className="grid grid-cols-2 border-b border-black hidden sm:grid">
-            <div className="border-r border-black py-1.5 px-2 font-bold uppercase text-[10px] text-gray-500">PRINT TYPE</div>
+          <div className="grid grid-cols-2 border-b border-black hidden sm:grid items-center">
+            <div className="border-r border-black py-1.5 px-2 font-bold uppercase text-[10px] text-gray-500 h-full flex items-center">PRINT TYPE</div>
             <div className="border-black py-1.5 px-2 text-xs font-medium">{printTypeToEn(printType)}</div>
           </div>
-          <div className="grid grid-cols-2 border-b border-black hidden sm:grid">
-            <div className="border-r border-black py-1.5 px-2 font-bold uppercase text-[10px] text-gray-500">ISSUE NO</div>
+          <div className="grid grid-cols-2 border-b border-black hidden sm:grid items-center">
+            <div className="border-r border-black py-1.5 px-2 font-bold uppercase text-[10px] text-gray-500 h-full flex items-center">ISSUE NO</div>
             <div className="border-black py-1.5 px-2 text-xs font-medium">{issueNo}</div>
           </div>
-          <div className="grid grid-cols-2 border-b border-black">
-            <div className="border-r border-black py-1 sm:py-1.5 px-2 font-bold uppercase text-[9px] sm:text-[10px] text-gray-500">CATEGORY</div>
+          <div className="grid grid-cols-2 border-b border-black items-center">
+            <div className="border-r border-black py-1 sm:py-1.5 px-2 font-bold uppercase text-[9px] sm:text-[10px] text-gray-500 h-full flex items-center">CATEGORY</div>
             <div className="border-black py-1 sm:py-1.5 px-2 text-[10px] sm:text-xs font-medium">{category}</div>
           </div>
           <div className="grid grid-cols-2 sm:border-b border-black">

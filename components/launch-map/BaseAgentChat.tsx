@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, ReactNode } from 'react';
-import { Send, ArrowLeft, Loader2, Paperclip, X } from 'lucide-react';
+import { Send, ArrowLeft, Loader2, Paperclip, X, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -51,8 +51,10 @@ export interface BaseAgentChatProps {
     onComplete?: () => void;
     allowImageUpload?: boolean;
 
-    // Custom message processors
     processBotReply?: (rawContent: string) => { cleanedContent: string; newSuggestions: string[] };
+    containerClassName?: string;
+    onBack?: () => void;
+    backHref?: string;
 }
 
 export function BaseAgentChat({
@@ -80,7 +82,10 @@ export function BaseAgentChat({
     hideChatWhenCustomView,
     onComplete,
     allowImageUpload,
-    processBotReply
+    processBotReply,
+    containerClassName,
+    onBack,
+    backHref = '/launch-map'
 }: BaseAgentChatProps) {
     const [messages, setMessages] = useState<BaseMessage[]>([]);
     const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -97,22 +102,43 @@ export function BaseAgentChat({
 
     useEffect(() => { scrollToBottom(); }, [messages, isTyping, customViews]);
 
-    // Load from local storage
+    // Load from DB + fallback to local storage
     useEffect(() => {
         if (hasInitialized.current) return;
         hasInitialized.current = true;
-        try {
-            const saved = localStorage.getItem(`${storageKey}-${brandId}`);
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    setMessages(parsed.map((m: { timestamp: string | Date } & Omit<BaseMessage, 'timestamp'>) => ({
-                        ...m,
-                        timestamp: new Date(m.timestamp)
-                    })));
+
+        const loadHistory = async () => {
+            try {
+                // 1. Try DB
+                const res = await fetch(`/api/chat/history?brandId=${brandId}&agentKey=${storageKey}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.messages?.length > 0) {
+                        setMessages(data.messages.map((m: any) => ({
+                            ...m,
+                            timestamp: new Date(m.timestamp)
+                        })));
+                        return;
+                    }
                 }
+
+                // 2. Fallback to local storage if DB empty
+                const saved = localStorage.getItem(`${storageKey}-${brandId}`);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        setMessages(parsed.map((m: { timestamp: string | Date } & Omit<BaseMessage, 'timestamp'>) => ({
+                            ...m,
+                            timestamp: new Date(m.timestamp)
+                        })));
+                    }
+                }
+            } catch (err) {
+                console.warn('Failed to load history:', err);
             }
-        } catch { /* ignore */ }
+        };
+
+        loadHistory();
     }, [brandId, storageKey]);
 
     // Save to local storage
@@ -217,13 +243,19 @@ export function BaseAgentChat({
     const isFreeLimitReached = isFreePlan(userPlan) && userMessagesCount >= maxFreeMessages;
 
     return (
-        <div className="flex flex-col h-full w-full bg-[#F5F5F7] font-sans relative overflow-hidden flex-1 min-h-0">
+        <div className={cn("flex flex-col h-full max-h-full w-full bg-[#F5F5F7] font-sans relative overflow-hidden flex-1 min-h-0", containerClassName)}>
             {/* ── Header ── */}
-            <div className="bg-white/95 backdrop-blur-xl border-b border-black/[0.1] px-3 py-2 sm:px-4 sm:py-3 flex items-center justify-between shrink-0 sticky top-0 z-20">
+            <div className="bg-white border-b border-black/[0.1] px-4 sm:px-6 lg:px-8 py-2 sm:py-3 flex items-center justify-between shrink-0 sticky top-0 z-20">
                 <div className="flex items-center gap-2 sm:gap-4 overflow-hidden">
-                    <Link href="/launch-map" className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors shrink-0">
-                        <ArrowLeft className="w-5 h-5 text-[#86868B]" />
-                    </Link>
+                    {onBack ? (
+                        <button onClick={onBack} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors shrink-0">
+                            <ArrowLeft className="w-5 h-5 text-[#86868B]" />
+                        </button>
+                    ) : (
+                        <Link href={backHref} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors shrink-0">
+                            <ArrowLeft className="w-5 h-5 text-[#86868B]" />
+                        </Link>
+                    )}
                     <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
                         <div className="relative shrink-0">
                             {AgentIcon && themeGradient ? (
@@ -251,9 +283,9 @@ export function BaseAgentChat({
                 <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                     {headerActions}
                     {onComplete && (
-                        <Button onClick={onComplete} className={cn("h-8 sm:h-9 text-[10px] sm:text-xs font-bold rounded-xl gap-1.5 px-3 sm:px-4 text-white shadow-sm transition-apple", themeColor, themeHoverColor)}>
-                            <span className="hidden xs:inline">Terminer</span>
-                            {/* <ArrowRight className="w-3.5 h-3.5" /> */}
+                        <Button onClick={onComplete} className={cn("h-8 sm:h-9 text-[10px] sm:text-xs font-bold rounded-xl gap-1.5 px-3 sm:px-4 text-white shadow-sm transition-apple shrink-0", themeColor, themeHoverColor)}>
+                            <span>Terminer</span>
+                            <CheckCircle2 className="w-3.5 h-3.5" />
                         </Button>
                     )}
                 </div>
@@ -269,32 +301,32 @@ export function BaseAgentChat({
             {/* ── Messages Chat UI ── */}
             {(!customViews || !hideChatWhenCustomView) && (
                 userMessagesCount === 0 && !isTyping && !pendingImage ? (
-                    <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 animate-in fade-in zoom-in-95 duration-500 overflow-y-auto stylish-scrollbar">
-                        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl relative mb-6 shadow-2xl border-4 border-white shrink-0">
+                    <div className="flex-1 flex flex-col items-center justify-start sm:justify-center p-5 sm:p-12 animate-in fade-in zoom-in-95 duration-500 overflow-y-auto stylish-scrollbar pt-12 sm:pt-12">
+                        <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-3xl relative mb-4 sm:mb-6 shadow-2xl border-4 border-white shrink-0">
                             <Image src={agentImage} width={112} height={112} className="w-full h-full object-cover rounded-[20px]" alt={agentName} />
                             <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full border-4 border-[#F5F5F7] flex items-center justify-center">
                                 {/* <Sparkles className="w-4 h-4 text-white" /> */}
                             </div>
                         </div>
 
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#1D1D1F] text-center tracking-tight mb-3">
+                        <h2 className="text-xl sm:text-3xl font-black text-[#1D1D1F] text-center tracking-tight mb-2 px-4">
                             {welcomeTitle}
                         </h2>
-                        <p className="text-center text-[#86868B] text-sm sm:text-base max-w-md mx-auto leading-relaxed mb-8">
+                        <p className="text-center text-[#86868B] text-[13px] sm:text-base max-w-xs mx-auto leading-relaxed mb-4 px-6">
                             {welcomeDescription}
                         </p>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl mx-auto mb-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 w-full max-w-2xl mx-auto mb-8 px-4">
                             {welcomePrompts.map((prompt, i) => (
                                 <button
                                     key={i}
                                     onClick={() => sendMessage(prompt.replace(/ 🧐$/, ''))}
-                                    className={cn("p-4 rounded-2xl bg-white border border-black/5 hover:shadow-md text-left transition-all group flex items-start gap-3 active:scale-95", `hover:border-opacity-30`)}
+                                    className={cn("p-3.5 sm:p-4 rounded-2xl bg-white border border-black/5 hover:shadow-md text-left transition-all group flex items-start gap-3 active:scale-95", `hover:border-opacity-30`)}
                                 >
-                                    <div className={cn("w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors bg-opacity-10", themeTextColor, `group-hover:${themeColor}`)}>
+                                    <div className={cn("w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 transition-colors bg-opacity-10", themeTextColor, `group-hover:${themeColor}`)}>
                                         {/* <MessageCircle className={cn("w-4 h-4 transition-colors", themeTextColor, "group-hover:text-white")} /> */}
                                     </div>
-                                    <span className={cn("text-[13px] sm:text-[14px] text-[#1D1D1F] font-medium leading-snug transition-colors mt-0.5", `group-hover:${themeTextColor}`)}>
+                                    <span className={cn("text-[12px] sm:text-[14px] text-[#1D1D1F] font-medium leading-snug transition-colors mt-0.5", `group-hover:${themeTextColor}`)}>
                                         {prompt}
                                     </span>
                                 </button>
@@ -304,7 +336,7 @@ export function BaseAgentChat({
                         {welcomeIcons}
                     </div>
                 ) : (
-                    <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 pb-4 sm:pb-6 stylish-scrollbar relative z-0 flex flex-col gap-3.5 sm:gap-4">
+                    <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 pb-6 stylish-scrollbar relative z-0 flex flex-col gap-3.5 sm:gap-4 min-h-0">
                         {customViews && !hideChatWhenCustomView && customViews}
                         {messages.map((msg) => {
                             const isUser = msg.role === 'user';
@@ -379,7 +411,7 @@ export function BaseAgentChat({
             )}
 
             {/* ── Input Box (Gemini-style) ── */}
-            <div className="w-full shrink-0 pt-2 pb-safe-bottom bg-[#F5F5F7]/95 backdrop-blur z-20 border-t border-black/[0.05] px-3 sm:px-6">
+            <div className="w-full shrink-0 pt-2 bg-[#F5F5F7]/95 backdrop-blur z-50 border-t border-black/[0.05] px-3 sm:px-6 pb-chat-mobile sticky bottom-0">
                 {isFreeLimitReached ? (
                     <div className="p-4 sm:p-5 flex flex-col items-center justify-center text-center space-y-3">
                         <p className="text-[13px] sm:text-[14px] text-[#1D1D1F] font-medium leading-relaxed max-w-sm mx-auto">
@@ -483,12 +515,6 @@ export function BaseAgentChat({
                 )}
             </div>
 
-            <style dangerouslySetInnerHTML={{
-                __html: `
-        .stylish-scrollbar::-webkit-scrollbar { width: 0px; display: none; }
-        .stylish-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .pb-safe-bottom { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
-      `}} />
         </div>
     );
 }

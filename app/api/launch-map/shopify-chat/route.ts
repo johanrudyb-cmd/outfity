@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
 import { rateLimitByUser } from '@/lib/rate-limit';
+import { withAIUsageLimit } from '@/lib/ai-usage';
 
 const anthropic = process.env.ANTHROPIC_API_KEY
     ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -69,34 +70,54 @@ Tu réponds UNIQUEMENT sur les sujets liés à Shopify, la boutique en ligne, et
 CONTEXTE DE LA MARQUE :
 ${brandContext}
 
-RÈGLES IMPORTANTES :
-- L'utilisateur est ton élève. Parle comme un humain formateur, PAS comme une IA (ex: "Voici ce que je te propose..." et non "En tant qu'Data & Sourcing...").
-- STRICTEMENT INTERDIT : N'utilise JAMAIS d'astérisques (*), JAMAIS de texte en gras ou en italique. N'utilise aucun formatage Markdown. Exception : boutons [Texte](${SHOPIFY_AFFILIATE_URL}).
-- Réponds toujours en français et sans liste à puces à rallonge. Sois naturel.
+RÈGLES IMPORTANTES (RESPECT OBLIGATOIRE - TOLÉRANCE ZÉRO) :
+- TON HUMAIN : Tu parles comme un humain formateur, expert e-commerce, complice et motivant. PAS d'IA, PAS d'assistant virtuel. Évite les phrases bateau type "En tant qu'Data & Sourcing" ou "Voici comment je peux t'aider".
+- ZÉRO EMOJI : Il est STRICTEMENT INTERDIT d'utiliser des émojis dans tes réponses. Aucun émoji, jamais.
+- FORMATAGE : N'utilise JAMAIS d'astérisques (*), JAMAIS de texte en gras ou en italique. Texte brut uniquement. Exception : boutons [Texte](${SHOPIFY_AFFILIATE_URL}).
+- PAS DE LISTES ROBOTIQUES : Évite les structures "Etape 1, 2, 3" ou "Option 1, 2" trop rigides. Parle en paragraphes fluides.
 - Sois concis : 2-4 phrases max par réponse, sauf si on te demande un guide complet.
-- RÈGLE D'OR : UNE ET UNE SEULE QUESTION PAR MESSAGE. Interdiction absolue de poser deux questions ou plus. Tu dois faire avancer la discussion étape par étape.
-- RGPD : Ne demande jamais de mots de passe, informations bancaires ou données personnelles réelles.
-- Quand c'est le bon moment (dès que l'utilisateur veut créer son compte), intègre OBLIGATOIREMENT ce lien affilié exactement comme ça : [CRÉER MON COMPTE SHOPIFY](${SHOPIFY_AFFILIATE_URL})
-- N'affiche le lien qu'une seule fois, au bon moment.
-- Si l'utilisateur a déjà un compte Shopify, aide-le à le configurer étape par étape (thème, produit, paiement).
-- Utilise des emojis intelligemment (pas excessivement).
+- RÈGLE D'OR : UNE ET UNE SEULE QUESTION PAR MESSAGE. Interdiction absolue de poser deux questions ou plus.
 - SUGGESTIONS DYNAMIQUES : À la toute fin de CHAQUE réponse, propose TOUJOURS exactement 2 ou 3 suggestions de réponses courtes et pertinentes pour que l'utilisateur puisse cliquer et avancer. Formate-les exactement comme ceci : [[Suggestion 1|Suggestion 2|Suggestion 3]].
 
 DÉBUT DE CONVERSATION :
 Si c'est le premier message (ou texte __INIT__), présente-toi comme Johan, expert e-commerce et demande où en est l'utilisateur avec la création de sa boutique Shopify. (UNE SEULE question). [[Je n'ai rien commencé|J'ai déjà un compte|Je cherche un thème]]`;
 
-        const response = await anthropic.messages.create({
-            model: 'claude-sonnet-4-5-20250929',
-            max_tokens: 600,
-            system: SYSTEM_PROMPT,
-            messages: messages.map(m => ({ role: m.role, content: m.content })),
-        });
+        const reply = await withAIUsageLimit(
+            currentUser.id,
+            currentUser.plan,
+            'assistant_chat_qa',
+            async () => {
+                const response = await anthropic.messages.create({
+                    model: 'claude-3-5-sonnet-20241022',
+                    max_tokens: 600,
+                    system: SYSTEM_PROMPT,
+                    messages: messages.map(m => ({ role: m.role, content: m.content === '__INIT__' ? 'Hello' : m.content })),
+                });
+                return response.content[0].type === 'text' ? response.content[0].text : '';
+            },
+            { brandId, agent: 'johan' }
+        );
 
-        const reply = response.content[0].type === 'text' ? response.content[0].text : '';
+        // Save conversation
+        try {
+            const lastUserMessage = messages[messages.length - 1];
+            if (lastUserMessage && lastUserMessage.role === 'user') {
+                await prisma.agentMessage.createMany({
+                    data: [
+                        { brandId, agentKey: 'johan', role: 'user', content: lastUserMessage.content === '__INIT__' ? 'Initialisation' : lastUserMessage.content },
+                        { brandId, agentKey: 'johan', role: 'assistant', content: reply }
+                    ]
+                });
+            }
+        } catch (e) {
+            console.warn('[Johan Chat] Failed to save messages:', e);
+        }
 
         return NextResponse.json({ reply });
-    } catch (error) {
+    } catch (error: any) {
         console.error('[shopify-chat]', error);
-        return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
+        const message = error.message || 'Erreur serveur.';
+        const isQuota = message.includes('Quota') || message.includes('Limite') || message.includes('épuisé');
+        return NextResponse.json({ error: message }, { status: isQuota ? 403 : 500 });
     }
 }

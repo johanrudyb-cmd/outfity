@@ -17,12 +17,12 @@ const detailedFeatures = [
   {
     icon: Sparkles,
     title: 'Design Studio IA',
-    description: 'Créez des designs professionnels en quelques clics avec notre suite d\'outils IA. Générez des mockups réalistes et des tech packs complets pour vos fournisseurs.',
+    description: 'Créez des designs professionnels avec l\'IA et transformez-les en fiches techniques (tech packs) précises pour vos fournisseurs.',
     benefits: [
-      'Génération de designs en quelques secondes',
+      'Génération de designs par IA',
       'Mockups haute qualité',
-      'Tech packs automatiques',
-      'Personnalisation illimitée',
+      'Tech packs techniques complets',
+      'Spécifications de production',
     ],
     color: '#007AFF',
     image: '🎨',

@@ -29,7 +29,7 @@ async function upgradePlan() {
     process.exit(1);
   }
 
-  const validPlans = ['free', 'pro', 'enterprise'];
+  const validPlans = ['free', 'starter', 'creator', 'pro', 'enterprise'];
   if (!validPlans.includes(plan)) {
     console.error(`❌ Plan invalide. Plans disponibles: ${validPlans.join(', ')}`);
     process.exit(1);
@@ -56,13 +56,13 @@ async function upgradePlan() {
     });
 
     console.log(`✅ Plan mis à jour: ${updated.plan}`);
-    
+
     const limits = {
       free: 5,
       pro: 20,
       enterprise: 'illimité',
     };
-    
+
     console.log(`📊 Limite d'analyses: ${limits[plan]}`);
     console.log('\n🎉 Vous pouvez maintenant tester!');
   } catch (error) {

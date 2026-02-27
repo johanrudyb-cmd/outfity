@@ -69,9 +69,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
 
   // --- States ---
   const [viewMode, setViewMode] = useState<'chat' | 'classic'>(
-    // Gratuit : toujours vue classique de choix
-    // Créateur avec marque déjà choisie : aller au chat directement
-    !isFreePlan(userPlan) && !!brand?.templateBrandSlug ? 'chat' : 'classic'
+    !isFreePlan(userPlan) ? 'chat' : 'classic'
   );
 
   // Compteur de changements restants pour la marque d'inspiration
@@ -424,7 +422,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#F5F5F7] flex flex-col items-center relative overflow-y-auto overflow-x-hidden text-[#1D1D1F] selection:bg-[#007AFF]/20 pb-32 sm:pb-0">
+    <div className="flex-1 w-full bg-[#F5F5F7] flex flex-col items-center relative min-h-0 overflow-y-auto stylish-scrollbar text-[#1D1D1F] selection:bg-[#007AFF]/20 pb-32 sm:pb-0">
 
       {/* Immersive Background */}
       <div className="absolute inset-0 z-0 pointer-events-none">

@@ -105,6 +105,8 @@ export const metadata: Metadata = {
 import { Providers } from '@/components/providers/Providers';
 import { IOSInstallPrompt } from '@/components/layout/IOSInstallPrompt';
 import { ScrollToTop } from '@/components/layout/ScrollToTop';
+import { UpgradeSessionRefresh } from '@/components/dashboard/UpgradeSessionRefresh';
+import { Suspense } from 'react';
 
 // export const dynamic = 'force-dynamic';
 
@@ -143,6 +145,9 @@ export default function RootLayout({
         <ErrorBoundary>
           <Providers>
             <SurplusModalProvider>{children}</SurplusModalProvider>
+            <Suspense fallback={null}>
+              <UpgradeSessionRefresh />
+            </Suspense>
             <IOSInstallPrompt />
             <ScrollToTop />
           </Providers>

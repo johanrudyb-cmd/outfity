@@ -15,11 +15,15 @@ import { isFreePlan, isPaidPlan } from '@/lib/plan-utils';
 // Types & constants
 // ─────────────────────────────────────────────────────────────
 
-type Step = 'welcome' | 'universe' | 'product' | 'identity' | 'pitch' | 'agents' | 'launch';
+type Step = 'welcome' | 'profiling' | 'universe' | 'strategy' | 'product' | 'identity' | 'pitch' | 'agents' | 'launch';
 
 interface OnboardingData {
+    howDidYouHear: string;
+    reasonForComing: string;
+    existingTools: string;
     universe: string;
     universeId: string;
+    strategy?: string;
     productType: string;
     brandName: string;
     pitch: string;
@@ -100,15 +104,40 @@ const PRODUCTS = [
     { id: 'ensemble', label: 'Ensemble', emoji: '🎽', trend: 94, desc: 'Niche premium rentable' },
 ];
 
-const STEP_ORDER: Step[] = ['welcome', 'universe', 'product', 'identity', 'pitch', 'agents', 'launch'];
+const STEP_ORDER_STARTER: Step[] = ['welcome', 'profiling', 'universe', 'product', 'identity', 'pitch', 'agents', 'launch'];
+const STEP_ORDER_CREATOR: Step[] = ['welcome', 'profiling', 'universe', 'strategy', 'product', 'identity', 'pitch', 'agents', 'launch'];
+
 const STEP_LABELS: Record<Step, string> = {
     welcome: 'Bienvenue',
+    profiling: 'Profil',
     universe: 'Univers',
+    strategy: 'Stratégie',
     product: 'Produit',
     identity: 'Identité',
     pitch: 'Mission',
     agents: 'Équipe IA',
     launch: 'Lancement'
+};
+
+const PROFILING_OPTIONS = {
+    howDidYouHear: [
+        { id: 'instagram', label: 'Instagram', icon: '📸' },
+        { id: 'tiktok', label: 'TikTok', icon: '📱' },
+        { id: 'linkedin', label: 'LinkedIn', icon: '💼' },
+        { id: 'referral', label: 'Bouche à oreille', icon: '👥' },
+        { id: 'google', label: 'Recherche Google', icon: '🔍' },
+        { id: 'other', label: 'Autre', icon: '✨' },
+    ],
+    reasonForComing: [
+        { id: 'launch', label: 'Lancer ma marque', icon: '🚀' },
+        { id: 'optimize', label: 'Optimiser ma marque existante', icon: '📈' },
+        { id: 'creative', label: 'Besoin d\'outils créatifs IA', icon: '🎨' },
+        { id: 'sourcing', label: 'Trouver des usines', icon: '🏭' },
+        { id: 'trends', label: 'Suivre les tendances', icon: '🔥' },
+    ],
+    existingTools: [
+        { id: 'none', label: 'Aucun outil particulier', icon: '⭕' },
+    ]
 };
 
 import { AgentRevealCard, AGENTS_TEAM } from './AgentRevealCard';
@@ -129,6 +158,9 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
     const [plan, setPlan] = useState(initialPlan || 'starter');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [data, setData] = useState<OnboardingData>({
+        howDidYouHear: '',
+        reasonForComing: '',
+        existingTools: '',
         universe: '',
         universeId: '',
         productType: '',
@@ -136,8 +168,8 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
         pitch: '',
     });
 
-    const [initialTransition, setInitialTransition] = useState(true);
-    const [isThinking, setIsThinking] = useState(false);
+    const STEP_ORDER = plan === 'creator' ? STEP_ORDER_CREATOR : STEP_ORDER_STARTER;
+    const stepIndex = STEP_ORDER.indexOf(step);
 
     const BRAND_SUGGESTIONS: Record<string, string[]> = {
         streetwear: ['RARE VIBE', 'URBAN ARCADE', 'GRIT & GLORY', 'STREET LAB'],
@@ -153,7 +185,6 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
     }, []);
 
     const isCreator = isPaidPlan(plan);
-    const stepIndex = STEP_ORDER.indexOf(step);
 
     useEffect(() => {
         if (searchParams.get('subscribed') === 'true') {
@@ -165,6 +196,9 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
             setPlan(isPaidPlan(initialPlan) ? 'creator' : 'starter');
         }
     }, [searchParams, initialPlan]);
+
+    const [initialTransition, setInitialTransition] = useState(true);
+    const [isThinking, setIsThinking] = useState(false);
 
     const goNext = useCallback(() => {
         const nextIdx = stepIndex + 1;
@@ -239,7 +273,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                 </div>
             )}
 
-            <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
+            <div className="min-h-screen flex flex-col items-center justify-start sm:justify-center p-4 sm:p-6 relative overflow-hidden pt-20 sm:pt-6">
                 {/* DYNAMIC BACKGROUND */}
                 <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                     <motion.div
@@ -318,9 +352,9 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                     initial={{ scale: 0, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
                                     transition={{ delay: 0.5, type: 'spring' }}
-                                    className="absolute -top-4 -right-24 hidden lg:block"
+                                    className="absolute -top-6 -right-16 hidden lg:block z-20 pointer-events-none"
                                 >
-                                    <div className="bg-white px-4 py-2 rounded-2xl rounded-bl-none shadow-apple border border-black/5 text-sm font-semibold text-[#007AFF]">
+                                    <div className="bg-white px-5 py-2.5 rounded-2xl rounded-bl-none shadow-apple-lg border border-black/5 text-sm font-bold text-[#007AFF] whitespace-nowrap">
                                         "Bienvenue à bord !"
                                     </div>
                                 </motion.div>
@@ -353,7 +387,122 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                     )}
 
 
-                    {/* ── UNIVERSE ── */}
+                    {/* ── PROFILING ── */}
+                    {step === 'profiling' && (
+                        <motion.div key="profiling"
+                            initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
+                            transition={{ duration: 0.35 }}
+                            className="max-w-2xl w-full space-y-10"
+                        >
+                            <div className="space-y-2 text-center sm:text-left">
+                                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Faisons connaissance.</h2>
+                                <p className="text-[#86868B]">Aide-moi à personnaliser ton expérience dans le studio.</p>
+                            </div>
+
+                            <div className="space-y-6 overflow-y-auto flex-1 pr-1 no-scrollbar pb-20 sm:pb-0">
+                                {/* Comment nous as-tu connu ? */}
+                                <div className="space-y-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#86868B] px-1">Comment nous as-tu connu ?</p>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                        {PROFILING_OPTIONS.howDidYouHear.map(opt => (
+                                            <button
+                                                key={opt.id}
+                                                onClick={() => setData(d => ({ ...d, howDidYouHear: opt.id }))}
+                                                className={cn(
+                                                    "p-3 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 text-center",
+                                                    data.howDidYouHear === opt.id
+                                                        ? "border-[#007AFF] bg-blue-50/50 shadow-sm"
+                                                        : "border-[#E5E5EA] bg-white hover:border-[#C7C7CC]"
+                                                )}
+                                            >
+                                                <span className="text-xl">{opt.icon}</span>
+                                                <span className="text-xs font-bold leading-tight">{opt.label}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Pourquoi es-tu là ? */}
+                                <div className="space-y-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#86868B] px-1">Quel est ton objectif principal ?</p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        {PROFILING_OPTIONS.reasonForComing.map(opt => (
+                                            <button
+                                                key={opt.id}
+                                                onClick={() => setData(d => ({ ...d, reasonForComing: opt.id }))}
+                                                className={cn(
+                                                    "p-4 rounded-2xl border-2 transition-all flex items-center gap-3",
+                                                    data.reasonForComing === opt.id
+                                                        ? "border-[#007AFF] bg-blue-50/50 shadow-sm"
+                                                        : "border-[#E5E5EA] bg-white hover:border-[#C7C7CC]"
+                                                )}
+                                            >
+                                                <span className="text-xl">{opt.icon}</span>
+                                                <span className="text-sm font-bold">{opt.label}</span>
+                                                {data.reasonForComing === opt.id && <Check className="w-4 h-4 text-[#007AFF] ml-auto" />}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Outils existants */}
+                                <div className="space-y-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#86868B] px-1">Utilises-tu déjà des outils ?</p>
+                                    <div className="space-y-2">
+                                        <button
+                                            onClick={() => setData(d => ({ ...d, existingTools: 'none' }))}
+                                            className={cn(
+                                                "w-full p-4 rounded-2xl border-2 transition-all flex items-center gap-3",
+                                                data.existingTools === 'none'
+                                                    ? "border-[#007AFF] bg-blue-50/50 shadow-sm"
+                                                    : "border-[#E5E5EA] bg-white hover:border-[#C7C7CC]"
+                                            )}
+                                        >
+                                            <span className="text-xl">⭕</span>
+                                            <span className="text-sm font-bold">Aucun outil particulier</span>
+                                            {data.existingTools === 'none' && <Check className="w-4 h-4 text-[#007AFF] ml-auto" />}
+                                        </button>
+
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                placeholder="Ou cite tes outils (ex: Photoshop, Canva...)"
+                                                value={data.existingTools === 'none' ? '' : data.existingTools}
+                                                onChange={(e) => setData(d => ({ ...d, existingTools: e.target.value }))}
+                                                className={cn(
+                                                    "w-full h-14 px-5 rounded-2xl border-2 bg-white transition-all outline-none text-sm font-medium",
+                                                    data.existingTools !== '' && data.existingTools !== 'none'
+                                                        ? "border-[#007AFF] ring-4 ring-blue-500/10"
+                                                        : "border-[#E5E5EA] focus:border-[#007AFF]/50"
+                                                )}
+                                            />
+                                            {data.existingTools !== '' && data.existingTools !== 'none' && (
+                                                <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                                                    <Check className="w-4 h-4 text-[#007AFF]" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-3 pt-6 sm:pt-4 bg-gradient-to-t from-[#F5F5F7] via-[#F5F5F7] to-transparent sticky bottom-0 z-10 w-full mt-auto">
+                                <button
+                                    onClick={goBack}
+                                    className="flex-1 h-14 rounded-2xl border-2 border-[#E5E5EA] text-[#86868B] font-semibold text-lg hover:bg-white active:scale-[0.98] transition-all"
+                                >
+                                    Retour
+                                </button>
+                                <button
+                                    disabled={!data.howDidYouHear || !data.reasonForComing || !data.existingTools}
+                                    onClick={goNext}
+                                    className="flex-[2] h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-lg hover:bg-[#0056CC] active:scale-[0.98] transition-all disabled:opacity-50 shadow-lg shadow-blue-500/20"
+                                >
+                                    Continuer <ArrowRight className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
                     {step === 'universe' && (
                         <motion.div key="universe"
                             initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
@@ -409,6 +558,64 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                     disabled={!data.universeId}
                                     onClick={goNext}
                                     className="flex-[2] h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 shadow-lg shadow-blue-500/20"
+                                >
+                                    Continuer <ArrowRight className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {/* ── STRATEGY (Creator Only) ── */}
+                    {step === 'strategy' && (
+                        <motion.div key="strategy"
+                            initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
+                            transition={{ duration: 0.35 }}
+                            className="max-w-2xl w-full space-y-8"
+                        >
+                            <div className="space-y-2">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-[#007AFF] text-[10px] font-black uppercase tracking-widest border border-blue-100 mb-2">
+                                    <Crown className="w-3 h-3" /> Plan Créateur
+                                </div>
+                                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Définissons ton positionnement.</h2>
+                                <p className="text-[#86868B]">C'est ce qui rendra ta marque unique sur le marché.</p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                {['Streetwear Luxury', 'Quiet Luxury', 'Gorpcore / Techwear', 'Parisian Minimalist', 'Néo-Vintage Sport', 'Eco-Basics'].map(opt => (
+                                    <button
+                                        key={opt}
+                                        onClick={() => setData(d => ({ ...d, strategy: opt }))}
+                                        className={cn(
+                                            "p-6 rounded-[24px] border-2 bg-white transition-all text-left group",
+                                            data.strategy === opt
+                                                ? "border-[#007AFF] bg-blue-50/20"
+                                                : "border-[#E5E5EA] hover:border-[#007AFF]/20"
+                                        )}
+                                    >
+                                        <p className="font-bold text-[#1D1D1F]">{opt}</p>
+                                        <div className="mt-4 flex items-center justify-between">
+                                            <span className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest">Style validé</span>
+                                            {data.strategy === opt && (
+                                                <div className="w-6 h-6 rounded-full bg-[#007AFF] flex items-center justify-center text-white">
+                                                    <Check className="w-4 h-4" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={goBack}
+                                    className="flex-1 h-14 rounded-2xl border-2 border-[#E5E5EA] text-[#86868B] font-semibold text-lg hover:bg-white active:scale-[0.98] transition-all"
+                                >
+                                    Retour
+                                </button>
+                                <button
+                                    disabled={!data.strategy}
+                                    onClick={goNext}
+                                    className="flex-[2] h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-lg hover:bg-[#0056CC] active:scale-[0.98] transition-all disabled:opacity-50 shadow-lg shadow-blue-500/20"
                                 >
                                     Continuer <ArrowRight className="w-4 h-4" />
                                 </button>
@@ -636,7 +843,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                             <div className="w-full max-w-5xl px-4 sm:px-6">
                                 <div className={cn(
                                     "grid gap-6 sm:gap-8 justify-items-center",
-                                    plan === 'starter' ? "grid-cols-1 xs:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-5"
+                                    "grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-5"
                                 )}>
                                     {AGENTS_TEAM.filter(a => plan === 'creator' || (a.id !== 'johan' && a.id !== 'joy')).map((agent, idx) => (
                                         <div key={agent.id} className="w-full flex justify-center">

@@ -11,7 +11,6 @@ import { PaywallGate } from '@/components/paywall/PaywallGate';
 import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 
 import { MobileNav } from './MobileNav';
-import { UpgradeSessionRefresh } from '@/components/dashboard/UpgradeSessionRefresh';
 
 function DashboardTutorialGate() {
   const pathname = usePathname();
@@ -58,13 +57,13 @@ export function DashboardLayout({
   }, [sidebarOpen]);
 
   return (
-    <div className="min-h-screen bg-[#F5F5F7] overflow-x-hidden">
+    <div className="h-[100dvh] bg-[#F5F5F7] overflow-hidden flex">
       {/* Backdrop mobile quand la sidebar est ouverte */}
       {sidebarOpen && (
         <button
           type="button"
           aria-label="Fermer le menu"
-          className="fixed inset-0 z-40 bg-black/20 lg:hidden"
+          className="fixed inset-0 z-[60] bg-black/20 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -72,9 +71,9 @@ export function DashboardLayout({
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
-      <div className="pl-0 md:pl-[68px] lg:pl-72 min-h-screen flex flex-col transition-[padding] duration-200">
+      <div className="flex-1 flex flex-col min-w-0 pl-0 md:pl-[68px] lg:pl-72 transition-[padding] duration-200">
         <Header onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col pb-[72px] md:pb-0">
+        <main className="flex-1 relative flex flex-col min-h-0 overflow-y-auto no-scrollbar sm:stylish-scrollbar">
           <ErrorBoundary>
             <PageTransition className="flex-1 min-h-0 flex flex-col">
               <PaywallGate>{children}</PaywallGate>
@@ -85,7 +84,6 @@ export function DashboardLayout({
       <Suspense fallback={null}>
         <DashboardTutorialGate />
         <CreatorTutorialGate />
-        <UpgradeSessionRefresh />
       </Suspense>
       {/* Mobile bottom nav — only visible on small screens (below md) */}
       <MobileNav onMenuClick={() => setSidebarOpen(true)} />

@@ -140,7 +140,7 @@ export default function HubPage() {
                         isActive={isBrandActive}
                         color="bg-blue-500"
                         features={[
-                            "Création de Tech Packs IA",
+                            "Création de Tech Packs Pro",
                             "Sourcing Usines Vérifié",
                             "Radar de Tendances 24/7",
                             "Calculateur de Marge"

@@ -153,7 +153,7 @@ export function BentoGrid() {
               Design Studio IA
             </h3>
             <p className="text-base text-[#6e6e73] mb-4">
-              Créez des designs et vos tech packs professionnels avec l'IA.
+              Créez vos designs avec l'IA et générez des tech packs techniques pour vos fournisseurs.
             </p>
             <div className="flex items-center gap-2 text-sm text-[#007aff] group-hover:underline">
               Découvrir <ArrowRight className="w-4 h-4" />

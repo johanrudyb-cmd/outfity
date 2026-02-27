@@ -84,7 +84,7 @@ export function LaunchMapOverview({
   const primaryColor = colorPalette?.primary ?? '#007AFF';
 
   return (
-    <div className="min-h-screen bg-[#F5F5F7] pb-24 sm:pb-12">
+    <div className="bg-[#F5F5F7] pb-32 sm:pb-16 flex-1">
       <div className="px-4 sm:px-6 lg:px-12 py-6 sm:py-10 max-w-7xl mx-auto space-y-6 sm:space-y-8">
 
         {/* ── Brand Hero Header ── */}

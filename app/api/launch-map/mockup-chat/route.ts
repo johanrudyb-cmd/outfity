@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
+import { withAIUsageLimit } from '@/lib/ai-usage';
 
 const anthropic = process.env.ANTHROPIC_API_KEY
     ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -56,11 +57,13 @@ Tu es chaleureux, motivant et expert. Tu tutoies l'utilisateur.
 CONTEXTE DE LA MARQUE :
 ${brandContext}
 
-RÈGLES IMPORTANTES (RESPECT OBLIGATOIRE) :
-- L'utilisateur est ton élève. Parle comme un véritable Directeur Artistique (comme un ami expert via messages), JAMAIS un ton d'Data & Sourcing.
-- STRICTEMENT INTERDIT : N'utilise JAMAIS d'astérisques (*), JAMAIS de gras ou d'italique. N'utilise aucun formatage Markdown (exception: tu peux créer un bouton de redirection avec la syntaxe exacte [Texte du Bouton](/lien) quand c'est pertinent).
-- Réponds toujours en français. Sois TRÈS concis : 2-4 phrases max par réponse.
-- RÈGLE D'OR : UNE ET UNE SEULE QUESTION PAR MESSAGE. Interdiction absolue de poser deux questions ou plus. Tu dois le faire avancer étape par étape avec une seule question claire (ex: couleur, placement du logo, message à faire passer).
+RÈGLES IMPORTANTES (RESPECT OBLIGATOIRE - TOLÉRANCE ZÉRO) :
+- TON HUMAIN : Tu parles comme un véritable Directeur Artistique (une collègue ou un mentor humain), complice et expert. PAS d'IA, PAS d'assistant virtuel. Évite les phrases robotiques (ex: "Voici...", "Je suis là pour...").
+- ZÉRO EMOJI : Il est STRICTEMENT INTERDIT d'utiliser des émojis dans tes réponses. Aucun émoji, pas d'exception. C'est un ordre absolu.
+- FORMATAGE : N'utilise JAMAIS d'astérisques (*), JAMAIS de texte en gras ou en italique. Texte brut uniquement (exception: boutons [Texte](/lien)).
+- PAS DE LISTES ROBOTIQUES : Évite de structurer tes réponses avec des listes numérotées trop formelles. Préfère des paragraphes fluides et conversationnels.
+- Sois TRÈS concis : 2-4 phrases max par réponse.
+- RÈGLE D'OR : UNE ET UNE SEULE QUESTION PAR MESSAGE. Interdiction absolue de poser deux questions ou plus.
 - RGPD : Ne demande jamais de données personnelles (nom de famille, adresse, etc.) ou confidentielles.
 - COLLABORATION IA : Ton domaine, c'est le design visuel. Ne réponds pas précisément aux questions de stratégie globale (prix, marketing, cible) ou de sourcing (trouver une usine).
   - Pour la Stratégie/Marketing, demande-lui de consulter Virgil, votre Directeur de Stratégie. Bouton : [Demander à Virgil](/launch-map/phase/1)
@@ -88,7 +91,6 @@ Si c'est le premier message (historique contenant "__INIT__"), présente-toi com
                 : m.content,
         }));
 
-        // Anthropic requires first message to be 'user'
         if (filteredMessages.length > 0 && filteredMessages[0].role === 'assistant') {
             filteredMessages = filteredMessages.slice(1);
         }
@@ -97,21 +99,42 @@ Si c'est le premier message (historique contenant "__INIT__"), présente-toi com
             filteredMessages = [{ role: 'user', content: "Salut" }];
         }
 
-        const response = await anthropic.messages.create({
-            model: 'claude-3-haiku-20240307',
-            max_tokens: 1024,
-            system: SYSTEM_PROMPT,
-            messages: filteredMessages as any,
-        });
+        const reply = await withAIUsageLimit(
+            currentUser.id,
+            currentUser.plan,
+            'assistant_chat_qa',
+            async () => {
+                const response = await anthropic.messages.create({
+                    model: 'claude-3-5-sonnet-20241022',
+                    max_tokens: 1024,
+                    system: SYSTEM_PROMPT,
+                    messages: filteredMessages as any,
+                });
+                return response.content[0].type === 'text' ? response.content[0].text : '';
+            },
+            { brandId, agent: 'pharell' }
+        );
 
-        const reply = response.content[0].type === 'text' ? response.content[0].text : '';
+        // Save conversation
+        try {
+            const lastUserMessage = messages[messages.length - 1];
+            if (lastUserMessage && lastUserMessage.role === 'user') {
+                await prisma.agentMessage.createMany({
+                    data: [
+                        { brandId, agentKey: 'pharell', role: 'user', content: lastUserMessage.content === '__INIT__' ? 'Initialisation' : lastUserMessage.content },
+                        { brandId, agentKey: 'pharell', role: 'assistant', content: reply }
+                    ]
+                });
+            }
+        } catch (e) {
+            console.warn('[Pharell Chat] Failed to save messages:', e);
+        }
 
         return NextResponse.json({ reply });
     } catch (error: any) {
         console.error('[mockup-chat] ERROR:', error);
-        return NextResponse.json({
-            error: 'Erreur serveur.',
-            details: error?.message || String(error)
-        }, { status: 500 });
+        const message = error.message || 'Erreur serveur.';
+        const isQuota = message.includes('Quota') || message.includes('Limite') || message.includes('épuisé');
+        return NextResponse.json({ error: message }, { status: isQuota ? 403 : 500 });
     }
 }

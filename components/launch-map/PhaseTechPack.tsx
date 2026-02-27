@@ -790,15 +790,21 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
                         </Button>
                         {lb.imageUrl && <img src={lb.imageUrl} alt="" className="h-6 w-6 object-contain border rounded" />}
                       </div>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 items-end">
                         <div className="col-span-1">
-                          <Label className="text-[10px]">Pos.</Label>
-                          <select value={lb.placement} onChange={(e) => setLabels((prev) => prev.map((l, i) => (i === idx ? { ...l, placement: e.target.value } : l)))} className="mt-0.5 w-full rounded-md border border-input bg-background px-1 py-1 text-[10px] h-7">
+                          <Label className="text-[10px] text-[#8E8E93] font-bold uppercase mb-1 block">Emplacement</Label>
+                          <select value={lb.placement} onChange={(e) => setLabels((prev) => prev.map((l, i) => (i === idx ? { ...l, placement: e.target.value } : l)))} className="w-full rounded-lg border border-input bg-background px-2 py-1 text-[10px] h-8 focus:ring-1 focus:ring-primary">
                             {placementOptions.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
                           </select>
                         </div>
-                        <div><Label className="text-[10px]">L (in)</Label><Input type="number" step={0.5} value={lb.widthIn} onChange={(e) => setLabels((prev) => prev.map((l, i) => (i === idx ? { ...l, widthIn: parseFloat(e.target.value) || 0 } : l)))} className="mt-0.5 h-7 text-[10px] px-1" /></div>
-                        <div><Label className="text-[10px]">H (in)</Label><Input type="number" step={0.5} value={lb.heightIn} onChange={(e) => setLabels((prev) => prev.map((l, i) => (i === idx ? { ...l, heightIn: parseFloat(e.target.value) || 0 } : l)))} className="mt-0.5 h-7 text-[10px] px-1" /></div>
+                        <div className="col-span-1">
+                          <Label className="text-[10px] text-[#8E8E93] font-bold uppercase mb-1 block">Largeur (in)</Label>
+                          <Input type="number" step={0.5} value={lb.widthIn} onChange={(e) => setLabels((prev) => prev.map((l, i) => (i === idx ? { ...l, widthIn: parseFloat(e.target.value) || 0 } : l)))} className="h-8 text-[10px] px-2 rounded-lg" />
+                        </div>
+                        <div className="col-span-2 sm:col-span-1">
+                          <Label className="text-[10px] text-[#8E8E93] font-bold uppercase mb-1 block">Hauteur (in)</Label>
+                          <Input type="number" step={0.5} value={lb.heightIn} onChange={(e) => setLabels((prev) => prev.map((l, i) => (i === idx ? { ...l, heightIn: parseFloat(e.target.value) || 0 } : l)))} className="h-8 text-[10px] px-2 rounded-lg" />
+                        </div>
                       </div>
                     </div>
                   ))}

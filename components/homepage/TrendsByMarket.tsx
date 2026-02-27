@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, TrendingUp, BarChart3, Database } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useSession } from 'next-auth/react';
+import { isFreePlan } from '@/lib/plan-utils';
 
 const PredictionCurve = ({ color }: { color: string }) => (
   <svg className="w-full h-12" viewBox="0 0 100 40" preserveAspectRatio="none">
@@ -34,6 +36,8 @@ const PredictionCurve = ({ color }: { color: string }) => (
 );
 
 export function TrendsByMarket() {
+  const { data: session } = useSession();
+  const isFree = isFreePlan((session?.user as any)?.plan);
   const [countdown, setCountdown] = useState("14:22:05");
 
   useEffect(() => {
@@ -112,36 +116,47 @@ export function TrendsByMarket() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: card.delay }}
               className={cn(
-                "group bg-[#F5F5F7] p-8 rounded-[40px] border border-black/[0.03] hover:bg-black transition-all duration-700",
+                "group bg-[#F5F5F7] p-8 rounded-[40px] border border-black/[0.03] hover:bg-black transition-all duration-700 relative overflow-hidden",
                 idx >= 2 ? "hidden md:block" : "block"
               )}
             >
-              <div className="flex justify-between items-start mb-10">
-                <div className="p-3 rounded-2xl bg-white/50 group-hover:bg-white/10 transition-colors">
-                  <span className="text-[10px] font-black text-black group-hover:text-white uppercase tracking-widest">Tendance</span>
-                  <div className="text-xl font-black text-[#007AFF]">{card.growth}</div>
+              <div className={cn("transition-all duration-500", isFree && "blur-[8px] opacity-50 select-none pointer-events-none")}>
+                <div className="flex justify-between items-start mb-10">
+                  <div className="p-3 rounded-2xl bg-white/50 group-hover:bg-white/10 transition-colors">
+                    <span className="text-[10px] font-black text-black group-hover:text-white uppercase tracking-widest">Tendance</span>
+                    <div className="text-xl font-black text-[#007AFF]">{card.growth}</div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] font-black text-black/30 group-hover:text-white/30 uppercase tracking-widest">Précision</span>
+                    <div className="text-sm font-black text-black group-hover:text-white">{card.precision}%</div>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className="text-[10px] font-black text-black/30 group-hover:text-white/30 uppercase tracking-widest">Précision</span>
-                  <div className="text-sm font-black text-black group-hover:text-white">{card.precision}%</div>
+
+                <div className="mb-10">
+                  <h3 className="text-2xl font-black uppercase tracking-tighter text-black group-hover:text-white leading-none mb-2">{card.title}</h3>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex justify-between items-end">
+                    <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Projection 90j</span>
+                  </div>
+                  <PredictionCurve color={card.color} />
                 </div>
               </div>
 
-              <div className="mb-10">
-                <h3 className="text-2xl font-black uppercase tracking-tighter text-black group-hover:text-white leading-none mb-2">{card.title}</h3>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex justify-between items-end">
-                  <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Projection 90j</span>
-                  <span className="text-[8px] font-black text-white/40 uppercase tracking-widest hidden group-hover:block">Prediction Curve // Active</span>
+              {isFree && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-20">
+                  <div className="w-12 h-12 rounded-2xl bg-white/90 backdrop-blur-md flex items-center justify-center mb-4 shadow-apple border border-black/5">
+                    <Lock className="w-6 h-6 text-[#007AFF]" />
+                  </div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-black mb-1 group-hover:text-white transition-colors">Données Réservées</p>
+                  <p className="text-[12px] font-black text-[#007AFF] uppercase tracking-tighter leading-none">Plan Créateur</p>
                 </div>
-                <PredictionCurve color={card.color} />
-              </div>
+              )}
 
-              <Link href="/auth/signup" className="block w-full mt-10">
+              <Link href="/auth/signup" className="block w-full mt-10 relative z-30">
                 <button className="w-full py-4 bg-white text-black rounded-2xl text-[10px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0 hover:bg-gray-100">
-                  Consulter les prédictions
+                  {isFree ? 'Débloquer les Tendances' : 'Consulter les prédictions'}
                 </button>
               </Link>
             </motion.div>

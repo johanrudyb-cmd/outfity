@@ -79,13 +79,11 @@ export function LaunchMapNav({
 
   return (
     <nav className={cn(
-      "sticky top-14 sm:top-16 z-30 w-full border-b border-border bg-card shadow-sm",
+      "w-full border-b border-black/[0.05] bg-white relative z-20 shrink-0",
       !isOverview && "hidden lg:block"
     )}>
-      <div className="relative overflow-hidden group">
-        <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-card to-transparent z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity lg:hidden" />
-
-        <div className="flex overflow-x-auto no-scrollbar lg:flex-wrap lg:h-14 items-center gap-1 p-1 md:px-6 md:gap-2">
+      <div className="relative group overflow-hidden">
+        <div className="flex overflow-x-auto no-scrollbar lg:flex-wrap lg:h-12 items-center gap-1 p-1 md:px-6 md:gap-2">
           <Link
             href="/launch-map"
             className={cn(

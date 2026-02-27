@@ -22,7 +22,17 @@ export default async function UGCPage() {
       data: {
         userId: user.id,
         name: 'Ma Première Marque',
+        launchMap: {
+          create: {
+            phase1: false,
+            phase2: false,
+            phase3: false,
+            phase4: false,
+            phase5: false,
+          },
+        },
       },
+      include: { launchMap: true },
     });
   }
 
@@ -48,31 +58,13 @@ export default async function UGCPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-8 max-w-7xl mx-auto space-y-8">
-        <div className="space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex-1">
-              <h1 className="text-3xl font-semibold tracking-tight text-foreground mb-1">
-                UGC Lab
-              </h1>
-              <p className="text-muted-foreground text-sm">
-                Créez votre contenu marketing viral avec l'Data & Sourcing
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <UGCLab
-          brandId={brand.id}
-          brandName={brand.name}
-          designs={designs}
-          brand={brandWithIdentity || undefined}
-          userPlan={user.plan}
-        />
-      </div>
+      <UGCLab
+        brandId={brand.id}
+        brandName={brand.name}
+        designs={designs}
+        brand={brandWithIdentity || undefined}
+        userPlan={user.plan}
+      />
     </DashboardLayout>
   );
 }

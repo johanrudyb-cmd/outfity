@@ -9,9 +9,14 @@ import {
   ChevronRight,
   BarChart3,
   LayoutDashboard,
-  ChevronDown
+  ChevronDown,
+  Lock,
+  ArrowRight,
+  Sparkles
 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
+import { isFreePlan } from '@/lib/plan-utils';
+import Link from 'next/link';
 import { Phase0Identity } from './Phase0Identity';
 import { Phase1Strategy } from './Phase1Strategy';
 import { PhaseMockupCreation } from './PhaseMockupCreation';
@@ -279,14 +284,34 @@ export function LaunchMapStepper({
             />
           )}
           {!isTransitioning && phaseToRender === 1 && (
-            <Phase1Strategy
-              brandId={brandId}
-              brand={brand}
-              brandName={brand?.name ?? ''}
-              onComplete={() => handlePhaseComplete(1)}
-              userPlan={userPlan}
-              strategyText={strategyText}
-            />
+            <div className="relative flex-1 flex flex-col min-h-0">
+              {isFreePlan(userPlan) && (
+                <div className="absolute inset-0 z-[60] backdrop-blur-md bg-white/40 flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-500">
+                  <div className="w-20 h-20 bg-black rounded-[28px] flex items-center justify-center mb-6 shadow-2xl">
+                    <Lock className="w-10 h-10 text-white" />
+                  </div>
+                  <h3 className="text-3xl font-black text-black mb-3 uppercase tracking-tight">Accès Stratégique Verrouillé</h3>
+                  <p className="text-[#86868B] max-w-sm mb-8 font-medium">
+                    L'atelier avec Virgil et la génération de stratégie IA sont réservés au <strong>Plan Créateur</strong>.
+                  </p>
+                  <Link href="/auth/choose-plan">
+                    <Button className="h-14 px-10 bg-[#007AFF] hover:bg-[#0056CC] text-white rounded-full font-bold text-sm uppercase tracking-widest shadow-xl shadow-blue-500/20 active:scale-95 transition-all">
+                      Débloquer Virgil <Sparkles className="ml-2 w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
+              )}
+              <div className={cn("flex-1 flex flex-col min-h-0", isFreePlan(userPlan) && "opacity-20 grayscale select-none")}>
+                <Phase1Strategy
+                  brandId={brandId}
+                  brand={brand}
+                  brandName={brand?.name ?? ''}
+                  onComplete={() => handlePhaseComplete(1)}
+                  userPlan={userPlan}
+                  strategyText={strategyText}
+                />
+              </div>
+            </div>
           )}
           {!isTransitioning && phaseToRender === 2 && (
             <PhaseMockupCreation

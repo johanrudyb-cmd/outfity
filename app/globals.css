@@ -227,6 +227,42 @@
     scrollbar-width: none;
   }
 
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .stylish-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+  }
+
+  .stylish-scrollbar::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .stylish-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .stylish-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+  }
+
+  .pb-chat-mobile {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 60px);
+  }
+
+  @media (min-width: 768px) {
+    .pb-chat-mobile {
+      padding-bottom: 0.5rem;
+    }
+  }
+
+  .stylish-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.15);
+  }
+
   /* Editorial Utilities */
   .text-vertical {
     writing-mode: vertical-rl;

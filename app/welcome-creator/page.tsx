@@ -14,9 +14,10 @@ export default async function WelcomeCreatorPage() {
         select: { plan: true, name: true },
     });
 
-    // Si pas encore un plan payant en DB → retour dashboard
+    // Si pas encore un plan payant en DB → retour dashboard 
+    // On préserve le flag upgraded pour que UpgradeSessionRefresh puisse continuer de checker
     if (!dbUser || !isPaidPlan(dbUser.plan)) {
-        redirect('/dashboard');
+        redirect('/dashboard?upgraded=true');
     }
 
     // Récupérer la marque pour vérifier si la stratégie et le logo ont été faits

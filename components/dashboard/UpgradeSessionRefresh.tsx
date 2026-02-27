@@ -21,9 +21,14 @@ export function UpgradeSessionRefresh() {
     const checkInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
     useEffect(() => {
-        if (searchParams.get('upgraded') !== 'true') return;
+        const isUpgraded = searchParams.get('upgraded') === 'true';
+        const isSubscribed = searchParams.get('subscribed') === 'true';
+
+        if (!isUpgraded && !isSubscribed) return;
         if (hasTriggered.current) return;
         hasTriggered.current = true;
+
+        console.log('[UpgradeSessionRefresh] Triggered for:', isUpgraded ? 'upgraded' : 'subscribed');
 
         // Affiche un toast de succès immédiat
         toast({
@@ -35,10 +40,11 @@ export function UpgradeSessionRefresh() {
         // Retire le param de l'URL immédiatement pour éviter les boucles si refresh manuel
         const url = new URL(window.location.href);
         url.searchParams.delete('upgraded');
+        url.searchParams.delete('subscribed');
         window.history.replaceState({}, '', url.pathname + (url.search || ''));
 
-        // Lance le premier refresh JWT
-        update();
+        // Lance le premier refresh JWT avec un objet pour forcer la détection dans NextAuth v5
+        update({ triggerUpdate: true });
 
         // Attend que la session reflète bien le changement de plan (max 10 secondes)
         let attempts = 0;
@@ -46,10 +52,10 @@ export function UpgradeSessionRefresh() {
             attempts++;
 
             // On appelle update() pour forcer NextAuth à relire le JWT depuis la DB
-            const updated = await update();
+            const updated = await update({ refreshing: true });
             const plan = (updated?.user as any)?.plan;
 
-            if (isPaidPlan(plan) || attempts >= 10) {
+            if (isPaidPlan(plan) || attempts >= 8) { // 8 attempts ~ 10s
                 if (checkInterval.current) clearInterval(checkInterval.current);
 
                 if (isPaidPlan(plan)) {
@@ -59,7 +65,6 @@ export function UpgradeSessionRefresh() {
                         type: 'success'
                     });
                     // On redirige vers la page d'accueil Créateur (page immersive)
-                    // Utilisation de replace pour éviter les retours en arrière vers une session instable
                     router.replace('/welcome-creator');
                 } else {
                     // Timeout : refresh simple de la page actuelle en dernier recours

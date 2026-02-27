@@ -39,7 +39,7 @@ const plans = [
     features: [
       'Accès à 3 Agents IA (Limité)',
       'Analyses de style détaillées (Limité)',
-      'Radar de Tendances (Limité)',
+      '1 Scan Intelligence Visuelle / mois',
       'Calculateur de Rentabilité',
     ],
     cta: 'Commencer gratuitement',

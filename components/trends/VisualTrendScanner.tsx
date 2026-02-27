@@ -320,6 +320,7 @@ export function VisualTrendScanner() {
                         </h1>
                         <p className="text-xs md:text-sm font-bold text-gray-500 uppercase tracking-widest max-w-2xl mx-auto leading-relaxed">
                             ANALYSE VISUELLE & PROJECTION DE VIABILITÉ MARCHÉ SUR 90 JOURS BASÉE SUR LES FLUX MONDIAUX.
+                            {isFree && <span className="block mt-2 text-[#007AFF]">1 essai gratuit inclus tous les mois.</span>}
                         </p>
                     </div>
 

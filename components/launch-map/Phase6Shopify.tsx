@@ -152,7 +152,7 @@ export function Phase6Shopify({ brandId, brand, shopifyShopDomain, onComplete, u
       themeGradient="from-[#95BF47] to-[#5E8E3E]"
       agentIcon={Store}
       apiEndpoint="/api/launch-map/shopify-chat"
-      storageKey="shopify-chat"
+      storageKey="johan"
       welcomeTitle="Créez votre boutique"
       welcomeDescription={<>Je suis <b>Johan</b>, ton Web Designer. Je t'aide à configurer Shopify, choisir un thème et optimiser ton site pour convertir au maximum.</>}
       welcomePrompts={[

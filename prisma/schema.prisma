@@ -124,8 +124,22 @@ model Brand {
   strategyGenerations  StrategyGeneration[]
   favoriteFactories    BrandFavoriteFactory[]
   mockShopifyProducts  MockShopifyProduct[]
+  agentMessages        AgentMessage[]
 
   @@index([userId])
+}
+
+model AgentMessage {
+  id        String   @id @default(cuid())
+  brandId   String
+  agentKey  String   // 'joy', 'virgil', 'pharell', 'ada', 'johan'
+  role      String   // 'user', 'assistant'
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@index([brandId, agentKey, createdAt])
 }
 
 model Design {

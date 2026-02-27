@@ -155,8 +155,8 @@ export function SettingsForm({ user: initialUser }: SettingsFormProps) {
   };
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl mx-auto">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 pb-28 md:pb-20">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 max-w-3xl mx-auto">
         {/* Profil */}
         <div className="bg-white rounded-[24px] border border-black/[0.06] shadow-apple overflow-hidden">
           <div className="px-6 py-5 bg-black/[0.02] border-b border-black/[0.04] flex items-center gap-4">
@@ -164,11 +164,11 @@ export function SettingsForm({ user: initialUser }: SettingsFormProps) {
               <User className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-[17px] font-semibold text-[#1D1D1F]">Profil Personnel</h3>
-              <p className="text-[13px] text-[#86868B]">Mettez à jour vos informations publiques.</p>
+              <h3 className="text-[16px] sm:text-[17px] font-semibold text-[#1D1D1F]">Profil Personnel</h3>
+              <p className="text-[12px] sm:text-[13px] text-[#86868B]">Mettez à jour vos informations publiques.</p>
             </div>
           </div>
-          <div className="p-6 md:p-8 space-y-6">
+          <div className="p-5 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-[13px] font-semibold text-[#1D1D1F]">Nom complet</label>
@@ -212,11 +212,11 @@ export function SettingsForm({ user: initialUser }: SettingsFormProps) {
               <Lock className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-[17px] font-semibold text-[#1D1D1F]">Sécurité</h3>
-              <p className="text-[13px] text-[#86868B]">Protégez votre compte avec un mot de passe robuste.</p>
+              <h3 className="text-[16px] sm:text-[17px] font-semibold text-[#1D1D1F]">Sécurité</h3>
+              <p className="text-[12px] sm:text-[13px] text-[#86868B]">Protégez votre compte avec un mot de passe robuste.</p>
             </div>
           </div>
-          <div className="p-6 md:p-8 space-y-6">
+          <div className="p-5 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
             <div className="space-y-2">
               <label className="text-[13px] font-semibold text-[#1D1D1F]">Mot de passe actuel</label>
               <Input
@@ -259,11 +259,11 @@ export function SettingsForm({ user: initialUser }: SettingsFormProps) {
               <Crown className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-[17px] font-semibold text-[#1D1D1F]">Abonnement</h3>
-              <p className="text-[13px] text-[#86868B]">Gérez votre plan actuel et vos accès.</p>
+              <h3 className="text-[16px] sm:text-[17px] font-semibold text-[#1D1D1F]">Abonnement</h3>
+              <p className="text-[12px] sm:text-[13px] text-[#86868B]">Gérez votre plan actuel et vos accès.</p>
             </div>
           </div>
-          <div className="p-6 md:p-8 space-y-5">
+          <div className="p-5 sm:p-6 md:p-8 space-y-5">
 
             {/* Bloc plan Créateur */}
             {isPaidPlan(user.plan) ? (
@@ -276,17 +276,17 @@ export function SettingsForm({ user: initialUser }: SettingsFormProps) {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="font-bold text-[18px] text-[#1D1D1F]">Plan Créateur</p>
-                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-[#34C759]/15 text-[#34C759]">
+                        <p className="font-bold text-[16px] sm:text-[18px] text-[#1D1D1F]">Plan Créateur</p>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#34C759]/15 text-[#34C759]">
                           ACTIF
                         </span>
                       </div>
-                      <p className="text-[13px] text-[#86868B] mt-0.5">Accès intégral à tous les outils Outfity.</p>
+                      <p className="text-[12px] text-[#86868B] mt-0.5">Accès intégral à tous les outils Outfity.</p>
                     </div>
                   </div>
                   {/* Prix */}
-                  <div className="text-right shrink-0">
-                    <p className="text-2xl font-black text-[#1D1D1F]">29€<span className="text-sm font-normal text-[#86868B]">/mois</span></p>
+                  <div className="text-left sm:text-right shrink-0 border-t sm:border-t-0 border-black/5 pt-3 sm:pt-0 w-full sm:w-auto">
+                    <p className="text-xl sm:text-2xl font-black text-[#1D1D1F]">29€<span className="text-sm font-normal text-[#86868B]">/mois</span></p>
                     <p className="text-[11px] text-[#86868B]">Offre à vie · Annulable</p>
                   </div>
                 </div>
@@ -376,66 +376,109 @@ export function SettingsForm({ user: initialUser }: SettingsFormProps) {
               <FileText className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-[17px] font-semibold text-[#1D1D1F]">Historique de facturation</h3>
-              <p className="text-[13px] text-[#86868B]">Consultez et téléchargez vos factures Stripe.</p>
+              <h3 className="text-[16px] sm:text-[17px] font-semibold text-[#1D1D1F]">Historique de facturation</h3>
+              <p className="text-[12px] sm:text-[13px] text-[#86868B]">Consultez et téléchargez vos factures Stripe.</p>
             </div>
           </div>
-          <div className="p-0 sm:p-2">
+          <div className="p-3 sm:p-4">
             {loadingInvoices ? (
               <div className="flex items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1D1D1F]"></div>
               </div>
             ) : invoices.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-[13px]">
-                  <thead>
-                    <tr className="border-b border-black/[0.04]">
-                      <th className="py-4 px-6 font-semibold text-[#86868B]">Identifiant</th>
-                      <th className="py-4 px-6 font-semibold text-[#86868B]">Date</th>
-                      <th className="py-4 px-6 font-semibold text-[#86868B]">Montant</th>
-                      <th className="py-4 px-6 font-semibold text-[#86868B]">Statut</th>
-                      <th className="py-4 px-6 text-right">Document</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-black/[0.04]">
-                    {invoices.map((invoice) => (
-                      <tr key={invoice.id} className="hover:bg-[#F5F5F7]/50 transition-colors">
-                        <td className="py-4 px-6 font-medium text-[#1D1D1F]">{invoice.number}</td>
-                        <td className="py-4 px-6 text-[#6e6e73]">
-                          {new Date(invoice.date * 1000).toLocaleDateString('fr-FR', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </td>
-                        <td className="py-4 px-6 font-semibold text-[#1D1D1F]">
-                          {(invoice.amount / 100).toFixed(2)} {invoice.currency.toUpperCase()}
-                        </td>
-                        <td className="py-4 px-6">
-                          <span className={cn(
-                            "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider",
-                            invoice.status === 'paid' ? 'bg-[#34C759]/15 text-[#34C759]' : 'bg-[#FF9500]/15 text-[#FF9500]'
-                          )}>
-                            {invoice.status === 'paid' ? 'Payée' : invoice.status}
-                          </span>
-                        </td>
-                        <td className="py-4 px-6 text-right">
-                          {invoice.pdf && (
-                            <a
-                              href={invoice.pdf}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              title="Télécharger PDF"
-                              className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-black/5 hover:bg-[#007AFF] text-[#1D1D1F] hover:text-white transition-all shadow-sm"
-                            >
-                              <Download className="w-4 h-4" />
-                            </a>
-                          )}
-                        </td>
+              <div className="space-y-2">
+                {/* Desktop View Table */}
+                <div className="hidden sm:block overflow-x-auto">
+                  <table className="w-full text-left text-[13px]">
+                    <thead>
+                      <tr className="border-b border-black/[0.04]">
+                        <th className="py-4 px-6 font-semibold text-[#86868B]">Identifiant</th>
+                        <th className="py-4 px-6 font-semibold text-[#86868B]">Date</th>
+                        <th className="py-4 px-6 font-semibold text-[#86868B]">Montant</th>
+                        <th className="py-4 px-6 font-semibold text-[#86868B]">Statut</th>
+                        <th className="py-4 px-6 text-right">Document</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-black/[0.04]">
+                      {invoices.map((invoice) => (
+                        <tr key={invoice.id} className="hover:bg-[#F5F5F7]/50 transition-colors">
+                          <td className="py-4 px-6 font-medium text-[#1D1D1F]">{invoice.number}</td>
+                          <td className="py-4 px-6 text-[#6e6e73]">
+                            {new Date(invoice.date * 1000).toLocaleDateString('fr-FR', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </td>
+                          <td className="py-4 px-6 font-semibold text-[#1D1D1F]">
+                            {(invoice.amount / 100).toFixed(2)} {invoice.currency.toUpperCase()}
+                          </td>
+                          <td className="py-4 px-6">
+                            <span className={cn(
+                              "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider",
+                              invoice.status === 'paid' ? 'bg-[#34C759]/15 text-[#34C759]' : 'bg-[#FF9500]/15 text-[#FF9500]'
+                            )}>
+                              {invoice.status === 'paid' ? 'Payée' : invoice.status}
+                            </span>
+                          </td>
+                          <td className="py-4 px-6 text-right">
+                            {invoice.pdf && (
+                              <a
+                                href={invoice.pdf}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="Télécharger PDF"
+                                className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-black/5 hover:bg-[#007AFF] text-[#1D1D1F] hover:text-white transition-all shadow-sm"
+                              >
+                                <Download className="w-4 h-4" />
+                              </a>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile View Cards */}
+                <div className="sm:hidden space-y-3">
+                  {invoices.map((invoice) => (
+                    <div key={invoice.id} className="p-4 bg-black/[0.02] border border-black/[0.04] rounded-2xl space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold text-[#86868B] uppercase tracking-wider">{invoice.number}</span>
+                        <span className={cn(
+                          "px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider",
+                          invoice.status === 'paid' ? 'bg-[#34C759]/15 text-[#34C759]' : 'bg-[#FF9500]/15 text-[#FF9500]'
+                        )}>
+                          {invoice.status === 'paid' ? 'Payée' : invoice.status}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-[14px] font-bold text-[#1D1D1F]">{(invoice.amount / 100).toFixed(2)} {invoice.currency.toUpperCase()}</p>
+                          <p className="text-[11px] text-[#86868B]">
+                            {new Date(invoice.date * 1000).toLocaleDateString('fr-FR', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </p>
+                        </div>
+                        {invoice.pdf && (
+                          <a
+                            href={invoice.pdf}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 h-9 px-4 rounded-xl bg-white border border-black/5 text-[12px] font-semibold text-[#1D1D1F] shadow-sm active:scale-95 transition-all"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                            PDF
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="text-center py-16 px-6">

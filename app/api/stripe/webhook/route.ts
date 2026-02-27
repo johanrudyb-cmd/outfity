@@ -38,12 +38,9 @@ export async function POST(request: Request) {
         const userId = session.client_reference_id || session.metadata?.userId;
         const planId = session.metadata?.planId || SUBSCRIPTION_PLAN_ID;
 
-        console.log('[Stripe Webhook] Session Info:', {
-          userId,
-          planId,
-          mode: session.mode,
-          customer: session.customer
-        });
+        console.log('[Stripe Webhook] DEBUG - Session Object:', JSON.stringify(session, null, 2));
+        console.log('[Stripe Webhook] DEBUG - userId found:', userId);
+        console.log('[Stripe Webhook] DEBUG - metadata:', session.metadata);
 
         if (!userId) {
           console.error('[Stripe Webhook] No userId found in session');
@@ -57,6 +54,7 @@ export async function POST(request: Request) {
           console.log('[Stripe Webhook] Activating subscription for user:', userId);
           const now = new Date();
 
+          console.log('[Stripe Webhook] DB Update - Attempting update for userId:', userId);
           const updatedUser = await prisma.user.update({
             where: { id: userId },
             data: {
@@ -66,7 +64,7 @@ export async function POST(request: Request) {
             },
           });
 
-          console.log('[Stripe Webhook] User plan updated in DB:', updatedUser.plan);
+          console.log('[Stripe Webhook] DB Update - SUCCESS. New plan:', updatedUser.plan);
 
           // Reset des quotas
           const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);

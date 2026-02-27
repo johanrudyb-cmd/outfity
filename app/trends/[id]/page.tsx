@@ -184,58 +184,84 @@ export default async function ProductDetailPage({
 
                 {/* --- THE GAUGE --- */}
                 <div className="p-8 bg-white rounded-[32px] shadow-xl border border-black/[0.03] relative overflow-hidden">
-                  <div className="flex items-center justify-between mb-8">
-                    <h3 className="text-sm font-black uppercase tracking-widest text-gray-400">Score de Performance</h3>
-                    <div className={cn("px-4 py-1.5 rounded-full font-black text-xs uppercase tracking-widest border", signalColor, signalColorBorder)}>
-                      Signal: {signalLabel}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-8">
-                    {/* Big Number */}
-                    <div className="relative">
-                      <span className="text-8xl font-black text-black tracking-tighter">
-                        {displayTrendScore}
-                      </span>
-                      <span className="text-xl font-bold text-gray-300 absolute top-2 -right-6">%</span>
-                    </div>
-
-                    {/* Trend Indicator */}
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-[#34C759]">
-                        <TrendingUp className="w-6 h-6" />
-                        <span className="text-lg font-black tracking-tight">
-                          {effectiveTrendGrowthPercent > 0 ? '+' : ''}{effectiveTrendGrowthPercent}%
-                        </span>
+                  <div className={cn("transition-all duration-500", shouldLockTrend && "blur-[12px] opacity-40 select-none pointer-events-none")}>
+                    <div className="flex items-center justify-between mb-8">
+                      <h3 className="text-sm font-black uppercase tracking-widest text-gray-400">Score de Performance</h3>
+                      <div className={cn("px-4 py-1.5 rounded-full font-black text-xs uppercase tracking-widest border", signalColor, signalColorBorder)}>
+                        Signal: {signalLabel}
                       </div>
-                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Croissance 30j</p>
+                    </div>
+
+                    <div className="flex items-center gap-8">
+                      {/* Big Number */}
+                      <div className="relative">
+                        <span className="text-8xl font-black text-black tracking-tighter">
+                          {displayTrendScore}
+                        </span>
+                        <span className="text-xl font-bold text-gray-300 absolute top-2 -right-6">%</span>
+                      </div>
+
+                      {/* Trend Indicator */}
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-[#34C759]">
+                          <TrendingUp className="w-6 h-6" />
+                          <span className="text-lg font-black tracking-tight">
+                            {effectiveTrendGrowthPercent > 0 ? '+' : ''}{effectiveTrendGrowthPercent}%
+                          </span>
+                        </div>
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Croissance 30j</p>
+                      </div>
+                    </div>
+
+                    {/* Forecast Line (Visual Only) */}
+                    <div className="mt-8 h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-black rounded-full transition-all duration-1000"
+                        style={{ width: `${displayTrendScore}%` }}
+                      />
                     </div>
                   </div>
 
-                  {/* Forecast Line (Visual Only) */}
-                  <div className="mt-8 h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-black rounded-full transition-all duration-1000"
-                      style={{ width: `${displayTrendScore}%` }}
-                    />
-                  </div>
+                  {shouldLockTrend && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-20">
+                      <div className="w-12 h-12 rounded-2xl bg-white/90 backdrop-blur-md flex items-center justify-center mb-4 shadow-apple border border-black/5">
+                        <Lock className="w-6 h-6 text-[#007AFF]" />
+                      </div>
+                      <p className="text-xs font-black uppercase tracking-widest text-black">Données Premium</p>
+                      <p className="text-sm font-black text-[#007AFF] uppercase tracking-tighter">Plan Créateur requis</p>
+                    </div>
+                  )}
                 </div>
 
                 {/* --- FINANCIAL GRID --- */}
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-5 bg-[#F5F5F7] rounded-[24px] border border-black/[0.03]">
-                    <div className="flex items-center gap-2 mb-2 text-gray-400">
-                      <DollarSign className="w-4 h-4" />
-                      <span className="text-[10px] font-black uppercase tracking-widest">Prix Marché</span>
+                  <div className="p-5 bg-[#F5F5F7] rounded-[24px] border border-black/[0.03] relative overflow-hidden">
+                    <div className={cn("transition-all duration-500", shouldLockTrend && "blur-[8px] opacity-40 select-none pointer-events-none")}>
+                      <div className="flex items-center gap-2 mb-2 text-gray-400">
+                        <DollarSign className="w-4 h-4" />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Prix Marché</span>
+                      </div>
+                      <p className="text-2xl font-black text-black">{product.averagePrice} €</p>
                     </div>
-                    <p className="text-2xl font-black text-black">{product.averagePrice} €</p>
+                    {shouldLockTrend && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Lock className="w-4 h-4 text-gray-300" />
+                      </div>
+                    )}
                   </div>
-                  <div className="p-5 bg-[#F5F5F7] rounded-[24px] border border-black/[0.03]">
-                    <div className="flex items-center gap-2 mb-2 text-gray-400">
-                      <AlertTriangle className="w-4 h-4" />
-                      <span className="text-[10px] font-black uppercase tracking-widest">Risque Prod.</span>
+                  <div className="p-5 bg-[#F5F5F7] rounded-[24px] border border-black/[0.03] relative overflow-hidden">
+                    <div className={cn("transition-all duration-500", shouldLockTrend && "blur-[8px] opacity-40 select-none pointer-events-none")}>
+                      <div className="flex items-center gap-2 mb-2 text-gray-400">
+                        <AlertTriangle className="w-4 h-4" />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Risque Prod.</span>
+                      </div>
+                      <p className="text-2xl font-black text-black">{product.productionSafety || 'Faible'}</p>
                     </div>
-                    <p className="text-2xl font-black text-black">{product.productionSafety || 'Faible'}</p>
+                    {shouldLockTrend && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Lock className="w-4 h-4 text-gray-300" />
+                      </div>
+                    )}
                   </div>
                 </div>
 

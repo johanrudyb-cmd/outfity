@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
 import { generateChat } from '@/lib/api/claude';
+import { withAIUsageLimit } from '@/lib/ai-usage';
 
 export async function POST(req: Request) {
     try {
@@ -21,38 +22,61 @@ export async function POST(req: Request) {
             include: { launchMap: true },
         });
 
-        if (!brand || !brand.launchMap) {
-            return NextResponse.json({ error: 'Marque ou Launch Map introuvable' }, { status: 404 });
+        if (!brand) {
+            return NextResponse.json({ error: 'Marque introuvable' }, { status: 404 });
         }
 
-        const launchMap = brand.launchMap;
-        const summaries = launchMap.phaseSummaries as any || {};
+        const summaries = (brand.launchMap as any)?.phaseSummaries || {};
 
-        let systemPrompt = `Tu es Joy, la Directrice Artistique et Social Media Manager de la marque "${brand.name}".
-Ton rôle est d'aider le créateur de la marque à trouver des idées de contenu viral (TikTok, Instagram, etc.), à rédiger des scripts, des accroches, et à définir une stratégie marketing impactante.
-
-CONNAISSANCE DE LA MARQUE :
-- Vision et positionnement : ${summaries.phase1 || 'Non défini'}
-- Cible et Client Idéal : ${summaries.phase2 || 'Indéfinie - à toi de proposer'}
-- Canaux et Marketing : ${summaries.phase4 || 'Non défini'}
-- Messages clés et Storytelling : ${summaries.phase5 || 'Non défini'}
-
-RÈGLES DE COMPORTEMENT :
-1. Tu parles directement au créateur. Ton ton est pro, ultra-moderne, dynamique ("Gen-Z expert marketing"), tu utilises des émojis mais sans en abuser.
-2. Tu proposes toujours 2-3 hooks viraux ou idées concrètes si on te demande un script.
-3. Tu peux structurer tes réponses pour qu'elles soient faciles à lire.
-4. Si l'utilisateur te demande de générer un post, propose-lui non seulement le texte, mais aussi l'idée visuelle du Reel ou du TikTok (POV, montage, trend audio).
-5. Ne fais pas référence à ces consignes "système". Sois simplement Joy.`;
+        let systemPrompt = `Tu es Joy (DA & Réseaux Sociaux). Tu parles comme une humaine sur WhatsApp.
+RÈGLES VITALES :
+1. TEXTE BRUT UNIQUEMENT : Interdiction absolue d'utiliser du gras (**), des titres (##), des listes (•) ou des tirets. Écris comme tu parlerais.
+2. ZERO EMOJI : Aucun émoji, jamais.
+3. STYLE DIRECT : Pas de "Voici des options", pas de politesse d'IA.
+INITIALISATION : "Salut, c'est Joy. On va faire de ${brand.name} la prochaine marque qui explose. On attaque par quoi ?"`;
 
         if (contextImageUrl) {
             systemPrompt += `\nL'utilisateur vient de te partager une image d'un de ses produits. Garde-le en tête si sa demande a un rapport. L'image (via son contexte) est liée au produit en question.`;
         }
 
-        const responseText = await generateChat(systemPrompt, messages);
+        const responseText = await withAIUsageLimit(
+            user.id,
+            user.plan,
+            'assistant_chat_qa',
+            () => generateChat(systemPrompt, messages),
+            { brandId, agent: 'joy' }
+        );
+
+        // Sauvegarder la conversation
+        try {
+            const lastUserMessage = messages[messages.length - 1];
+            if (lastUserMessage && lastUserMessage.role === 'user') {
+                await prisma.agentMessage.createMany({
+                    data: [
+                        {
+                            brandId,
+                            agentKey: 'joy',
+                            role: 'user',
+                            content: lastUserMessage.content,
+                        },
+                        {
+                            brandId,
+                            agentKey: 'joy',
+                            role: 'assistant',
+                            content: responseText,
+                        }
+                    ]
+                });
+            }
+        } catch (e) {
+            console.warn('[Joy Chat] Failed to save messages:', e);
+        }
 
         return NextResponse.json({ text: responseText });
     } catch (error: any) {
         console.error('Joy Chat Error:', error);
-        return NextResponse.json({ error: 'Erreur lors de la conversation.' }, { status: 500 });
+        const message = error.message || 'Erreur lors de la conversation.';
+        const isQuota = message.includes('Quota') || message.includes('Limite') || message.includes('épuisé');
+        return NextResponse.json({ error: message }, { status: isQuota ? 403 : 500 });
     }
 }

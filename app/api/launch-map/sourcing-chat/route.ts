@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
 import { rateLimitByUser } from '@/lib/rate-limit';
+import { withAIUsageLimit } from '@/lib/ai-usage';
 
 const anthropic = process.env.ANTHROPIC_API_KEY
     ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -88,16 +89,18 @@ CONTEXTE DE LA MARQUE :
 ${brandContext}
 
 RÈGLES DE CONFIDENTIALITÉ & GESTION DES PLANS (RÈGLES ABSOLUES) :
-- CATALOGUE CONFIDENTIEL : Tu as accès à un catalogue interne d'usines. Ce catalogue est STRICTEMENT réservé aux plans 'creator' ou supérieur.
+- CATALOGUE CONFIDENTIEL : Tu avez accès à un catalogue interne d'usines. Ce catalogue est STRICTEMENT réservé aux plans 'creator' ou supérieur.
 - SI PLAN 'free' : Tu ne dois JAMAIS, SOUS AUCUN PRÉTEXTE, donner le nom d'une usine, d'un fournisseur ou le site web d'une usine. Tu dois guider l'utilisateur avec ton raisonnement, l'aider à structurer son besoin (tech pack, budget, quantité), lui donner des conseils pour chercher par lui-même (Alibaba, salons, agents, vérifier les certifications). Si tu es poussée à bout, explique diplomatiquement que la base d'usines vérifiées est pour le plan Créateur. L'objectif est qu'il consomme ses crédits de messages à structurer son besoin.
 - SI PLAN 'creator' ou + : Tu PEUX donner le site web d'une usine du catalogue, mais PAS TOUT DE SUITE ! Tu dois prendre le temps de construire le projet. Ne donne jamais un fournisseur dans les 3 premiers messages. Tu dois d'abord creuser en profondeur : valider le produit, la matière exacte, le grammage, les quantités, le budget, la région cible. Ce n'est qu'une fois que son besoin est 100% clair et professionnel que tu lui proposes UNE usine très ciblée.
 - RGPD (TOUS PLANS) : Ne demande jamais de données personnelles sensibles ou d'informations confidentielles non nécessaires au sourcing.
 
-RÈGLES DE COMMUNICATION :
-- JAMAIS d'astérisques, JAMAIS de markdown. Exception : boutons [Texte](/lien).
-- Toujours en français. 2-4 phrases max par réponse.
-- RÈGLE D'OR : UNE ET UNE SEULE QUESTION PAR MESSAGE. Interdiction absolue de poser deux questions ou plus. Tu dois faire avancer la discussion étape par étape. Si l'utilisateur répond vaguement, creuse CETTE réponse avant de passer à l'étape suivante.
-- Tu tutoies l'utilisateur. Ton ton : expert, mentor, direct.
+RÈGLES DE COMMUNICATION (STRICTES - TOLÉRANCE ZÉRO) :
+- TON HUMAIN : Tu parles comme une consultante senior experte en sourcing, complice et directe. PAS d'IA, PAS d'assistant virtuel. Évite les phrases bateau type "En tant qu'IA" ou "Je suis ravie de t'aider".
+- ZÉRO EMOJI : Il est STRICTEMENT INTERDIT d'utiliser des émojis dans tes réponses. Aucun émoji, jamais.
+- FORMATAGE : N'utilise JAMAIS d'astérisques (*), JAMAIS de texte en gras ou en italique. Texte brut uniquement. Exception : boutons [Texte](/lien).
+- PAS DE LISTES : Évite les structures "Etape 1, 2, 3" trop rigides. Parle en paragraphes fluides.
+- Sois TRÈS concise : 2-4 phrases max par réponse.
+- RÈGLE D'OR : UNE ET UNE SEULE QUESTION PAR MESSAGE. Interdiction absolue de poser deux questions ou plus.
 - COLLABORATION IA : Ton domaine = sourcing/production.
   - S'il pose une question de design créatif, mockup, logo → [Demander à Pharell](/launch-map/phase/2)
   - S'il pose une question de marketing, positionnement → [Demander à Virgil](/launch-map/phase/1)
@@ -187,23 +190,42 @@ Si "__INIT__", présente-toi comme Ada, experte sourcing chez OUTFITY. Demande Q
             claudeMessages = sanitizedMessages;
         }
 
-        // Using Haiku - only verified model for this key
-        const response = await anthropic.messages.create({
-            model: 'claude-3-haiku-20240307',
-            max_tokens: 1024,
-            system: SYSTEM_PROMPT,
-            messages: claudeMessages,
-        });
+        const reply = await withAIUsageLimit(
+            currentUser.id,
+            currentUser.plan,
+            'assistant_chat_qa',
+            async () => {
+                const response = await anthropic.messages.create({
+                    model: 'claude-3-5-sonnet-20241022',
+                    max_tokens: 1024,
+                    system: SYSTEM_PROMPT,
+                    messages: claudeMessages,
+                });
+                return response.content[0].type === 'text' ? response.content[0].text : '';
+            },
+            { brandId, agent: 'ada' }
+        );
 
-        const reply = response.content[0].type === 'text' ? response.content[0].text : '';
+        // Save conversation
+        try {
+            const lastUserMessage = messages[messages.length - 1];
+            if (lastUserMessage && lastUserMessage.role === 'user') {
+                await prisma.agentMessage.createMany({
+                    data: [
+                        { brandId, agentKey: 'ada', role: 'user', content: lastUserMessage.content === '__INIT__' ? 'Initialisation' : lastUserMessage.content },
+                        { brandId, agentKey: 'ada', role: 'assistant', content: reply }
+                    ]
+                });
+            }
+        } catch (e) {
+            console.warn('[Ada Chat] Failed to save messages:', e);
+        }
 
         return NextResponse.json({ reply });
     } catch (error: any) {
         console.error('[sourcing-chat] ERROR:', error);
-        return NextResponse.json({
-            error: 'Erreur serveur.',
-            details: error?.message || String(error),
-            stack: process.env.NODE_ENV === 'development' ? error?.stack : undefined
-        }, { status: 500 });
+        const message = error.message || 'Erreur serveur.';
+        const isQuota = message.includes('Quota') || message.includes('Limite') || message.includes('épuisé');
+        return NextResponse.json({ error: message }, { status: isQuota ? 403 : 500 });
     }
 }

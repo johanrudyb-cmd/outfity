@@ -588,21 +588,28 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                                 </div>
                             </div>
 
-                            <div className="flex flex-col px-2 lg:px-4 lg:border-r lg:border-gray-100 sm:col-span-2 lg:col-span-1">
-                                <div className="flex items-center gap-2 mb-1.5">
-                                    <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest">Prix Conseillé</span>
+                            <div className="flex flex-col px-2 lg:px-4 lg:border-r lg:border-gray-100 sm:col-span-2 lg:col-span-1 border border-transparent relative overflow-hidden">
+                                <div className={cn("transition-all duration-500 flex flex-col h-full", isFree && "blur-[8px] opacity-40 select-none pointer-events-none")}>
+                                    <div className="flex items-center gap-2 mb-1.5">
+                                        <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest">Prix Conseillé</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 bg-[#F5F5F7] px-4 py-2 rounded-xl border border-blue-100">
+                                        <Sparkles className="w-3.5 h-3.5 text-[#007AFF]" />
+                                        <span className="text-xs md:text-sm font-black text-black">
+                                            {strategicAnalysis.priceRange.min}€ - {strategicAnalysis.priceRange.max}€
+                                        </span>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-3 bg-[#F5F5F7] px-4 py-2 rounded-xl border border-blue-100">
-                                    <Sparkles className="w-3.5 h-3.5 text-[#007AFF]" />
-                                    <span className="text-xs md:text-sm font-black text-black">
-                                        {strategicAnalysis.priceRange.min}€ - {strategicAnalysis.priceRange.max}€
-                                    </span>
-                                </div>
+                                {isFree && (
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <Lock className="w-4 h-4 text-gray-300" />
+                                    </div>
+                                )}
                             </div>
 
                             {/* Couleurs Responsive */}
-                            <div className="flex gap-4 md:gap-8 px-2 lg:px-4 sm:col-span-2 lg:col-span-1">
-                                <div className="flex flex-col flex-1">
+                            <div className="flex gap-4 md:gap-8 px-2 lg:px-4 sm:col-span-2 lg:col-span-1 relative overflow-hidden">
+                                <div className={cn("transition-all duration-500 flex-1 flex flex-col", isFree && "blur-[8px] opacity-40 select-none pointer-events-none")}>
                                     <span className="text-[8px] md:text-[9px] font-black text-[#007AFF] uppercase tracking-widest mb-1.5 whitespace-nowrap">COULEURS VIRALES PROJETÉES</span>
                                     <div className="flex items-center gap-1.5 bg-blue-50/30 px-2.5 py-1.5 rounded-xl border border-blue-100/30">
                                         {strategicAnalysis.targetColors.map((color: ColorHex, idx: number) => (
@@ -610,48 +617,60 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                                         ))}
                                     </div>
                                 </div>
+                                {isFree && (
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <Lock className="w-4 h-4 text-gray-300" />
+                                    </div>
+                                )}
                             </div>
                         </div>
 
                         <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8">
                             {/* Main Chart Responsive */}
-                            <div className="flex-1 lg:col-span-8 xl:col-span-9 bg-white rounded-[32px] md:rounded-[40px] p-6 md:p-10 shadow-sm border border-gray-100 relative flex flex-col h-[400px] md:h-[500px] lg:h-[650px]">
-                                <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-8">
-                                    <div>
-                                        <h3 className="text-xl font-black text-black uppercase tracking-tighter mb-1">Diagnostic de Tendance</h3>
-                                        <p className="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest">Data Viralité TikTok & Instagram</p>
-                                    </div>
-                                    <div className="flex flex-col items-start sm:items-end w-full sm:w-auto">
-                                        <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Score Tendance</span>
-                                        <div className={cn(
-                                            "text-xl md:text-2xl font-black flex items-center gap-2 transition-all",
-                                            currentScoreValue >= 85 ? "text-[#34C759]" : currentScoreValue > 50 ? "text-[#FF9500]" : "text-[#FF3B30]"
-                                        )}>
-                                            {currentScoreValue}
-                                            <span className="text-[10px] opacity-50 font-black">PTS</span>
+                            <div className="flex-1 lg:col-span-8 xl:col-span-9 bg-white rounded-[32px] md:rounded-[40px] p-6 md:p-10 shadow-sm border border-gray-100 relative flex flex-col h-[400px] md:h-[500px] lg:h-[650px] overflow-hidden">
+                                <div className="transition-all duration-500 flex flex-col flex-1">
+                                    <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-8">
+                                        <div>
+                                            <h3 className="text-xl font-black text-black uppercase tracking-tighter mb-1">Diagnostic de Tendance</h3>
+                                            <p className="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest">Data Viralité TikTok & Instagram</p>
+                                        </div>
+                                        <div className="flex flex-col items-start sm:items-end w-full sm:w-auto">
+                                            <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Score Tendance</span>
                                             <div className={cn(
-                                                "text-[9px] md:text-[10px] px-2 py-1 rounded-full font-black flex items-center gap-1",
-                                                dailyDiff >= 0 ? "bg-[#34C759]/10 text-[#34C759]" : "bg-[#FF3B30]/10 text-[#FF3B30]"
+                                                "text-xl md:text-2xl font-black flex items-center gap-2 transition-all",
+                                                currentScoreValue >= 85 ? "text-[#34C759]" : currentScoreValue > 50 ? "text-[#FF9500]" : "text-[#FF3B30]"
                                             )}>
-                                                {dailyDiff >= 0 ? `+${dailyDiff}` : dailyDiff}
-                                                <span className="opacity-70">({dailyPct}%)</span>
+                                                {currentScoreValue}
+                                                <span className="text-[10px] opacity-50 font-black">PTS</span>
+                                                <div className={cn(
+                                                    "text-[9px] md:text-[10px] px-2 py-1 rounded-full font-black flex items-center gap-1",
+                                                    dailyDiff >= 0 ? "bg-[#34C759]/10 text-[#34C759]" : "bg-[#FF3B30]/10 text-[#FF3B30]"
+                                                )}>
+                                                    {dailyDiff >= 0 ? `+${dailyDiff}` : dailyDiff}
+                                                    <span className="opacity-70">({dailyPct}%)</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                {/* Conteneur de la Courbe avec hauteur garantie */}
-                                <div className="w-full relative h-[300px] md:h-[400px] lg:flex-1 lg:min-h-0 overflow-hidden">
-                                    <div className="w-full h-full">
-                                        <PredictiveChart data={chartData} color={historyColor} predictionColor={predictionColor} />
+                                    {/* Conteneur de la Courbe avec hauteur garantie */}
+                                    <div className="w-full relative h-[300px] md:h-[400px] lg:flex-1 lg:min-h-0 overflow-hidden">
+                                        <div className="w-full h-full">
+                                            <PredictiveChart
+                                                data={chartData}
+                                                color={historyColor}
+                                                predictionColor={predictionColor}
+                                                isFree={isFree}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Diagnostic Sidebar Responsive */}
                             <div className="lg:col-span-4 xl:col-span-3 bg-white rounded-[32px] md:rounded-[40px] p-6 md:p-8 shadow-sm border border-gray-100 flex flex-col h-auto lg:h-[650px] relative overflow-hidden">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-[#007AFF] mb-1">Score</p>
-                                <div className="space-y-6 flex-1 flex flex-col min-h-0">
+                                <div className={cn("space-y-6 flex-1 flex flex-col min-h-0", isFree && "blur-[12px] opacity-40 select-none pointer-events-none")}>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-[#007AFF] mb-1">Score</p>
                                     <div className="bg-white rounded-[24px] md:rounded-[32px] p-5 md:p-6 border border-gray-100 shadow-sm relative overflow-hidden flex-1 flex flex-col">
                                         <div className={cn(
                                             "absolute top-0 left-0 w-full h-1.5",
@@ -712,11 +731,11 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                                                 <span className={cn(
                                                     "text-[10px] md:text-xs font-black px-2 py-0.5 rounded-full border",
                                                     strategicAnalysis.marginLevel === "PEAK" ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20" :
-                                                        strategicAnalysis.marginLevel === "STABLE" ? "bg-blue-50 text-[#007AFF] border-blue-100" :
-                                                            "bg-orange-50 text-orange-500 border-orange-100"
+                                                        strategicAnalysis.marginLevel === "HIGH" ? "bg-[#007AFF]/10 text-[#007AFF] border-[#007AFF]/20" :
+                                                            "bg-gray-100 text-gray-400 border-gray-200"
                                                 )}>
-                                                    {strategicAnalysis.marginLevel === "PEAK" ? "MARGE MAX" :
-                                                        strategicAnalysis.marginLevel === "STABLE" ? "STABLE" : "LIMITÉE"}
+                                                    {strategicAnalysis.marginLevel === "PEAK" ? "Excellent" :
+                                                        strategicAnalysis.marginLevel === "HIGH" ? "Bonne" : "Stable"}
                                                 </span>
                                             </div>
                                             <div className="text-right">
@@ -726,6 +745,23 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                                         </div>
                                     </div>
                                 </div>
+
+                                {isFree && (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-20">
+                                        <div className="w-12 h-12 rounded-[18px] bg-white shadow-apple flex items-center justify-center mb-4">
+                                            <Lock className="w-6 h-6 text-[#007AFF]" />
+                                        </div>
+                                        <h3 className="text-lg font-black uppercase tracking-tight text-black mb-1">Plan Creator</h3>
+                                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-6">
+                                            Accédez aux conseils stratégiques complets.
+                                        </p>
+                                        <Link href="/auth/choose-plan">
+                                            <button className="px-6 py-3 bg-[#007AFF] text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg">
+                                                Débloquer
+                                            </button>
+                                        </Link>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </>
