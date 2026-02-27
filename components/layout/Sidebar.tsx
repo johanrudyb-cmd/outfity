@@ -139,9 +139,9 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
       {/* ── Full sidebar: mobile drawer + desktop fixed ── */}
       <aside
         className={cn(
-          'fixed left-0 top-0 h-[100dvh] lg:h-screen w-72 max-w-[85vw] backdrop-blur-xl bg-white/95 flex flex-col z-[70] overflow-y-auto lg:overflow-y-hidden',
+          'fixed left-0 top-0 h-[100dvh] lg:h-screen w-72 max-w-[85vw] backdrop-blur-xl bg-white/95 flex flex-col z-[70] overflow-hidden',
           'transform transition-transform duration-300 ease-out',
-          // On mobile: translate based on open state; on md: always hidden (compact replaces); on lg: always visible
+          // Desktop: force flex and visible. Tablet: hidden (compact sidebar takes over).
           'md:hidden lg:flex lg:translate-x-0',
           open ? 'translate-x-0 shadow-2xl flex' : '-translate-x-full'
         )}
