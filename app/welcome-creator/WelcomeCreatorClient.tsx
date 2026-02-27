@@ -11,8 +11,8 @@ import {
 } from 'lucide-react';
 
 // ─── Écrans ───────────────────────────────────────────────────
-type Screen = 'intro' | 'johan' | 'features' | 'cta';
-const SCREENS: Screen[] = ['intro', 'johan', 'features', 'cta'];
+type Screen = 'intro' | 'agents' | 'features' | 'cta';
+const SCREENS: Screen[] = ['intro', 'agents', 'features', 'cta'];
 
 // ─── Features Creator ────────────────────────────────────────
 const CREATOR_FEATURES = [
@@ -80,7 +80,7 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo }: { userN
     const firstName = userName.split(' ')[0];
 
     return (
-        <div className="min-h-screen bg-[#0A0A0A] text-white font-sans overflow-hidden flex flex-col">
+        <div className="fixed inset-0 w-full h-[100dvh] bg-[#0A0A0A] text-white font-sans overflow-hidden flex flex-col">
             {/* Progress dots */}
             <div className="fixed top-6 left-1/2 -translate-x-1/2 flex gap-2 z-50">
                 {SCREENS.map((s, i) => (
@@ -95,7 +95,7 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo }: { userN
                 ))}
             </div>
 
-            <div className="flex-1 flex flex-col items-center justify-center p-6 relative">
+            <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 relative w-full h-full overflow-y-auto overflow-x-hidden">
                 <AnimatePresence mode="wait">
 
                     {/* ── ÉCRAN 1 : INTRO ── */}
@@ -175,39 +175,43 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo }: { userN
                         </motion.div>
                     )}
 
-                    {/* ── ÉCRAN 2 : RÉVÉLATION JOHAN ── */}
-                    {screen === 'johan' && (
+                    {/* ── ÉCRAN 2 : RÉVÉLATION AGENTS ── */}
+                    {screen === 'agents' && (
                         <motion.div
-                            key="johan"
+                            key="agents"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.5 }}
-                            className="flex flex-col items-center gap-12 max-w-2xl w-full"
+                            className="flex flex-col items-center gap-8 sm:gap-12 max-w-4xl w-full py-8"
                         >
-                            <div className="text-center space-y-3">
+                            <div className="text-center space-y-3 px-2">
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: 0.1 }}
-                                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#ffaa00]/30 bg-[#ffaa00]/10 text-[#ffaa00] text-xs font-bold uppercase tracking-widest mb-2"
+                                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#ffaa00]/30 bg-[#ffaa00]/10 text-white text-xs font-bold uppercase tracking-widest mb-2"
                                 >
-                                    <Zap className="w-3.5 h-3.5" /> Nouvel Agent Débloqué
+                                    <Zap className="w-3.5 h-3.5 text-[#ffaa00]" /> Nouveaux Agents Débloqués
                                 </motion.div>
-                                <h2 className="text-4xl sm:text-5xl font-black uppercase tracking-tight">
-                                    Johan est<br />
-                                    <span style={{ color: '#ffaa00' }}>dans l&apos;équipe.</span>
+                                <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight">
+                                    Johan & Joy <br className="hidden sm:block" />
+                                    <span className="bg-gradient-to-r from-[#ffaa00] to-[#AF52DE] bg-clip-text text-transparent">rejoignent l&apos;équipe.</span>
                                 </h2>
-                                <p className="text-white/50 text-base max-w-sm mx-auto">
-                                    Ton expert E-shop & Ventes. Il optimise ta boutique Shopify et booste tes taux de conversion.
+                                <p className="text-white/50 text-sm sm:text-base max-w-lg mx-auto leading-relaxed px-4">
+                                    Tes experts Ventes et Création de contenu. Ils optimisent ta boutique Shopify et gèrent tes réseaux sociaux.
                                 </p>
                             </div>
 
-                            {/* Carte Johan uniquement */}
-                            <div className="flex justify-center">
+                            {/* Cartes Johan & Joy */}
+                            <div className="flex flex-col sm:flex-row justify-center items-center gap-10 sm:gap-16 w-full">
                                 <AgentRevealCard
                                     agent={AGENTS_TEAM.find(a => a.id === 'johan')!}
                                     delay={0}
+                                />
+                                <AgentRevealCard
+                                    agent={AGENTS_TEAM.find(a => a.id === 'joy')!}
+                                    delay={0.3}
                                 />
                             </div>
 
@@ -216,7 +220,7 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo }: { userN
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 1.5 }}
                                 onClick={goNext}
-                                className="flex items-center gap-2 px-8 py-4 bg-white text-black rounded-2xl font-bold text-base hover:bg-white/90 active:scale-[0.98] transition-all shadow-xl"
+                                className="flex items-center gap-2 px-8 py-4 bg-white text-black rounded-2xl font-bold text-base hover:bg-white/90 active:scale-[0.98] transition-all shadow-xl mt-4"
                             >
                                 Voir mes nouveaux outils <ArrowRight className="w-4 h-4" />
                             </motion.button>

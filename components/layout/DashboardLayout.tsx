@@ -94,9 +94,6 @@ export function DashboardLayout({
         <DashboardTutorialGate />
         <CreatorTutorialGate />
       </Suspense>
-      {/* Mobile bottom nav — only visible on small screens (below md) */}
-      <MobileNav onMenuClick={() => setSidebarOpen(true)} />
-
     </div>
   );
 }
