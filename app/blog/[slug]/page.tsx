@@ -5,8 +5,8 @@ import { ArrowLeft, Calendar, User, Clock, ArrowRight, Sparkles } from 'lucide-r
 import { ShareButton } from '@/components/blog/ShareButton';
 import { prisma } from '@/lib/prisma';
 import Markdown from 'react-markdown';
-import { AnimatedHeader } from '../../../components/homepage/AnimatedHeader';
-import Footer from '../../../components/homepage/Footer';
+import { AnimatedHeader } from '@/components/homepage/AnimatedHeader';
+import Footer from '@/components/homepage/Footer';
 import { cn } from '@/lib/utils';
 import { Metadata } from 'next';
 

@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
-import { AnimatedHeader } from '../../components/homepage/AnimatedHeader';
-import Footer from '../../components/homepage/Footer';
+import { AnimatedHeader } from '@/components/homepage/AnimatedHeader';
+import Footer from '@/components/homepage/Footer';
 import { BlogClient } from './BlogClient';
 
 export const metadata = {
