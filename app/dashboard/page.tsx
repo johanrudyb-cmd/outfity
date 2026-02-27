@@ -3,6 +3,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { DashboardRefresh } from '@/components/dashboard/DashboardRefresh';
 import { DashboardNotifications } from '@/components/dashboard/DashboardNotifications';
 import { DashboardStatsSkeleton } from '@/components/dashboard/DashboardStats';
+import { DashboardRecentActivity } from '@/components/dashboard/DashboardRecentActivity';
 import { StrategyUpdateBanner } from '@/components/dashboard/StrategyUpdateBanner';
 import { UpgradeSessionRefresh } from '@/components/dashboard/UpgradeSessionRefresh';
 import { getCurrentUser } from '@/lib/auth-helpers';
@@ -90,6 +91,7 @@ export default async function DashboardPage() {
       iconBg: 'bg-blue-50',
       iconColor: 'text-blue-500',
       accent: 'group-hover:border-blue-200',
+      disabled: false,
     },
     {
       title: 'Détecter une tendance',
@@ -99,6 +101,7 @@ export default async function DashboardPage() {
       iconBg: 'bg-violet-50',
       iconColor: 'text-violet-500',
       accent: 'group-hover:border-violet-200',
+      disabled: false,
     },
     {
       title: 'Création de contenu',
@@ -108,6 +111,7 @@ export default async function DashboardPage() {
       iconBg: 'bg-orange-50',
       iconColor: 'text-orange-500',
       accent: 'group-hover:border-orange-200',
+      disabled: false,
     },
     {
       title: 'Calculateur de marge',
@@ -117,6 +121,7 @@ export default async function DashboardPage() {
       iconBg: 'bg-emerald-50',
       iconColor: 'text-emerald-500',
       accent: 'group-hover:border-emerald-200',
+      disabled: false,
     },
   ];
 
@@ -293,6 +298,28 @@ export default async function DashboardPage() {
                 <div className="grid grid-cols-2 gap-3 sm:gap-4">
                   {quickTools.map((tool) => {
                     const Icon = tool.icon;
+                    if (tool.disabled) {
+                      return (
+                        <div
+                          key={tool.title}
+                          className="group bg-white/40 rounded-[20px] sm:rounded-[24px] p-4 sm:p-5 border border-black/[0.05] flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 relative"
+                        >
+                          <div className={cn("w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center shrink-0 grayscale opacity-40", tool.iconBg)}>
+                            <Icon className={cn("w-5 h-5 sm:w-6 sm:h-6", tool.iconColor)} />
+                          </div>
+                          <div className="flex-1 min-w-0 pr-1 opacity-50">
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <p className="font-bold text-[13px] sm:text-sm text-[#1D1D1F] leading-snug truncate">{tool.title}</p>
+                              <span className="px-1.5 py-0.5 bg-[#1D1D1F]/5 text-[#1D1D1F]/60 rounded text-[8px] font-black uppercase tracking-widest leading-none shrink-0 border border-black/5">
+                                Bientôt
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-[#86868B] line-clamp-1">{tool.subtitle}</p>
+                          </div>
+                        </div>
+                      );
+                    }
+
                     return (
                       <Link
                         key={tool.href}
@@ -338,9 +365,9 @@ export default async function DashboardPage() {
                       </p>
                     </div>
                   </div>
-                  <Link href="/content-creation" className="w-8 h-8 rounded-full bg-[#F5F5F7] flex items-center justify-center hover:bg-[#007AFF]/10 hover:text-[#007AFF] transition-colors text-[#86868B]">
+                  <div className="w-8 h-8 rounded-full bg-[#F5F5F7] flex items-center justify-center text-[#86868B] opacity-50 cursor-not-allowed">
                     <ArrowRight className="w-4 h-4" />
-                  </Link>
+                  </div>
                 </div>
 
                 {weekEvents.length === 0 ? (
@@ -368,6 +395,11 @@ export default async function DashboardPage() {
                   </div>
                 )}
               </div>
+
+              {/* Activité Récente */}
+              <Suspense fallback={null}>
+                <DashboardRecentActivity />
+              </Suspense>
 
               {/* Shopify Promo Banner (Below Calendar) */}
               <div className="relative overflow-hidden rounded-[28px] bg-[#000000] p-6 text-white shadow-apple">

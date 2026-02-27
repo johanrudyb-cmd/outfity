@@ -5,7 +5,6 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Check, ArrowRight, Sparkles, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { SubscriptionWarning } from '@/components/subscription/SubscriptionWarning';
 
 function CountdownTimer() {
   const [timeLeft, setTimeLeft] = useState({ days: 29, hours: 23, minutes: 54, seconds: 12 });
@@ -24,7 +23,7 @@ function CountdownTimer() {
   }, []);
 
   return (
-    <div className="flex items-center justify-center gap-2 text-[#FF3B30] font-bold text-[10px] sm:text-xs mb-4 bg-red-50 py-1.5 px-3 rounded-full border border-red-100 animate-pulse">
+    <div className="flex items-center justify-center gap-2 text-[#FF3B30] font-bold text-[10px] sm:text-xs mb-4 bg-red-50 py-1.5 px-3 rounded-full border border-red-100">
       <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
       <span>SÉANCE PROMO : {timeLeft.days}j {String(timeLeft.hours).padStart(2, '0')}h {String(timeLeft.minutes).padStart(2, '0')}m</span>
     </div>
@@ -38,11 +37,10 @@ const plans = [
     period: '/ mois',
     description: 'Ton équipe d\'experts IA (Virgil, Pharrell, Ada) t\'accompagne.',
     features: [
-      'Accès à 3 Agents IA (Virgil, Pharrell, Ada)',
+      'Accès à 3 Agents IA (Limité)',
+      'Analyses de style détaillées (Limité)',
       'Radar de Tendances (Limité)',
       'Calculateur de Rentabilité',
-      'Studio Design (5 designs / mois)',
-      'Sourcing Hub (Aperçu)',
     ],
     cta: 'Continuer gratuitement',
     ctaStyle: 'border',
@@ -57,15 +55,16 @@ const plans = [
     description: 'Offre limitée : 29€/mois à vie (au lieu de 39€).',
     features: [
       '3 JOURS D\'ESSAI GRATUIT',
-      'Équipe Complète (4 Agents IA dont Johan)',
-      'Stratégie Marketing & ADN de Marque',
-      'Designs & Mockups en Illimité',
-      'Tech Packs Professionnels IA',
-      'Radar de Tendances Premium',
-      'Sourcing Premium & Accès Usines',
-      'Support Prioritaire 24/7',
+      'Les 5 agents IA inclus',
+      'Stratégie marketing complète',
+      'Analyses de style détaillées',
+      'Shooting Virtuel & Mannequin IA',
+      'Mockups & Tech Packs',
+      'Création de Boutique Shopify',
+      'Accès complet au Radar de tendances',
+      'Fournisseurs de confiance',
     ],
-    cta: 'S\'abonner au plan Créateur',
+    cta: 'Démarrer l\'essai gratuit',
     ctaStyle: 'solid',
     popular: true,
     isFree: false,
@@ -140,40 +139,31 @@ export function ChoosePlanClient({ userPlan }: { userPlan?: string }) {
               )}
               style={{ transitionDelay: `${index * 100}ms` }}
             >
-              {plan.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 cursor-default">
-                  <div className="bg-[#007AFF] text-white px-3 py-1 rounded-full text-xs font-semibold">
-                    Plus Populaire
-                  </div>
-                </div>
-              )}
-
               {plan.popular && <CountdownTimer />}
 
               <div className="mb-8 flex-1">
-                <h3 className="text-2xl font-bold tracking-tight text-[#000000] mb-4">
+                <h3 className="text-xl font-bold tracking-tight text-[#000000] mb-4">
                   {plan.name}
                 </h3>
-                {plan.price !== null ? (
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-5xl font-bold text-[#000000]">
-                      {plan.price}€
-                    </span>
-                    {plan.oldPrice && (
-                      <span className="text-2xl text-[#86868B] line-through decoration-red-500/50">
-                        {plan.oldPrice}€
+                {
+                  plan.price !== null ? (
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-bold text-[#000000]">
+                        {plan.price}€/mois
                       </span>
-                    )}
-                    <span className="text-lg text-[#6e6e73] font-normal">
-                      {plan.period}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="text-3xl font-bold text-[#000000]">
-                    Sur mesure
-                  </div>
-                )}
-                <p className="text-sm text-[#6e6e73] font-normal mt-3 mb-4">
+                      {plan.oldPrice && (
+                        <span className="text-xl text-[#86868B] line-through decoration-red-500/50">
+                          {plan.oldPrice}€
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-3xl font-bold text-[#000000]">
+                      Sur mesure
+                    </div>
+                  )
+                }
+                < p className="text-sm text-[#6e6e73] font-normal mt-3 mb-4" >
                   {plan.description}
                 </p>
 
@@ -182,7 +172,8 @@ export function ChoosePlanClient({ userPlan }: { userPlan?: string }) {
                     { name: 'Virgil', img: '/images/agents/virgil_final.png' },
                     { name: 'Pharrell', img: '/images/agents/pharrell_final.png' },
                     { name: 'Ada', img: '/images/agents/ada_final.png' },
-                    { name: 'Johan', img: '/images/agents/johan_final.png', locked: plan.name === 'Starter' }
+                    { name: 'Johan', img: '/images/agents/johan_final.png', locked: plan.name === 'Starter' },
+                    { name: 'Joy', img: '/images/agents/joy_final.png', locked: plan.name === 'Starter' }
                   ].map((agent) => (
                     <div key={agent.name} className="relative group/agent">
                       <img
@@ -230,9 +221,6 @@ export function ChoosePlanClient({ userPlan }: { userPlan?: string }) {
               <div className="mt-auto">
                 {plan.isFree ? (
                   <>
-                    <div className="mb-4">
-                      <SubscriptionWarning context="upgrade" />
-                    </div>
                     <Link
                       href="/dashboard"
                       className={cn(
@@ -273,15 +261,16 @@ export function ChoosePlanClient({ userPlan }: { userPlan?: string }) {
                 )}
               </div>
             </div>
-          ))}
-        </div>
+          ))
+          }
+        </div >
 
         <div className="text-center mt-12">
           <p className="text-sm text-[#6e6e73] font-normal max-w-lg mx-auto leading-relaxed">
             *Offre de lancement : 29€/mois à vie (au lieu de 39€) si vous souscrivez pendant la promo. 3 jours d'essai gratuit. Annulable à tout moment. Paiement sécurisé par Stripe.
           </p>
         </div>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 }

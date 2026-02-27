@@ -41,81 +41,81 @@ export function MarginCalculator() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           className={cn(
-            'bg-[#1C1C1E] rounded-2xl sm:rounded-[32px] p-6 sm:p-12 border border-white/10 shadow-2xl',
+            'bg-[#1C1C1E] rounded-[32px] sm:rounded-[48px] p-8 sm:p-16 border border-white/10 shadow-2xl',
             'transition-all duration-500',
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           )}
         >
-          <div className="flex items-center gap-4 mb-8">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-[#007AFF]/20 flex items-center justify-center">
-              <Calculator className="w-6 h-6 sm:w-7 sm:h-7 text-[#007AFF]" />
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 mb-10 sm:mb-12 text-center sm:text-left">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#007AFF]/20 flex items-center justify-center">
+              <Calculator className="w-7 h-7 sm:w-8 sm:h-8 text-[#007AFF]" />
             </div>
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-                Calculateur de marge
+              <h2 className="text-3xl sm:text-4xl font-black tracking-tighter text-white uppercase leading-none mb-2">
+                Simulateur <span className="text-[#007AFF]">ROI.</span>
               </h2>
-              <p className="text-xs sm:text-sm text-white/60 font-normal mt-1">
-                Calculez rapidement votre marge bénéficiaire
+              <p className="text-[10px] sm:text-xs text-white/40 font-black uppercase tracking-widest">
+                Analysez votre potentiel de profit instantanément
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
             <div>
-              <label className="block text-sm font-semibold text-white/80 mb-3">
-                Prix de revient
+              <label className="block text-[10px] sm:text-xs font-black uppercase tracking-widest text-white/50 mb-3 text-center sm:text-left">
+                Coût de fabrication
               </label>
-              <div className="flex items-center gap-3">
+              <div className="relative flex items-center">
                 <input
                   type="number"
                   value={cost}
                   onChange={(e) => setCost(Number(e.target.value))}
-                  className="flex-1 px-4 py-3 bg-white/5 rounded-xl border border-white/10 text-white font-bold text-lg focus:outline-none focus:border-[#007AFF] transition-colors"
+                  className="w-full pl-6 pr-12 py-4 bg-white/5 rounded-2xl border border-white/10 text-white font-black text-xl sm:text-2xl focus:outline-none focus:border-[#007AFF] transition-colors tabular-nums"
                 />
-                <span className="text-lg font-bold text-white">€</span>
+                <span className="absolute right-6 text-xl font-black text-[#007AFF]">€</span>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-white/80 mb-3">
-                Prix de vente
+              <label className="block text-[10px] sm:text-xs font-black uppercase tracking-widest text-white/50 mb-3 text-center sm:text-left">
+                Prix de vente ciblé
               </label>
-              <div className="flex items-center gap-3">
+              <div className="relative flex items-center">
                 <input
                   type="number"
                   value={price}
                   onChange={(e) => setPrice(Number(e.target.value))}
-                  className="flex-1 px-4 py-3 bg-white/5 rounded-xl border border-white/10 text-white font-bold text-lg focus:outline-none focus:border-[#007AFF] transition-colors"
+                  className="w-full pl-6 pr-12 py-4 bg-white/5 rounded-2xl border border-white/10 text-white font-black text-xl sm:text-2xl focus:outline-none focus:border-[#007AFF] transition-colors tabular-nums"
                 />
-                <span className="text-lg font-bold text-white">€</span>
+                <span className="absolute right-6 text-xl font-black text-[#007AFF]">€</span>
               </div>
             </div>
           </div>
 
           <div className="pt-8 border-t border-white/10">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <div className="text-xs sm:text-sm text-white/60 font-normal mb-1">Marge nette</div>
-                <div className="text-2xl sm:text-4xl font-bold text-[#34C759]">
-                  {margin.toFixed(2)} €
+            <div className="grid grid-cols-2 gap-8 mb-10">
+              <div className="text-center sm:text-left">
+                <div className="text-[10px] sm:text-xs text-white/40 font-black uppercase tracking-widest mb-2">Profit Net</div>
+                <div className="text-3xl sm:text-5xl font-black text-white tracking-tighter tabular-nums">
+                  {margin.toFixed(2)}<span className="text-[#007AFF]">€</span>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="text-xs sm:text-sm text-white/60 font-normal mb-1">Rentabilité</div>
-                <div className="text-2xl sm:text-4xl font-bold text-[#007AFF]">
-                  {marginPercentage}%
+              <div className="text-center sm:text-right">
+                <div className="text-[10px] sm:text-xs text-white/40 font-black uppercase tracking-widest mb-2">Marge</div>
+                <div className="text-3xl sm:text-5xl font-black text-white tracking-tighter tabular-nums">
+                  {marginPercentage}<span className="text-[#007AFF]">%</span>
                 </div>
               </div>
             </div>
             <Link
               href="/auth/signup"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#007AFF] text-white rounded-full font-bold text-base sm:text-lg hover:bg-[#0056CC] transition-all duration-200 shadow-lg shadow-[#007AFF]/20 active:scale-95 group"
+              className="w-full inline-flex items-center justify-center gap-3 px-8 py-5 bg-[#007AFF] text-white rounded-2xl font-black text-xs sm:text-sm uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 shadow-xl shadow-[#007AFF]/20 group"
             >
-              Accéder au calculateur complet
+              Accéder au simulateur complet
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <p className="text-[10px] sm:text-[11px] text-white/40 text-center mt-6 font-medium leading-relaxed">
+            <p className="text-[9px] sm:text-[10px] text-white/40 text-center mt-6 font-bold uppercase tracking-widest leading-relaxed">
               Vérifiez les taux d'imposition selon votre statut. <br className="hidden sm:block" />
-              Les prix affichés sont des moyennes du marché à titre indicatif.
+              Les prix affichés sont des moyennes indicatives.
             </p>
           </div>
         </div>

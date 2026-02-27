@@ -108,10 +108,10 @@ export const QUOTA_LABELS: Record<QuotaFeatureKey, string> = {
 export type QuotaCategory = 'intelligence' | 'identite' | 'marketing' | 'premium';
 
 export const QUOTA_CATEGORIES: Record<QuotaCategory, QuotaFeatureKey[]> = {
-  intelligence: ['brand_analyze', 'brand_strategy', 'strategy_view', 'trends_check_image', 'trends_hybrid_scan', 'agent_chat'],
-  identite: ['brand_logo', 'launch_map_site_texts'],
-  marketing: ['ugc_scripts', 'ugc_shooting_photo', 'ugc_shooting_product'],
-  premium: ['ugc_virtual_tryon'],
+  intelligence: ['brand_strategy', 'trends_check_image', 'trends_hybrid_scan', 'agent_chat'],
+  identite: ['brand_logo'],
+  marketing: [],
+  premium: [],
 };
 
 export const CATEGORY_LABELS: Record<QuotaCategory, string> = {

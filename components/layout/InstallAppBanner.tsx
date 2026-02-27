@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { X, Share, PlusSquare, Smartphone, MoreVertical, Download, Bell, BellRing, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWebPush } from '@/lib/hooks/useWebPush';
 
 export function InstallAppBanner() {
+    const pathname = usePathname();
     const [isStandalone, setIsStandalone] = useState(true); // default true to avoid hydration mismatch
     const [showModal, setShowModal] = useState(false);
     const [platform, setPlatform] = useState<'ios' | 'android' | 'desktop'>('desktop');
@@ -29,58 +31,45 @@ export function InstallAppBanner() {
 
     const { isSupported, isSubscribed, subscribe, loading: pushLoading, testPush } = useWebPush();
 
+    // Only display on Dashboard home page
+    if (pathname !== '/dashboard') return null;
+
     // Don't show the install banner if the app is already installed,
     // INSTEAD show a "enable notifications" banner if supported and not subscribed
     if (isStandalone) {
         if (!isSupported || isSubscribed) return null;
 
         return (
-            <div className="bg-gradient-to-r from-[#007AFF]/10 to-[#5AC8FA]/10 rounded-2xl p-4 border border-[#007AFF]/20 flex items-center justify-between gap-3 mt-4 mx-4 mb-2 shadow-sm animate-in fade-in zoom-in duration-300">
-                <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-[#007AFF]/20 flex items-center justify-center shrink-0">
-                        <Bell className="w-5 h-5 text-[#007AFF]" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                        <p className="text-[13px] font-bold text-[#1D1D1F] leading-tight truncate">Activer les Notifications</p>
-                        <p className="text-[10px] text-[#86868B] font-medium mt-0.5 truncate">Sois prévenu des tendances</p>
-                    </div>
-                </div>
-                <Button
-                    onClick={async () => {
-                        const success = await subscribe();
-                        if (success) {
-                            testPush();
-                        }
-                    }}
-                    disabled={pushLoading}
-                    className="h-8 rounded-full px-3 text-xs font-bold bg-[#007AFF] hover:bg-[#0056CC] text-white shadow-sm shrink-0"
-                >
-                    {pushLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Autoriser'}
-                </Button>
-            </div>
+            <button
+                onClick={async () => {
+                    const success = await subscribe();
+                    if (success) {
+                        testPush();
+                    }
+                }}
+                disabled={pushLoading}
+                className="flex items-center gap-2 h-8 lg:h-9 px-3 lg:px-4 rounded-full bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] hover:opacity-90 text-white shadow-sm transition-opacity duration-200 border-none shrink-0 cursor-pointer animate-in fade-in zoom-in"
+            >
+                {pushLoading ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                    <Bell className="w-3.5 h-3.5" />
+                )}
+                <span className="text-[11px] lg:text-xs font-bold whitespace-nowrap hidden sm:inline-block">Activer Notifs</span>
+            </button>
         );
     }
 
     return (
         <>
-            {/* The Banner */}
-            <div className="bg-gradient-to-r from-[#007AFF]/10 to-[#5AC8FA]/10 rounded-2xl p-4 border border-[#007AFF]/20 flex items-center justify-between gap-3 mt-4 mx-4 mb-2 shadow-sm">
-                <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center shrink-0 shadow-md">
-                        <Image src="/apple-icon.png" alt="OUTFITY App" width={40} height={40} className="object-cover rounded-xl" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                        <p className="text-[13px] font-bold text-[#1D1D1F] leading-tight truncate">L'App OUTFITY</p>
-                        <p className="text-[10px] text-[#86868B] font-medium mt-0.5 truncate">Notifs Push Incluses</p>
-                    </div>
-                </div>
-                <Button
-                    onClick={() => setShowModal(true)}
-                    className="h-8 rounded-full px-3 text-xs font-bold bg-[#007AFF] hover:bg-[#0056CC] text-white shadow-sm shrink-0"
-                >
-                    Obtenir
-                </Button>
-            </div>
+            {/* The Compact Banner Button for Header */}
+            <button
+                onClick={() => setShowModal(true)}
+                className="flex items-center gap-2 h-8 lg:h-9 px-3 lg:px-4 rounded-full bg-[#1D1D1F] hover:bg-black text-white shadow-sm transition-colors duration-200 border-none shrink-0 cursor-pointer"
+            >
+                <Download className="w-3.5 h-3.5" />
+                <span className="text-[11px] lg:text-xs font-bold whitespace-nowrap hidden sm:inline-block">Télécharger l'App</span>
+            </button>
 
             {/* The Modal */}
             <AnimatePresence>

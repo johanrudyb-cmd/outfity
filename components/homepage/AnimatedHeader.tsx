@@ -41,9 +41,9 @@ export function AnimatedHeader() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-[#F2F2F2]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 lg:h-20 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
+    <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-black/5">
+      <div className="max-w-7xl mx-auto px-6 h-16 sm:h-20 lg:h-24 flex items-center justify-between">
+        <div className="flex items-center gap-4">
           {/* Menu Mobile Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -75,15 +75,9 @@ export function AnimatedHeader() {
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <Link
             href="/auth/signin"
-            className="px-3 py-2 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold border-2 border-[#E5E5E7] text-[#1D1D1F] hover:border-[#007AFF] hover:text-[#007AFF] transition-colors whitespace-nowrap"
+            className="px-4 py-2 sm:px-6 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold bg-[#007AFF] text-white hover:bg-[#0056CC] transition-colors shadow-sm whitespace-nowrap"
           >
             Connexion
-          </Link>
-          <Link
-            href="/auth/signup"
-            className="px-3 py-2 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold bg-[#007AFF] text-white hover:bg-[#0056CC] transition-colors shadow-sm whitespace-nowrap"
-          >
-            S'inscrire
           </Link>
         </div>
       </div>
@@ -91,42 +85,45 @@ export function AnimatedHeader() {
       {/* Menu Mobile Overlay */}
       <AnimatePresence>
         {isMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="absolute top-full left-0 w-full h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] lg:h-[calc(100vh-5rem)] z-40 bg-white border-t border-[#F2F2F2] overflow-y-auto xl:hidden"
-          >
-            <div className="flex flex-col px-6 py-8 space-y-6 pb-24">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setIsMenuOpen(false)}
-                  className="text-2xl font-black tracking-tight text-[#1D1D1F] hover:text-[#007AFF] transition-colors"
-                >
-                  {link.name}
-                </Link>
-              ))}
-              <div className="pt-8 mt-4 border-t border-[#F2F2F2] space-y-4">
-                <Link
-                  href="/auth/signin"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block w-full py-3.5 text-center font-bold text-[#1D1D1F] border-2 border-[#E5E5E7] rounded-xl"
-                >
-                  Connexion
-                </Link>
-                <Link
-                  href="/auth/signup"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block w-full py-4 bg-[#007AFF] text-white rounded-xl text-center font-bold shadow-lg shadow-[#007AFF]/20"
-                >
-                  Créer un compte
-                </Link>
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-white/60 backdrop-blur-md z-40 lg:hidden"
+              onClick={() => setIsMenuOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -20 }}
+              transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
+              className="absolute top-full left-0 w-full z-50 bg-white border-b border-black/5 overflow-hidden lg:hidden"
+            >
+              <div className="px-8 py-12 space-y-8 flex flex-col items-center text-center">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.name}
+                    href={link.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-2xl font-black uppercase tracking-tighter text-black hover:text-[#007AFF] transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+                <div className="w-full h-[1px] bg-black/5 my-4" />
+                <div className="w-full">
+                  <Link
+                    href="/auth/signin"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block w-full py-5 bg-[#007AFF] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest text-center shadow-2xl shadow-[#007AFF]/20"
+                  >
+                    Connexion
+                  </Link>
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </nav>

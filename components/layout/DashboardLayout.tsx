@@ -72,9 +72,9 @@ export function DashboardLayout({
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
-      <div className="pl-0 lg:pl-72 min-h-screen flex flex-col transition-[padding] duration-200">
+      <div className="pl-0 md:pl-[68px] lg:pl-72 min-h-screen flex flex-col transition-[padding] duration-200">
         <Header onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col">
+        <main className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col pb-[72px] md:pb-0">
           <ErrorBoundary>
             <PageTransition className="flex-1 min-h-0 flex flex-col">
               <PaywallGate>{children}</PaywallGate>
@@ -87,8 +87,8 @@ export function DashboardLayout({
         <CreatorTutorialGate />
         <UpgradeSessionRefresh />
       </Suspense>
-      {/* Bottom Mobile Navigation removed as per user request */}
-      {/* <MobileNav onMenuClick={() => setSidebarOpen(true)} /> */}
+      {/* Mobile bottom nav — only visible on small screens (below md) */}
+      <MobileNav onMenuClick={() => setSidebarOpen(true)} />
 
     </div>
   );

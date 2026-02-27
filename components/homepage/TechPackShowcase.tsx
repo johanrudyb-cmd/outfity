@@ -34,35 +34,41 @@ export function TechPackShowcase() {
   }, []);
 
   return (
-    <section id="tech-pack-showcase" className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+    <section id="tech-pack-showcase" className="py-24 bg-white relative overflow-hidden">
+      {/* Background Decor - Technical Grid */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]">
+        <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '100px 100px' }} />
+        <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(#000 0.5px, transparent 0.5px), linear-gradient(90deg, #000 0.5px, transparent 0.5px)', backgroundSize: '20px 20px', opacity: 0.5 }} />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 sm:gap-16 items-center">
           {/* Contenu texte */}
           <div
             className={cn(
-              'transition-all duration-700',
+              'transition-all duration-700 text-left',
               isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
             )}
           >
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 rounded-2xl bg-[#007AFF]/10 flex items-center justify-center">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 mb-6 sm:mb-8">
+              <div className="w-14 h-14 rounded-2xl bg-[#007AFF]/10 flex items-center justify-center shrink-0">
                 <FileText className="w-7 h-7 text-[#007AFF]" />
               </div>
-              <div>
-                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#000000]">
-                  Tech Pack Professionnel
+              <div className="text-left">
+                <h2 className="text-3xl sm:text-5xl font-black tracking-tighter text-black uppercase leading-[0.9]">
+                  Tech Pack <br className="lg:hidden" /> Professionnel
                 </h2>
-                <p className="text-xs sm:text-sm text-[#6e6e73] font-normal mt-1">
-                  Créez vos spécifications techniques complètes
+                <p className="text-[10px] sm:text-xs text-[#007AFF] font-black uppercase tracking-widest mt-2 sm:mt-1">
+                  Spécifications techniques complètes
                 </p>
               </div>
             </div>
 
-            <p className="text-lg text-[#6e6e73] font-normal mb-8 leading-relaxed">
-              Remplissez votre tech pack avec un formulaire intuitif. Visualisez en temps réel votre document professionnel avec toutes les spécifications techniques : tailles, placements de logos, couleurs, matériaux et détails de construction.
+            <p className="text-base sm:text-lg text-gray-500 font-medium mb-8 sm:mb-10 leading-relaxed max-w-xl">
+              Transformez vos idées en documents de production réels. Notre interface intuitive guide chaque détail : mesures, placements de logos, couleurs et matériaux.
             </p>
 
-            <ul className="space-y-4 mb-8">
+            <ul className="space-y-4 mb-8 text-left">
               <li className="flex items-start gap-3">
                 <div className="w-6 h-6 rounded-full bg-[#007AFF]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <div className="w-2 h-2 rounded-full bg-[#007AFF]" />
@@ -71,7 +77,7 @@ export function TechPackShowcase() {
                   Formulaire interactif avec aperçu en direct
                 </span>
               </li>
-              <li className="flex items-start gap-3">
+              <li className="flex items-start gap-3 text-left">
                 <div className="w-6 h-6 rounded-full bg-[#007AFF]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <div className="w-2 h-2 rounded-full bg-[#007AFF]" />
                 </div>
@@ -79,7 +85,7 @@ export function TechPackShowcase() {
                   Spécifications complètes : tailles, logos, couleurs, matériaux
                 </span>
               </li>
-              <li className="flex items-start gap-3">
+              <li className="flex items-start gap-3 text-left">
                 <div className="w-6 h-6 rounded-full bg-[#007AFF]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <div className="w-2 h-2 rounded-full bg-[#007AFF]" />
                 </div>

@@ -30,18 +30,18 @@ export async function BlogGrid() {
     return (
         <section className="py-24 sm:py-32 bg-[#F5F5F7]">
             <div className="max-w-7xl mx-auto px-6 lg:px-8">
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+                <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 sm:mb-20 gap-8">
                     <div className="max-w-2xl">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#007AFF]/10 rounded-full mb-4">
-                            <Sparkles className="w-4 h-4 text-[#007AFF]" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-[#007AFF]">Nouveautés</span>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#007AFF]/10 rounded-full mb-6">
+                            <Sparkles className="w-3 h-3 text-[#007AFF]" />
+                            <span className="text-[9px] font-black uppercase tracking-widest text-[#007AFF]">Nouveautés // INSIGHTS</span>
                         </div>
-                        <h2 className="text-4xl font-black tracking-tight text-black sm:text-6xl mb-6">
-                            Le radar <br />
-                            <span className="text-[#6e6e73]">OUTFITY intelligence</span>
+                        <h2 className="text-4xl sm:text-7xl font-black tracking-tighter text-black uppercase leading-[0.9] sm:leading-[0.85] mb-6">
+                            Le Radar <br className="hidden sm:block" />
+                            <span className="text-[#007AFF]">OUTFITY Intelligence.</span>
                         </h2>
-                        <p className="text-lg text-[#6e6e73] font-medium leading-relaxed">
-                            Décryptages stratégiques, analyses de marché et prospectives exclusives : l'industrie de la mode sous un angle analytique radical.
+                        <p className="text-base sm:text-xl text-gray-500 font-medium leading-relaxed max-w-xl">
+                            Analyses de marché et prospectives : l'industrie de la mode sous un angle analytique radical.
                         </p>
                     </div>
                     <Link

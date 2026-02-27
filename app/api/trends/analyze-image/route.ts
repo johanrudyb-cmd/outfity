@@ -17,15 +17,28 @@ export async function POST(req: Request) {
         }
 
         // 1. Analyse IA Vision avec limite de quota
-        const resultAnalysis = await withAIUsageLimit(
-            user.id,
-            user.plan || 'free',
-            'trends_hybrid_scan',
-            () => analyzeVisualTrend(image)
-        );
+        let resultAnalysis;
+        try {
+            resultAnalysis = await withAIUsageLimit(
+                user.id,
+                user.plan || 'free',
+                'trends_hybrid_scan',
+                () => analyzeVisualTrend(image)
+            );
+        } catch (aiError: any) {
+            // Gestion spécifique : image non-vêtement détectée par l'IA
+            if (aiError?.code === 'NOT_CLOTHING' || aiError?.message?.startsWith('NOT_CLOTHING:')) {
+                const detectedObject = aiError.reason || aiError.message?.replace('NOT_CLOTHING:', '') || 'objet inconnu';
+                return NextResponse.json({
+                    error: 'NOT_CLOTHING',
+                    message: `Le Scanner IVS analyse uniquement des vêtements. Objet détecté : ${detectedObject}. Uploadez une photo de t-shirt, pantalon, robe, veste ou autre vêtement.`,
+                    detectedObject,
+                }, { status: 422 });
+            }
+            throw aiError; // Re-throw pour le catch global
+        }
 
         // 2. Recherche de correspondances dans la base de données
-        // On cherche des TrendProduct qui correspondent aux tags ou à la description
         const keywords = [...resultAnalysis.tags, resultAnalysis.category, resultAnalysis.style];
 
         const matches = await prisma.trendProduct.findMany({
@@ -47,11 +60,10 @@ export async function POST(req: Request) {
         });
 
         // 3. Calcul du Trend Score final basé sur l'IA et la DB
-        // Si on a beaucoup de matches avec des scores élevés, on booste le score
         let dbBoost = 0;
         if (matches.length > 0) {
             const avgDbScore = matches.reduce((acc: number, m: any) => acc + m.trendScore, 0) / matches.length;
-            dbBoost = (avgDbScore / 100) * 20; // Max 20 points de boost
+            dbBoost = (avgDbScore / 100) * 20;
         }
 
         const finalScore = Math.min(100, Math.round(resultAnalysis.baseTrendScore + dbBoost));
@@ -66,6 +78,7 @@ export async function POST(req: Request) {
 
     } catch (error: any) {
         console.error('[VisualTrend Error]:', error);
-        return NextResponse.json({ error: error.message || 'Erreur lors de l’analyse' }, { status: 500 });
+        return NextResponse.json({ error: error.message || 'Erreur lors de l\'analyse' }, { status: 500 });
     }
 }
+

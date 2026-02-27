@@ -21,7 +21,10 @@ import {
   MapPin,
   FileText,
   Sparkles,
+  Share,
+  PenSquare,
 } from 'lucide-react';
+import { useToast } from '@/components/ui/toast';
 import {
   BarChart,
   Bar,
@@ -83,7 +86,7 @@ const SECTION_ICONS: { label: string; Icon: React.ComponentType<{ className?: st
   { label: 'Offre et pricing', Icon: Euro },
   { label: 'Canaux et marketing', Icon: Radio },
   { label: 'Messages', Icon: MessageCircle },
-  { label: 'Stratégie de contenu', Icon: FileText },
+  { label: 'Stratégie de contenu', Icon: PenSquare },
   { label: 'Site internet', Icon: Store },
 ];
 
@@ -252,6 +255,7 @@ interface StrategyPresentationViewProps {
   /** Si true, affiche un flou sur le contenu et un bouton d'upgrade */
   isFree?: boolean;
   isOpen?: boolean;
+  shareBrandId?: string;
 }
 
 const DEFAULT_VISUAL_IDENTITY: VisualIdentityData = {
@@ -278,8 +282,10 @@ export function StrategyPresentationView({
   lastAIUpdate,
   isFree = false,
   isOpen = true,
+  shareBrandId,
 }: StrategyPresentationViewProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [regenerating, setRegenerating] = useState(false);
 
   if (!isOpen) return null;
@@ -676,6 +682,22 @@ export function StrategyPresentationView({
                   <RefreshCw className="w-4 h-4" />
                   <span className="hidden sm:inline">Actualiser</span>
                 </Button>
+                {shareBrandId && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const url = `${window.location.origin}/share/strategy/${shareBrandId}`;
+                      navigator.clipboard.writeText(url);
+                      toast({ title: 'Lien copié !', message: 'Le lien de partage public a été copié dans votre presse-papiers.', type: 'success' });
+                    }}
+                    className="gap-1.5 h-10 sm:h-11 px-3 sm:px-4 text-xs sm:text-sm shrink-0 hover:text-[#007AFF] hover:bg-[#007AFF]/5 transition-colors"
+                    aria-label="Partager la stratégie"
+                  >
+                    <Share className="w-4 h-4" />
+                    <span className="hidden sm:inline">Partager</span>
+                  </Button>
+                )}
                 {onRegenerate && (
                   <Button
                     variant="outline"

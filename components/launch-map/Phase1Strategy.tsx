@@ -64,6 +64,9 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
   const openSurplusModal = useSurplusModal();
   const sg = brand?.styleGuide && typeof brand.styleGuide === 'object' ? brand.styleGuide as Record<string, unknown> : null;
 
+  // Clé de session unique par marque pour la persistance inter-onglets
+  const SESSION_KEY = `strategy_result_${brandId}`;
+
   // --- States ---
   const [viewMode, setViewMode] = useState<'chat' | 'classic'>(
     // Gratuit : toujours vue classique de choix
@@ -78,7 +81,24 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
   const [positioning, setPositioning] = useState(() => styleGuideField(sg, 'preferredStyle') || styleGuideField(sg, 'positioning') || '');
   const [targetAudience, setTargetAudience] = useState(() => styleGuideField(sg, 'targetAudience') || '');
   const [selectedSlug, setSelectedSlug] = useState<string | null>(brand?.templateBrandSlug || null);
-  const [strategyResult, setStrategyResult] = useState<string | null>(null);
+  // Restore strategy from sessionStorage if it was generated earlier in this session
+  const [strategyResult, setStrategyResultState] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return strategyText || null;
+    try {
+      const cached = sessionStorage.getItem(SESSION_KEY);
+      return cached || strategyText || null;
+    } catch { return strategyText || null; }
+  });
+
+  // Wrapper pour sauvegarder automatiquement en sessionStorage à chaque mise à jour
+  const setStrategyResult = (val: string | null) => {
+    setStrategyResultState(val);
+    try {
+      if (val) sessionStorage.setItem(SESSION_KEY, val);
+      else sessionStorage.removeItem(SESSION_KEY);
+    } catch { /* sessionStorage indisponible (mode privé strict) */ }
+  };
+
   const [strategyLoading, setStrategyLoading] = useState(false);
   const [strategyError, setStrategyError] = useState('');
   const [analyzedBrandsFromDb, setAnalyzedBrandsFromDb] = useState<Array<{ brandName: string; slug: string }>>([]);
@@ -138,7 +158,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
       const res = await fetch(`/api/brands/strategy/history?brandId=${encodeURIComponent(brandId)}`);
       const data = await res.json();
       if (res.ok && data.strategies) setStrategyHistory(data.strategies);
-    } catch (e) { }
+    } catch (e) { console.error('[StrategyHistory]', e); }
   }, [brandId, demoMode]);
 
   useEffect(() => { fetchStrategyHistory(); }, [fetchStrategyHistory]);
@@ -272,6 +292,26 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
     }
   };
 
+  const handleDownloadLogo = async (e: React.MouseEvent, url: string, index: number) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`/api/proxy-image?url=${encodeURIComponent(url)}`);
+      if (!res.ok) throw new Error('Network error');
+      const blob = await res.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `logo-option-${index + 1}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (e) {
+      console.error('Download failed', e);
+      window.open(url, '_blank');
+    }
+  };
+
   const currentStep = steps[currentStepIndex];
   const canGoNext = () => {
     if (currentStep.id === 'positioning') return !!positioning;
@@ -331,7 +371,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
                     <div key={i} className="aspect-square bg-white rounded-[40px] shadow-xl border border-black/5 p-6 group relative overflow-hidden">
                       <PreviewWatermark src={p.url} alt={`Option ${i + 1}`} className="w-full h-full object-contain" />
                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
-                        <a href={p.urlTransparent} target="_blank" download className="text-white text-[10px] font-bold uppercase tracking-widest hover:underline">Download PNG</a>
+                        <button onClick={(e) => handleDownloadLogo(e, p.urlTransparent || p.url, i)} className="text-white text-[10px] font-bold uppercase tracking-widest hover:underline">Download PNG</button>
                       </div>
                     </div>
                   ))}
@@ -448,23 +488,23 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
             <div className="max-w-xl w-full mx-auto">
 
               {currentStep.id === 'positioning' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full animate-in fade-in duration-700">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 w-full animate-in fade-in duration-700">
                   {POSITIONING_OPTIONS.map((opt) => (
                     <button
                       key={opt}
                       onClick={() => setPositioning(opt)}
                       className={cn(
-                        "p-4 sm:p-5 rounded-[24px] text-left border transition-all duration-500 group",
+                        "p-3 sm:p-4 rounded-[20px] text-left border transition-all duration-500 group",
                         positioning === opt
-                          ? "bg-white border-white text-black shadow-xl scale-[1.02]"
+                          ? "bg-white border-white text-black shadow-lg scale-[1.02]"
                           : "bg-white/40 border-black/5 text-[#86868B] hover:bg-white hover:border-black/10"
                       )}
                     >
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-sm font-bold tracking-tight text-[#1D1D1F] leading-tight">{opt}</span>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[12px] sm:text-[13px] font-bold tracking-tight text-[#1D1D1F] leading-tight">{opt}</span>
                         {positioning === opt && (
-                          <div className="w-6 h-6 shrink-0 rounded-full bg-[#007AFF] flex items-center justify-center text-white">
-                            <Check className="w-4 h-4" />
+                          <div className="w-5 h-5 shrink-0 rounded-full bg-[#007AFF] flex items-center justify-center text-white">
+                            <Check className="w-3.5 h-3.5" />
                           </div>
                         )}
                       </div>
@@ -474,29 +514,29 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
               )}
 
               {currentStep.id === 'audience' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full animate-in fade-in duration-700">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 w-full animate-in fade-in duration-700">
                   {targetAudienceOptions.length > 0 ? targetAudienceOptions.map((opt) => (
                     <button
                       key={opt}
                       onClick={() => setTargetAudience(opt)}
                       className={cn(
-                        "p-4 sm:p-5 rounded-[24px] text-left border transition-all duration-500 group",
+                        "p-3 sm:p-4 rounded-[20px] text-left border transition-all duration-500 group",
                         targetAudience === opt
-                          ? "bg-white border-white text-black shadow-xl scale-[1.02]"
+                          ? "bg-white border-white text-black shadow-lg scale-[1.02]"
                           : "bg-white/40 border-black/5 text-[#86868B] hover:bg-white hover:border-black/10"
                       )}
                     >
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-sm font-bold tracking-tight text-[#1D1D1F] leading-tight">{opt}</span>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[12px] sm:text-[13px] font-bold tracking-tight text-[#1D1D1F] leading-tight">{opt}</span>
                         {targetAudience === opt && (
-                          <div className="w-6 h-6 shrink-0 rounded-full bg-[#007AFF] flex items-center justify-center text-white">
-                            <Check className="w-4 h-4" />
+                          <div className="w-5 h-5 shrink-0 rounded-full bg-[#007AFF] flex items-center justify-center text-white">
+                            <Check className="w-3.5 h-3.5" />
                           </div>
                         )}
                       </div>
                     </button>
                   )) : (
-                    <div className="col-span-full bg-amber-50 p-6 rounded-3xl border border-amber-200 text-amber-800 text-sm font-medium">
+                    <div className="col-span-full bg-amber-50 p-4 rounded-3xl border border-amber-200 text-amber-800 text-sm font-medium">
                       Veuillez d&apos;abord choisir un positionnement.
                     </div>
                   )}
@@ -539,24 +579,32 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
               {currentStep.id === 'review' && (
                 <div className="w-full space-y-6 animate-in zoom-in-95 duration-700 text-right">
                   {strategyResult ? (
-                    <button
-                      onClick={() => setStrategyModalOpen(true)}
-                      className="p-6 sm:p-10 rounded-[40px] bg-white shadow-2xl border border-black/5 text-left w-full group transition-all hover:scale-[1.02]"
-                    >
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] sm:rounded-[22px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center group-hover:bg-[#007AFF] group-hover:text-white transition-colors">
-                          <FileText className="w-6 h-6 sm:w-8 sm:h-8" />
+                    <>
+                      <button
+                        onClick={() => setStrategyModalOpen(true)}
+                        className="p-6 sm:p-10 rounded-[40px] bg-white shadow-2xl border border-black/5 text-left w-full group transition-all hover:scale-[1.02] active:scale-[0.99]"
+                      >
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] sm:rounded-[22px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center group-hover:bg-[#007AFF] group-hover:text-white transition-colors">
+                            <FileText className="w-6 h-6 sm:w-8 sm:h-8" />
+                          </div>
+                          <div className="px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-600 text-[9px] sm:text-[10px] font-black tracking-widest uppercase">Stratégie Prête</div>
                         </div>
-                        <div className="px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-600 text-[9px] sm:text-[10px] font-black tracking-widest uppercase">Stratégie Prête</div>
-                      </div>
-                      <p className="text-2xl font-bold mb-2">Manifeste Strategique</p>
-                      <p className="text-[#86868B] text-sm leading-relaxed line-clamp-3">
-                        {strategyResult.slice(0, 300)}...
-                      </p>
-                      <div className="mt-8 flex items-center gap-2 text-[#007AFF] font-bold text-xs uppercase tracking-widest">
-                        Lire l&apos;intégralité <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
-                      </div>
-                    </button>
+                        <p className="text-2xl font-bold mb-2">Manifeste Stratégique</p>
+                        <p className="text-[#86868B] text-sm leading-relaxed line-clamp-3">
+                          {strategyResult.slice(0, 300)}...
+                        </p>
+                        <div className="mt-8 flex items-center gap-2 text-[#007AFF] font-bold text-xs uppercase tracking-widest">
+                          Lire l&apos;intégralité <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => { setStrategyResult(null); setCurrentStepIndex(2); }}
+                        className="text-[11px] font-bold text-[#86868B] hover:text-[#FF3B30] uppercase tracking-widest transition-colors active:scale-95"
+                      >
+                        ↺ Régénérer la stratégie
+                      </button>
+                    </>
                   ) : (
                     <div className="p-10 rounded-[48px] bg-white/40 border border-black/5 text-center">
                       <p className="text-[#86868B] font-medium">Choisissez une marque d&apos;inspiration pour générer votre stratégie.</p>
@@ -662,7 +710,18 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
             </div>
           </div>
 
-          <div className="p-6 sm:p-8 border-t border-black/5 flex gap-4 justify-center bg-white/60 backdrop-blur-3xl relative z-50">
+          <div className="p-6 sm:p-8 border-t border-black/5 flex flex-col sm:flex-row gap-4 items-center justify-center bg-white/60 backdrop-blur-3xl relative z-50">
+            <Button
+              variant="outline"
+              onClick={() => {
+                const url = `${window.location.origin}/share/strategy/${brandId}`;
+                navigator.clipboard.writeText(url);
+                toast({ title: 'Lien copié !', message: 'Le lien de partage public a été copié dans votre presse-papiers.', type: 'success' });
+              }}
+              className="h-14 sm:h-16 px-12 sm:px-12 rounded-full border-2 border-black/10 hover:border-black/20 text-[#1D1D1F] font-bold uppercase tracking-widest transition-all active:scale-[0.98]"
+            >
+              Copier le lien de Partage
+            </Button>
             <Button
               onClick={() => { setStrategyModalOpen(false); setViewMode('chat'); }}
               className="h-14 sm:h-16 px-12 sm:px-20 rounded-full bg-[#007AFF] hover:bg-[#0056CC] text-white font-bold uppercase tracking-widest shadow-xl shadow-blue-500/20 transition-all active:scale-[0.98]"

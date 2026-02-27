@@ -23,7 +23,7 @@ function CountdownTimer() {
   }, []);
 
   return (
-    <div className="flex items-center justify-center gap-2 text-[#FF3B30] font-bold text-xs mb-4 bg-red-50 py-2 px-4 rounded-full border border-red-100 animate-pulse">
+    <div className="flex items-center justify-center gap-2 text-[#FF3B30] font-bold text-[10px] sm:text-xs mb-4 bg-red-50 py-1.5 px-3 rounded-full border border-red-100">
       <Clock className="w-4 h-4" />
       <span>PROMO FINIT DANS : {timeLeft.days}j {String(timeLeft.hours).padStart(2, '0')}h {String(timeLeft.minutes).padStart(2, '0')}m</span>
     </div>
@@ -37,11 +37,10 @@ const plans = [
     period: '/ Starter',
     description: 'Ton équipe d\'experts IA (Virgil, Pharrell, Ada) t\'accompagne.',
     features: [
-      'Accès à 3 Agents IA (Virgil, Pharrell, Ada)',
+      'Accès à 3 Agents IA (Limité)',
+      'Analyses de style détaillées (Limité)',
       'Radar de Tendances (Limité)',
       'Calculateur de Rentabilité',
-      'Studio Design (5 designs / mois)',
-      'Sourcing Hub (Aperçu)',
     ],
     cta: 'Commencer gratuitement',
     popular: false,
@@ -54,15 +53,16 @@ const plans = [
     description: 'Offre limitée : 29€/mois à vie (au lieu de 39€).',
     features: [
       '3 JOURS D\'ESSAI GRATUIT',
-      'Équipe Complète (4 Agents IA dont Johan)',
-      'Stratégie Marketing & ADN de Marque',
-      'Designs & Mockups en Illimité',
-      'Tech Packs Professionnels IA',
-      'Radar de Tendances Premium',
-      'Sourcing Premium & Accès Usines',
-      'Support Prioritaire 24/7',
+      'Les 5 agents IA inclus',
+      'Stratégie marketing complète',
+      'Analyses de style détaillées',
+      'Shooting Virtuel & Mannequin IA',
+      'Mockups & Tech Packs',
+      'Création de Boutique Shopify',
+      'Accès complet au Radar de tendances',
+      'Fournisseurs de confiance',
     ],
-    cta: 'Profiter de l\'offre',
+    cta: 'Démarrer l\'essai gratuit',
     popular: true,
   },
   {
@@ -152,14 +152,6 @@ export function PricingSection() {
                 animationDelay: `${index * 100}ms`,
               }}
             >
-              {/* Badge populaire */}
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <div className="bg-[#007AFF] text-white px-4 py-1.5 rounded-full text-sm font-semibold">
-                    Le plus populaire
-                  </div>
-                </div>
-              )}
 
               {/* Header */}
               {plan.popular && <CountdownTimer />}
@@ -192,7 +184,8 @@ export function PricingSection() {
                     { name: 'Virgil', img: '/images/agents/virgil_final.png' },
                     { name: 'Pharrell', img: '/images/agents/pharrell_final.png' },
                     { name: 'Ada', img: '/images/agents/ada_final.png' },
-                    { name: 'Johan', img: '/images/agents/johan_final.png' }
+                    { name: 'Johan', img: '/images/agents/johan_final.png' },
+                    { name: 'Joy', img: '/images/agents/joy_final.png' }
                   ].map((agent) => (
                     <div key={agent.name} className="relative group/agent">
                       <img

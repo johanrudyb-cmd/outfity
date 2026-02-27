@@ -6,18 +6,18 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { X, Settings, LogOut, Zap } from 'lucide-react';
+import { X, Settings, LogOut, Zap, LayoutDashboard, TrendingUp, Camera, PenSquare, Calculator, Sparkles } from 'lucide-react';
 
 const navigation = [
-  { name: 'Dashboard', description: 'Vue d\'ensemble Outfity', href: '/dashboard', tourId: 'tour-dashboard', badge: undefined as string | undefined },
-  { name: 'Viral sur Tiktok', description: 'Le Top 15 des tendances validées par Outfity Intelligence (TikTok & Instagram)', href: '/trends', tourId: 'tour-trends', badge: undefined as string | undefined },
-  { name: 'Détecter une tendance', description: 'Analyse la viralité d\'un vêtement par IA via photo', href: '/trends/visual', tourId: 'tour-spy', badge: undefined as string | undefined },
+  { name: 'Dashboard', short: 'Accueil', href: '/dashboard', tourId: 'tour-dashboard', icon: LayoutDashboard, badge: undefined as string | undefined },
+  { name: 'Viral sur Tiktok', short: 'Viral', href: '/trends', tourId: 'tour-trends', icon: TrendingUp, badge: undefined as string | undefined },
+  { name: 'Détecter une tendance', short: 'Scanner', href: '/trends/visual', tourId: 'tour-spy', icon: Camera, badge: undefined as string | undefined },
 ];
 
 const tools = [
-  { name: 'Gérer ma marque', description: 'Guide de lancement — identité, stratégie, design, sourcing', href: '/launch-map', tourId: 'tour-launch-map', featured: true },
-  { name: 'Calculateur de marge', description: 'Calculez votre marge bénéficiaire par vêtement', href: '/calculator', tourId: 'tour-calculator' },
-  { name: 'Création de contenu', description: 'Générez des posts structurés par IA et planifiez-les', href: '/content-creation', tourId: 'tour-content-creation' },
+  { name: 'Gérer ma marque', short: 'Marque', href: '/launch-map', tourId: 'tour-launch-map', icon: Sparkles, featured: true, disabled: false },
+  { name: 'Calculateur de marge', short: 'Calcul', href: '/calculator', tourId: 'tour-calculator', icon: Calculator, disabled: false },
+  { name: 'Création de contenu', short: 'Contenu', href: '/content-creation', tourId: 'tour-content-creation', icon: PenSquare, disabled: false },
 ];
 
 interface SidebarProps {
@@ -29,142 +29,265 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
   const pathname = usePathname();
   const handleNav = () => onClose?.();
 
-  return (
-    <aside
-      className={cn(
-        'fixed left-0 top-0 h-[100dvh] lg:h-screen w-72 max-w-[85vw] backdrop-blur-xl bg-white/95 flex flex-col z-50 overflow-y-auto lg:overflow-y-hidden',
-        'transform transition-transform duration-300 ease-out',
-        'lg:translate-x-0',
-        open ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'
-      )}
-    >
-      {/* Header avec logo centré (desktop) / logo + fermer (mobile) */}
-      <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-black/5 flex items-center justify-between lg:justify-center gap-4">
-        <Link href="/dashboard" className="block shrink-0" onClick={handleNav}>
-          <Image src="/icon.png" alt="Logo" width={96} height={96} className="h-24 w-24 sm:h-28 sm:w-28 md:h-32 md:w-32 lg:h-24 lg:w-24 shrink-0 object-contain bg-transparent mx-auto lg:mx-0" unoptimized />
+  // ── Compact icon sidebar for tablets (md, hidden on lg+) ──────────────────
+  const CompactSidebar = () => (
+    <aside className="hidden md:flex lg:hidden fixed left-0 top-0 h-[100dvh] w-[68px] bg-white/95 backdrop-blur-xl border-r border-black/5 flex-col z-50 overflow-y-auto py-4 items-center gap-1">
+      {/* Logo */}
+      <Link href="/dashboard" className="flex items-center justify-center w-12 h-12 mb-3 shrink-0" title="Dashboard">
+        <Image src="/icon.png" alt="Logo" width={40} height={40} className="w-10 h-10 object-contain" unoptimized />
+      </Link>
+
+      {/* Nav items */}
+      {navigation.map((item) => {
+        const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+        const Icon = item.icon;
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            title={item.name}
+            className={cn(
+              'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200 active:scale-95',
+              isActive ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'text-[#1D1D1F]/40 hover:bg-black/5 hover:text-[#1D1D1F]'
+            )}
+          >
+            <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
+            <span className="text-[8px] font-black uppercase tracking-tight leading-none">{item.short}</span>
+          </Link>
+        );
+      })}
+
+      {/* Separator */}
+      <div className="w-8 h-px bg-black/8 my-1" />
+
+      {/* Tools */}
+      {tools.map((item) => {
+        const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+        const Icon = item.icon;
+
+        if (item.disabled) {
+          return (
+            <div
+              key={item.href}
+              title={item.name + " (Bientôt)"}
+              className="flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl opacity-40 cursor-not-allowed text-[#1D1D1F]/50 grayscale"
+            >
+              <Icon className="w-5 h-5" strokeWidth={2} />
+              <span className="text-[8px] font-black uppercase tracking-tight leading-none text-[#1D1D1F]/60">Bientôt</span>
+            </div>
+          );
+        }
+
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            title={item.name}
+            className={cn(
+              'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200 active:scale-95',
+              isActive ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'text-[#1D1D1F]/40 hover:bg-black/5 hover:text-[#1D1D1F]'
+            )}
+          >
+            <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
+            <span className="text-[8px] font-black uppercase tracking-tight leading-none">{item.short}</span>
+          </Link>
+        );
+      })}
+
+      {/* Bottom account items */}
+      <div className="mt-auto flex flex-col gap-1 items-center">
+        <Link
+          href="/usage"
+          title="Mes quotas"
+          className={cn(
+            'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200 active:scale-95',
+            pathname === '/usage' ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'text-[#1D1D1F]/40 hover:bg-black/5 hover:text-[#1D1D1F]'
+          )}
+        >
+          <Zap className="w-5 h-5" strokeWidth={pathname === '/usage' ? 2.5 : 2} />
+          <span className="text-[8px] font-black uppercase tracking-tight leading-none">Quotas</span>
+        </Link>
+        <Link
+          href="/settings"
+          title="Paramètres"
+          className={cn(
+            'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200 active:scale-95',
+            pathname === '/settings' ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'text-[#1D1D1F]/40 hover:bg-black/5 hover:text-[#1D1D1F]'
+          )}
+        >
+          <Settings className="w-5 h-5" strokeWidth={pathname === '/settings' ? 2.5 : 2} />
+          <span className="text-[8px] font-black uppercase tracking-tight leading-none">Réglages</span>
         </Link>
         <button
           type="button"
-          aria-label="Fermer le menu"
-          className="lg:hidden touch-target flex items-center justify-center rounded-xl text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#1D1D1F] active:bg-black/10"
-          onClick={onClose}
+          title="Déconnexion"
+          className="flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl text-[#1D1D1F]/40 hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-95"
+          onClick={() => signOut({ callbackUrl: '/' })}
         >
-          <X className="h-6 w-6 shrink-0" />
+          <LogOut className="w-5 h-5" strokeWidth={2} />
+          <span className="text-[8px] font-black uppercase tracking-tight leading-none">Exit</span>
         </button>
       </div>
-
-      {/* Navigation Apple - Glassmorphism */}
-      <nav className="flex-1 lg:overflow-y-auto pt-6 pb-6 px-6 space-y-8 flex flex-col">
-        {/* Section Navigation */}
-        <div>
-          <h2 className="px-4 mb-3 text-xs font-semibold text-[#1D1D1F]/40 uppercase tracking-wider">
-            Navigation
-          </h2>
-          <div className="space-y-1">
-            {navigation.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  data-tour={item.tourId}
-                  onClick={handleNav}
-                  className={cn(
-                    'flex items-center justify-between min-h-[44px] px-4 py-3 rounded-2xl text-base font-medium transition-all duration-200',
-                    isActive
-                      ? 'bg-black/5 text-[#007AFF]'
-                      : 'text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#007AFF]'
-                  )}
-                  title={item.description}
-                >
-                  <span>{item.name}</span>
-                  {item.badge && (
-                    <Badge variant="secondary" className="ml-2 text-[10px] font-bold bg-[#007AFF] text-white hover:bg-[#007AFF]/90 border-none px-2 py-0">
-                      {item.badge}
-                    </Badge>
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Section Outils de création */}
-        <div>
-          <h2 className="px-4 mb-3 text-xs font-semibold text-[#1D1D1F]/40 uppercase tracking-wider">
-            Outils de création
-          </h2>
-          <div className="space-y-1">
-            {tools.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  data-tour={item.tourId}
-                  onClick={handleNav}
-                  className={cn(
-                    'block min-h-[44px] px-4 py-3 rounded-2xl text-base font-medium transition-all duration-200 flex items-center',
-                    isActive
-                      ? 'bg-black/5 text-[#007AFF]'
-                      : 'text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#007AFF]'
-                  )}
-                  title={item.description}
-                >
-                  {item.name}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Section Compte */}
-        <div className="lg:mt-auto pt-4 space-y-1 pb-4">
-          <h2 className="px-4 mb-3 text-xs font-semibold text-[#1D1D1F]/40 uppercase tracking-wider">
-            Votre Compte
-          </h2>
-          <div className="pt-2 border-t border-black/5 space-y-1">
-            <Link
-              href="/usage"
-              onClick={handleNav}
-              className={cn(
-                'min-h-[44px] px-4 py-3 rounded-2xl text-base font-medium transition-all duration-200 flex items-center gap-3',
-                pathname === '/usage'
-                  ? 'bg-black/5 text-[#007AFF]'
-                  : 'text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#007AFF]'
-              )}
-              title="Gérer mes quotas et crédits"
-            >
-              <Zap className="w-5 h-5" />
-              <span>Mes quotas</span>
-            </Link>
-            <Link
-              href="/settings"
-              onClick={handleNav}
-              className={cn(
-                'min-h-[44px] px-4 py-3 rounded-2xl text-base font-medium transition-all duration-200 flex items-center gap-3',
-                pathname === '/settings'
-                  ? 'bg-black/5 text-[#007AFF]'
-                  : 'text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#007AFF]'
-              )}
-            >
-              <Settings className="w-5 h-5" />
-              <span>Paramètres</span>
-            </Link>
-            <button
-              type="button"
-              className="min-h-[44px] w-full text-left px-4 py-3 rounded-2xl text-base font-medium text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#007AFF] transition-all duration-200 flex items-center gap-3 active:bg-black/10"
-              onClick={() => {
-                onClose?.();
-                signOut({ callbackUrl: '/' });
-              }}
-            >
-              <LogOut className="w-5 h-5" />
-              <span>Déconnexion</span>
-            </button>
-          </div>
-        </div>
-      </nav>
     </aside>
+  );
+
+  return (
+    <>
+      {/* ── Compact sidebar tablet (md only) ── */}
+      <CompactSidebar />
+
+      {/* ── Full sidebar: mobile drawer + desktop fixed ── */}
+      <aside
+        className={cn(
+          'fixed left-0 top-0 h-[100dvh] lg:h-screen w-72 max-w-[85vw] backdrop-blur-xl bg-white/95 flex flex-col z-50 overflow-y-auto lg:overflow-y-hidden',
+          'transform transition-transform duration-300 ease-out',
+          // On mobile: translate based on open state; on md: always hidden (compact replaces); on lg: always visible
+          'md:hidden lg:flex lg:translate-x-0',
+          open ? 'translate-x-0 shadow-2xl flex' : '-translate-x-full'
+        )}
+      >
+        {/* Header */}
+        <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-black/5 flex items-center justify-center relative min-h-[100px]">
+          <Link href="/dashboard" className="block shrink-0" onClick={handleNav}>
+            <Image src="/icon.png" alt="Logo" width={96} height={96} className="h-20 w-20 shrink-0 object-contain bg-transparent" unoptimized />
+          </Link>
+          <button
+            type="button"
+            aria-label="Fermer le menu"
+            className="lg:hidden absolute right-4 sm:right-6 touch-target flex items-center justify-center rounded-xl text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#1D1D1F] active:scale-95 active:bg-black/10"
+            onClick={onClose}
+          >
+            <X className="h-6 w-6 shrink-0" />
+          </button>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto pt-5 pb-6 px-5 space-y-7 flex flex-col">
+          {/* Navigation section */}
+          <div>
+            <h2 className="px-4 mb-2.5 text-[10px] font-bold text-[#1D1D1F]/30 uppercase tracking-widest">Navigation</h2>
+            <div className="space-y-0.5">
+              {navigation.map((item) => {
+                const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    data-tour={item.tourId}
+                    onClick={handleNav}
+                    className={cn(
+                      'flex items-center gap-3 min-h-[44px] px-4 py-2.5 rounded-2xl text-[15px] font-medium transition-all duration-200 active:scale-[0.98]',
+                      isActive
+                        ? 'bg-[#007AFF]/10 text-[#007AFF]'
+                        : 'text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#1D1D1F]'
+                    )}
+                    title={item.name}
+                  >
+                    <Icon className="w-5 h-5 shrink-0" strokeWidth={isActive ? 2.5 : 2} />
+                    <span className="flex-1">{item.name}</span>
+                    {item.badge && (
+                      <Badge variant="secondary" className="text-[10px] font-bold bg-[#007AFF] text-white border-none px-2 py-0">
+                        {item.badge}
+                      </Badge>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Outils de création */}
+          <div>
+            <h2 className="px-4 mb-2.5 text-[10px] font-bold text-[#1D1D1F]/30 uppercase tracking-widest">Outils de création</h2>
+            <div className="space-y-0.5">
+              {tools.map((item) => {
+                const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                const Icon = item.icon;
+
+                if (item.disabled) {
+                  return (
+                    <div
+                      key={item.name}
+                      title={item.name + ' (Bientôt)'}
+                      className="flex items-center gap-3 min-h-[44px] px-4 py-2.5 rounded-2xl text-[15px] font-medium opacity-50 cursor-not-allowed text-[#1D1D1F]/60"
+                    >
+                      <Icon className="w-5 h-5 shrink-0" strokeWidth={2} />
+                      <span className="truncate flex-1">{item.name}</span>
+                      <span className="px-1.5 py-0.5 bg-black/5 text-[#1D1D1F]/40 font-black uppercase tracking-widest text-[8px] rounded">
+                        Bientôt
+                      </span>
+                    </div>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    data-tour={item.tourId}
+                    onClick={handleNav}
+                    className={cn(
+                      'flex items-center gap-3 min-h-[44px] px-4 py-2.5 rounded-2xl text-[15px] font-medium transition-all duration-200 active:scale-[0.98]',
+                      isActive
+                        ? 'bg-[#007AFF]/10 text-[#007AFF]'
+                        : 'text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#1D1D1F]'
+                    )}
+                    title={item.name}
+                  >
+                    <Icon className="w-5 h-5 shrink-0" strokeWidth={isActive ? 2.5 : 2} />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Compte */}
+          <div className="mt-auto pt-4">
+            <h2 className="px-4 mb-2.5 text-[10px] font-bold text-[#1D1D1F]/30 uppercase tracking-widest">Votre Compte</h2>
+            <div className="pt-2 border-t border-black/5 space-y-0.5">
+              <Link
+                href="/usage"
+                onClick={handleNav}
+                className={cn(
+                  'flex items-center gap-3 min-h-[44px] px-4 py-2.5 rounded-2xl text-[15px] font-medium transition-all duration-200 active:scale-[0.98]',
+                  pathname === '/usage'
+                    ? 'bg-[#007AFF]/10 text-[#007AFF]'
+                    : 'text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#1D1D1F]'
+                )}
+              >
+                <Zap className="w-5 h-5 shrink-0" strokeWidth={pathname === '/usage' ? 2.5 : 2} />
+                <span>Mes quotas</span>
+              </Link>
+              <Link
+                href="/settings"
+                onClick={handleNav}
+                className={cn(
+                  'flex items-center gap-3 min-h-[44px] px-4 py-2.5 rounded-2xl text-[15px] font-medium transition-all duration-200 active:scale-[0.98]',
+                  pathname === '/settings'
+                    ? 'bg-[#007AFF]/10 text-[#007AFF]'
+                    : 'text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#1D1D1F]'
+                )}
+              >
+                <Settings className="w-5 h-5 shrink-0" strokeWidth={pathname === '/settings' ? 2.5 : 2} />
+                <span>Paramètres</span>
+              </Link>
+              <button
+                type="button"
+                className="flex items-center gap-3 min-h-[44px] w-full text-left px-4 py-2.5 rounded-2xl text-[15px] font-medium text-[#1D1D1F]/60 hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-[0.98]"
+                onClick={() => {
+                  onClose?.();
+                  signOut({ callbackUrl: '/' });
+                }}
+              >
+                <LogOut className="w-5 h-5 shrink-0" />
+                <span>Déconnexion</span>
+              </button>
+            </div>
+          </div>
+        </nav>
+      </aside>
+    </>
   );
 }

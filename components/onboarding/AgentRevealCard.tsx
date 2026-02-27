@@ -237,14 +237,14 @@ export const AGENTS_TEAM: AgentProps[] = [
     {
         id: 'pharrell',
         name: 'Pharrell',
-        role: 'Design & Mockups',
+        role: 'Design & Accompagnement',
         image: '/images/agents/pharrell_final.png',
         color: '#a032ff',
         stats: [
             { label: 'Créativité', value: 92 },
             { label: 'Style', value: 90 },
-            { label: 'Détail', value: 88 },
-            { label: 'Vitesse', value: 86 }
+            { label: 'Accompagnement', value: 94 },
+            { label: 'Conseil', value: 88 }
         ]
     },
     {
@@ -271,6 +271,19 @@ export const AGENTS_TEAM: AgentProps[] = [
             { label: 'Conversion', value: 84 },
             { label: 'Web Design', value: 82 },
             { label: 'Support', value: 86 }
+        ]
+    },
+    {
+        id: 'joy',
+        name: 'Joy',
+        role: 'Social Media & DA',
+        image: '/images/agents/joy_final.png',
+        color: '#AF52DE',
+        stats: [
+            { label: 'Créativité', value: 95 },
+            { label: 'Viralité', value: 92 },
+            { label: 'Engagement', value: 94 },
+            { label: 'Copywriting', value: 88 }
         ]
     }
 ];

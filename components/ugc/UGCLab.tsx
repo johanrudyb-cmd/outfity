@@ -2,9 +2,8 @@
 
 import { useState } from 'react';
 import { VirtualTryOn } from './VirtualTryOn';
-import { StructuredPostCreator } from './StructuredPostCreator';
+import { JoyChat } from './JoyChat';
 import { ShootingPhoto } from './ShootingPhoto';
-import { LogoGenerator } from './LogoGenerator';
 import {
   LayoutList,
   Image as ImageIcon,
@@ -44,7 +43,7 @@ interface UGCLabProps {
   userPlan?: string;
 }
 
-type Tab = 'tryon' | 'shooting' | 'scripts' | 'logo';
+type Tab = 'tryon' | 'shooting' | 'scripts';
 
 const TABS = [
   {
@@ -68,16 +67,6 @@ const TABS = [
     activeColor: 'border-[#FF9500] text-[#FF9500]',
   },
   {
-    id: 'logo' as Tab,
-    label: 'Identité Visuelle',
-    sublabel: 'Générez votre logo et charte graphique',
-    icon: PenTool,
-    badge: null,
-    color: 'from-[#AF52DE] to-[#9034C7]',
-    bgColor: 'bg-[#AF52DE]/10',
-    activeColor: 'border-[#AF52DE] text-[#AF52DE]',
-  },
-  {
     id: 'scripts' as Tab,
     label: 'Scripts Marketing',
     sublabel: 'Posts Instagram, TikTok & Reels structurés',
@@ -99,7 +88,7 @@ export function UGCLab({ brandId, brandName, designs = [], brand, userPlan = 'fr
     <div className="space-y-4 sm:space-y-8">
 
       {/* ── Tab Navigation : Cards cliquables ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-4">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -160,9 +149,6 @@ export function UGCLab({ brandId, brandName, designs = [], brand, userPlan = 'fr
             )}
             {activeTab === 'shooting' && (
               <FeatureUsageBadge featureKey="ugc_shooting_photo" isFree={isFreePlan(userPlan)} />
-            )}
-            {activeTab === 'logo' && (
-              <FeatureUsageBadge featureKey="brand_logo" isFree={isFreePlan(userPlan)} />
             )}
             {activeTab === 'scripts' && (
               <FeatureUsageBadge featureKey="ugc_scripts" isFree={isFreePlan(userPlan)} />
@@ -229,12 +215,8 @@ export function UGCLab({ brandId, brandName, designs = [], brand, userPlan = 'fr
               />
             )}
 
-            {activeTab === 'logo' && (
-              <LogoGenerator brandId={brandId} />
-            )}
-
             {activeTab === 'scripts' && (
-              <StructuredPostCreator
+              <JoyChat
                 brandId={brandId}
                 brandName={brandName}
                 initialImageUrl={selectedImageUrl}

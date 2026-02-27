@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { User, Mail, Lock, Image as ImageIcon, Save, CheckCircle2, FileText, Download, Loader2, Crown, Sparkles, ArrowRight, CheckCircle } from 'lucide-react';
-import { SubscriptionWarning } from '@/components/subscription/SubscriptionWarning';
 import { isFreePlan, isPaidPlan } from '@/lib/plan-utils';
 import { cn } from '@/lib/utils';
 
@@ -295,12 +294,12 @@ export function SettingsForm({ user: initialUser }: SettingsFormProps) {
                 {/* Checklist features actives */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {[
-                    'Studio Design illimité',
                     'Tech Packs professionnels',
+                    'Fournisseurs de confiance',
                     'Radar Tendances premium',
                     'Agent Johan (E-shop & Ventes)',
-                    'Support prioritaire 24/7',
-                    '4 Agents IA complets',
+                    'Création de Boutique Shopify',
+                    '5 Agents IA complets',
                   ].map(feat => (
                     <div key={feat} className="flex items-center gap-2 text-[13px] text-[#1D1D1F]">
                       <CheckCircle className="w-3.5 h-3.5 text-[#34C759] shrink-0" />
@@ -354,17 +353,16 @@ export function SettingsForm({ user: initialUser }: SettingsFormProps) {
                     </p>
                   </div>
                   <div className="flex flex-col gap-2 w-full sm:w-auto shrink-0">
-                    <a href="/auth/choose-plan">
-                      <Button className="w-full sm:w-auto h-10 rounded-xl font-bold bg-[#007AFF] hover:bg-[#0056CC] text-white border-0 shadow-md shadow-blue-500/20">
+                    <Link href="/auth/choose-plan" className="w-full sm:w-auto">
+                      <Button type="button" className="w-full sm:w-auto h-10 rounded-xl font-bold bg-[#007AFF] hover:bg-[#0056CC] text-white border-0 shadow-md shadow-blue-500/20">
                         <Sparkles className="w-4 h-4 mr-1.5" />
                         Passer Créateur — 29€/mois
                         <ArrowRight className="w-4 h-4 ml-1.5" />
                       </Button>
-                    </a>
+                    </Link>
                     <p className="text-[11px] text-[#86868B] text-center">3 jours d&apos;essai gratuit · Sans engagement</p>
                   </div>
                 </div>
-                <SubscriptionWarning context="cancel" />
               </div>
             )}
 

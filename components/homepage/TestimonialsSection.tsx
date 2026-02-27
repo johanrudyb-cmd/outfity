@@ -71,15 +71,16 @@ export function TestimonialsSection() {
   }, []);
 
   return (
-    <section id="testimonials-section" className="py-20 bg-[#F5F5F7]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="testimonials-section" className="py-20 sm:py-32 bg-[#F5F5F7]">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Titre */}
-        <div className="mb-16 text-center">
-          <h2 className="text-5xl lg:text-6xl font-bold tracking-tight text-[#000000] mb-4">
-            Ils nous font confiance
+        <div className="mb-16 sm:mb-24 text-center">
+          <h2 className="text-4xl sm:text-7xl font-black tracking-tighter text-black uppercase leading-[0.9] mb-6">
+            Ils nous font <br className="hidden sm:block" />
+            <span className="text-[#007AFF]">confiance.</span>
           </h2>
-          <p className="text-xl text-[#6e6e73] font-normal max-w-2xl mx-auto">
-            Découvrez ce que nos utilisateurs disent d'OUTFITY
+          <p className="text-base sm:text-xl text-gray-500 font-medium max-w-2xl mx-auto leading-relaxed">
+            Rejoignez une communauté de créateurs qui transforment l'industrie de la mode.
           </p>
         </div>
 

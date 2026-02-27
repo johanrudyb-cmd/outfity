@@ -101,7 +101,15 @@ const PRODUCTS = [
 ];
 
 const STEP_ORDER: Step[] = ['welcome', 'universe', 'product', 'identity', 'pitch', 'agents', 'launch'];
-const STEP_LABELS = ['Univers', 'Produit', 'Identité', 'Mission', 'Équipe IA'];
+const STEP_LABELS: Record<Step, string> = {
+    welcome: 'Bienvenue',
+    universe: 'Univers',
+    product: 'Produit',
+    identity: 'Identité',
+    pitch: 'Mission',
+    agents: 'Équipe IA',
+    launch: 'Lancement'
+};
 
 import { AgentRevealCard, AGENTS_TEAM } from './AgentRevealCard';
 
@@ -128,6 +136,22 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
         pitch: '',
     });
 
+    const [initialTransition, setInitialTransition] = useState(true);
+    const [isThinking, setIsThinking] = useState(false);
+
+    const BRAND_SUGGESTIONS: Record<string, string[]> = {
+        streetwear: ['RARE VIBE', 'URBAN ARCADE', 'GRIT & GLORY', 'STREET LAB'],
+        minimalist: ['PURE STUDIO', 'ESSENTIAL LINE', 'SILENT LUX', 'MONO FORM'],
+        premium: ['MAISON ELITE', 'VESTIGE PARIS', 'AURA CLUB', 'OPUS MODERNE'],
+        outdoor: ['TECH TERRAIN', 'SHIFT LAYER', 'VORTEX EQUIP', 'AXIS OUTDOOR'],
+        eco: ['ROOTS LABEL', 'VERDANT WEAR', 'PURE EARTH', 'EDEN FABRIC']
+    };
+
+    useEffect(() => {
+        const timer = setTimeout(() => setInitialTransition(false), 500);
+        return () => clearTimeout(timer);
+    }, []);
+
     const isCreator = isPaidPlan(plan);
     const stepIndex = STEP_ORDER.indexOf(step);
 
@@ -145,9 +169,17 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
     const goNext = useCallback(() => {
         const nextIdx = stepIndex + 1;
         if (nextIdx < STEP_ORDER.length) {
-            setStep(STEP_ORDER[nextIdx]);
+            if (step === 'pitch') {
+                setIsThinking(true);
+                setTimeout(() => {
+                    setIsThinking(false);
+                    setStep(STEP_ORDER[nextIdx]);
+                }, 1500);
+            } else {
+                setStep(STEP_ORDER[nextIdx]);
+            }
         }
-    }, [stepIndex]);
+    }, [stepIndex, step]);
 
     const goBack = useCallback(() => {
         const prevIdx = stepIndex - 1;
@@ -192,51 +224,131 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                 </div>
             )}
 
-            {/* BACK BUTTON */}
+            {/* BACK BUTTON & STEP LABEL */}
             {step !== 'welcome' && step !== 'launch' && (
-                <button
-                    onClick={goBack}
-                    className="fixed top-8 left-8 p-3 rounded-full hover:bg-white/80 transition-all z-40 group border border-transparent hover:border-black/5"
-                >
-                    <ArrowRight className="w-5 h-5 rotate-180 text-[#86868B] group-hover:text-black" />
-                </button>
+                <div className="fixed top-8 left-8 flex items-center gap-4 z-40">
+                    <button
+                        onClick={goBack}
+                        className="p-3 rounded-full bg-white/50 backdrop-blur-md border border-black/5 hover:bg-white transition-all group"
+                    >
+                        <ArrowRight className="w-5 h-5 rotate-180 text-[#86868B] group-hover:text-black" />
+                    </button>
+                    <div className="px-4 py-2 rounded-2xl bg-white/50 backdrop-blur-md border border-black/5 text-xs font-bold uppercase tracking-widest text-[#86868B]">
+                        {STEP_LABELS[step]}
+                    </div>
+                </div>
             )}
 
             <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
+                {/* DYNAMIC BACKGROUND */}
+                <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.1, 1],
+                            opacity: [0.3, 0.5, 0.3]
+                        }}
+                        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+                        className={cn(
+                            "absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full blur-[120px]",
+                            data.universeId ? UNIVERSES.find(u => u.id === data.universeId)?.bg.replace('bg-', 'bg-').replace('-50', '-200') : "bg-blue-100"
+                        )}
+                    />
+                    <motion.div
+                        animate={{
+                            scale: [1.1, 1, 1.1],
+                            opacity: [0.2, 0.4, 0.2]
+                        }}
+                        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+                        className={cn(
+                            "absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full blur-[120px]",
+                            data.universeId ? UNIVERSES.find(u => u.id === data.universeId)?.bg.replace('bg-', 'bg-').replace('-50', '-200') : "bg-purple-100"
+                        )}
+                    />
+                </div>
+
                 <AnimatePresence mode="wait">
+                    {isThinking && (
+                        <motion.div
+                            key="thinking"
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-[100] bg-white/80 backdrop-blur-xl flex flex-col items-center justify-center gap-6"
+                        >
+                            <div className="relative">
+                                <motion.div
+                                    className="w-24 h-24 rounded-[32px] bg-white shadow-apple-lg border border-black/5 flex items-center justify-center"
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                                >
+                                    <Sparkles className="w-10 h-10 text-[#007AFF]" />
+                                </motion.div>
+                                <motion.div
+                                    className="absolute inset-0 rounded-[32px] border-4 border-[#007AFF]"
+                                    animate={{ scale: [1, 1.1, 1], opacity: [1, 0, 1] }}
+                                    transition={{ duration: 2, repeat: Infinity }}
+                                />
+                            </div>
+                            <div className="text-center">
+                                <h3 className="text-2xl font-bold tracking-tight">Virgil analyse ton pitch...</h3>
+                                <p className="text-[#86868B] font-medium mt-2">Préparation de ton équipe d'agents IA</p>
+                            </div>
+                        </motion.div>
+                    )}
 
                     {/* ── WELCOME ── */}
                     {step === 'welcome' && (
                         <motion.div key="welcome"
                             initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }}
-                            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                            className="max-w-xl text-center space-y-8"
+                            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                            className="max-w-2xl w-full text-center space-y-12"
                         >
-                            <div className="space-y-4">
+                            <div className="relative inline-block">
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 0.2 }}
-                                    className="w-20 h-20 bg-white rounded-[22px] shadow-apple flex items-center justify-center mx-auto mb-8 cursor-default"
+                                    className="relative z-10"
                                 >
-                                    <Sparkles className="w-10 h-10 text-[#007AFF]" />
+                                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-[28px] overflow-hidden shadow-2xl border-4 border-white mx-auto mb-6 bg-slate-100">
+                                        <img src="/images/agents/virgil_final.png" alt="Virgil" className="w-full h-full object-cover" />
+                                    </div>
+                                    <div className="absolute -bottom-2 right-1/2 translate-x-12 w-8 h-8 bg-[#007AFF] rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white">
+                                        <Sparkles className="w-4 h-4" />
+                                    </div>
                                 </motion.div>
-                                <div>
-                                    <h1 className="text-4xl font-bold text-[#1D1D1F] tracking-tight leading-tight">
-                                        {isCreator ? 'Bienvenue dans\nle studio Créateur.' : 'Bienvenue dans\nle studio Starter.'}
-                                    </h1>
-                                    <p className="text-[#86868B] text-lg mt-3 leading-relaxed">
-                                        {isCreator
-                                            ? 'Prêt à transformer tes idées en marque rentable avec ton équipe IA complète ?'
-                                            : 'Commençons par définir les bases de ta future marque de vêtement.'}
-                                    </p>
+                                <motion.div
+                                    initial={{ scale: 0, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    transition={{ delay: 0.5, type: 'spring' }}
+                                    className="absolute -top-4 -right-24 hidden lg:block"
+                                >
+                                    <div className="bg-white px-4 py-2 rounded-2xl rounded-bl-none shadow-apple border border-black/5 text-sm font-semibold text-[#007AFF]">
+                                        "Bienvenue à bord !"
+                                    </div>
+                                </motion.div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <h1 className="text-4xl sm:text-5xl font-black text-[#1D1D1F] tracking-tight leading-[1.1]">
+                                    {isCreator ? 'Ton Studio Créateur\nest prêt.' : 'Bienvenue dans\nton Studio Starter.'}
+                                </h1>
+                                <p className="text-[#86868B] text-lg sm:text-xl font-medium max-w-lg mx-auto leading-relaxed">
+                                    {isCreator
+                                        ? 'Toute ton équipe IA est en ligne. Prêt à lancer ta prochaine collection ?'
+                                        : 'Je suis Virgil, ton stratège. Définissons ensemble les bases de ta future marque.'}
+                                </p>
+                            </div>
+
+                            <div className="flex flex-col items-center gap-4">
+                                <button
+                                    onClick={goNext}
+                                    className="group w-full max-w-xs h-16 rounded-2xl bg-[#007AFF] text-white font-bold text-xl flex items-center justify-center gap-3 hover:bg-[#0056CC] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-blue-500/30"
+                                >
+                                    C'est parti <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                                </button>
+                                <div className="flex items-center gap-2 text-[#86868B] text-sm font-semibold">
+                                    <Clock className="w-4 h-4" />
+                                    <span>Moins de 2 minutes</span>
                                 </div>
                             </div>
-                            <button
-                                onClick={goNext}
-                                className="w-full h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all shadow-lg shadow-blue-500/25"
-                            >
-                                Commencer <ArrowRight className="w-5 h-5" />
-                            </button>
                         </motion.div>
                     )}
 
@@ -309,46 +421,68 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                         <motion.div key="product"
                             initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
                             transition={{ duration: 0.35 }}
-                            className="max-w-2xl w-full space-y-6"
+                            className="max-w-3xl w-full space-y-8"
                         >
-                            <div className="space-y-1">
-                                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Que veux-tu lancer ?</h2>
-                                <p className="text-[#86868B]">Chaque produit a son propre potentiel de viralité et ses marges.</p>
+                            <div className="space-y-2">
+                                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">C'est le moment de choisir ton premier produit.</h2>
+                                <p className="text-[#86868B]">On commencera par générer tout le contenu pour ce produit spécifique.</p>
                             </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                 {PRODUCTS.map(p => (
                                     <button
                                         key={p.id}
                                         onClick={() => setData(d => ({ ...d, productType: p.label }))}
                                         className={cn(
-                                            'p-4 rounded-2xl border-2 bg-white transition-all text-center flex flex-col items-center group',
+                                            'relative p-6 rounded-[28px] border-2 bg-white transition-all duration-300 text-left flex flex-col group overflow-hidden',
                                             data.productType === p.label
-                                                ? 'border-[#007AFF] bg-blue-50/30'
-                                                : 'border-[#E5E5EA] hover:border-[#C7C7CC]'
+                                                ? 'border-[#007AFF] bg-blue-50/20 shadow-xl shadow-blue-500/10'
+                                                : 'border-[#E5E5EA] hover:border-[#C7C7CC] hover:bg-slate-50'
                                         )}
                                     >
-                                        <span className="text-3xl mb-3 group-hover:scale-110 transition-transform">{p.emoji}</span>
-                                        <p className="font-bold text-sm text-[#1D1D1F]">{p.label}</p>
-                                        <div className="mt-2 flex items-center gap-1 text-[9px] font-bold text-[#34C759] uppercase tracking-wider">
-                                            <TrendingUp className="w-3 h-3" />
-                                            {p.trend}% Trend
+                                        <div className="flex items-center justify-between mb-4">
+                                            <span className="text-4xl group-hover:scale-110 transition-transform">{p.emoji}</span>
+                                            {p.trend > 90 && (
+                                                <div className="px-2 py-0.5 rounded-full bg-red-100 text-red-600 text-[9px] font-black uppercase tracking-tighter">
+                                                    Hot 🔥
+                                                </div>
+                                            )}
                                         </div>
+                                        <p className="font-bold text-lg text-[#1D1D1F]">{p.label}</p>
+                                        <p className="text-[#86868B] text-xs mt-1 leading-snug">{p.desc}</p>
+
+                                        <div className="mt-4 flex items-center gap-1.5 pt-4 border-t border-black/5">
+                                            <div className="flex-1 h-1.5 bg-black/5 rounded-full overflow-hidden">
+                                                <motion.div
+                                                    initial={{ width: 0 }}
+                                                    animate={{ width: `${p.trend}%` }}
+                                                    className="h-full bg-[#34C759]"
+                                                />
+                                            </div>
+                                            <span className="text-[10px] font-bold text-[#34C759] uppercase tracking-wider">{p.trend}%</span>
+                                        </div>
+
+                                        {data.productType === p.label && (
+                                            <motion.div
+                                                layoutId="active-product"
+                                                className="absolute inset-0 border-2 border-[#007AFF] rounded-[28px] pointer-events-none"
+                                            />
+                                        )}
                                     </button>
                                 ))}
                             </div>
-                            <div className="flex gap-3">
+                            <div className="flex gap-4 pt-4">
                                 <button
                                     onClick={goBack}
-                                    className="flex-1 h-14 rounded-2xl border-2 border-[#E5E5EA] text-[#86868B] font-semibold text-lg flex items-center justify-center gap-2 hover:bg-white active:scale-[0.98] transition-all"
+                                    className="flex-1 h-16 rounded-2xl border-2 border-[#E5E5EA] text-[#86868B] font-semibold text-lg hover:bg-white active:scale-[0.98] transition-all"
                                 >
                                     Retour
                                 </button>
                                 <button
                                     disabled={!data.productType}
                                     onClick={goNext}
-                                    className="flex-[2] h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 shadow-lg shadow-blue-500/20"
+                                    className="flex-[2] h-16 rounded-2xl bg-[#007AFF] text-white font-bold text-xl flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all disabled:opacity-50 shadow-xl shadow-blue-500/20"
                                 >
-                                    Continuer <ArrowRight className="w-4 h-4" />
+                                    Valider le produit <ArrowRight className="w-5 h-5" />
                                 </button>
                             </div>
                         </motion.div>
@@ -378,17 +512,22 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                     />
                                 </div>
 
-                                {isCreator && (
-                                    <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
+                                {isCreator && data.universeId && (
+                                    <div className="p-6 rounded-[24px] bg-white shadow-apple border border-black/5 space-y-4">
                                         <div className="flex items-center gap-2 text-[#007AFF] font-bold text-xs uppercase tracking-widest">
-                                            <Sparkles className="w-4 h-4" /> Suggestions IA Créateur
+                                            <Sparkles className="w-4 h-4" /> Suggestions de Virgil ({data.universe})
                                         </div>
                                         <div className="flex flex-wrap gap-2">
-                                            {['Studio Noir', 'Raw Aesthetic', 'Urban Flow', 'Vibe Gallery'].map(name => (
+                                            {(BRAND_SUGGESTIONS[data.universeId] || BRAND_SUGGESTIONS.streetwear).map(name => (
                                                 <button
                                                     key={name}
                                                     onClick={() => setData(d => ({ ...d, brandName: name }))}
-                                                    className="px-3 py-1.5 bg-white rounded-lg border border-slate-200 text-xs font-medium hover:border-[#007AFF] hover:text-[#007AFF] transition-colors"
+                                                    className={cn(
+                                                        "px-4 py-2 bg-[#F5F5F7] rounded-xl border-2 transition-all text-sm font-bold",
+                                                        data.brandName === name
+                                                            ? "border-[#007AFF] text-[#007AFF] bg-blue-50"
+                                                            : "border-transparent text-[#86868B] hover:bg-white hover:border-[#007AFF]/20"
+                                                    )}
                                                 >
                                                     {name}
                                                 </button>
@@ -497,9 +636,9 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                             <div className="w-full max-w-5xl px-4 sm:px-6">
                                 <div className={cn(
                                     "grid gap-6 sm:gap-8 justify-items-center",
-                                    plan === 'starter' ? "grid-cols-1 xs:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 xs:grid-cols-2 lg:grid-cols-4"
+                                    plan === 'starter' ? "grid-cols-1 xs:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-5"
                                 )}>
-                                    {AGENTS_TEAM.filter(a => plan === 'creator' || a.id !== 'johan').map((agent, idx) => (
+                                    {AGENTS_TEAM.filter(a => plan === 'creator' || (a.id !== 'johan' && a.id !== 'joy')).map((agent, idx) => (
                                         <div key={agent.id} className="w-full flex justify-center">
                                             <AgentRevealCard agent={agent} delay={idx * 0.1 + 0.2} />
                                         </div>
@@ -551,10 +690,12 @@ function LaunchStep({ plan, brandName }: { plan: string; brandName: string }) {
     const [stepIndex, setStepIndex] = useState(0);
 
     const STEPS = [
-        { label: 'Configuration du studio...', duration: 900 },
-        { label: 'Activation des tendances...', duration: 800 },
-        { label: isCreator ? 'IA Créateur en ligne...' : 'Dashboard prêt...', duration: 700 },
-        { label: 'Lancement !', duration: 600 },
+        { label: 'Initialisation du studio...', duration: 1000 },
+        { label: 'Connexion aux agents IA...', duration: 1200 },
+        { label: 'Analyse des tendances 2026...', duration: 1000 },
+        { label: 'Génération de ta stratégie...', duration: 1500 },
+        { label: 'Finalisation du dashboard...', duration: 800 },
+        { label: 'Bienvenue dans OUTFITY !', duration: 1000 },
     ];
 
     useEffect(() => {

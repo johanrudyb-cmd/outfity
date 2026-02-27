@@ -594,7 +594,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                                 </div>
                                 <div className="flex items-center gap-3 bg-[#F5F5F7] px-4 py-2 rounded-xl border border-blue-100">
                                     <Sparkles className="w-3.5 h-3.5 text-[#007AFF]" />
-                                    <span className={cn("text-xs md:text-sm font-black text-black", isFree && "blur-md select-none")}>
+                                    <span className="text-xs md:text-sm font-black text-black">
                                         {strategicAnalysis.priceRange.min}€ - {strategicAnalysis.priceRange.max}€
                                     </span>
                                 </div>
@@ -642,49 +642,14 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
 
                                 {/* Conteneur de la Courbe avec hauteur garantie */}
                                 <div className="w-full relative h-[300px] md:h-[400px] lg:flex-1 lg:min-h-0 overflow-hidden">
-                                    <div className={cn("w-full h-full", isFree && "pointer-events-none select-none")}>
+                                    <div className="w-full h-full">
                                         <PredictiveChart data={chartData} color={historyColor} predictionColor={predictionColor} />
                                     </div>
-
-                                    {isFree && (
-                                        <>
-                                            {/* Overlay dynamique de flou sur la partie prédiction (droite) extrêmement opaque et intense */}
-                                            <div className="absolute top-0 right-0 w-[63%] h-full backdrop-blur-[120px] bg-white/95 z-10 pointer-events-none border-l border-white/20" />
-
-                                            {/* Contenu de verrouillage parfaitement centré dans la zone floutée (63% de droite) */}
-                                            <div className="absolute top-0 right-0 w-[63%] h-full z-20 flex flex-col items-center justify-center p-4 md:p-8 text-center bg-transparent">
-                                                <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center shadow-2xl mb-3 shrink-0">
-                                                    <Lock className="w-4 h-4 md:w-5 md:h-5 text-[#007AFF]" />
-                                                </div>
-                                                <h5 className="text-[11px] md:text-sm font-black uppercase text-black mb-1 drop-shadow-sm px-2">Prédictions bloquées</h5>
-                                                <p className="text-[9px] md:text-[11px] font-bold text-gray-800 mb-4 max-w-[180px] leading-tight px-1 italic">
-                                                    Seul le plan Créateur permet de débloquer le reste de la courbe.
-                                                </p>
-                                                <Link href="/auth/choose-plan" className="px-5 py-2.5 bg-[#007AFF] text-white rounded-xl text-[9px] md:text-[10px] font-black uppercase hover:bg-blue-600 transition-all shadow-xl shadow-blue-500/40 active:scale-95 whitespace-nowrap">
-                                                    Débloquer
-                                                </Link>
-                                            </div>
-                                        </>
-                                    )}
                                 </div>
                             </div>
 
                             {/* Diagnostic Sidebar Responsive */}
                             <div className="lg:col-span-4 xl:col-span-3 bg-white rounded-[32px] md:rounded-[40px] p-6 md:p-8 shadow-sm border border-gray-100 flex flex-col h-auto lg:h-[650px] relative overflow-hidden">
-                                {isFree && (
-                                    <div className="absolute inset-0 bg-white/60 backdrop-blur-xl z-20 flex flex-col items-center justify-center p-8 text-center">
-                                        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-xl mb-6">
-                                            <Lock className="w-8 h-8 text-[#007AFF]" />
-                                        </div>
-                                        <h4 className="text-xl font-black uppercase tracking-tight mb-3">Analyse Stratégique</h4>
-                                        <p className="text-xs text-gray-500 font-bold mb-8 leading-relaxed">
-                                            Passez au plan Créateur pour voir les recommandations de lancement, les prix de vente conseillés et l'opportunité de marge.
-                                        </p>
-                                        <Link href="/auth/choose-plan" className="w-full px-6 py-4 bg-[#007AFF] text-white rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-blue-600 transition-all shadow-xl shadow-blue-500/20 active:scale-95 flex items-center justify-center gap-2">
-                                            <Sparkles className="w-4 h-4" /> Passer Créateur
-                                        </Link>
-                                    </div>
-                                )}
                                 <p className="text-[10px] font-black uppercase tracking-widest text-[#007AFF] mb-1">Score</p>
                                 <div className="space-y-6 flex-1 flex flex-col min-h-0">
                                     <div className="bg-white rounded-[24px] md:rounded-[32px] p-5 md:p-6 border border-gray-100 shadow-sm relative overflow-hidden flex-1 flex flex-col">
@@ -724,7 +689,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                                                 <ArrowRight className="w-4 h-4 text-gray-300 mx-2 mb-1" />
                                                 <div className="flex-1 text-right">
                                                     <p className="text-[8px] font-black text-gray-400 uppercase">Potentiel (J+{leadTime})</p>
-                                                    <p className={cn("text-xl md:text-2xl font-black", isFree ? "blur-md" : (futureScore >= currentScoreValue ? "text-[#34C759]" : "text-[#FF3B30]"))}>{futureScore}</p>
+                                                    <p className={cn("text-xl md:text-2xl font-black", futureScore >= currentScoreValue ? "text-[#34C759]" : "text-[#FF3B30]")}>{futureScore}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -738,7 +703,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                                         <div className="pt-4 border-t border-gray-100 flex justify-between items-center mt-auto">
                                             <div>
                                                 <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase block mb-1">Prix Cible</span>
-                                                <span className={cn("text-xs md:text-sm font-black text-[#007AFF]", isFree && "blur-md select-none")}>
+                                                <span className="text-xs md:text-sm font-black text-[#007AFF]">
                                                     {strategicAnalysis.priceRange.min}€ - {strategicAnalysis.priceRange.max}€
                                                 </span>
                                             </div>

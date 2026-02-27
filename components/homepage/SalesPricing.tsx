@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Check, Clock } from 'lucide-react';
 
@@ -22,7 +23,7 @@ function CountdownTimer() {
   }, []);
 
   return (
-    <div className="flex items-center justify-center gap-2 text-[#FF3B30] font-bold text-[10px] sm:text-xs mb-4 bg-red-50 py-1.5 px-3 rounded-full border border-red-100 animate-pulse">
+    <div className="flex items-center justify-center gap-2 text-[#FF3B30] font-bold text-[10px] sm:text-xs mb-4 bg-red-50 py-1.5 px-3 rounded-full border border-red-100">
       <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
       <span>SÉANCE PROMO : {timeLeft.days}j {String(timeLeft.hours).padStart(2, '0')}h {String(timeLeft.minutes).padStart(2, '0')}m</span>
     </div>
@@ -36,9 +37,10 @@ const plans = [
     period: 'Starter',
     description: 'Ton équipe d\'experts IA (Virgil, Pharrell, Ada) t\'accompagne.',
     features: [
-      'Accès à 3 Agents IA (Virgil, Pharrell, Ada)',
-      'Studio Design (5 designs / mois)',
-      'Sourcing Hub (Aperçu)',
+      'Accès à 3 Agents IA (Limité)',
+      'Analyses de style détaillées (Limité)',
+      'Radar de Tendances (Limité)',
+      'Calculateur de Rentabilité',
     ],
     cta: 'Commencer gratuitement',
     ctaStyle: 'border',
@@ -52,15 +54,16 @@ const plans = [
     description: 'Offre limitée : 29€/mois à vie (au lieu de 39€).',
     features: [
       '3 JOURS D\'ESSAI GRATUIT',
-      'Équipe Complète (4 Agents IA dont Johan)',
-      'Stratégie Marketing & ADN de Marque',
-      'Designs & Mockups en Illimité',
-      'Tech Packs Professionnels IA',
-      'Radar de Tendances Premium',
-      'Sourcing Premium & Accès Usines',
-      'Support Prioritaire 24/7',
+      'Les 5 agents IA inclus',
+      'Stratégie marketing complète',
+      'Analyses de style détaillées',
+      'Shooting Virtuel & Mannequin IA',
+      'Mockups & Tech Packs',
+      'Création de Boutique Shopify',
+      'Accès complet au Radar de tendances',
+      'Fournisseurs de confiance',
     ],
-    cta: 'Profiter de l\'offre',
+    cta: 'Démarrer l\'essai gratuit',
     ctaStyle: 'solid',
     popular: true,
   },
@@ -73,174 +76,151 @@ export function SalesPricing() {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-          }
+          if (entry.isIntersecting) setIsVisible(true);
         });
       },
       { threshold: 0.1 }
     );
-
     const element = document.getElementById('pricing-section');
-    if (element) {
-      observer.observe(element);
-    }
-
-    return () => {
-      if (element) {
-        observer.unobserve(element);
-      }
-    };
+    if (element) observer.observe(element);
+    return () => { if (element) observer.unobserve(element); };
   }, []);
 
   return (
-    <section id="pricing-section" className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Titre */}
-        <div className="mb-16 text-center">
-          <h2 className="text-5xl lg:text-6xl font-bold tracking-tight text-[#000000] mb-4">
-            Choisissez votre plan
-          </h2>
-          <p className="text-xl text-[#6e6e73] font-normal max-w-2xl mx-auto">
-            Commencez avec le plan Starter, puis évoluez selon votre croissance
-          </p>
+    <section id="pricing-section" className="py-24 sm:py-32 bg-white relative overflow-hidden">
+      {/* Background Decor - Abstract Shapes Instead of Grid */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]">
+        <div className="absolute top-[10%] -left-[5%] w-[40%] h-[40%] border-[20px] border-black rounded-full" />
+        <div className="absolute bottom-[20%] -right-[10%] w-[35%] h-[35%] border-[1px] border-black rotate-12" />
+        <div className="absolute top-[40%] left-[60%] w-[15%] h-[15%] bg-black rounded-full blur-[100px]" />
+      </div>
+
+      {/* Shapes Overlay Text */}
+      <div className="absolute top-0 right-0 p-12 hidden lg:block pointer-events-none opacity-[0.05] z-0">
+        <div className="text-[120px] font-black leading-none select-none text-black">OUTFITY // PRICING</div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+        <div className="flex flex-col items-center justify-center text-center mb-12 lg:mb-24">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={isVisible ? { opacity: 1, scale: 1 } : {}}
+            className="space-y-4"
+          >
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#007AFF]/10 rounded-full">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#007AFF] animate-pulse" />
+              <span className="text-[10px] font-black text-[#007AFF] uppercase tracking-widest">Nos Tarifs // Lancement</span>
+            </div>
+            <h2 className="text-4xl sm:text-6xl lg:text-8xl font-black tracking-tighter text-black leading-[0.9] sm:leading-[0.85] uppercase">
+              Plan de <br /> <span className="text-[#007AFF]">Lancement.</span>
+            </h2>
+          </motion.div>
         </div>
 
-        {/* Grille de plans */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          {plans.map((plan, index) => (
-            <div
-              key={index}
-              className={cn(
-                'relative bg-white rounded-[32px] p-10 border',
-                plan.popular
-                  ? 'border-[#007AFF] shadow-xl shadow-[#007AFF]/10'
-                  : 'border-[#F2F2F2]',
-                'transition-all duration-500',
-                'hover:scale-[1.01]',
-                'animate-stagger',
-                isVisible ? 'opacity-100' : 'opacity-0'
-              )}
-              style={{
-                animationDelay: `${index * 100}ms`,
-              }}
-            >
-              {/* Badge populaire discret */}
-              {plan.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <div className="bg-[#007AFF] text-white px-3 py-1 rounded-full text-xs font-semibold">
-                    Plus Populaire
-                  </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+
+          {/* Starter Plan (Col 1-5) */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={isVisible ? { opacity: 1, x: 0 } : {}}
+            className="lg:col-span-5 p-6 sm:p-12 bg-[#F5F5F7] rounded-[32px] sm:rounded-[40px] border border-black/[0.03] relative group"
+          >
+            <div className="space-y-6 sm:space-y-8">
+              <div className="flex flex-row justify-between items-start">
+                <div>
+                  <h3 className="text-[9px] sm:text-xs font-black uppercase tracking-widest text-gray-400 mb-1 sm:mb-2">Niveau d'Accès</h3>
+                  <p className="text-xl sm:text-3xl font-black text-black uppercase">Starter</p>
                 </div>
-              )}
-
-              {/* Header */}
-              {plan.popular && <CountdownTimer />}
-              <div className="mb-8">
-                <h3 className="text-2xl font-bold tracking-tight text-[#000000] mb-4">
-                  {plan.name}
-                </h3>
-                {plan.price !== null ? (
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-5xl font-bold text-[#000000]">
-                      {plan.price}€
-                    </span>
-                    {plan.oldPrice && (
-                      <span className="text-2xl text-[#86868B] line-through decoration-red-500/50">
-                        {plan.oldPrice}€
-                      </span>
-                    )}
-                    <span className="text-lg text-[#6e6e73] font-normal">
-                      {plan.period}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="text-3xl font-bold text-[#000000]">
-                    {plan.period}
-                  </div>
-                )}
-                <p className="text-sm text-[#6e6e73] font-normal mt-3 mb-4">
-                  {plan.description}
-                </p>
-
-                {/* Agents Avatars */}
-                <div className="flex items-center gap-1.5 mb-8">
-                  {[
-                    { name: 'Virgil', img: '/images/agents/virgil_final.png' },
-                    { name: 'Pharrell', img: '/images/agents/pharrell_final.png' },
-                    { name: 'Ada', img: '/images/agents/ada_final.png' },
-                    { name: 'Johan', img: '/images/agents/johan_final.png', locked: plan.price === 0 }
-                  ].map((agent) => (
-                    <div key={agent.name} className="relative group/agent">
-                      <img
-                        src={agent.img}
-                        alt={agent.name}
-                        className={cn(
-                          "w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white shadow-sm object-cover bg-slate-100",
-                          agent.locked && "opacity-40 grayscale"
-                        )}
-                      />
-                      {agent.locked && (
-                        <div className="absolute inset-0 flex items-center justify-center -translate-y-0.5">
-                          <span className="text-[10px]">🔒</span>
-                        </div>
-                      )}
-                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover/agent:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
-                        {agent.name} {agent.locked && "(Plan Créateur)"}
-                      </div>
-                    </div>
-                  ))}
-                  <span className="text-[10px] font-bold text-[#007AFF] ml-1 uppercase tracking-wider">L'équipe IA</span>
+                <div className="text-right">
+                  <p className="text-xl sm:text-3xl font-black text-black uppercase tracking-tighter">0€/mois</p>
+                  <p className="text-[8px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Accès Permanent</p>
                 </div>
               </div>
 
-              {/* Liste de fonctionnalités */}
-              <ul className="space-y-4 mb-8">
-                {plan.features.map((feature, featureIndex) => (
-                  <li
-                    key={featureIndex}
-                    className="flex items-start gap-3"
-                  >
-                    <div className="w-5 h-5 rounded-full bg-[#007AFF]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="w-3 h-3 text-[#007AFF]" />
-                    </div>
-                    <span className={cn(
-                      "text-sm font-normal",
-                      feature === "3 JOURS D'ESSAI GRATUIT" ? "text-blue-600 font-bold" : "text-[#6e6e73]"
-                    )}>
-                      {feature}
-                    </span>
+              <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed">
+                Explorez les bases de l'IA avec Virgil et Pharrell. Parfait pour tester vos premières idées de marques.
+              </p>
+
+              <ul className="space-y-3 sm:space-y-4">
+                {plans[0].features.map((f, i) => (
+                  <li key={i} className="flex items-center gap-3 text-[10px] sm:text-xs font-bold text-gray-500">
+                    <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-gray-300 rounded-full" />
+                    {f}
                   </li>
                 ))}
               </ul>
 
-              {/* CTA */}
               <Link
                 href="/auth/signup"
-                className={cn(
-                  'block w-full text-center py-4 rounded-xl text-base font-semibold transition-all duration-200',
-                  plan.ctaStyle === 'solid'
-                    ? 'bg-[#007AFF] text-white hover:bg-[#0056CC] shadow-lg shadow-[#007AFF]/25'
-                    : 'bg-white text-[#1D1D1F] border-2 border-[#F2F2F2] hover:border-[#007AFF] hover:text-[#007AFF]'
-                )}
+                className="block w-full text-center py-4 sm:py-5 bg-white text-black border border-black/[0.1] rounded-2xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all"
               >
-                {plan.cta}
+                Essai Découverte
               </Link>
-
-              {/* Note pour plan gratuit */}
-              {plan.price === 0 && (
-                <p className="text-xs text-[#6e6e73] font-normal text-center mt-3">
-                  Sans carte bancaire
-                </p>
-              )}
             </div>
-          ))}
+          </motion.div>
+
+          {/* Creator Plan (Col 6-12) */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={isVisible ? { opacity: 1, x: 0 } : {}}
+            className="lg:col-span-7 p-6 sm:p-12 bg-black text-white rounded-[32px] sm:rounded-[40px] relative overflow-hidden shadow-2xl shadow-black/20"
+          >
+            {/* Background Glow */}
+            <div className="absolute top-0 right-0 w-48 sm:w-64 h-48 sm:h-64 bg-[#007AFF] opacity-20 blur-[80px] sm:blur-[100px]" />
+
+            <div className="relative z-10 space-y-8 sm:space-y-10">
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-6 sm:gap-0">
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <CountdownTimer />
+                  </div>
+                  <h3 className="text-[9px] sm:text-xs font-black uppercase tracking-widest text-[#007AFF] mb-1 sm:mb-2 text-left">Tout Inclus</h3>
+                  <p className="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tighter text-left">Créateur</p>
+                </div>
+                <div className="text-left sm:text-right">
+                  <div className="flex flex-col items-start sm:items-end mb-2">
+                    <span className="text-[8px] sm:text-[10px] font-black text-[#FF3B30] uppercase tracking-widest bg-[#FF3B30]/10 px-2 py-1 rounded-md mb-2">Au lieu de 39€</span>
+                    <p className="text-3xl sm:text-4xl font-black text-white">29€</p>
+                  </div>
+                  <p className="text-[8px] sm:text-[10px] font-black text-white/50 uppercase tracking-widest">Par mois / À vie*</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed">
+                    Accès illimité à toute l'infrastructure OUTFITY. Votre empire vestimentaire commence ici.
+                  </p>
+                  <div className="flex -space-x-2 sm:-space-x-3">
+                    {['virgil', 'pharrell', 'ada', 'johan', 'joy'].map(a => (
+                      <img key={a} src={`/images/agents/${a}_final.png`} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-black bg-gray-800" alt={a} />
+                    ))}
+                  </div>
+                </div>
+                <ul className="space-y-3">
+                  {plans[1].features.map((f, i) => (
+                    <li key={i} className="flex items-center gap-3 text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-wider">
+                      <div className="w-1 h-1 bg-[#007AFF] rounded-full" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <Link
+                href="/auth/signup"
+                className="block w-full text-center py-5 sm:py-6 bg-[#007AFF] text-white rounded-2xl text-[10px] sm:text-[12px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-xl shadow-[#007AFF]/20"
+              >
+                Démarrer l'essai gratuit
+              </Link>
+            </div>
+          </motion.div>
+
         </div>
 
-        {/* Note de bas de page */}
-        <div className="text-center mt-12">
-          <p className="text-sm text-[#6e6e73] font-normal">
-            *Offre de lancement : 29€/mois à vie (au lieu de 39€) si vous souscrivez pendant la promo. 3 jours d'essai gratuit. Annulable à tout moment.
+        <div className="mt-16 text-center border-t border-black/[0.05] pt-8">
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest max-w-2xl mx-auto">
+            *OFFRE LIMITÉE : 29€/MOIS À VIE SI VOUS SOUSCRIVEZ AUJOURD'HUI. INFRASTRUCTURE SÉCURISÉE. SANS ENGAGEMENT.
           </p>
         </div>
       </div>

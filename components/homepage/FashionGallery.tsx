@@ -6,8 +6,6 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { ArrowRight } from 'lucide-react';
 
-// Les 4 images de la section Shooting — à placer dans public/fashion/
-// Noms attendus : fashion-1.png, fashion-2.png, fashion-3.png, fashion-4.png (ou mettre vos fichiers et adapter les chemins ci-dessous)
 const fashionImages = [
   {
     src: '/fashion/hf_20260131_195003_c7ee5196-eb3f-437e-8261-900b196185fb.png',
@@ -63,19 +61,18 @@ export function FashionGallery() {
   }, []);
 
   return (
-    <section id="fashion-gallery" className="py-12 sm:py-16 lg:py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Titre de section */}
-        <div className="text-center mb-10 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight text-[#000000] mb-3 sm:mb-4">
-            Shootings Générés par IA
+    <section id="fashion-gallery" className="py-16 sm:py-24 bg-white">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        <div className="text-center mb-12 sm:mb-20">
+          <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tighter text-black uppercase leading-[0.9] sm:leading-[0.85] mb-6">
+            Shootings <br className="hidden sm:block" />
+            <span className="text-[#007AFF]">Générés par IA.</span>
           </h2>
-          <p className="text-base sm:text-lg lg:text-xl text-[#6e6e73] font-light max-w-2xl mx-auto px-2">
-            Créez des shootings photo professionnels pour votre marque en quelques clics. Notre IA génère des images de mode réalistes pour mettre en valeur vos créations.
+          <p className="text-base sm:text-xl text-gray-500 font-medium max-w-2xl mx-auto leading-relaxed">
+            Créez des shootings professionnels sans studio. Notre infrastructure génère des visuels haute-couture pour vos collections.
           </p>
         </div>
 
-        {/* Grille asymétrique style Bento */}
         <div
           className={cn(
             'grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6',
@@ -83,148 +80,34 @@ export function FashionGallery() {
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
           )}
         >
-          {/* Image 1 - Grande carte portrait */}
-          <div
-            className={cn(
-              'relative overflow-hidden rounded-2xl sm:rounded-[32px] bg-[#F5F5F7]',
-              'md:row-span-2 col-span-2 sm:col-span-1',
-              'group cursor-pointer',
-              'transition-all duration-500 hover:scale-[1.02]'
-            )}
-          >
+          <div className={cn('relative overflow-hidden rounded-2xl sm:rounded-[32px] bg-[#F5F5F7]', 'md:row-span-2 col-span-2 sm:col-span-1', 'group cursor-pointer', 'transition-all duration-500 hover:scale-[1.02]')}>
             <div className="relative w-full h-full min-h-[300px] sm:min-h-[380px] lg:min-h-[500px]">
-              <Image
-                src={fashionImages[0].src}
-                alt={fashionImages[0].alt}
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-110"
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                unoptimized
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  const parent = target.parentElement;
-                  if (parent && !parent.querySelector('.fallback-placeholder')) {
-                    const fallback = document.createElement('div');
-                    fallback.className = 'fallback-placeholder absolute inset-0 flex items-center justify-center text-8xl bg-gradient-to-br from-[#F5F5F7] to-[#E5E5E7]';
-                    fallback.textContent = fashionImages[0].fallback;
-                    parent.appendChild(fallback);
-                  }
-                  target.style.display = 'none';
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <Image src={fashionImages[0].src} alt={fashionImages[0].alt} fill className="object-cover transition-transform duration-700 group-hover:scale-110" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" unoptimized />
             </div>
           </div>
 
-          {/* Image 2 - Carte moyenne portrait */}
-          <div
-            className={cn(
-              'relative overflow-hidden rounded-2xl sm:rounded-[32px] bg-[#F5F5F7]',
-              'group cursor-pointer',
-              'transition-all duration-500 hover:scale-[1.02]'
-            )}
-          >
+          <div className={cn('relative overflow-hidden rounded-2xl sm:rounded-[32px] bg-[#F5F5F7]', 'group cursor-pointer', 'transition-all duration-500 hover:scale-[1.02]')}>
             <div className="relative w-full h-full min-h-[180px] sm:min-h-[320px] lg:min-h-[400px]">
-              <Image
-                src={fashionImages[1].src}
-                alt={fashionImages[1].alt}
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-110"
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                unoptimized
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  const parent = target.parentElement;
-                  if (parent && !parent.querySelector('.fallback-placeholder')) {
-                    const fallback = document.createElement('div');
-                    fallback.className = 'fallback-placeholder absolute inset-0 flex items-center justify-center text-7xl bg-gradient-to-br from-[#F5F5F7] to-[#E5E5E7]';
-                    fallback.textContent = fashionImages[1].fallback;
-                    parent.appendChild(fallback);
-                  }
-                  target.style.display = 'none';
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <Image src={fashionImages[1].src} alt={fashionImages[1].alt} fill className="object-cover transition-transform duration-700 group-hover:scale-110" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" unoptimized />
             </div>
           </div>
 
-          {/* Image 3 - Petite carte portrait */}
-          <div
-            className={cn(
-              'relative overflow-hidden rounded-2xl sm:rounded-[32px] bg-[#F5F5F7]',
-              'group cursor-pointer',
-              'transition-all duration-500 hover:scale-[1.02]'
-            )}
-          >
+          <div className={cn('relative overflow-hidden rounded-2xl sm:rounded-[32px] bg-[#F5F5F7]', 'group cursor-pointer', 'transition-all duration-500 hover:scale-[1.02]')}>
             <div className="relative w-full h-full min-h-[180px] sm:min-h-[260px] lg:min-h-[300px]">
-              <Image
-                src={fashionImages[2].src}
-                alt={fashionImages[2].alt}
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-110"
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                unoptimized
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  const parent = target.parentElement;
-                  if (parent && !parent.querySelector('.fallback-placeholder')) {
-                    const fallback = document.createElement('div');
-                    fallback.className = 'fallback-placeholder absolute inset-0 flex items-center justify-center text-6xl bg-gradient-to-br from-[#F5F5F7] to-[#E5E5E7]';
-                    fallback.textContent = fashionImages[2].fallback;
-                    parent.appendChild(fallback);
-                  }
-                  target.style.display = 'none';
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <Image src={fashionImages[2].src} alt={fashionImages[2].alt} fill className="object-cover transition-transform duration-700 group-hover:scale-110" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" unoptimized />
             </div>
           </div>
 
-          {/* Image 4 - Grande carte paysage */}
-          <div
-            className={cn(
-              'relative overflow-hidden rounded-2xl sm:rounded-[32px] bg-[#F5F5F7]',
-              'col-span-2',
-              'group cursor-pointer',
-              'transition-all duration-500 hover:scale-[1.02]'
-            )}
-          >
+          <div className={cn('relative overflow-hidden rounded-2xl sm:rounded-[32px] bg-[#F5F5F7]', 'col-span-2', 'group cursor-pointer', 'transition-all duration-500 hover:scale-[1.02]')}>
             <div className="relative w-full h-full min-h-[200px] sm:min-h-[320px] lg:min-h-[400px]">
-              <Image
-                src={fashionImages[3].src}
-                alt={fashionImages[3].alt}
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-110"
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 100vw, 66vw"
-                unoptimized
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  const parent = target.parentElement;
-                  if (parent && !parent.querySelector('.fallback-placeholder')) {
-                    const fallback = document.createElement('div');
-                    fallback.className = 'fallback-placeholder absolute inset-0 flex items-center justify-center text-7xl bg-gradient-to-br from-[#F5F5F7] to-[#E5E5E7]';
-                    fallback.textContent = fashionImages[3].fallback;
-                    parent.appendChild(fallback);
-                  }
-                  target.style.display = 'none';
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <Image src={fashionImages[3].src} alt={fashionImages[3].alt} fill className="object-cover transition-transform duration-700 group-hover:scale-110" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 100vw, 66vw" unoptimized />
             </div>
           </div>
         </div>
 
-        {/* CTA */}
         <div className="mt-16 text-center">
           <Link
             href="#pricing-section"
-            onClick={(e) => {
-              e.preventDefault();
-              const element = document.querySelector('#pricing-section');
-              if (element) {
-                element.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
             className="inline-flex items-center gap-2 sm:gap-3 px-6 py-3 sm:px-8 sm:py-4 bg-[#007AFF] text-white rounded-full font-semibold text-base sm:text-lg hover:bg-[#0056CC] transition-all duration-200 group shadow-lg shadow-[#007AFF]/20"
           >
             Créer mes shootings photo

@@ -42,44 +42,45 @@ export function CTASection() {
         <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAzNGMwIDMuMzE0LTIuNjg2IDYtNiA2cy02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiA2IDIuNjg2IDYgNnoiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii4xIi8+PC9nPjwvc3ZnPg==')] opacity-20" />
       </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-12 text-center">
+      <div className="relative z-10 max-w-5xl mx-auto px-6 lg:px-12 text-center">
         <div
           className={cn(
-            'space-y-6 sm:space-y-8 transition-all duration-700',
+            'space-y-8 sm:space-y-12 transition-all duration-700',
             isVisible
               ? 'opacity-100 translate-y-0'
               : 'opacity-0 translate-y-12'
           )}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm">
-            <Sparkles className="w-4 h-4 text-white shrink-0" />
-            <span className="text-sm font-medium text-white">
-              Commencez avec le plan Starter
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10">
+            <Sparkles className="w-3 h-3 text-[#007AFF] shrink-0" />
+            <span className="text-[10px] font-black text-white uppercase tracking-widest">
+              Accès Immédiat // Plan Starter
             </span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-white mb-4 sm:mb-6">
-            Prêt à créer votre marque de vêtement ?
+          <h2 className="text-4xl sm:text-7xl lg:text-8xl font-black tracking-tighter text-white uppercase leading-[0.9] sm:leading-[0.85]">
+            Reprenez le <br className="hidden sm:block" />
+            <span className="text-[#007AFF]">Contrôle.</span>
           </h2>
-          <p className="text-base sm:text-lg lg:text-xl text-[#86868b] max-w-2xl mx-auto px-2">
-            Rejoignez des centaines de créateurs qui utilisent OUTFITY pour lancer leur marque de vêtements.
+          <p className="text-sm sm:text-xl text-gray-400 font-medium max-w-2xl mx-auto leading-relaxed">
+            Rejoignez l'élite des créateurs. Lancez votre empire avec l'infrastructure OUTFITY.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-6 sm:pt-8">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6 sm:pt-4">
             <Link href="/auth/signup" className="w-full sm:w-auto">
-              <button type="button" className="w-full sm:w-auto min-h-[44px] px-6 sm:px-8 py-3.5 sm:py-4 bg-[#007AFF] text-white rounded-full text-base font-semibold hover:bg-[#0056CC] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] touch-manipulation shadow-lg shadow-[#007AFF]/20">
-                Créer mon compte Starter
+              <button type="button" className="w-full sm:w-auto px-8 py-5 bg-[#007AFF] text-white rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 shadow-2xl shadow-[#007AFF]/20">
+                CRÉER MON COMPTE GRATUIT
               </button>
             </Link>
             <Link href="/auth/signin" className="w-full sm:w-auto">
-              <button type="button" className="w-full sm:w-auto min-h-[44px] px-6 sm:px-8 py-3.5 sm:py-4 text-white text-base font-medium hover:opacity-80 transition-opacity duration-200 border border-white/30 rounded-full touch-manipulation">
-                Se connecter
+              <button type="button" className="w-full sm:w-auto px-8 py-5 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest border border-white/10 rounded-2xl hover:bg-white/5 transition-all">
+                SE CONNECTER
               </button>
             </Link>
           </div>
 
-          <p className="text-xs sm:text-sm text-[#86868b] pt-2 sm:pt-4">
-            Aucune carte bancaire requise • Essai gratuit • Annulation à tout moment
+          <p className="text-[9px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em] pt-4 opacity-50">
+            Aucune carte requise • Activation instantanée • Sans engagement
           </p>
         </div>
       </div>

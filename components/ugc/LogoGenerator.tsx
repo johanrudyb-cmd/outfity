@@ -227,7 +227,24 @@ export function LogoGenerator({ brandId }: LogoGeneratorProps) {
                                         <Button
                                             variant="default"
                                             className="w-full"
-                                            onClick={() => window.open(resultUrl, '_blank')}
+                                            onClick={async () => {
+                                                try {
+                                                    const res = await fetch(`/api/proxy-image?url=${encodeURIComponent(resultUrl)}`);
+                                                    if (!res.ok) throw new Error('Network error');
+                                                    const blob = await res.blob();
+                                                    const blobUrl = window.URL.createObjectURL(blob);
+                                                    const link = document.createElement('a');
+                                                    link.href = blobUrl;
+                                                    link.download = `logo-ia-${Date.now()}.png`;
+                                                    document.body.appendChild(link);
+                                                    link.click();
+                                                    document.body.removeChild(link);
+                                                    window.URL.revokeObjectURL(blobUrl);
+                                                } catch (e) {
+                                                    console.error('Download failed', e);
+                                                    window.open(resultUrl, '_blank');
+                                                }
+                                            }}
                                         >
                                             <Download className="w-4 h-4 mr-2" />
                                             Télécharger HD

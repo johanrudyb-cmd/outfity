@@ -65,6 +65,18 @@ async function generateText(system: string, user: string, options: { maxTokens?:
   return (text && 'text' in text ? text.text : '').trim();
 }
 
+export async function generateChat(system: string, messages: { role: 'user' | 'assistant', content: string }[], options: { maxTokens?: number; temperature?: number } = {}): Promise<string> {
+  if (!anthropic) throw new Error('ANTHROPIC_API_KEY non configurée');
+  const response = await anthropic.messages.create({
+    model: CLAUDE_MODEL,
+    max_tokens: options.maxTokens ?? 2000,
+    temperature: options.temperature ?? 0.7,
+    system,
+    messages: messages.map(m => ({ role: m.role, content: m.content })),
+  });
+  return (response.content[0] as unknown as { text: string }).text;
+}
+
 /** Résultat de l'analyse visuelle produit (identique à GPT-4o). */
 export interface VisualTaggingResult {
   cut: string;
@@ -592,7 +604,7 @@ Canaux utilisés (Instagram, TikTok, retail, influence, événements), type de c
 Thèmes récurrents, angles de communication, codes. Formulations à adapter pour une nouvelle marque.
 
 ## 6. Stratégie de contenu
-Types de contenu à produire (posts, stories, vidéos, lookbooks), calendrier éditorial, thèmes par canal, fréquence de publication, idées de formats (UGC, behind-the-scenes, etc.). Ce qui fonctionne pour cette marque et comment le transposer.
+Ce que publie cette marque, la fréquence, les thèmes qu'elle aborde. Et comment s'en inspirer.
 
 ## 7. Site internet
 Étude approfondie du site e-commerce de cette marque — ce qui fonctionne (structure monoproduit, UX/UI, éléments de réassurance, visuels, conversion), cohérence avec le positionnement.
@@ -681,7 +693,7 @@ Paragraphe(s) : canaux prioritaires, type de contenu. Rédigé.
 Paragraphe(s) : thèmes, angles, ton. Pas de listes à puces longues.
 
 ## 6. Stratégie de contenu
-Paragraphe(s) : types de contenu à produire (posts, stories, vidéos, lookbooks), calendrier éditorial, thèmes par canal, fréquence de publication, idées de formats (UGC, behind-the-scenes, etc.). Adapté à la cible et aux canaux.
+Paragraphes détaillés : Piliers de contenu, idées de publications (TikTok, Instagram), formats vidéos et direction artistique pour les réseaux sociaux. 
 
 ## 7. Site internet
 Paragraphes détaillés : étude du site e-commerce / guidelines pour un bon site qui convertit.
@@ -694,8 +706,8 @@ Cette section doit inclure des ÉLÉMENTS TECHNIQUES concrets :
 
   let text = await generateText(system, user, { maxTokens: 4000, temperature: 0.7 });
   if (!text) return 'Aucune stratégie générée.';
-  if (!/##\s*7\.\s*Site\s*internet/i.test(text)) {
-    text = text.trimEnd() + '\n\n## 7. Site internet\nRecommandations pour le site e-commerce : structure claire, page produit avec visuels et description alignés sur la marque, confiance (avis, retours), CTA visibles, expérience mobile fluide. Un site mono-produit ou petite gamme doit mettre en avant l\'histoire de la marque et la qualité du produit pour convertir.';
+  if (!/##\s*6\.\s*Site\s*internet/i.test(text)) {
+    text = text.trimEnd() + '\n\n## 6. Site internet\nRecommandations pour le site e-commerce : structure claire, page produit avec visuels et description alignés sur la marque, confiance (avis, retours), CTA visibles, expérience mobile fluide. Un site mono-produit ou petite gamme doit mettre en avant l\'histoire de la marque et la qualité du produit pour convertir.';
   }
   return text;
 }
@@ -731,10 +743,7 @@ Paragraphe(s) : canaux prioritaires, type de contenu.
 ## 5. Messages clés et storytelling
 Paragraphe(s) : thèmes, angles, ton. Ne pas écrire de hashtags (#xxx) : utiliser "thèmes : …" ou "codes : …".
 
-## 6. Stratégie de contenu
-Paragraphe(s) obligatoires : types de contenu (posts, stories, vidéos, lookbooks), calendrier éditorial, thèmes par canal, fréquence de publication, formats (UGC, behind-the-scenes, etc.). Sois concret.
-
-## 7. Site internet
+## 6. Site internet
 Paragraphes : étude du site e-commerce de cette marque — ce qui fonctionne (structure, UX, confiance, visuels, conversion), cohérence avec le positionnement.
 Inclus impérativement :
 - Couleurs HEX dominantes identifiées.

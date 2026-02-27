@@ -33,8 +33,31 @@ export function TrendsHero() {
   }, []);
 
   return (
-    <section className="bg-white py-12 sm:py-16 lg:py-24 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="bg-white min-h-[calc(100vh-3.5rem)] sm:min-h-[calc(100vh-4rem)] lg:min-h-[calc(100vh-5rem)] flex flex-col justify-center py-12 sm:py-16 lg:py-20 overflow-hidden relative">
+      {/* Background Decor - Fashion Inspired */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-[0.03]">
+        <div className="absolute -top-[10%] -left-[5%] w-[40%] h-[40%] border-[40px] border-black rounded-full" />
+        <div className="absolute top-[20%] -right-[10%] w-[30%] h-[30%] border-[2px] border-black rotate-45" />
+        <div className="absolute bottom-[-10%] left-[20%] w-[25%] h-[25%] bg-black rounded-full blur-[120px]" />
+
+        {/* Abstract Fashion Grid */}
+        <div className="absolute inset-0 grid grid-cols-6 grid-rows-6 gap-4 p-8">
+          {[...Array(12)].map((_, i) => (
+            <div
+              key={i}
+              className={cn(
+                "border border-black flex items-center justify-center text-[10px] font-black uppercase tracking-widest",
+                i % 3 === 0 ? "opacity-100" : "opacity-0"
+              )}
+              style={{ gridArea: `${Math.floor(Math.random() * 6) + 1} / ${Math.floor(Math.random() * 6) + 1}` }}
+            >
+              Mode // Tech
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div
           className={cn(
             'text-center space-y-6 sm:space-y-8 transition-all duration-1000',
@@ -44,20 +67,21 @@ export function TrendsHero() {
           )}
         >
           {/* Titre principal */}
-          <div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-black mb-4 sm:mb-6 px-2">
-              Créez votre marque de vêtement avec les données des géants
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-black tracking-tight text-black mb-6 sm:mb-8 px-2 uppercase leading-[0.95] sm:leading-[0.9]">
+              Créez votre marque avec les données <br className="hidden sm:block" />
+              <span className="text-[#007AFF]">des géants.</span>
             </h1>
-            <p className="text-base sm:text-lg lg:text-xl text-gray-600 font-light max-w-2xl mx-auto mb-6 sm:mb-8 px-2">
-              Créez vos designs avec les tendances virales de <span className="font-semibold text-black">TikTok</span> et <span className="font-semibold text-black">Instagram</span>.
+            <p className="text-sm sm:text-lg lg:text-lg text-gray-500 font-medium max-w-2xl mx-auto mb-8 sm:mb-12 px-4 leading-relaxed">
+              Propulsez votre univers créatif grâce aux tendances virales de <span className="text-black font-bold">TikTok</span>. Plus besoin de deviner ce qui marchera.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 px-4">
               <Link
                 href="/auth/signup"
-                className="inline-flex items-center gap-2 sm:gap-3 px-6 py-3 sm:px-8 sm:py-4 bg-[#007AFF] text-white rounded-full text-base sm:text-lg font-semibold hover:bg-[#0056CC] transition-all duration-200 group shadow-lg shadow-[#007AFF]/20"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#007AFF] text-white rounded-full text-sm font-bold uppercase tracking-widest hover:bg-black transition-all duration-300 group shadow-lg shadow-[#007AFF]/20"
               >
-                Découvrir les tendances
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                Commencer maintenant
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
           </div>

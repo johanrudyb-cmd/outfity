@@ -301,7 +301,7 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo }: { userN
                                         ...(!hasLogo && hasStrategy ? [{ num: '01', title: 'Créer mon Logo', href: '/launch-map/phase/2', color: '#ff3b30', desc: 'Obligatoire. Pharrell en a besoin pour tes designs.', locked: false }] : []),
                                         // Logo verrouillé si stratégie pas encore faite
                                         ...(!hasLogo && !hasStrategy ? [{ num: '02', title: 'Créer mon Logo', href: '#', color: '#555', desc: '🔒 Étape disponible après la Stratégie', locked: true }] : []),
-                                        { num: !hasStrategy && !hasLogo ? '03' : '02', title: 'Plus tard', href: '#', onClick: (e: any) => { e.preventDefault(); try { localStorage.setItem('show_tutorial_next', '1'); } catch (_) { } router.push('/dashboard?tutorial=1'); }, color: '#86868B', desc: 'Je ferai ça plus tard (déconseillé)', locked: false }
+
                                     ]
                                     : [
                                         { num: '01', title: 'Génère ta Stratégie de Marque', href: '/launch-map/phase/1', color: '#007AFF', desc: 'Virgil analyse ton univers et crée ton ADN de marque complet.', locked: false },
@@ -312,7 +312,6 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo }: { userN
                                     <motion.a
                                         key={item.num + item.title}
                                         href={item.locked ? undefined : item.href}
-                                        onClick={'onClick' in item ? item.onClick : undefined}
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: i * 0.15 + 0.2 }}

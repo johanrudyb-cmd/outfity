@@ -35,15 +35,15 @@ export function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section id="faq-section" className="py-20 bg-white">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="faq-section" className="py-20 sm:py-32 bg-white">
+      <div className="max-w-4xl mx-auto px-6 lg:px-12">
         {/* Titre */}
-        <div className="mb-16 text-center">
-          <h2 className="text-5xl lg:text-6xl font-bold tracking-tight text-[#000000] mb-4">
-            Questions fréquentes
+        <div className="mb-16 sm:mb-24 text-center">
+          <h2 className="text-4xl sm:text-7xl font-black tracking-tighter text-black uppercase leading-[0.9] mb-6">
+            Des <span className="text-[#007AFF]">Questions ?</span>
           </h2>
-          <p className="text-xl text-[#6e6e73] font-normal">
-            Tout ce que vous devez savoir sur OUTFITY
+          <p className="text-base sm:text-xl text-gray-500 font-medium leading-relaxed">
+            Tout ce que vous devez savoir sur l'infrastructure OUTFITY.
           </p>
         </div>
 

@@ -36,18 +36,18 @@ export function Footer() {
   return (
     <footer className="bg-white border-t border-[#F2F2F2] py-10 sm:py-14 lg:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 lg:gap-12 mb-10 sm:mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 sm:gap-16 mb-16">
           {/* Produit */}
-          <div>
-            <h3 className="text-sm font-bold text-[#000000] mb-4 uppercase tracking-wide">
-              Produit
+          <div className="text-center sm:text-left">
+            <h3 className="text-[10px] sm:text-xs font-black text-black mb-6 uppercase tracking-[0.2em] opacity-30">
+              Infrastructure
             </h3>
-            <ul className="space-y-2 sm:space-y-3">
+            <ul className="space-y-4">
               {footerLinks.produit.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="inline-block min-h-[44px] py-2 flex items-center text-sm text-[#6e6e73] font-normal hover:text-[#007AFF] transition-colors touch-manipulation"
+                    className="text-xs sm:text-sm text-gray-500 font-bold hover:text-[#007AFF] transition-colors uppercase tracking-widest"
                   >
                     {link.name}
                   </Link>
@@ -57,16 +57,16 @@ export function Footer() {
           </div>
 
           {/* Ressources */}
-          <div>
-            <h3 className="text-sm font-bold text-[#000000] mb-4 uppercase tracking-wide">
-              Ressources
+          <div className="text-center sm:text-left">
+            <h3 className="text-[10px] sm:text-xs font-black text-black mb-6 uppercase tracking-[0.2em] opacity-30">
+              Radar // Blog
             </h3>
-            <ul className="space-y-2 sm:space-y-3">
+            <ul className="space-y-4">
               {footerLinks.ressources.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="inline-block min-h-[44px] py-2 flex items-center text-sm text-[#6e6e73] font-normal hover:text-[#007AFF] transition-colors touch-manipulation"
+                    className="text-xs sm:text-sm text-gray-500 font-bold hover:text-[#007AFF] transition-colors uppercase tracking-widest"
                   >
                     {link.name}
                   </Link>
@@ -76,16 +76,16 @@ export function Footer() {
           </div>
 
           {/* Entreprise */}
-          <div>
-            <h3 className="text-sm font-bold text-[#000000] mb-4 uppercase tracking-wide">
-              Entreprise
+          <div className="text-center sm:text-left">
+            <h3 className="text-[10px] sm:text-xs font-black text-black mb-6 uppercase tracking-[0.2em] opacity-30">
+              OUTFITY
             </h3>
-            <ul className="space-y-2 sm:space-y-3">
+            <ul className="space-y-4">
               {footerLinks.entreprise.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="inline-block min-h-[44px] py-2 flex items-center text-sm text-[#6e6e73] font-normal hover:text-[#007AFF] transition-colors touch-manipulation"
+                    className="text-xs sm:text-sm text-gray-500 font-bold hover:text-[#007AFF] transition-colors uppercase tracking-widest"
                   >
                     {link.name}
                   </Link>
@@ -95,16 +95,16 @@ export function Footer() {
           </div>
 
           {/* Légal */}
-          <div>
-            <h3 className="text-sm font-bold text-[#000000] mb-4 uppercase tracking-wide">
-              Légal
+          <div className="text-center sm:text-left">
+            <h3 className="text-[10px] sm:text-xs font-black text-black mb-6 uppercase tracking-[0.2em] opacity-30">
+              Protocole
             </h3>
-            <ul className="space-y-2 sm:space-y-3">
+            <ul className="space-y-4">
               {footerLinks.légal.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="inline-block min-h-[44px] py-2 flex items-center text-sm text-[#6e6e73] font-normal hover:text-[#007AFF] transition-colors touch-manipulation"
+                    className="text-xs sm:text-sm text-gray-500 font-bold hover:text-[#007AFF] transition-colors uppercase tracking-widest"
                   >
                     {link.name}
                   </Link>

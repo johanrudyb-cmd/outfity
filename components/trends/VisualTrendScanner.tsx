@@ -266,6 +266,14 @@ export function VisualTrendScanner() {
             });
 
             const data = await res.json();
+
+            // Gestion spécifique : objet non-vêtement détecté
+            if (res.status === 422 && data.error === 'NOT_CLOTHING') {
+                setImage(null); // Reset l'image
+                setError(`🚫 Scanner vêtements uniquement — ${data.message}`);
+                return;
+            }
+
             if (!res.ok) throw new Error(data.error || "Erreur lors de l'analyse");
 
             setResult(data.analysis);
@@ -282,6 +290,7 @@ export function VisualTrendScanner() {
         }
     };
 
+
     const reset = () => {
         setImage(null);
         setResult(null);
@@ -289,7 +298,7 @@ export function VisualTrendScanner() {
     };
 
     return (
-        <div className="min-h-screen bg-[#F5F5F7] font-sans text-[#1a1a1a] -mt-8 -mx-8 pb-32 relative overflow-hidden">
+        <div className="min-h-screen bg-[#F5F5F7] font-sans text-[#1a1a1a] -mt-4 sm:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8 pb-32 relative overflow-hidden">
             {/* Mesh Gradient Background Decorative */}
             <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-50">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-100/50 blur-[120px] rounded-full" />
@@ -297,19 +306,19 @@ export function VisualTrendScanner() {
             </div>
 
             {!result ? (
-                <div className="max-w-5xl mx-auto py-20 px-6 space-y-12 relative z-10">
+                <div className="max-w-5xl mx-auto py-8 md:py-12 px-4 md:px-6 space-y-8 md:space-y-12 relative z-10">
                     <div className="text-center space-y-4">
                         <motion.div
                             initial={{ scale: 0.8, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            className="w-20 h-20 bg-white rounded-3xl shadow-apple flex items-center justify-center mx-auto mb-6"
+                            className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-3xl shadow-apple flex items-center justify-center mx-auto mb-4 md:mb-6"
                         >
-                            <Camera className="w-10 h-10 text-[#007AFF]" />
+                            <Camera className="w-8 h-8 md:w-10 md:h-10 text-[#007AFF]" />
                         </motion.div>
-                        <h1 className="text-5xl md:text-6xl font-black text-black uppercase tracking-tighter leading-[0.9]">
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-black uppercase tracking-tighter leading-[0.9]">
                             SCANNER <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#007AFF] to-[#00C6FF]">IVS</span>
                         </h1>
-                        <p className="text-sm md:text-base font-bold text-gray-500 uppercase tracking-widest max-w-2xl mx-auto leading-relaxed">
+                        <p className="text-xs md:text-sm font-bold text-gray-500 uppercase tracking-widest max-w-2xl mx-auto leading-relaxed">
                             ANALYSE VISUELLE & PROJECTION DE VIABILITÉ MARCHÉ SUR 90 JOURS BASÉE SUR LES FLUX MONDIAUX.
                         </p>
                     </div>
@@ -394,7 +403,7 @@ export function VisualTrendScanner() {
                                 <h3 className="text-sm font-black uppercase tracking-widest text-[#1D1D1F]">Historique de Scan</h3>
                                 <div className="h-px bg-gray-100 flex-1" />
                             </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 md:gap-4">
                                 {history.map((item) => (
                                     <div key={item.id} className="group relative">
                                         <button
@@ -402,11 +411,11 @@ export function VisualTrendScanner() {
                                                 setImage(item.image);
                                                 setResult(item.analysis);
                                             }}
-                                            className="w-full aspect-square rounded-[24px] overflow-hidden border border-black/5 bg-white shadow-sm hover:shadow-md hover:scale-[1.02] transition-all"
+                                            className="w-full aspect-square rounded-[20px] md:rounded-[24px] overflow-hidden border border-black/5 bg-white shadow-sm hover:shadow-md hover:scale-[1.02] transition-all"
                                         >
                                             <img src={item.image} className="w-full h-full object-cover" alt="History item" />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
-                                                <span className="text-[10px] font-black text-white uppercase tracking-widest">Voir l'analyse</span>
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
+                                                <span className="text-[9px] font-black text-white uppercase tracking-widest text-center">Voir</span>
                                             </div>
                                         </button>
                                         <button
@@ -414,13 +423,13 @@ export function VisualTrendScanner() {
                                                 e.stopPropagation();
                                                 removeFromHistory(item.id);
                                             }}
-                                            className="absolute -top-2 -right-2 w-7 h-7 bg-white rounded-full shadow-apple-sm flex items-center justify-center text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all border border-black/5"
+                                            className="absolute -top-2 -right-2 w-6 h-6 bg-white rounded-full shadow-apple-sm flex items-center justify-center text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all border border-black/5"
                                         >
-                                            <X className="w-4 h-4" />
+                                            <X className="w-3 h-3" />
                                         </button>
                                         <div className="mt-2 px-1">
-                                            <p className="text-[10px] font-black uppercase truncate">{item.analysis.category}</p>
-                                            <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">{new Date(item.date).toLocaleDateString()}</p>
+                                            <p className="text-[9px] md:text-[10px] font-black uppercase truncate">{item.analysis.category}</p>
+                                            <p className="text-[7px] md:text-[8px] font-bold text-gray-400 uppercase tracking-widest">{new Date(item.date).toLocaleDateString()}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -431,17 +440,17 @@ export function VisualTrendScanner() {
             ) : (
                 <div className="animate-in fade-in slide-in-from-bottom-6 duration-1000 relative z-10">
                     {/* Immersive Header */}
-                    <div className="bg-white/80 backdrop-blur-xl border-b border-black/5 px-6 md:px-12 py-6 sticky top-0 z-[50] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <div className="flex items-center gap-8">
+                    <div className="bg-white/80 backdrop-blur-xl border-b border-black/5 px-4 sm:px-6 md:px-12 py-4 md:py-6 sticky top-0 z-[50] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
+                        <div className="flex items-center gap-4 md:gap-8">
                             <button onClick={reset} className="flex items-center gap-3 text-[10px] font-black text-gray-400 hover:text-black transition-all uppercase tracking-widest group">
                                 <div className="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center group-hover:bg-gray-100 transition-colors">
                                     <ArrowRight className="w-4 h-4 rotate-180" />
                                 </div>
                                 <span>RETOUR SCAN</span>
                             </button>
-                            <div className="h-10 w-px bg-black/5" />
-                            <div className="flex items-center gap-5">
-                                <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-white shadow-apple shrink-0">
+                            <div className="hidden md:block h-10 w-px bg-black/5" />
+                            <div className="flex items-center gap-3 md:gap-5">
+                                <div className="w-10 h-10 md:w-14 md:h-14 rounded-2xl overflow-hidden border-2 border-white shadow-apple shrink-0">
                                     <img src={image!} className="w-full h-full object-cover" alt="Scanned" />
                                 </div>
                                 <div className="min-w-0">
@@ -458,13 +467,13 @@ export function VisualTrendScanner() {
                         </div>
 
                         <div className="flex items-center gap-4">
-                            <div className="flex p-1.5 bg-gray-100/50 rounded-2xl shrink-0 border border-black/5">
+                            <div className="flex p-1.5 bg-gray-100/50 rounded-2xl shrink-0 border border-black/5 w-full md:w-auto overflow-x-auto">
                                 {['homme', 'femme'].map(s => (
                                     <button
                                         key={s}
                                         onClick={() => setSegment(s as 'homme' | 'femme')}
                                         className={cn(
-                                            "px-8 py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all",
+                                            "flex-1 md:flex-none px-6 md:px-8 py-2.5 md:py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all",
                                             segment === s ? "bg-white text-black shadow-apple-sm" : "text-gray-400 hover:text-black"
                                         )}
                                     >
@@ -475,35 +484,35 @@ export function VisualTrendScanner() {
                         </div>
                     </div>
 
-                    <div className="max-w-[1600px] mx-auto p-6 md:p-12 space-y-10">
+                    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6 md:space-y-8">
                         {/* KPI Grid Section */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <TopKpiCard title="SCORE DE VIRALITÉ" value={`${result.trendScore}/100`} sub="Momentum Actuel" icon={Zap} color="text-yellow-500" />
+                        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                            <AnimatedGaugeCard title="SCORE IVS (VIRALITÉ)" score={result.trendScore} sub="Momentum Actuel" icon={Zap} color={result.trendScore >= 75 ? "text-[#34C759]" : result.trendScore >= 50 ? "text-yellow-500" : "text-red-500"} />
                             <TopKpiCard title="POTENTIEL SORTIE" value={`${futureScore}/100`} sub={`Le ${chartData[chartData.length - 1]?.date}`} icon={TrendingUp} color={futureScore >= result.trendScore ? "text-green-500" : "text-red-500"} highlight={true} />
                             <TopKpiCard title="PROJECTION PRIX" value={`${strategicAnalysis?.priceRange.max}€`} sub="Max Target Conseillé" icon={DollarSign} color="text-emerald-500" />
                             <TopKpiCard title="FIABILITÉ SCAN" value={`${reliabilityIndex}%`} sub="Data Confidence" icon={Target} color="text-blue-500" />
                         </div>
 
                         {/* Analysis Hub */}
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
                             {/* Main Chart Section */}
-                            <div className="lg:col-span-8 bg-white rounded-[48px] p-8 md:p-12 shadow-apple border border-white relative flex flex-col min-h-[600px]">
-                                <div className="flex flex-col sm:flex-row justify-between items-start gap-8 mb-12">
+                            <div className="lg:col-span-8 bg-white rounded-[24px] md:rounded-[40px] p-5 md:p-8 shadow-apple border border-white relative flex flex-col min-h-[400px] md:min-h-[450px]">
+                                <div className="flex flex-col sm:flex-row justify-between items-start gap-4 sm:gap-6 mb-6 md:mb-8">
                                     <div>
-                                        <h2 className="text-3xl font-black text-black uppercase tracking-tight mb-2">Courbe Prédictive 90j</h2>
-                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Base de données : 12M+ points d&apos;influence</p>
+                                        <h2 className="text-2xl md:text-3xl font-black text-black uppercase tracking-tight mb-1">Courbe Prédictive 90j</h2>
+                                        <p className="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest">Base de données : 12M+ points d&apos;influence</p>
                                     </div>
 
-                                    <div className="flex flex-col items-end gap-3 bg-gray-50 px-6 py-4 rounded-3xl border border-black/5">
+                                    <div className="flex flex-col items-end gap-2 bg-gray-50 px-5 py-3 rounded-2xl border border-black/5">
                                         <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Lead Time (Production)</span>
-                                        <div className="flex gap-2">
+                                        <div className="flex gap-1.5 md:gap-2">
                                             {[30, 60, 90].map(days => (
                                                 <button
                                                     key={days}
                                                     onClick={() => setLeadTime(days)}
                                                     className={cn(
-                                                        "px-5 py-2.5 rounded-xl text-[10px] font-black transition-all",
-                                                        leadTime === days ? "bg-black text-white shadow-xl" : "bg-white text-gray-400 border border-black/5 hover:text-black"
+                                                        "px-4 py-2 rounded-xl text-[10px] font-black transition-all",
+                                                        leadTime === days ? "bg-black text-white shadow-md" : "bg-white text-gray-400 border border-black/5 hover:text-black"
                                                     )}
                                                 >
                                                     {days / 30} MOIS
@@ -514,23 +523,6 @@ export function VisualTrendScanner() {
                                 </div>
 
                                 <div className="flex-1 w-full relative">
-                                    {isFree && (
-                                        <div className="absolute inset-0 z-[30] flex items-center justify-center p-6 bg-white/40 backdrop-blur-[10px] rounded-[32px]">
-                                            <div className="max-w-sm w-full bg-white shadow-2xl rounded-[40px] p-10 text-center border border-black/5 animate-in zoom-in-95 duration-500">
-                                                <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-8 text-[#007AFF]">
-                                                    <LockIcon className="w-8 h-8" />
-                                                </div>
-                                                <h4 className="text-2xl font-black uppercase tracking-tight text-black mb-4">Fonction Premium</h4>
-                                                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest leading-relaxed mb-8">
-                                                    Upgradez pour débloquer l&apos;intégralité de la courbe prédictive.
-                                                </p>
-                                                <Link href="/auth/choose-plan" className="inline-flex w-full items-center justify-center h-14 rounded-2xl bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-apple hover:scale-105 transition-all">
-                                                    Passer au Plan Créateur
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    )}
-
                                     <ResponsiveContainer width="100%" height="100%">
                                         <PredictiveChart
                                             data={chartData}
@@ -542,10 +534,10 @@ export function VisualTrendScanner() {
                             </div>
 
                             {/* Sidebar Recommendation */}
-                            <div className="lg:col-span-4 space-y-8">
-                                <div className="bg-white rounded-[48px] p-8 md:p-10 shadow-apple border border-white flex flex-col h-full overflow-hidden">
-                                    <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#007AFF] mb-10 flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
+                            <div className="lg:col-span-4 space-y-6">
+                                <div className="bg-white rounded-[24px] md:rounded-[40px] p-5 md:p-8 shadow-apple border border-white flex flex-col h-full overflow-hidden">
+                                    <h3 className="text-[11px] md:text-xs font-black uppercase tracking-[0.2em] text-[#007AFF] mb-6 md:mb-8 flex items-center gap-2.5">
+                                        <div className="w-7 h-7 md:w-8 md:h-8 rounded-xl bg-blue-50 flex items-center justify-center">
                                             <Zap className="w-4 h-4" />
                                         </div>
                                         ANALYSE EXPERTE
@@ -578,13 +570,10 @@ export function VisualTrendScanner() {
                                             </h4>
 
                                             <p className="text-sm text-gray-600 font-bold leading-relaxed mb-8 italic">
-                                                {isFree ? "Analyse détaillée réservée au plan Créateur. Upgradez pour voir les recommandations de lancement spécifiques." : strategicAnalysis?.commentary}
+                                                {strategicAnalysis?.commentary}
                                             </p>
 
-                                            <div className={cn(
-                                                "grid grid-cols-2 gap-4 pt-8 border-t border-black/5",
-                                                isFree && "blur-md select-none pointer-events-none opacity-50"
-                                            )}>
+                                            <div className="grid grid-cols-2 gap-4 pt-8 border-t border-black/5">
                                                 <div className="bg-white p-4 rounded-3xl border border-black/5 shadow-sm">
                                                     <span className="text-[8px] font-black text-gray-400 uppercase block mb-1.5 text-center">Opportunité</span>
                                                     <div className={cn(
@@ -609,11 +598,7 @@ export function VisualTrendScanner() {
                                             </div>
                                         </div>
 
-                                        {/* Verdict Card */}
-                                        <div className={cn(
-                                            "bg-[#007AFF] rounded-[40px] p-8 text-white relative overflow-hidden shadow-apple",
-                                            isFree && "opacity-50 blur-sm"
-                                        )}>
+                                        <div className="bg-[#007AFF] rounded-[24px] md:rounded-[40px] p-6 md:p-8 text-white relative overflow-hidden shadow-apple">
                                             <div className="flex items-center gap-3 mb-6">
                                                 <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
                                                     <Target className="w-5 h-5 text-white" />
@@ -621,12 +606,44 @@ export function VisualTrendScanner() {
                                                 <span className="text-xs font-black uppercase tracking-[0.2em]">Verdict Marché</span>
                                             </div>
                                             <p className="text-sm font-bold leading-relaxed opacity-95">
-                                                "{isFree ? "Le scan visuel a détecté un potentiel intéressant. Upgradez pour lire l'analyse complète de l'IA." : result.analysis}"
+                                                "{result.analysis}"
                                             </p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        {/* CTA BANNER FULL WIDTH */}
+                        <div className="pt-2 lg:pt-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500">
+                            <Link href="/design-studio" className="relative group block overflow-hidden rounded-[32px] md:rounded-[40px] bg-black text-white shadow-2xl p-8 lg:p-12 border border-white/10 hover:border-white/20 transition-all">
+                                <div className="absolute inset-0 bg-gradient-to-r from-[#00C6FF]/10 via-[#007AFF]/20 to-[#007AFF]/5 group-hover:opacity-100 opacity-50 transition-opacity duration-1000" />
+                                <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#007AFF] to-transparent opacity-50" />
+
+                                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
+                                    <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+                                        <div className="w-16 h-16 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/10">
+                                            <Sparkles className="w-8 h-8 text-[#00C6FF] group-hover:rotate-12 transition-transform" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight mb-2">Passez à l'action</h3>
+                                            <p className="text-white/60 text-sm md:text-base font-medium max-w-xl mx-auto md:mx-0">
+                                                Générez instantanément votre propre collection inspirée de cette analyse prédictive grâce au Design Studio.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="shrink-0 w-full md:w-auto">
+                                        <div className="relative inline-flex group/btn w-full md:w-auto cursor-pointer">
+                                            <div className="absolute -inset-1 bg-gradient-to-r from-[#00C6FF] to-[#007AFF] rounded-full blur opacity-40 group-hover/btn:opacity-80 transition duration-1000 animate-pulse" />
+                                            <div className="relative flex items-center justify-center gap-3 bg-white text-black px-8 py-5 rounded-full font-black uppercase tracking-widest text-[11px] group-hover/btn:scale-105 active:scale-95 transition-all w-full">
+                                                Lancer le studio
+                                                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Link>
                         </div>
 
                         {/* DB Matches Section */}
@@ -732,7 +749,7 @@ function TopKpiCard({ title, value, sub, icon: Icon, color, highlight }: TopKpiC
             animate={{ y: 0, opacity: 1 }}
             whileHover={{ y: -5 }}
             className={cn(
-                "rounded-[40px] p-8 shadow-apple border border-white flex items-start justify-between transition-all relative overflow-hidden",
+                "rounded-[24px] md:rounded-[40px] p-5 md:p-8 shadow-apple border border-white flex items-start justify-between transition-all relative overflow-hidden",
                 highlight ? "bg-white ring-4 ring-[#007AFF]/5" : "bg-white/90 backdrop-blur-sm"
             )}
         >
@@ -751,3 +768,53 @@ function TopKpiCard({ title, value, sub, icon: Icon, color, highlight }: TopKpiC
     );
 }
 
+function AnimatedGaugeCard({ title, score, sub, icon: Icon, color }: { title: string, score: number, sub: string, icon: any, color: string }) {
+    const radius = 35;
+    const stroke = 8;
+    const normalizedRadius = radius - stroke * 2;
+    const circumference = normalizedRadius * 2 * Math.PI;
+    const strokeDashoffset = circumference - (score / 100) * circumference;
+
+    return (
+        <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            whileHover={{ y: -5 }}
+            className="rounded-[24px] md:rounded-[40px] p-5 md:p-8 shadow-apple border border-white flex flex-col md:flex-row items-center md:items-start justify-between gap-4 transition-all relative overflow-hidden bg-white ring-4 ring-[#007AFF]/5 lg:col-span-1 min-h-[160px]"
+        >
+            <div className="relative z-10 flex-1 flex flex-col items-center md:items-start text-center md:text-left">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-3">{title}</h3>
+                <div className="flex items-end gap-1 mb-2">
+                    <div className={cn("text-4xl md:text-5xl font-black tracking-tighter tabular-nums leading-none", color)}>{score}</div>
+                    <span className="text-lg md:text-xl font-black text-gray-300 transform md:-translate-y-1">/100</span>
+                </div>
+                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{sub}</div>
+            </div>
+
+            <div className="relative w-20 h-20 md:w-24 md:h-24 flex items-center justify-center shrink-0 mx-auto md:mx-0">
+                <svg height="100%" width="100%" viewBox="0 0 100 100" className="rotate-[-90deg] absolute inset-0">
+                    <circle stroke="#F5F5F7" fill="transparent" strokeWidth={stroke} r={normalizedRadius} cx="50" cy="50" />
+                    <motion.circle
+                        stroke="currentColor"
+                        fill="transparent"
+                        strokeWidth={stroke}
+                        strokeDasharray={circumference + ' ' + circumference}
+                        strokeLinecap="round"
+                        r={normalizedRadius} cx="50" cy="50"
+                        className={cn("transition-all duration-1000 ease-out", color)}
+                        initial={{ strokeDashoffset: circumference }}
+                        animate={{ strokeDashoffset }}
+                    />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <Icon className={cn("w-6 h-6 md:w-8 md:h-8", color)} />
+                </div>
+            </div>
+
+            {/* Soft background glow based on color */}
+            <div className={cn("absolute inset-0 bg-gradient-to-br opacity-5",
+                score >= 75 ? "from-green-500 to-transparent" : score >= 50 ? "from-yellow-500 to-transparent" : "from-red-500 to-transparent"
+            )} />
+        </motion.div>
+    );
+}

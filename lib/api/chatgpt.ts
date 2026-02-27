@@ -1006,22 +1006,20 @@ export async function isProductValidClothing(
       messages: [
         {
           role: 'system',
-          content: `Tu es un modérateur pour une plateforme de mode premium (vêtements et accessoires textiles uniquement).
-          Ta mission est de bannir tout ce qui n'est pas un vêtement, une chaussure ou un accessoire textile.
+          content: `Tu es un modérateur pour une plateforme de mode premium (VÊTEMENTS TEXTILES UNIQUEMENT).
+          Ta mission est de bannir tout ce qui n'est pas un vêtement (haut ou bas).
           
           DOIVENT ÊTRE BANNIS (valid: false) :
-          - Maquillage, rouges à lèvres, palettes.
-          - Parfums, eaux de toilette.
-          - Soins de la peau, crèmes, sérums, masques.
-          - Shampoings, brosses à cheveux.
-          - Électroménager (Dyson, etc.).
-          - Coques de téléphone, gadgets.
+          - Sacs, sacs à main, tote bags, sacs à dos.
+          - Chaussures, sneakers, bottes, talons.
+          - Chapeaux, casquettes, bonnets.
+          - Ceintures, bijoux, lunettes de soleil, montres.
+          - Maquillage, parfums, cosmétiques.
+          - Décoration, objets, électroménager.
           
           DOIVENT ÊTRE GARDÉS (valid: true) :
-          - T-shirts, hoodies, pantalons, vestes.
-          - Robes, jupes, chemises.
-          - Chaussures, baskets, bottes.
-          - Sacs, ceintures, casquettes.
+          - Uniquement les vêtements : T-shirts, hoodies, pulls, pantalons, jeans, vestes, manteaux.
+          - Robes, jupes, chemises, shorts, survêtements.
           
           Réponds UNIQUEMENT en JSON : {"valid": boolean, "reason": "courte explication"}.`,
         },
@@ -1078,30 +1076,30 @@ export async function generateMonthlyTrendingBrands(): Promise<Array<{
     messages: [
       {
         role: 'system',
-        content: `Tu es un expert en tendances mode et retail global (Luxe, Streetwear et Mass Market) en Europe. 
+        content: `Tu es un expert en tendances mode et retail global(Luxe, Streetwear et Mass Market) en Europe. 
         Ta mission est de générer le classement TOP 10 des marques les plus influentes et "hot" du mois de ${monthStr}.
-        
-        IMPORTANT : Tu dois proposer un mix équilibré de segments pour que le classement reflète la réalité du marché :
-        - Inclus des marques de LUXE (ex: Loewe, Jacquemus).
-        - Inclus des marques STREETWEAR/NICHE (ex: Corteiz, Represent, Stüssy).
-        - Inclus des marques MASS MARKET influentes (ex: Zara, Uniqlo, Adidas).
+
+          IMPORTANT : Tu dois proposer un mix équilibré de segments pour que le classement reflète la réalité du marché :
+        - Inclus des marques de LUXE(ex: Loewe, Jacquemus).
+        - Inclus des marques STREETWEAR / NICHE(ex: Corteiz, Represent, Stüssy).
+        - Inclus des marques MASS MARKET influentes(ex: Zara, Uniqlo, Adidas).
         
         Pour chaque marque, tu dois fournir :
         - brand: Nom de la marque.
-        - score: Score sur 100 (ex: "98/100").
-        - scoreValue: La valeur numérique du score (ex: 98).
-        - signaturePiece: La pièce maîtresse qui fait le buzz actuellement (ex: "Veste Alpha SV").
-        - dominantStyle: Le style associé (ex: "Gorpcore", "Quiet Luxury", "Streetwear").
+        - score: Score sur 100(ex: "98/100").
+        - scoreValue: La valeur numérique du score(ex: 98).
+        - signaturePiece: La pièce maîtresse qui fait le buzz actuellement(ex: "Veste Alpha SV").
+        - dominantStyle: Le style associé(ex: "Gorpcore", "Quiet Luxury", "Streetwear").
         - cyclePhase: "emergent", "croissance", "pic" ou "declin".
         - launchPotential: "opportunite", "a_surveiller" ou "sature".
-        - indicativePrice: Fourchette de prix (ex: "40-100€").
-        - websiteUrl: URL officielle du site web de la marque (ex: "https://www.jacquemus.com").
+        - indicativePrice: Fourchette de prix(ex: "40-100€").
+        - websiteUrl: URL officielle du site web de la marque(ex: "https://www.jacquemus.com").
         
         Réponds UNIQUEMENT par un objet JSON avec une clé "brands" contenant un tableau de 10 objets.`,
       },
       {
         role: 'user',
-        content: `Génère le classement TOP 10 mixé (Luxe, Streetwear, Mass Market) des marques de mode tendances en Europe pour ${monthStr}.`,
+        content: `Génère le classement TOP 10 mixé(Luxe, Streetwear, Mass Market) des marques de mode tendances en Europe pour ${monthStr}.`,
       },
     ],
     temperature: 0.7,
@@ -1117,7 +1115,7 @@ export async function generateMonthlyTrendingBrands(): Promise<Array<{
   return brands.map((b: any, index: number) => ({
     rank: index + 1,
     brand: b.brand,
-    score: b.score || `${b.scoreValue}/100`,
+    score: b.score || `${b.scoreValue} / 100`,
     scoreValue: b.scoreValue,
     signaturePiece: b.signaturePiece,
     dominantStyle: b.dominantStyle,
@@ -1152,24 +1150,31 @@ export async function analyzeVisualTrend(base64Image: string): Promise<{
     messages: [
       {
         role: "system",
-        content: `Tu es un expert en analyse de tendances mode (Fashion Trend Analyst). 
-        Analyse l'image fournie et réponds uniquement en JSON avec la structure suivante :
-        {
-          "category": "Type de vêtement principal",
-          "style": "Style identifié (ex: Gorpcore, Minimalisme, Y2K)",
-          "tags": ["tag1", "tag2", "tag3"],
-          "materials": ["matière1", "..."],
-          "colors": ["couleur1", "..."],
-          "baseTrendScore": 0-100,
-          "analysis": "Description courte de l'esthétique et de pourquoi c'est tendance",
-          "cyclePhase": "emergent" | "croissance" | "pic" | "declin",
-          "marketAdvice": "Conseil business actionnable pour une marque de mode"
-        }`
+        content: `Tu es un expert en analyse de tendances mode (Fashion Trend Analyst) spécialisé UNIQUEMENT dans les vêtements.
+
+RÈGLE CRITIQUE : Tu n'analyses QUE les vêtements portés sur le corps (t-shirt, pantalon, robe, veste, sweat, manteau, jupe, short, etc.).
+
+Si l'image montre autre chose qu'un vêtement (sac à main, chaussures, accessoire, bijou, montre, ceinture, chapeau, meuble, nourriture, personne sans vêtement visible, etc.), tu DOIS retourner :
+{ "isClothingItem": false, "rejectionReason": "description courte de ce qui est visible" }
+
+Si l'image contient bien un vêtement, réponds avec isClothingItem: true et la structure complète :
+{
+  "isClothingItem": true,
+  "category": "Type de vêtement principal (ex: T-shirt, Pantalon, Robe)",
+  "style": "Style identifié (ex: Gorpcore, Minimalisme, Y2K)",
+  "tags": ["tag1", "tag2", "tag3"],
+  "materials": ["matière1", "..."],
+  "colors": ["couleur1", "..."],
+  "baseTrendScore": 0,
+  "analysis": "Description courte de l'esthétique et de pourquoi c'est tendance",
+  "cyclePhase": "emergent",
+  "marketAdvice": "Conseil business actionnable pour une marque de mode"
+}`
       },
       {
         role: "user",
         content: [
-          { type: "text", text: "Analyse cette pièce de mode et son potentiel de tendance." },
+          { type: "text", text: "Analyse uniquement si c'est un vêtement. Sinon, rejette." },
           {
             type: "image_url",
             image_url: {
@@ -1185,7 +1190,17 @@ export async function analyzeVisualTrend(base64Image: string): Promise<{
   const raw = response.choices[0]?.message?.content?.trim();
   if (!raw) throw new Error('Empty AI response');
 
-  return JSON.parse(raw);
+  const parsed = JSON.parse(raw);
+
+  // Rejet si l'IA détecte que ce n'est pas un vêtement
+  if (parsed.isClothingItem === false) {
+    const reason = parsed.rejectionReason || 'objet non reconnu';
+    throw Object.assign(new Error(`NOT_CLOTHING:${reason}`), { code: 'NOT_CLOTHING', reason });
+  }
+
+  // Nettoyage du champ isClothingItem avant de retourner
+  const { isClothingItem: _, ...result } = parsed;
+  return result;
 }
 /**
  * Récupère les métadonnées rapides d'une marque (pour indexation).
@@ -1205,16 +1220,16 @@ export async function getBrandQuickMetadata(brandName: string): Promise<{
     messages: [
       {
         role: 'system',
-        content: `Tu es un expert en mode. Donne les infos clés pour cette marque.
+        content: `Tu es un expert en mode.Donne les infos clés pour cette marque.
         Réponds uniquement en JSON :
-        {
-          "websiteUrl": "URL officielle",
-          "signaturePiece": "Pièce emblématique actuelle",
-          "dominantStyle": "Style principal",
-          "cyclePhase": "emergent" | "croissance" | "pic" | "declin",
-          "launchPotential": "opportunite" | "a_surveiller" | "sature",
-          "indicativePrice": "Frange de prix (ex: 50-100€)"
-        }`
+      {
+        "websiteUrl": "URL officielle",
+        "signaturePiece": "Pièce emblématique actuelle",
+        "dominantStyle": "Style principal",
+        "cyclePhase": "emergent" | "croissance" | "pic" | "declin",
+        "launchPotential": "opportunite" | "a_surveiller" | "sature",
+        "indicativePrice": "Frange de prix (ex: 50-100€)"
+      }`
       },
       { role: 'user', content: `Marque : ${brandName}` }
     ],
@@ -1244,37 +1259,37 @@ export async function enhanceShootingPrompt(options: {
       {
         role: 'system',
         content: `You are an elite Director of Photography and Fashion Stylist AI.
-Your goal is to transform basic user inputs into "Master Photography Scenarios" that yield ultra-realistic, editorial-grade images (Midjourney v6 / Higgsfield quality).
+Your goal is to transform basic user inputs into "Master Photography Scenarios" that yield ultra - realistic, editorial - grade images(Midjourney v6 / Higgsfield quality).
 
-You must NOT just "clean up" the prompt. You must ARCHITECT it following this strict "MASTER STRUCTURE":
+You must NOT just "clean up" the prompt.You must ARCHITECT it following this strict "MASTER STRUCTURE":
 
-1. **SHOT & COMPOSITION**: Camera angle (e.g., Low-angle, Wide), Lens details (e.g., 85mm, Macro, Fisheye, iPhone 17 Pro Max), Framing (Center, Rule of thirds).
-2. **SUBJECT CLARITY**: Detailed mannequin description (skin texture, pose tension, expression), precise wardrobe fabrics (satin, heavy cotton, sheer).
-3. **SCENE & ATMOSPHERE**: "Thick" description of the environment (not just "a room", but "minimalist indoor corner with pale grey fabric walls"), Time of day, Weather (if outdoor).
-4. **LIGHTING MASTERY**: Specific setups (Diffused softbox, Cinematic rim light, Hard flash, Neon moody), Shadow quality (Sculpted, Harsh, Soft).
-5. **TECHNICAL SPECS**: Film grain (or lack thereof), Depth of field (bokeh quality), Texture realism (8k, pore details), Color grading (Monochrome, Vibrant, Pastel, Moody).
+      1. ** SHOT & COMPOSITION **: Camera angle(e.g., Low - angle, Wide), Lens details(e.g., 85mm, Macro, Fisheye, iPhone 17 Pro Max), Framing(Center, Rule of thirds).
+2. ** SUBJECT CLARITY **: Detailed mannequin description(skin texture, pose tension, expression), precise wardrobe fabrics(satin, heavy cotton, sheer).
+3. ** SCENE & ATMOSPHERE **: "Thick" description of the environment(not just "a room", but "minimalist indoor corner with pale grey fabric walls"), Time of day, Weather(if outdoor).
+4. ** LIGHTING MASTERY **: Specific setups(Diffused softbox, Cinematic rim light, Hard flash, Neon moody), Shadow quality(Sculpted, Harsh, Soft).
+5. ** TECHNICAL SPECS **: Film grain(or lack thereof), Depth of field(bokeh quality), Texture realism(8k, pore details), Color grading(Monochrome, Vibrant, Pastel, Moody).
 
-**CRITICAL RULES:**
-- **USER AUTHORITY**: The user's specific instructions (in CORE INPUTS or EXTRA INSTRUCTIONS) are NON-NEGOTIABLE. If they ask for "pink sky" or "holding a cat", YOU MUST INCLUDE IT. Do not overwrite explicit choices with generic style inferences.
-- **Inference**: Use inference ONLY to fill gaps. If the user says "Gas Station", you infer the grit and lighting, UNLESS they specified "Clean white gas station".
-- **Realism**: Always force "Imperfect skin texture", "Natural proportions", "Cinematic lighting".
-- **Gender Safety**: Respet strictly the implied gender of the mannequin/subject.
-- **Output**: A single, dense, comma-separated paragraph rich in photography keywords.
+** CRITICAL RULES:**
+- ** USER AUTHORITY **: The user's specific instructions (in CORE INPUTS or EXTRA INSTRUCTIONS) are NON-NEGOTIABLE. If they ask for "pink sky" or "holding a cat", YOU MUST INCLUDE IT. Do not overwrite explicit choices with generic style inferences.
+      - ** Inference **: Use inference ONLY to fill gaps.If the user says "Gas Station", you infer the grit and lighting, UNLESS they specified "Clean white gas station".
+- ** Realism **: Always force "Imperfect skin texture", "Natural proportions", "Cinematic lighting".
+- ** Gender Safety **: Respet strictly the implied gender of the mannequin / subject.
+- ** Output **: A single, dense, comma - separated paragraph rich in photography keywords.
 
-**Example Input**: "woman, street, night, cool vibe"
-**Example Output**: "Low-angle medium full shot, captured on 35mm film stock, slight grain. SUBJECT: Young woman leaning confidently against a brick wall, wearing oversized vintage leather jacket, relaxed posture, messy chic hair. SCENE: Wet London street at night, neon reflections on asphalt, steam rising from vents, blurred city lights background. LIGHTING: Cinematic street lighting, mixed temperature (blue ambient, orange sodium streetlamps), dramatic contrast. TECH: 8k resolution, ultra-realistic skin texture, moisture on skin, sharp focus on eyes, fashion editorial color grade."`,
+** Example Input **: "woman, street, night, cool vibe"
+      ** Example Output **: "Low-angle medium full shot, captured on 35mm film stock, slight grain. SUBJECT: Young woman leaning confidently against a brick wall, wearing oversized vintage leather jacket, relaxed posture, messy chic hair. SCENE: Wet London street at night, neon reflections on asphalt, steam rising from vents, blurred city lights background. LIGHTING: Cinematic street lighting, mixed temperature (blue ambient, orange sodium streetlamps), dramatic contrast. TECH: 8k resolution, ultra-realistic skin texture, moisture on skin, sharp focus on eyes, fashion editorial color grade."`,
       },
       {
         role: 'user',
         content: `TRANSFORM THIS SCENE into a Master Photography Prompt:
         
-        **CORE INPUTS**: "${options.basePrompt}"
-        **CONTEXT**:
-        - Mannequin: ${options.mannequinDescription || 'Professional model (details inferred from context)'}
-        - Brand Tone: ${options.brandStyle || 'High-end Fashion'}
-        - Extra Instructions: ${options.extraContext || 'None'}
+        ** CORE INPUTS **: "${options.basePrompt}"
+      ** CONTEXT **:
+    - Mannequin: ${options.mannequinDescription || 'Professional model (details inferred from context)'}
+    - Brand Tone: ${options.brandStyle || 'High-end Fashion'}
+    - Extra Instructions: ${options.extraContext || 'None'}
 
-        Apply the "MASTER STRUCTURE". Make it visually stunning.`,
+        Apply the "MASTER STRUCTURE".Make it visually stunning.`,
       },
     ],
     temperature: 0.7,
