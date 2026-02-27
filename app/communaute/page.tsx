@@ -15,8 +15,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AnimatedHeader } from '@/components/homepage/AnimatedHeader';
-import { Footer } from '@/components/homepage/Footer';
+import { AnimatedHeader } from '../../components/homepage/AnimatedHeader';
+import Footer from '../../components/homepage/Footer';
 
 const resources = [
     {
