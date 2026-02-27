@@ -108,7 +108,7 @@ import { ScrollToTop } from '@/components/layout/ScrollToTop';
 import { UpgradeSessionRefresh } from '@/components/dashboard/UpgradeSessionRefresh';
 import { Suspense } from 'react';
 
-// export const dynamic = 'force-dynamic';
+import Script from 'next/script';
 
 export default function RootLayout({
   children,
@@ -121,8 +121,12 @@ export default function RootLayout({
         <link rel="icon" type="image/png" href="/icon.png" />
         <link rel="shortcut icon" href="/icon.png" />
         <link rel="apple-touch-icon" href="/apple-icon.png" />
-        <script
+      </head>
+      <body className="font-sans antialiased min-h-screen safe-area-padding">
+        <Script
+          id="schema-org"
           type="application/ld+json"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -140,8 +144,6 @@ export default function RootLayout({
             }),
           }}
         />
-      </head>
-      <body className="font-sans antialiased min-h-screen safe-area-padding">
         <ErrorBoundary>
           <Providers>
             <SurplusModalProvider>{children}</SurplusModalProvider>

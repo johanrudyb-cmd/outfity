@@ -102,14 +102,16 @@ export function TrendsHero() {
                       key={index}
                       className="flex items-center justify-center flex-shrink-0 px-8 sm:px-12 md:px-20 transition-all duration-500 hover:scale-110 opacity-40 hover:opacity-100"
                     >
-                      <img
+                      <Image
                         src={brand.logo}
                         alt={brand.name}
+                        width={100}
+                        height={40}
                         className="h-6 sm:h-9 md:h-11 w-auto object-contain grayscale mix-blend-multiply contrast-[1.8] brightness-[1.2]"
                         style={{
                           transform: `scale(${isMobile ? brand.scaleMobile : brand.scaleDesktop})`
                         }}
-                        loading="lazy"
+                        unoptimized
                       />
                     </div>
                   ))}

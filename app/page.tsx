@@ -19,6 +19,8 @@ const BlogGrid = dynamic(() => import('@/components/homepage/BlogGrid'));
 const FAQSection = dynamic(() => import('@/components/homepage/FAQSection'));
 const Footer = dynamic(() => import('@/components/homepage/Footer'));
 
+import { LazySection } from '@/components/common/LazySection';
+
 // Minimal skeleton placeholder for lazy sections
 function SectionSkeleton() {
   return <div className="w-full h-[300px] bg-[#F5F5F7]" aria-hidden />;
@@ -35,20 +37,58 @@ export default async function Home() {
       <AnimatedHeader />
       <TrendsHero />
 
-      {/* ── BELOW THE FOLD — chargé en lazy ── */}
-      <Suspense fallback={<SectionSkeleton />}><TrendsByMarket /></Suspense>
-      <Suspense fallback={<SectionSkeleton />}><AgentsPresentation /></Suspense>
-      <Suspense fallback={<SectionSkeleton />}><TechPackShowcase /></Suspense>
-      <Suspense fallback={<SectionSkeleton />}><EfficiencyShowcase /></Suspense>
-      <Suspense fallback={<SectionSkeleton />}><StatsSection /></Suspense>
-      <Suspense fallback={<SectionSkeleton />}><FashionGallery /></Suspense>
-      <Suspense fallback={<SectionSkeleton />}><MarginCalculator /></Suspense>
-      <Suspense fallback={<SectionSkeleton />}><TestimonialsSection /></Suspense>
-      <Suspense fallback={<SectionSkeleton />}><SalesPricing /></Suspense>
-      <Suspense fallback={<SectionSkeleton />}><CTASection /></Suspense>
-      <Suspense fallback={<SectionSkeleton />}><BlogGrid /></Suspense>
-      <Suspense fallback={<SectionSkeleton />}><FAQSection /></Suspense>
-      <Suspense fallback={null}><Footer /></Suspense>
+      {/* ── BELOW THE FOLD — chargé en lazy au scroll ── */}
+      <LazySection fallback={<SectionSkeleton />}>
+        <Suspense fallback={<SectionSkeleton />}><TrendsByMarket /></Suspense>
+      </LazySection>
+
+      <LazySection fallback={<SectionSkeleton />}>
+        <Suspense fallback={<SectionSkeleton />}><AgentsPresentation /></Suspense>
+      </LazySection>
+
+      <LazySection fallback={<SectionSkeleton />}>
+        <Suspense fallback={<SectionSkeleton />}><TechPackShowcase /></Suspense>
+      </LazySection>
+
+      <LazySection fallback={<SectionSkeleton />}>
+        <Suspense fallback={<SectionSkeleton />}><EfficiencyShowcase /></Suspense>
+      </LazySection>
+
+      <LazySection fallback={<SectionSkeleton />}>
+        <Suspense fallback={<SectionSkeleton />}><StatsSection /></Suspense>
+      </LazySection>
+
+      <LazySection fallback={<SectionSkeleton />}>
+        <Suspense fallback={<SectionSkeleton />}><FashionGallery /></Suspense>
+      </LazySection>
+
+      <LazySection fallback={<SectionSkeleton />}>
+        <Suspense fallback={<SectionSkeleton />}><MarginCalculator /></Suspense>
+      </LazySection>
+
+      <LazySection fallback={<SectionSkeleton />}>
+        <Suspense fallback={<SectionSkeleton />}><TestimonialsSection /></Suspense>
+      </LazySection>
+
+      <LazySection fallback={<SectionSkeleton />}>
+        <Suspense fallback={<SectionSkeleton />}><SalesPricing /></Suspense>
+      </LazySection>
+
+      <LazySection fallback={<SectionSkeleton />}>
+        <Suspense fallback={<SectionSkeleton />}><CTASection /></Suspense>
+      </LazySection>
+
+      <LazySection fallback={<SectionSkeleton />}>
+        <Suspense fallback={<SectionSkeleton />}><BlogGrid /></Suspense>
+      </LazySection>
+
+      <LazySection fallback={<SectionSkeleton />}>
+        <Suspense fallback={<SectionSkeleton />}><FAQSection /></Suspense>
+      </LazySection>
+
+      <LazySection fallback={null}>
+        <Suspense fallback={null}><Footer /></Suspense>
+      </LazySection>
     </main>
   );
 }
