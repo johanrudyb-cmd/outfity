@@ -11,6 +11,10 @@ import { PaywallGate } from '@/components/paywall/PaywallGate';
 import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 
 import { MobileNav } from './MobileNav';
+import useSWR from 'swr';
+import { isFreePlan } from '@/lib/plan-utils';
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 function DashboardTutorialGate() {
   const pathname = usePathname();
@@ -27,7 +31,12 @@ function CreatorTutorialGate() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const forceShow = searchParams.get('creator_tour') === '1';
+
+  const { data: userPlanData } = useSWR('/api/user/plan', fetcher);
+
   if (pathname !== '/dashboard') return null;
+  if (!forceShow && (!userPlanData || isFreePlan(userPlanData.plan))) return null;
+
   return <CreatorTutorial forceShow={forceShow} />;
 }
 
