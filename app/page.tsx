@@ -5,7 +5,7 @@ import { TrendsHero } from '@/components/homepage/TrendsHero';
 import { getFeaturedTrends } from '@/lib/trends-data';
 
 // Lazy load — sections below the fold (don't block initial render)
-const TrendsByMarket = dynamic(() => import('@/components/homepage/TrendsByMarket'), { ssr: false });
+const TrendsByMarket = dynamic(() => import('@/components/homepage/TrendsByMarket'));
 const AgentsPresentation = dynamic(() => import('@/components/homepage/AgentsPresentation'));
 const TechPackShowcase = dynamic(() => import('@/components/homepage/TechPackShowcase'));
 const EfficiencyShowcase = dynamic(() => import('@/components/homepage/EfficiencyShowcase'));
