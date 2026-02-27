@@ -42,14 +42,17 @@ export function TrendsHero() {
 
         {/* Abstract Fashion Grid */}
         <div className="absolute inset-0 grid grid-cols-6 grid-rows-6 gap-4 p-8">
-          {[...Array(12)].map((_, i) => (
+          {[
+            '2 / 3', '4 / 5', '1 / 6', '5 / 2', '6 / 4', '3 / 1',
+            '2 / 6', '5 / 4', '1 / 2', '4 / 1', '6 / 5', '3 / 3'
+          ].map((area, i) => (
             <div
               key={i}
               className={cn(
                 "border border-black flex items-center justify-center text-[10px] font-black uppercase tracking-widest",
                 i % 3 === 0 ? "opacity-100" : "opacity-0"
               )}
-              style={{ gridArea: `${Math.floor(Math.random() * 6) + 1} / ${Math.floor(Math.random() * 6) + 1}` }}
+              style={{ gridArea: area }}
             >
               Mode // Tech
             </div>
