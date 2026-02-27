@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export function CTASection() {
+export default function CTASection() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {

@@ -43,7 +43,7 @@ const testimonials = [
   },
 ];
 
-export function TestimonialsSection() {
+export default function TestimonialsSection() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {

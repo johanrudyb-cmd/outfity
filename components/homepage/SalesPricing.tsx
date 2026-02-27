@@ -83,7 +83,7 @@ const plans = [
   },
 ];
 
-export function SalesPricing() {
+export default function SalesPricing() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {

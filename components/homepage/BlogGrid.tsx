@@ -22,7 +22,7 @@ const getCachedBlogPosts = unstable_cache(
     { revalidate: 3600, tags: ['blog'] } // Cache 1 heure
 );
 
-export async function BlogGrid() {
+export default async function BlogGrid() {
     const posts = await getCachedBlogPosts();
 
     // if (posts.length === 0) return null;

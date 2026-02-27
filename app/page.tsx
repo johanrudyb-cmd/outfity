@@ -5,19 +5,19 @@ import { TrendsHero } from '@/components/homepage/TrendsHero';
 import { getFeaturedTrends } from '@/lib/trends-data';
 
 // Lazy load — sections below the fold (don't block initial render)
-const TrendsByMarket = dynamic(() => import('@/components/homepage/TrendsByMarket').then((mod) => mod.TrendsByMarket as any), { ssr: false });
-const AgentsPresentation = dynamic(() => import('@/components/homepage/AgentsPresentation').then((mod) => mod.AgentsPresentation as any));
-const TechPackShowcase = dynamic(() => import('@/components/homepage/TechPackShowcase').then((mod) => mod.TechPackShowcase as any));
-const EfficiencyShowcase = dynamic(() => import('@/components/homepage/EfficiencyShowcase').then((mod) => mod.EfficiencyShowcase as any));
-const StatsSection = dynamic(() => import('@/components/homepage/StatsSection').then((mod) => mod.StatsSection as any));
-const FashionGallery = dynamic(() => import('@/components/homepage/FashionGallery').then((mod) => mod.FashionGallery as any));
-const MarginCalculator = dynamic(() => import('@/components/homepage/MarginCalculator').then((mod) => mod.MarginCalculator as any));
-const TestimonialsSection = dynamic(() => import('@/components/homepage/TestimonialsSection').then((mod) => mod.TestimonialsSection as any));
-const SalesPricing = dynamic(() => import('@/components/homepage/SalesPricing').then((mod) => mod.SalesPricing as any));
-const CTASection = dynamic(() => import('@/components/homepage/CTASection').then((mod) => mod.CTASection as any));
-const BlogGrid = dynamic(() => import('@/components/homepage/BlogGrid').then((mod) => mod.BlogGrid as any));
-const FAQSection = dynamic(() => import('@/components/homepage/FAQSection').then((mod) => mod.FAQSection as any));
-const Footer = dynamic(() => import('@/components/homepage/Footer').then((mod) => mod.Footer as any));
+const TrendsByMarket = dynamic(() => import('@/components/homepage/TrendsByMarket'), { ssr: false });
+const AgentsPresentation = dynamic(() => import('@/components/homepage/AgentsPresentation'));
+const TechPackShowcase = dynamic(() => import('@/components/homepage/TechPackShowcase'));
+const EfficiencyShowcase = dynamic(() => import('@/components/homepage/EfficiencyShowcase'));
+const StatsSection = dynamic(() => import('@/components/homepage/StatsSection'));
+const FashionGallery = dynamic(() => import('@/components/homepage/FashionGallery'));
+const MarginCalculator = dynamic(() => import('@/components/homepage/MarginCalculator'));
+const TestimonialsSection = dynamic(() => import('@/components/homepage/TestimonialsSection'));
+const SalesPricing = dynamic(() => import('@/components/homepage/SalesPricing'));
+const CTASection = dynamic(() => import('@/components/homepage/CTASection'));
+const BlogGrid = dynamic(() => import('@/components/homepage/BlogGrid'));
+const FAQSection = dynamic(() => import('@/components/homepage/FAQSection'));
+const Footer = dynamic(() => import('@/components/homepage/Footer'));
 
 // Minimal skeleton placeholder for lazy sections
 function SectionSkeleton() {

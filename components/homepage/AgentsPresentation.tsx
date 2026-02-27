@@ -52,7 +52,7 @@ const AGENTS = [
     }
 ];
 
-export function AgentsPresentation() {
+export default function AgentsPresentation() {
     const [hoveredAgent, setHoveredAgent] = useState<string | null>(null);
 
     return (

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { ArrowRight, Calculator } from 'lucide-react';
 
-export function MarginCalculator() {
+export default function MarginCalculator() {
   const [isVisible, setIsVisible] = useState(false);
   const [cost, setCost] = useState(25);
   const [price, setPrice] = useState(79);

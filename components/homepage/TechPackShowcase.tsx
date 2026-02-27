@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { ArrowRight, FileText } from 'lucide-react';
 
-export function TechPackShowcase() {
+export default function TechPackShowcase() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {

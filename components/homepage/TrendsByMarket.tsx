@@ -35,7 +35,7 @@ const PredictionCurve = ({ color }: { color: string }) => (
   </svg>
 );
 
-export function TrendsByMarket() {
+export default function TrendsByMarket() {
   const { data: session } = useSession();
   const isFree = isFreePlan((session?.user as any)?.plan);
   const [countdown, setCountdown] = useState("14:22:05");

@@ -12,7 +12,7 @@ const stats = [
   { value: '4.6/5', label: 'Note moyenne', icon: Star, color: '#007AFF' },
 ];
 
-export function StatsSection() {
+export default function StatsSection() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {

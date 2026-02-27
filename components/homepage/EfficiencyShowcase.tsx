@@ -31,7 +31,7 @@ const benefits = [
     }
 ];
 
-export function EfficiencyShowcase() {
+export default function EfficiencyShowcase() {
     return (
         <section className="py-16 sm:py-24 lg:py-32 bg-white relative overflow-hidden">
             {/* Ambient Background Elements */}

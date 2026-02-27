@@ -33,7 +33,7 @@ const fashionImages = [
   },
 ];
 
-export function FashionGallery() {
+export default function FashionGallery() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
