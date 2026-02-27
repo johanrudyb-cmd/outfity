@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { VirtualTryOn } from './VirtualTryOn';
 import { JoyChat } from './JoyChat';
 import { ShootingPhoto } from './ShootingPhoto';
@@ -87,14 +88,41 @@ export function UGCLab({ brandId, brandName, designs = [], brand, userPlan = 'fr
   // ── Joy Chat Immersive Mode (True Full Screen) ──
   if (isScripts) {
     return (
-      <div className="fixed inset-0 z-[9999] bg-[#F5F5F7] overflow-hidden flex flex-col">
-        <JoyChat
-          brandId={brandId}
-          brandName={brandName}
-          initialImageUrl={selectedImageUrl}
-          userPlan={userPlan}
-          onBack={() => setActiveTab('menu')}
-        />
+      <div className="fixed inset-0 z-[9999] bg-[#F5F5F7] overflow-hidden flex flex-col relative">
+        {isFreePlan(userPlan) && (
+          <div className="absolute inset-0 z-[10000] backdrop-blur-md bg-white/40 flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-500">
+            <div className="w-20 h-20 bg-black rounded-[28px] flex items-center justify-center mb-6 shadow-2xl">
+              <Lock className="w-10 h-10 text-white" />
+            </div>
+            <h3 className="text-3xl font-black text-black mb-3 uppercase tracking-tight">Accès Joy Verrouillé</h3>
+            <p className="text-[#86868B] max-w-sm mb-8 font-medium">
+              L'expertise de Joy pour vos contenus viraux et scripts marketing est réservée au <strong>Plan Créateur</strong>.
+            </p>
+            <div className="flex flex-col gap-4">
+              <Button
+                onClick={() => setActiveTab('menu')}
+                variant="outline"
+                className="h-14 px-10 rounded-full font-bold text-sm uppercase tracking-widest border-2"
+              >
+                Retourner au Studio
+              </Button>
+              <Link href="/auth/choose-plan">
+                <Button className="h-14 px-10 bg-[#007AFF] hover:bg-[#0056CC] text-white rounded-full font-bold text-sm uppercase tracking-widest shadow-xl shadow-blue-500/20 active:scale-95 transition-all">
+                  Passer au Plan Créateur <Sparkles className="ml-2 w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
+        <div className={cn("flex-1 flex flex-col min-h-0", isFreePlan(userPlan) && "opacity-20 grayscale select-none pointer-events-none")}>
+          <JoyChat
+            brandId={brandId}
+            brandName={brandName}
+            initialImageUrl={selectedImageUrl}
+            userPlan={userPlan}
+            onBack={() => setActiveTab('menu')}
+          />
+        </div>
       </div>
     );
   }
