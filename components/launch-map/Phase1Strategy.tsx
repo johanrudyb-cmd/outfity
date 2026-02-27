@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -68,9 +69,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
   const SESSION_KEY = `strategy_result_${brandId}`;
 
   // --- States ---
-  const [viewMode, setViewMode] = useState<'chat' | 'classic'>(
-    !isFreePlan(userPlan) ? 'chat' : 'classic'
-  );
+  const [viewMode, setViewMode] = useState<'chat' | 'classic'>('chat');
 
   // Compteur de changements restants pour la marque d'inspiration
   const [changesRemaining, setChangesRemaining] = useState(3);
@@ -465,8 +464,33 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
       </div>
 
       {/* Main Stage */}
-      <div className="flex-1 w-full max-w-6xl px-4 sm:px-6 lg:px-8 flex flex-col z-20 py-4 sm:py-6 lg:py-8">
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 lg:gap-12 xl:gap-20 items-center">
+      <div className="flex-1 w-full max-w-6xl px-4 sm:px-6 lg:px-8 flex flex-col z-20 py-4 sm:py-6 lg:py-8 relative">
+        {isFreePlan(userPlan) && (
+          <div className="absolute inset-x-4 inset-y-0 z-[60] backdrop-blur-md bg-white/40 flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-500 rounded-[48px] border border-black/5">
+            <div className="w-20 h-20 bg-black rounded-[28px] flex items-center justify-center mb-6 shadow-2xl">
+              <Compass className="w-10 h-10 text-white" />
+            </div>
+            <h3 className="text-3xl font-black text-black mb-3 uppercase tracking-tight">Atelier Stratégique Verrouillé</h3>
+            <p className="text-[#86868B] max-w-sm mb-8 font-medium">
+              L'atelier de configuration avancée et la génération de stratégie IA sont réservés au <strong>Plan Créateur</strong>.
+            </p>
+            <div className="flex flex-col gap-4">
+              <Button
+                onClick={() => setViewMode('chat')}
+                variant="outline"
+                className="h-14 px-10 rounded-full font-bold text-sm uppercase tracking-widest border-2"
+              >
+                Retourner voir Virgil
+              </Button>
+              <Link href="/auth/choose-plan">
+                <Button className="h-14 px-10 bg-[#007AFF] hover:bg-[#0056CC] text-white rounded-full font-bold text-sm uppercase tracking-widest shadow-xl shadow-blue-500/20 active:scale-95 transition-all">
+                  Passer au Plan Créateur <Sparkles className="ml-2 w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
+        <div className={cn("flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 lg:gap-12 xl:gap-20 items-center", isFreePlan(userPlan) && "opacity-20 grayscale select-none pointer-events-none")}>
 
           {/* Left Side: Context */}
           <div className="space-y-6 md:space-y-8 lg:space-y-10 animate-in fade-in slide-in-from-left-8 duration-1000">
