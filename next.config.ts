@@ -3,6 +3,8 @@ import path from 'path';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  compress: true, // Activer la compression Gzip/Brotli
+  poweredByHeader: false, // Supprimer l'en-tête X-Powered-By (micro perf + sécu)
   // Définir explicitement la racine du workspace pour éviter les avertissements sur les lockfiles multiples
   outputFileTracingRoot: path.resolve(process.cwd()),
   // Ne pas bundler puppeteer / pdfkit (résolution depuis node_modules au runtime pour éviter ENOENT Helvetica.afm)
@@ -45,32 +47,22 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        // Headers de sécurité pour toutes les pages
         source: '/:path*',
         headers: [
-          {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on',
-          },
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload',
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
+          { key: 'X-DNS-Prefetch-Control', value: 'on' },
+          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-XSS-Protection', value: '1; mode=block' },
+          { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
+        ],
+      },
+      {
+        // Cache agressif pour les assets statiques (images, fonts, JS, CSS)
+        source: '/(.*)\.(ico|png|jpg|jpeg|webp|svg|woff|woff2|ttf|otf)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
       },
     ];
