@@ -71,7 +71,7 @@ export default async function ContentCreationPage() {
                 </div>
 
                 {/* ── Content ── */}
-                <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-8 pb-24">
+                <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-8 pb-8">
                     <Phase4Marketing
                         brandId={brand.id}
                         brandName={brand.name}

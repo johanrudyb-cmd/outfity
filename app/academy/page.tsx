@@ -76,7 +76,7 @@ export default async function AcademyPage() {
                 </div>
             </header>
 
-            <main className="max-w-md mx-auto pb-24 pt-6 px-4">
+            <main className="max-w-md mx-auto pb-8 pt-6 px-4">
 
                 {/* Welcome */}
                 <div className="mb-8">

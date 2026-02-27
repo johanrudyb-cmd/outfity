@@ -24,7 +24,7 @@ export default async function CalculatorPage() {
     return (
         <DashboardLayout>
             <div className="min-h-screen bg-[#F5F5F7]">
-                <div className="px-4 sm:px-6 lg:px-8 py-6 max-w-[1800px] mx-auto pb-24 sm:pb-12">
+                <div className="px-4 sm:px-6 lg:px-8 py-6 max-w-[1800px] mx-auto pb-8">
 
                     {/* ── Header ── */}
                     <div className="mb-8">

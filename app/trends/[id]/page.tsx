@@ -109,7 +109,7 @@ export default async function ProductDetailPage({
     <DashboardLayout>
       {isFreePlan(user.plan) && <TrendViewRecorder trendId={product.id} />}
       <ProductDetailEnricher productId={product.id} product={product}>
-        <div className="min-h-screen bg-[#F5F5F7] pb-24 font-sans">
+        <div className="min-h-screen bg-[#F5F5F7] pb-8 font-sans">
 
           {/* Header: Simple Back Navigation */}
           <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-black/[0.05] px-4 py-4">

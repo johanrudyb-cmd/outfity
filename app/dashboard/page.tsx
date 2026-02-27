@@ -127,7 +127,7 @@ export default async function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen relative bg-[#FAFAFA] pb-24 sm:pb-12 overflow-x-hidden">
+      <div className="min-h-screen relative bg-[#FAFAFA] pb-12 overflow-x-hidden">
 
         {/* Pattern de fond (Dots) façon "Premium SaaS" avec fondu vers le bas */}
         <div className="absolute inset-0 bg-[radial-gradient(#c7c7cc_1px,transparent_1px)] [background-size:24px_24px] [mask-image:linear-gradient(to_bottom,black_40%,transparent_100%)] pointer-events-none opacity-40 mix-blend-multiply" />

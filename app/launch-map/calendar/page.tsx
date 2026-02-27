@@ -23,7 +23,7 @@ export default async function LaunchMapCalendarPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F5F7] pb-24 sm:pb-12">
+    <div className="min-h-screen bg-[#F5F5F7] pb-8">
       <div className="px-4 sm:px-6 lg:px-12 py-6 sm:py-10 max-w-7xl mx-auto space-y-6 sm:space-y-8">
 
         {/* ── Header ── */}
