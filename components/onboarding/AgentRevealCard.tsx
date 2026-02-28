@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import confetti from 'canvas-confetti';
+import Image from 'next/image';
 
 export interface AgentProps {
     id: string;
@@ -137,10 +138,12 @@ export function AgentRevealCard({ agent, delay = 0, onReveal }: { agent: AgentPr
 
                     {/* Image */}
                     <div className="absolute inset-x-2 top-2 bottom-32 rounded-xl overflow-hidden bg-black/50 border border-white/10">
-                        <img
+                        <Image
                             src={agent.image}
                             alt={agent.name}
-                            className="w-full h-full object-cover object-top opacity-90 brightness-110 contrast-110"
+                            fill
+                            className="object-cover object-top opacity-90 brightness-110 contrast-110"
+                            sizes="(max-width: 768px) 100vw, 33vw"
                         />
                         {/* Inner shadow for depth */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />

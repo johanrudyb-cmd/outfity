@@ -26,9 +26,9 @@ export function GatewayScreen({ userName, brandName, isAdmin }: GatewayScreenPro
             <div className="max-w-7xl w-full relative z-10">
                 <div className="text-center mb-12 space-y-4">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
+                        transition={{ duration: 0.4 }}
                     >
                         <h1 className="text-4xl sm:text-6xl font-black text-[#1D1D1F] tracking-tight leading-none">
                             Ravi de vous revoir, <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600 font-black">{firstName}</span>.
@@ -44,13 +44,13 @@ export function GatewayScreen({ userName, brandName, isAdmin }: GatewayScreenPro
 
                     {/* OPTION 1: OUTFITY APP */}
                     <motion.div
-                        initial={{ opacity: 0, y: 50 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.2 }}
-                        whileHover={{ y: -10 }}
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.4, delay: 0.1 }}
+                        whileHover={{ y: -6 }}
                     >
                         <Link href="/dashboard?mode=app" className="block h-full group">
-                            <Card className="h-full border-none shadow-2xl rounded-[32px] sm:rounded-[40px] p-8 sm:p-10 bg-white hover:bg-black transition-all duration-500 overflow-hidden relative">
+                            <Card className="h-full border-none shadow-2xl rounded-[32px] sm:rounded-[40px] p-8 sm:p-10 bg-white hover:bg-black transition-all duration-300 overflow-hidden relative">
                                 <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-blue-500/5 group-hover:bg-white/10 rounded-full transition-colors" />
 
                                 <div className="relative z-10 flex flex-col h-full">
@@ -73,13 +73,13 @@ export function GatewayScreen({ userName, brandName, isAdmin }: GatewayScreenPro
 
                     {/* OPTION 2: PARTNERS */}
                     <motion.div
-                        initial={{ opacity: 0, y: 50 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.3 }}
-                        whileHover={{ y: -10 }}
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.4, delay: 0.15 }}
+                        whileHover={{ y: -6 }}
                     >
                         <Link href="/partners" className="block h-full group">
-                            <Card className="h-full border-none shadow-2xl rounded-[32px] sm:rounded-[40px] p-8 sm:p-10 bg-white hover:bg-[#007AFF] transition-all duration-500 overflow-hidden relative">
+                            <Card className="h-full border-none shadow-2xl rounded-[32px] sm:rounded-[40px] p-8 sm:p-10 bg-white hover:bg-[#007AFF] transition-all duration-300 overflow-hidden relative">
                                 <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#007AFF]/5 group-hover:bg-white/10 rounded-full transition-colors" />
 
                                 <div className="relative z-10 flex flex-col h-full">
@@ -103,13 +103,13 @@ export function GatewayScreen({ userName, brandName, isAdmin }: GatewayScreenPro
                     {/* OPTION 3: ADMIN (Only if isAdmin) */}
                     {isAdmin && (
                         <motion.div
-                            initial={{ opacity: 0, y: 50 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, delay: 0.4 }}
-                            whileHover={{ y: -10 }}
+                            initial={{ opacity: 0, scale: 0.98 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.4, delay: 0.2 }}
+                            whileHover={{ y: -6 }}
                         >
                             <Link href="/admin" className="block h-full group">
-                                <Card className="h-full border-none shadow-2xl rounded-[32px] sm:rounded-[40px] p-8 sm:p-10 bg-white hover:bg-violet-600 transition-all duration-500 overflow-hidden relative border-t-4 border-violet-500">
+                                <Card className="h-full border-none shadow-2xl rounded-[32px] sm:rounded-[40px] p-8 sm:p-10 bg-white hover:bg-violet-600 transition-all duration-300 overflow-hidden relative border-t-4 border-violet-500">
                                     <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-violet-500/5 group-hover:bg-white/10 rounded-full transition-colors" />
 
                                     <div className="relative z-10 flex flex-col h-full">

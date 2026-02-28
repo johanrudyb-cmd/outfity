@@ -44,15 +44,37 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const mode = params.mode;
 
-  const [user, isAdmin] = await Promise.all([
-    getCurrentUser(),
-    getIsAdmin()
-  ]);
-
+  // 1. Authentification d'abord (nécessaire pour l'ID)
+  const user = await getCurrentUser();
   if (!user) redirect('/auth/signin');
 
-  // Récupérer le profil affilé ET la marque
-  const [brand, initialLaunchMap, affiliate] = await Promise.all([
+  // 2. Rôles et Marque en parallèle (on charge le strict nécessaire pour le splash screen)
+  const [isAdmin, affiliate, brandNameOnly] = await Promise.all([
+    getIsAdmin(),
+    prisma.affiliate.findUnique({
+      where: { userId: user.id },
+      select: { status: true }
+    }),
+    prisma.brand.findFirst({
+      where: { userId: user.id },
+      select: { name: true },
+      orderBy: { createdAt: 'desc' },
+    })
+  ]);
+
+  const isPartner = affiliate?.status === 'ACTIVE';
+
+  // 3. LOGIQUE DE CHOIX : Splash screen immédiat pour admins et partenaires
+  if ((isPartner || isAdmin) && mode !== 'app') {
+    return <GatewayScreen
+      userName={user.name || "Créateur"}
+      brandName={brandNameOnly?.name}
+      isAdmin={isAdmin}
+    />;
+  }
+
+  // 4. MODE APP : On charge tout le reste seulement si on ne montre pas le Gateway
+  const [brand, initialLaunchMap] = await Promise.all([
     prisma.brand.findFirst({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
@@ -60,21 +82,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     prisma.launchMap.findFirst({
       where: { brand: { userId: user.id } },
     }),
-    prisma.affiliate.findUnique({
-      where: { userId: user.id }
-    })
   ]);
-
-  // LOGIQUE DE CHOIX : Si admin OU partenaire actif et pas de mode sélectionné, on affiche le splash
-  const isPartner = affiliate?.status === 'ACTIVE';
-
-  if ((isPartner || isAdmin) && mode !== 'app') {
-    return <GatewayScreen
-      userName={user.name || "Créateur"}
-      brandName={brand?.name}
-      isAdmin={isAdmin}
-    />;
-  }
 
   // Si on est en mode app (ou pas partenaire), on vérifie le onboarding
   if (!brand) redirect('/onboarding');

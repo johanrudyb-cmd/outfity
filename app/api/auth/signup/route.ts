@@ -103,72 +103,60 @@ export async function POST(request: Request) {
             }
         }
 
-        // Créer utilisateur
-        const user = await prisma.user.create({
-            data: {
-                name,
-                email,
-                password: hashedPassword,
-                plan: 'starter',
-                affiliateId: referrerId,
-            },
-        });
-
-        console.log('[Signup] Utilisateur créé avec succès:', user.id);
-
-        // Notification Admin
-        await notifyAdmin({
-            title: 'Nouvel Inscrit (En attente confirmation)',
-            message: `${name} (${email}) vient de créer un compte.`,
-            emoji: '📩',
-            type: 'signup',
-            priority: 'low',
-            data: { id: user.id, email: user.email, plan: user.plan }
-        });
-
-        // --- 5. EMAIL VERIFICATION ---
+        // --- 5. EMAIL VERIFICATION & PENDING DATA ---
         const verificationToken = randomBytes(32).toString('hex');
         const verificationExpires = new Date(Date.now() + 24 * 3600000); // 24 heures
 
+        // Nettoyer les anciennes tentatives pour cet email
+        await prisma.verificationToken.deleteMany({
+            where: { identifier: email }
+        });
+
+        // On ne crée pas l'utilisateur maintenant, on stocke ses infos dans le token
         await prisma.verificationToken.create({
             data: {
                 identifier: email,
                 token: verificationToken,
                 expires: verificationExpires,
-            }
+                data: {
+                    name,
+                    email,
+                    password: hashedPassword,
+                    affiliateId: referrerId,
+                    plan: 'starter'
+                } as any
+            } as any // Cast for now until prisma generate fix
         });
 
         const verificationUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/auth/verify-email?token=${verificationToken}&email=${encodeURIComponent(email)}`;
 
-        await sendEmail({
+        console.log('--- TEST MODE: VERIFICATION LINK ---');
+        console.log(verificationUrl);
+        console.log('------------------------------------');
+
+        // Notification Admin
+        await notifyAdmin({
+            title: 'Tentative de création de compte',
+            message: `${name} (${email}) demande à rejoindre OUTFITY.`,
+            emoji: '🟡',
+            type: 'signup',
+            priority: 'low',
+            data: { email }
+        });
+
+        const result = await sendEmail({
             to: email,
-            subject: 'OUTFITY — Confirme ton inscription',
+            subject: 'OUTFITY — Active ton accès',
             html: getTemplates.emailVerification(name, verificationUrl),
         });
 
-        // Déclencher le workflow n8n Onboarding (Emails J0 -> J7)
-        try {
-            const ONBOARDING_WEBHOOK_URL = process.env.ONBOARDING_WEBHOOK_URL || 'http://localhost:5678/webhook/outfity-onboarding';
-
-            console.log('[Signup] Appel Webhook n8n:', ONBOARDING_WEBHOOK_URL);
-
-            await fetch(ONBOARDING_WEBHOOK_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId: user.id,
-                    email: user.email,
-                    name: user.name,
-                    plan: user.plan
-                }),
-            });
-            console.log('[Signup] Signal n8n envoyé avec succès.');
-        } catch (e) {
-            console.error('[Signup] Erreur déclenchement n8n:', e instanceof Error ? e.message : String(e));
+        if (!result.success) {
+            console.error('[Signup] Email verification failed to send:', result.error);
         }
 
+
         return NextResponse.json(
-            { message: 'Compte créé. Veuillez vérifier votre email pour l\'activer.', userId: user.id },
+            { message: 'Lien de validation envoyé. Veuillez vérifier votre email.' },
             { status: 201 }
         );
     } catch (error) {

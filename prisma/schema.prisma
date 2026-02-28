@@ -75,6 +75,7 @@ model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
+  data       Json?    // Données temporaires (ex: name, password pour signup différé)
 
   @@unique([identifier, token])
 }

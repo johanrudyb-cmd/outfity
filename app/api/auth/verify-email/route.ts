@@ -35,11 +35,51 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Le lien a expiré.' }, { status: 400 });
         }
 
-        // 3. Mettre à jour l'utilisateur comme vérifié
-        await prisma.user.update({
-            where: { email },
-            data: { emailVerified: new Date() },
+        // 3. Récupérer les données d'inscription stockées dans le token
+        const signupData = verificationToken.data as any;
+        if (!signupData) {
+            return NextResponse.json({ error: 'Données d\'inscription introuvables' }, { status: 400 });
+        }
+
+        // 4. Créer l'utilisateur (on vérifie d'abord s'il ne s'est pas déjà créé via un autre onglet/lien)
+        const existingConfirm = await prisma.user.findUnique({ where: { email } });
+        if (existingConfirm) {
+            // Déjà créé et validé
+            return NextResponse.json({ success: true, message: 'Compte déjà activé' });
+        }
+
+        const user = await prisma.user.create({
+            data: {
+                name: signupData.name,
+                email: signupData.email,
+                password: signupData.password,
+                affiliateId: signupData.affiliateId,
+                plan: signupData.plan || 'starter',
+                emailVerified: new Date(),
+            },
         });
+
+        console.log('[Verify-Email] Utilisateur créé et activé:', user.id);
+
+        // 5. Déclencher le workflow n8n Onboarding (Le "mail d'inscription" arrive après validation)
+        try {
+            const ONBOARDING_WEBHOOK_URL = process.env.ONBOARDING_WEBHOOK_URL;
+            if (ONBOARDING_WEBHOOK_URL) {
+                await fetch(ONBOARDING_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: user.id,
+                        email: user.email,
+                        name: user.name,
+                        plan: user.plan,
+                        event: 'signup_confirmed'
+                    }),
+                });
+            }
+        } catch (e) {
+            console.error('[Verify-Email] Erreur n8n:', e);
+        }
 
         // 4. Nettoyer les tokens pour cet email
         await prisma.verificationToken.deleteMany({

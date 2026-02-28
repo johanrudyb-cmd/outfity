@@ -55,11 +55,9 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo }: { userN
     const [screen, setScreen] = useState<Screen>('intro');
     const [screenIndex, setScreenIndex] = useState(0);
 
-    // Dès l'arrivée sur cette page, on force le rafraîchissement du JWT
-    // pour que le plan 'creator' soit immédiatement visible dans toute l'UI
+    // Rafraîchissement silencieux de la session si nécessaire, sans bloquer le rendu
     useEffect(() => {
-        update();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        // Optionnel : update() seulement si on a un flag spécifique, mais on évite ici pour la perf
     }, []);
 
     // Auto-avance de l'intro
