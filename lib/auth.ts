@@ -33,6 +33,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           if (!user || !user.password) {
             console.log('[Auth] Utilisateur non trouvé ou sans mot de passe');
+
+            // --- PENDING VERIFICATION CHECK (Optional but good for UX) ---
+            const { prisma } = await import('./prisma');
+            const pendingToken = await prisma.verificationToken.findFirst({
+              where: { identifier: credentials.email as string }
+            });
+
+            if (pendingToken) {
+              console.log('[Auth] Compte en attente de vérification pour:', credentials.email);
+              throw new Error('EMAIL_NOT_VERIFIED');
+            }
+
             return null;
           }
 
