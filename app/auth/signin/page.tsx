@@ -35,7 +35,11 @@ function SignInContent() {
       });
 
       if (result?.error) {
-        setError('Email ou mot de passe incorrect');
+        if (result.error.includes('EMAIL_NOT_VERIFIED')) {
+          setError('Votre adresse email n\'est pas encore confirmée. Veuillez vérifier votre boîte de réception.');
+        } else {
+          setError('Email ou mot de passe incorrect');
+        }
         setLoading(false);
         return;
       }

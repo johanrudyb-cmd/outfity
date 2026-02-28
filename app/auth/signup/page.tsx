@@ -8,8 +8,9 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Loader2, Sparkles, Shirt, TrendingUp, DollarSign } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ArrowLeft, Loader2, Sparkles, Shirt, TrendingUp, DollarSign, Check, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Turnstile from 'react-turnstile';
 
 function SignUpContent() {
   const router = useRouter();
@@ -20,6 +21,15 @@ function SignUpContent() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+
+  // Password strength logic
+  const passwordCriteria = [
+    { label: '10+ caractères', fulfilled: password.length >= 10 },
+    { label: 'Majuscules & Minuscules', fulfilled: /[A-Z]/.test(password) && /[a-z]/.test(password) },
+    { label: 'Chiffre & Symbole', fulfilled: /[0-9]/.test(password) && /[!@#$%^&*(),.?":{}|<>]/.test(password) },
+  ];
+  const isPasswordStrong = passwordCriteria.every(c => c.fulfilled);
 
   // Détection du mode Partenaire / Affilié
   const affiliateToken = searchParams.get('affiliate_token');
@@ -35,8 +45,13 @@ function SignUpContent() {
       return;
     }
 
-    if (password.length < 8) {
-      setError('Le mot de passe doit contenir au moins 8 caractères');
+    if (!isPasswordStrong) {
+      setError('Votre mot de passe n\'est pas assez robuste.');
+      return;
+    }
+
+    if (process.env.NODE_ENV !== 'development' && !turnstileToken) {
+      setError('Veuillez valider le captcha.');
       return;
     }
 
@@ -51,6 +66,7 @@ function SignUpContent() {
           email,
           password,
           affiliateToken,
+          turnstileToken,
         }),
       });
 
@@ -62,25 +78,52 @@ function SignUpContent() {
         return;
       }
 
-      // Connexion automatique après inscription
-      const signInResult = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
-      });
+      // Succès - On affiche le message de vérification par email
+      setLoading(false);
+      setSuccess(true);
 
-      if (signInResult?.error) {
-        // Fallback si la connexion auto échoue
-        router.push(`/auth/signin?registered=true&callbackUrl=${encodeURIComponent(callbackUrl)}`);
-      } else {
-        // Connecté avec succès, redirection directe
-        router.push(callbackUrl);
-      }
     } catch (err) {
       setError('Une erreur est survenue');
       setLoading(false);
     }
   };
+
+  const [success, setSuccess] = useState(false);
+
+  if (success) {
+    return (
+      <div className={`min-h-[100dvh] flex flex-col justify-center items-center px-6 sm:px-8 py-12 safe-area-padding overflow-y-auto bg-[#F5F5F7]`}>
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="w-full max-w-[420px] text-center space-y-8"
+        >
+          <Image
+            src="/icon.png"
+            alt="OUTFITY"
+            width={80}
+            height={80}
+            className="mx-auto rounded-2xl shadow-xl"
+            unoptimized
+          />
+          <Card className="border-0 shadow-2xl rounded-[32px] bg-white p-8 sm:p-10">
+            <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center text-[#007AFF] mx-auto mb-6">
+              <Sparkles className="w-10 h-10" />
+            </div>
+            <h2 className="text-2xl font-black text-gray-900 italic uppercase mb-2">Presque prêt !</h2>
+            <p className="text-gray-500 font-medium mb-8">
+              Un email de confirmation a été envoyé à <strong>{email}</strong>. Clique sur le lien pour activer ton compte.
+            </p>
+            <Link href="/auth/signin" className="block w-full">
+              <button className="w-full py-4 bg-black text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-zinc-800 transition-all shadow-lg active:scale-95">
+                Retour à la connexion
+              </button>
+            </Link>
+          </Card>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-[100dvh] flex flex-col justify-center items-center px-6 sm:px-8 py-12 safe-area-padding overflow-y-auto transition-colors duration-500 overflow-x-hidden ${isPartnerFlow ? 'bg-black text-white selection:bg-[#007AFF] selection:text-white' : 'bg-gray-50 text-gray-900'}`}>
@@ -229,7 +272,7 @@ function SignUpContent() {
                   />
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <label className={`text-sm font-medium ${isPartnerFlow ? 'text-gray-300' : 'text-gray-700'}`}>Confirmer le mot de passe</label>
                   <Input
                     type="password"
@@ -241,6 +284,32 @@ function SignUpContent() {
                     className={`h-12 px-4 rounded-xl ${isPartnerFlow
                       ? 'bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:border-[#007AFF] focus:ring-[#007AFF]/20'
                       : 'bg-gray-50 border-gray-200 focus:border-blue-500'}`}
+                  />
+
+                  {/* Password Strength FeedBack */}
+                  {password.length > 0 && (
+                    <div className="p-4 bg-black/5 rounded-2xl space-y-2 border border-black/[0.03]">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Sécurité du compte</p>
+                      {passwordCriteria.map((c, i) => (
+                        <div key={i} className="flex items-center gap-2 text-[11px] font-bold">
+                          {c.fulfilled ? (
+                            <Check className="w-3 h-3 text-green-500" strokeWidth={3} />
+                          ) : (
+                            <X className="w-3 h-3 text-gray-300" strokeWidth={3} />
+                          )}
+                          <span className={c.fulfilled ? 'text-[#1D1D1F]' : 'text-gray-400'}>{c.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Turnstile Captcha */}
+                <div className="flex justify-center pt-2">
+                  <Turnstile
+                    sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
+                    onVerify={(token) => setTurnstileToken(token)}
+                    theme={isPartnerFlow ? 'dark' : 'light'}
                   />
                 </div>
 

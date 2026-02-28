@@ -21,11 +21,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           const user = await prisma.user.findUnique({
             where: { email: credentials.email as string },
+            select: {
+              id: true,
+              email: true,
+              password: true,
+              name: true,
+              plan: true,
+              emailVerified: true
+            }
           });
 
           if (!user || !user.password) {
             console.log('[Auth] Utilisateur non trouvé ou sans mot de passe');
             return null;
+          }
+
+          // --- EMAIL VERIFICATION CHECK ---
+          if (!user.emailVerified) {
+            console.log('[Auth] Email non vérifié pour:', user.email);
+            // On jette une erreur spécifique capturable par le client
+            throw new Error('EMAIL_NOT_VERIFIED');
           }
 
           // Utiliser bcrypt.compare directement (pas .default)

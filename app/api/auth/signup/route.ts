@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { notifyAdmin } from '@/lib/admin-notifications';
+import { verifyTurnstile, validatePasswordStrength } from '@/lib/security';
+import { getTemplates } from '@/lib/email-templates';
+import { sendEmail } from '@/lib/resend-mail';
+import { randomBytes } from 'crypto';
 
 // --- In-Memory Rate Limiter basique ---
 // En production sur plusieurs serveurs (ex: Vercel Edge), il vaut mieux utiliser Upstash/Redis.
@@ -45,7 +49,7 @@ export async function POST(request: Request) {
         }
 
         // --- 2. TRAITEMENT NORMAL ---
-        const { name, email, password } = await request.json();
+        const { name, email, password, turnstileToken } = await request.json();
 
         console.log('[Signup] Tentative inscription pour:', email);
 
@@ -54,6 +58,17 @@ export async function POST(request: Request) {
                 { error: 'Tous les champs sont obligatoires' },
                 { status: 400 }
             );
+        }
+
+        // --- 3. CAPTCHA VERIFICATION ---
+        if (process.env.NODE_ENV !== 'development' && !await verifyTurnstile(turnstileToken)) {
+            return NextResponse.json({ error: 'Vérification Captcha échouée.' }, { status: 403 });
+        }
+
+        // --- 4. PASSWORD ROBUSTNESS ---
+        const passCheck = validatePasswordStrength(password);
+        if (!passCheck.isValid) {
+            return NextResponse.json({ error: passCheck.error }, { status: 400 });
         }
 
         // Vérifier si utilisateur existe déjà
@@ -103,12 +118,32 @@ export async function POST(request: Request) {
 
         // Notification Admin
         await notifyAdmin({
-            title: 'Nouvel Inscrit',
+            title: 'Nouvel Inscrit (En attente confirmation)',
             message: `${name} (${email}) vient de créer un compte.`,
-            emoji: '👋',
+            emoji: '📩',
             type: 'signup',
             priority: 'low',
             data: { id: user.id, email: user.email, plan: user.plan }
+        });
+
+        // --- 5. EMAIL VERIFICATION ---
+        const verificationToken = randomBytes(32).toString('hex');
+        const verificationExpires = new Date(Date.now() + 24 * 3600000); // 24 heures
+
+        await prisma.verificationToken.create({
+            data: {
+                identifier: email,
+                token: verificationToken,
+                expires: verificationExpires,
+            }
+        });
+
+        const verificationUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/auth/verify-email?token=${verificationToken}&email=${encodeURIComponent(email)}`;
+
+        await sendEmail({
+            to: email,
+            subject: 'OUTFITY — Confirme ton inscription',
+            html: getTemplates.emailVerification(name, verificationUrl),
         });
 
         // Déclencher le workflow n8n Onboarding (Emails J0 -> J7)
@@ -133,7 +168,7 @@ export async function POST(request: Request) {
         }
 
         return NextResponse.json(
-            { message: 'Compte créé avec succès', userId: user.id },
+            { message: 'Compte créé. Veuillez vérifier votre email pour l\'activer.', userId: user.id },
             { status: 201 }
         );
     } catch (error) {
