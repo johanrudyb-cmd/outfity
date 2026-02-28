@@ -103,7 +103,6 @@ export const metadata: Metadata = {
 };
 
 import { Providers } from '@/components/providers/Providers';
-import { IOSInstallPrompt } from '@/components/layout/IOSInstallPrompt';
 import { ScrollToTop } from '@/components/layout/ScrollToTop';
 import { UpgradeSessionRefresh } from '@/components/dashboard/UpgradeSessionRefresh';
 import { TrackingCleaner } from '@/components/layout/TrackingCleaner';
@@ -154,7 +153,6 @@ export default function RootLayout({
             <Suspense fallback={null}>
               <TrackingCleaner />
             </Suspense>
-            <IOSInstallPrompt />
             <ScrollToTop />
           </Providers>
         </ErrorBoundary>
