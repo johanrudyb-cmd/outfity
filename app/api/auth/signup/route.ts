@@ -15,6 +15,7 @@ const MAX_REQUESTS_PER_IP = 5;       // Max 5 inscriptions par minute
 const ipRequests = new Map<string, { count: number, resetTime: number }>();
 
 export async function POST(request: Request) {
+    console.log('[Signup] Requete recue !');
     try {
         // --- 1. RATE LIMITING ---
         const ip = request.headers.get('x-forwarded-for') || '127.0.0.1';

@@ -17,7 +17,7 @@ export async function sendEmail({
     to,
     subject,
     html,
-    from = 'OUTFITY <send@send.outfity.fr>'
+    from = 'OUTFITY <send@outfity.fr>'
 }: SendEmailParams) {
     if (!RESEND_API_KEY) {
         console.warn('[Mail] RESEND_API_KEY manquante. Email non envoyé.');
@@ -25,6 +25,7 @@ export async function sendEmail({
     }
 
     try {
+        console.log(`[Mail] Tentative d'envoi vers: ${to} (Subject: ${subject})`);
         const response = await fetch(RESEND_API_URL, {
             method: 'POST',
             headers: {
@@ -42,10 +43,10 @@ export async function sendEmail({
         const data = await response.json();
 
         if (!response.ok) {
-            console.error('[Mail] Erreur Resend:', data);
+            console.error('[Mail] Erreur API Resend:', JSON.stringify(data, null, 2));
             let errorMsg = data.message || 'Erreur inconnue';
             if (errorMsg.includes('not verified')) {
-                errorMsg = "Le domaine send.outfity.fr n'est pas vérifié sur Resend. Allez sur https://resend.com/domains pour le valider.";
+                errorMsg = "Le domaine '" + from + "' n'est pas vérifié sur Resend.";
             }
             return { success: false, error: errorMsg };
         }
