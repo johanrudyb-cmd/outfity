@@ -10,160 +10,298 @@ import {
     ArrowUpRight,
     Zap,
     Clock,
-    Globe
+    Globe,
+    BarChart3,
+    Euro,
+    ShieldCheck,
+    UserPlus,
+    Crown
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 export const metadata = {
     title: 'Admin Dashboard | OUTFITY',
 };
 
 export default async function AdminDashboardPage() {
-    // Récupération des stats réelles
-    const totalUsers = await prisma.user.count();
-    const totalBrands = await prisma.brand.count();
-    const totalDesigns = await prisma.design.count();
-
     // Stats récentes (24h)
     const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const newUsers24h = await prisma.user.count({ where: { createdAt: { gte: last24h } } });
-    const activeUsers24h = await prisma.user.count({ where: { updatedAt: { gte: last24h } } });
+
+    // Récupération des stats réelles
+    const [
+        totalUsers,
+        totalBrands,
+        totalDesigns,
+        activeUsers24h,
+        affiliateStats,
+        activeAffiliates,
+        totalPremiumUsers,
+        creatorCount,
+        studioCount
+    ] = await Promise.all([
+        prisma.user.count(),
+        prisma.brand.count(),
+        prisma.design.count(),
+        prisma.user.count({ where: { updatedAt: { gte: last24h } } }),
+        prisma.affiliateCommission.aggregate({ _sum: { amount: true } }),
+        prisma.affiliate.count({ where: { status: 'ACTIVE' } }),
+        prisma.user.count({ where: { plan: { not: 'free' } } }),
+        prisma.user.count({ where: { plan: 'pro' } }),
+        prisma.user.count({ where: { plan: 'enterprise' } })
+    ]);
+
+    const mmr = (creatorCount * 29) + (studioCount * 99);
+
+    const totalAffiliateRevenue = affiliateStats._sum.amount || 0;
+    const estimatedSales = totalAffiliateRevenue / 0.15; // Estimation basée sur 15%
 
     const stats = [
-        { label: 'Utilisateurs', value: totalUsers, sub: `+${newUsers24h} ces dernières 24h`, icon: Users, color: 'text-blue-600' },
-        { label: 'Marques Créées', value: totalBrands, sub: 'Total historiques', icon: Zap, color: 'text-purple-600' },
-        { label: 'Designs Générés', value: totalDesigns, sub: 'IA Studio', icon: TrendingUp, color: 'text-green-600' },
-        { label: 'Actifs (24h)', value: activeUsers24h, sub: 'Utilisateurs uniques', icon: Activity, color: 'text-orange-600' },
+        { label: 'Utilisateurs', value: totalUsers.toLocaleString(), sub: `+${newUsers24h} (24h)`, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
+        { label: 'Subscribers', value: totalPremiumUsers, sub: 'Utilisateurs Payants', icon: CreditCard, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+        { label: 'MMR (Revenus)', value: `${mmr.toLocaleString()}€`, sub: 'Mensuel Récurrent', icon: Euro, color: 'text-orange-600', bg: 'bg-orange-50' },
+        { label: 'Partenaires', value: activeAffiliates, sub: 'Réseau actif', icon: Globe, color: 'text-purple-600', bg: 'bg-purple-50' },
     ];
 
-    // Récupération des logs réels
-    const logs = await prisma.adminLog.findMany({
-        orderBy: { createdAt: 'desc' },
-        take: 5,
-    }).catch(() => []);
+    // Récupération des logs et activités
+    const [rawLogs, latestUsers] = await Promise.all([
+        prisma.adminLog.findMany({
+            orderBy: { createdAt: 'desc' },
+            take: 10,
+        }).catch(() => []),
+        prisma.user.findMany({
+            orderBy: { createdAt: 'desc' },
+            take: 10,
+        })
+    ]);
+
+    // Unification du flux (Logs + Users + Potentiellement autres events)
+    const unifiedActivity = [
+        ...rawLogs.map(log => ({
+            id: log.id,
+            action: log.action,
+            details: log.details,
+            status: log.status,
+            createdAt: log.createdAt,
+            type: 'log',
+            userId: log.userId
+        })),
+        ...latestUsers.map(user => ({
+            id: `user-${user.id}`,
+            action: 'Inscription Pilote',
+            details: `${user.name || 'Nouvel utilisateur'} (${user.email}) a rejoint le cockpit.`,
+            status: user.plan !== 'free' ? 'premium' : 'free',
+            createdAt: user.createdAt,
+            type: 'user',
+            userId: user.id
+        }))
+    ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 10);
 
     return (
-        <div className="p-10 space-y-10">
-            <div>
-                <h1 className="text-4xl font-bold text-[#1D1D1F] tracking-tight">OUTFITY Command Center</h1>
-                <p className="text-[#6e6e73] text-lg mt-2">Vue d'ensemble de la plateforme et gestion des ressources.</p>
+        <div className="p-4 sm:p-8 lg:p-12 space-y-8 lg:space-y-12 max-w-[1600px] mx-auto bg-[#F5F5F7] min-h-screen">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 sm:gap-8">
+                <div className="flex flex-col gap-4 sm:gap-6">
+                    <Badge className="w-fit bg-black text-white hover:bg-black rounded-full px-4 py-1.5 text-[10px] sm:text-[11px] font-black tracking-widest uppercase shadow-md shadow-black/10">System Online</Badge>
+                    <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-[#1D1D1F] tracking-tighter uppercase italic leading-none">Command <span className="text-[#007AFF]">Center</span></h1>
+                    <p className="text-[#6e6e73] text-base sm:text-xl font-medium">Pilotage stratégique et surveillance des flux OUTFITY.</p>
+                </div>
+                <div className="flex items-center gap-3 w-full sm:w-auto overflow-x-auto no-scrollbar py-2">
+                    <Button className="h-10 sm:h-14 px-5 sm:px-8 rounded-2xl bg-white text-black border border-black/5 font-black uppercase text-[9px] sm:text-[10px] tracking-widest shadow-sm hover:bg-gray-50 flex-1 sm:flex-none">
+                        Rapport
+                    </Button>
+                </div>
             </div>
 
-            {/* Grid de Stats */}
+            {/* Grid de Stats - LOOK PREMIUM */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {stats.map((stat) => (
-                    <Card key={stat.label} className="border-none shadow-sm bg-white/50 backdrop-blur-sm">
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium text-[#6e6e73]">{stat.label}</CardTitle>
-                            <stat.icon className={`w-4 h-4 ${stat.color}`} />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-bold tracking-tight">{stat.value}</div>
-                            <p className="text-xs text-[#86868b] mt-1">{stat.sub}</p>
+                {stats.map((stat, i) => (
+                    <Card key={stat.label} className="border-none shadow-sm bg-white rounded-[32px] overflow-hidden group hover:shadow-xl transition-all duration-500">
+                        <CardContent className="p-6 text-center sm:text-left flex flex-col items-center sm:items-start">
+                            <div className="flex items-center justify-between w-full mb-6">
+                                <div className={`p-3 ${stat.bg} ${stat.color} rounded-2xl transition-transform duration-500 group-hover:scale-110 shadow-sm shadow-current/5`}>
+                                    <stat.icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                                </div>
+                                <Activity className="w-4 h-4 text-[#86868b] opacity-20 hidden sm:block" />
+                            </div>
+                            <div className="text-3xl sm:text-4xl font-black tracking-tighter text-[#1D1D1F] leading-none mb-2">{stat.value}</div>
+                            <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-[#86868b] opacity-80">{stat.label}</p>
+                            <div className="mt-6 flex items-center justify-between">
+                                <span className="text-xs font-bold text-[#1D1D1F]">{stat.sub}</span>
+                                <div className="h-1 w-12 bg-gray-100 rounded-full overflow-hidden">
+                                    <div className={`h-full ${stat.color.replace('text', 'bg')} w-2/3`} />
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Gestion Rapide */}
-                <Card className="lg:col-span-2 border-none shadow-sm">
-                    <CardHeader>
-                        <CardTitle>Actions Rapides</CardTitle>
-                        <CardDescription>Outils d'administration prioritaires</CardDescription>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <Link href="/admin/blog" className="group">
-                            <div className="p-4 rounded-2xl border border-[#F2F2F2] hover:border-[#007AFF] hover:bg-[#007AFF]/5 transition-all">
-                                <div className="flex items-center justify-between mb-2">
-                                    <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-                                        <Globe className="w-5 h-5" />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Gestion Rapide - RESTRUCTURED */}
+                <div className="lg:col-span-8 space-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Link href="/admin/partners" className="group h-full">
+                            <Card className="h-full border-none shadow-sm rounded-[32px] sm:rounded-[40px] bg-black text-white overflow-hidden transition-all duration-500 hover:scale-[1.01] hover:shadow-2xl">
+                                <CardContent className="p-6 sm:p-10 relative overflow-hidden h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px]">
+                                    <div className="absolute top-0 right-0 p-6 sm:p-10 opacity-10 group-hover:opacity-20 transition-all duration-700">
+                                        <Users className="w-24 sm:w-32 h-24 sm:h-32 rotate-12" />
                                     </div>
-                                    <ArrowUpRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                </div>
-                                <h3 className="font-bold text-[#1D1D1F]">Gérer le Blog</h3>
-                                <p className="text-xs text-[#86868b] mt-1">SEO & Mises à jour IA automatique.</p>
-                            </div>
-                        </Link>
-
-                        <Link href="/admin/shopify-simulator" className="group">
-                            <div className="p-4 rounded-2xl border border-[#F2F2F2] hover:border-purple-500 hover:bg-purple-50 transition-all">
-                                <div className="flex items-center justify-between mb-2">
-                                    <div className="p-2 bg-purple-50 text-purple-600 rounded-lg">
-                                        <Zap className="w-5 h-5" />
-                                    </div>
-                                    <ArrowUpRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                </div>
-                                <h3 className="font-bold text-[#1D1D1F]">Simulateur Shopify</h3>
-                                <p className="text-xs text-[#86868b] mt-1">Tests d'apps et intégrations.</p>
-                            </div>
-                        </Link>
-
-                        <Link href="/admin/users" className="group">
-                            <div className="p-4 rounded-2xl border border-[#F2F2F2] hover:border-emerald-500 hover:bg-emerald-50 transition-all">
-                                <div className="flex items-center justify-between mb-2">
-                                    <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
-                                        <Users className="w-5 h-5" />
-                                    </div>
-                                    <ArrowUpRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                </div>
-                                <h3 className="font-bold text-[#1D1D1F]">Liste Utilisateurs</h3>
-                                <p className="text-xs text-[#86868b] mt-1">Gérer les accès et supports.</p>
-                            </div>
-                        </Link>
-
-                        <Link href="/usage" className="group">
-                            <div className="p-4 rounded-2xl border border-[#F2F2F2] hover:border-orange-500 hover:bg-orange-50 transition-all">
-                                <div className="flex items-center justify-between mb-2">
-                                    <div className="p-2 bg-orange-50 text-orange-600 rounded-lg">
-                                        <CreditCard className="w-5 h-5" />
-                                    </div>
-                                    <ArrowUpRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                </div>
-                                <h3 className="font-bold text-[#1D1D1F]">Facturation & Quotas</h3>
-                                <p className="text-xs text-[#86868b] mt-1">Surveiller les coûts Anthropic/OpenAI.</p>
-                            </div>
-                        </Link>
-                    </CardContent>
-                </Card>
-
-                {/* Derniers Événements */}
-                <Card className="border-none shadow-sm h-fit">
-                    <CardHeader>
-                        <CardTitle className="text-sm font-bold uppercase tracking-wider text-[#86868b]">Système Logs</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        {logs.length === 0 ? (
-                            <p className="text-xs text-[#86868b] italic">Aucun log récent en base de données.</p>
-                        ) : (
-                            logs.map((log) => (
-                                <div key={log.id} className="flex gap-4">
-                                    <div className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${(log.status && (log.status.includes('error') || log.status.includes('failed'))) ? 'bg-red-500' :
-                                        (log.status && log.status.includes('warning')) ? 'bg-orange-500' :
-                                            'bg-[#007AFF]'
-                                        }`} />
-                                    <div>
-                                        <p className="text-sm font-semibold text-[#1D1D1F] line-clamp-1">{log.action}</p>
-                                        <p className="text-xs text-[#6e6e73] line-clamp-2 mt-0.5">
-                                            {typeof log.details === 'string' ? log.details : JSON.stringify(log.details)}
-                                        </p>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <p className="text-[10px] text-[#86868b] flex items-center gap-1 uppercase tracking-tight font-bold">
-                                                <Clock className="w-3 h-3" />
-                                                {new Date(log.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                                            </p>
-                                            <span className="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded text-gray-600 font-medium uppercase">
-                                                {log.status}
-                                            </span>
+                                    <div className="relative z-10">
+                                        <Badge className="bg-white/20 text-white mb-6 border-none text-[9px] sm:text-[10px] font-black uppercase tracking-widest px-3 py-1">Nouveau Système</Badge>
+                                        <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black mb-4 italic uppercase tracking-tight leading-tight">Intelligence <span className="text-[#007AFF]">Partenaires</span></h3>
+                                        <p className="text-white/60 font-medium text-sm sm:text-lg leading-relaxed max-w-[280px]">Gérez vos influenceurs, suivez les conversions et automatisez les commissions.</p>
+                                        <div className="mt-8 sm:mt-10 flex items-center gap-3 font-black text-[9px] sm:text-[10px] uppercase tracking-widest text-[#007AFF] hover:text-white transition-colors">
+                                            Accéder au Control Center <ArrowUpRight className="w-4 h-4" />
                                         </div>
                                     </div>
+                                </CardContent>
+                            </Card>
+                        </Link>
+
+                        <div className="grid grid-cols-2 lg:grid-cols-1 lg:grid-rows-2 gap-4 sm:gap-6">
+                            <Link href="/admin/blog" className="group">
+                                <Card className="border-none shadow-sm rounded-[24px] sm:rounded-[32px] bg-white hover:bg-[#F5F5F7] transition-all duration-300 h-full">
+                                    <CardContent className="p-5 sm:p-8 flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6 text-center sm:text-left">
+                                        <div className="p-3 sm:p-4 bg-blue-50 text-blue-600 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform shadow-sm shadow-blue-500/5">
+                                            <Globe className="w-5 h-5 sm:w-6 sm:h-6" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-black text-sm sm:text-lg text-[#1D1D1F] uppercase italic leading-tight">Blog</h4>
+                                            <p className="text-[8px] sm:text-xs text-[#86868b] font-bold uppercase tracking-tight mt-1 truncate">SEO Editorial IA</p>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </Link>
+
+                            <Link href="/admin/users" className="group">
+                                <Card className="border-none shadow-sm rounded-[24px] sm:rounded-[32px] bg-white hover:bg-[#F5F5F7] transition-all duration-300 h-full">
+                                    <CardContent className="p-5 sm:p-8 flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6 text-center sm:text-left">
+                                        <div className="p-3 sm:p-4 bg-emerald-50 text-emerald-600 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform shadow-sm shadow-emerald-500/5">
+                                            <Users className="w-5 h-5 sm:w-6 sm:h-6" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-black text-sm sm:text-lg text-[#1D1D1F] uppercase italic leading-tight">Pilotes</h4>
+                                            <p className="text-[8px] sm:text-xs text-[#86868b] font-bold uppercase tracking-tight mt-1 truncate">Accès & Support</p>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </Link>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
+                        <Link href="/usage" className="group">
+                            <Card className="border-none shadow-sm rounded-[24px] sm:rounded-[32px] bg-white hover:bg-[#F5F5F7] transition-all duration-300 h-full">
+                                <CardContent className="p-5 sm:p-8 flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6 text-center sm:text-left">
+                                    <div className="p-3 sm:p-4 bg-orange-50 text-orange-600 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform shadow-sm shadow-orange-500/5">
+                                        <CreditCard className="w-5 h-5 sm:w-6 sm:h-6" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-black text-sm sm:text-lg text-[#1D1D1F] uppercase italic leading-tight">Quotas</h4>
+                                        <p className="text-[8px] sm:text-xs text-[#86868b] font-bold uppercase tracking-tight mt-1 truncate">Consommation IA</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </Link>
+                        <Link href="/admin/metrics" className="group">
+                            <Card className="border-none shadow-sm rounded-[24px] sm:rounded-[32px] bg-white hover:bg-[#F5F5F7] transition-all duration-300 h-full">
+                                <CardContent className="p-5 sm:p-8 flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6 text-center sm:text-left">
+                                    <div className="p-3 sm:p-4 bg-purple-50 text-purple-600 rounded-xl sm:rounded-2xl group-hover:scale-110 transition-transform shadow-sm shadow-purple-500/5">
+                                        <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-black text-sm sm:text-lg text-[#1D1D1F] uppercase italic leading-tight">Métriques</h4>
+                                        <p className="text-[8px] sm:text-xs text-[#86868b] font-bold uppercase tracking-tight mt-1 truncate">Analytics Perf</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </Link>
+                    </div>
+                </div>
+
+                {/* Nerve Center / System Flux */}
+                <Card className="lg:col-span-4 border-none shadow-sm h-fit rounded-[32px] bg-white overflow-hidden">
+                    <CardHeader className="p-6 sm:p-8 pb-4 bg-gray-50/50 border-b border-gray-100">
+                        <div className="flex items-center justify-between">
+                            <CardTitle className="text-[10px] font-black uppercase tracking-widest text-[#86868b]">Nerve Center / Flux Live</CardTitle>
+                            <Badge className="bg-[#007AFF]/10 text-[#007AFF] border-none text-[8px] font-black uppercase tracking-tighter">Real-time sync</Badge>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <div className="divide-y divide-gray-50">
+                            {unifiedActivity.length === 0 ? (
+                                <div className="p-12 text-center">
+                                    <Activity className="w-8 h-8 text-gray-200 mx-auto mb-4" />
+                                    <p className="text-xs text-[#86868b] font-bold uppercase tracking-tight italic">Silence Radio / Aucun flux détecté</p>
                                 </div>
-                            ))
-                        )}
-                        <Button variant="ghost" size="sm" className="w-full mt-4 text-xs font-bold text-[#007AFF] opacity-50 cursor-not-allowed">
-                            VOIR TOUS LES LOGS
-                        </Button>
+                            ) : (
+                                unifiedActivity.map((log: any) => {
+                                    const isError = log.status && (log.status.includes('error') || log.status.includes('failed'));
+                                    const isWarning = log.status && log.status.includes('warning');
+                                    const isUser = log.type === 'user';
+                                    const isPremium = log.status === 'premium';
+
+                                    // Mapping d'icones par action/type
+                                    const getActionIcon = () => {
+                                        if (isUser) return <UserPlus className="w-3.5 h-3.5" />;
+                                        if (log.action.toLowerCase().includes('plan') || log.action.toLowerCase().includes('billing')) return <CreditCard className="w-3.5 h-3.5" />;
+                                        if (log.action.toLowerCase().includes('login') || log.action.toLowerCase().includes('auth')) return <ShieldCheck className="w-3.5 h-3.5" />;
+                                        return <Zap className="w-3.5 h-3.5" />;
+                                    };
+
+                                    return (
+                                        <div key={log.id} className="p-6 hover:bg-gray-50/80 transition-all duration-300 group">
+                                            <div className="flex gap-4">
+                                                <div className={`mt-1 h-8 w-8 rounded-xl flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110 ${isError ? 'bg-red-50 text-red-500' :
+                                                    isWarning ? 'bg-orange-50 text-orange-500' :
+                                                        isUser ? 'bg-emerald-50 text-emerald-600' :
+                                                            'bg-blue-50 text-[#007AFF]'
+                                                    }`}>
+                                                    {getActionIcon()}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center justify-between gap-2 mb-1">
+                                                        <div className="flex items-center gap-2 overflow-hidden">
+                                                            <p className="text-xs font-black text-[#1D1D1F] uppercase italic truncate tracking-tight">{log.action}</p>
+                                                            {isUser && <Badge className="h-4 px-1.5 bg-emerald-500 text-[8px] text-white border-none font-black uppercase tracking-tighter shadow-sm">Live</Badge>}
+                                                            {isPremium && <Crown className="w-3 h-3 text-[#007AFF] animate-pulse" />}
+                                                        </div>
+                                                        <span className="text-[9px] font-black text-[#86868b] uppercase tracking-tighter whitespace-nowrap opacity-60">
+                                                            {new Date(log.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-[10px] text-[#6e6e73] font-bold line-clamp-2 leading-relaxed mb-3">
+                                                        {typeof log.details === 'string' ? log.details :
+                                                            log.details && typeof log.details === 'object' ?
+                                                                Object.entries(log.details).map(([k, v]) => `${k}: ${v}`).join(' | ') :
+                                                                'Détails de navigation / Système'}
+                                                    </p>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex items-center gap-1.5 grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all">
+                                                            <div className={`w-1.5 h-1.5 rounded-full ${isError ? 'bg-red-500 animate-pulse' :
+                                                                isWarning ? 'bg-orange-500 animate-pulse' :
+                                                                    isUser ? 'bg-emerald-500 animate-pulse' :
+                                                                        'bg-[#007AFF]'
+                                                                }`} />
+                                                            <span className="text-[8px] font-black uppercase tracking-widest text-[#86868b]">
+                                                                {isUser ? 'Base de donnée' : `Type: ${log.status || 'System'}`}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            )}
+                        </div>
+                        <div className="p-6 bg-gray-50/30 border-t border-gray-100">
+                            <Button variant="ghost" size="sm" className="w-full text-[10px] font-black text-[#86868b] uppercase tracking-widest hover:text-[#007AFF] transition-colors rounded-xl h-10 border border-dashed border-gray-200 hover:border-[#007AFF]/20">
+                                Terminal Historique Complet
+                            </Button>
+                        </div>
                     </CardContent>
                 </Card>
             </div>

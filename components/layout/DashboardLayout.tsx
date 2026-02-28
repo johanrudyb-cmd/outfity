@@ -11,6 +11,8 @@ import { PaywallGate } from '@/components/paywall/PaywallGate';
 import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 
 import { MobileNav } from './MobileNav';
+import { TrackingCleaner } from './TrackingCleaner';
+import { ErrorToastHandler } from './ErrorToastHandler';
 import useSWR from 'swr';
 import { isFreePlan } from '@/lib/plan-utils';
 
@@ -93,6 +95,8 @@ export function DashboardLayout({
       <Suspense fallback={null}>
         <DashboardTutorialGate />
         <CreatorTutorialGate />
+        <TrackingCleaner />
+        <ErrorToastHandler />
       </Suspense>
     </div>
   );

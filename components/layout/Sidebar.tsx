@@ -6,7 +6,11 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { X, Settings, LogOut, Zap, LayoutDashboard, TrendingUp, Camera, PenSquare, Calculator, Sparkles } from 'lucide-react';
+import { X, Settings, LogOut, Zap, LayoutDashboard, TrendingUp, Camera, PenSquare, Calculator, Sparkles, Receipt, ShieldCheck, HelpCircle, MessageCircle } from 'lucide-react';
+import useSWR from 'swr';
+import { useSession } from 'next-auth/react';
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 const navigation = [
   { name: 'Dashboard', short: 'Accueil', href: '/dashboard', tourId: 'tour-dashboard', icon: LayoutDashboard, badge: undefined as string | undefined },
@@ -27,6 +31,16 @@ interface SidebarProps {
 
 export function Sidebar({ open = false, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const { data: userPlanData } = useSWR('/api/user/plan', fetcher);
+
+  const isAdmin = session?.user?.email && (
+    ['contact@outfity.fr', 'johanrudyb@gmail.com'].includes(session.user.email) ||
+    session.user.email.endsWith('@biangory.com')
+  );
+
+  const isAffiliate = userPlanData?.affiliate?.status === 'ACTIVE';
+
   const handleNav = () => onClose?.();
 
   // ── Compact icon sidebar for tablets (md, hidden on lg+) ──────────────────
@@ -94,40 +108,57 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
         );
       })}
 
-      {/* Bottom account items */}
-      <div className="mt-auto flex flex-col gap-1 items-center">
-        <Link
-          href="/usage"
-          title="Mes quotas"
-          className={cn(
-            'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200 active:scale-95',
-            pathname === '/usage' ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'text-[#1D1D1F]/40 hover:bg-black/5 hover:text-[#1D1D1F]'
-          )}
+      {/* Partenariat */}
+      {isAffiliate && (
+        <>
+          <div className="w-8 h-px bg-black/8 my-1" />
+          <Link
+            href="/partners"
+            title="Mes commissions"
+            className={cn(
+              'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200 active:scale-95',
+              pathname === '/partners' ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'text-[#1D1D1F]/40 hover:bg-black/5 hover:text-[#1D1D1F]'
+            )}
+          >
+            <Receipt className="w-5 h-5" strokeWidth={pathname === '/partners' ? 2.5 : 2} />
+            <span className="text-[8px] font-black uppercase tracking-tight leading-none text-center">Partenariat</span>
+          </Link>
+        </>
+      )}
+
+      {/* Admin */}
+      {isAdmin && (
+        <>
+          <div className="w-8 h-px bg-black/8 my-1" />
+          <Link
+            href="/admin/partners"
+            title="Administration"
+            className={cn(
+              'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200 active:scale-95',
+              pathname.startsWith('/admin/partners') ? 'bg-red-50 text-red-600' : 'text-[#1D1D1F]/40 hover:bg-red-50/50 hover:text-red-500'
+            )}
+          >
+            <ShieldCheck className="w-5 h-5" strokeWidth={pathname.startsWith('/admin/partners') ? 2.5 : 2} />
+            <span className="text-[8px] font-black uppercase tracking-tight leading-none text-center">Admin</span>
+          </Link>
+        </>
+      )}
+
+      {/* Bottom Spacer + Help */}
+      <div className="mt-auto flex flex-col items-center gap-1">
+        <div className="w-8 h-px bg-black/8 my-1" />
+        <a
+          href="https://instagram.com/biangory"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Besoin d'aide ? DM sur Instagram"
+          className="flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl text-[#1D1D1F]/40 hover:bg-black/5 hover:text-[#1D1D1F] transition-all duration-200"
         >
-          <Zap className="w-5 h-5" strokeWidth={pathname === '/usage' ? 2.5 : 2} />
-          <span className="text-[8px] font-black uppercase tracking-tight leading-none">Quotas</span>
-        </Link>
-        <Link
-          href="/settings"
-          title="Paramètres"
-          className={cn(
-            'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200 active:scale-95',
-            pathname === '/settings' ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'text-[#1D1D1F]/40 hover:bg-black/5 hover:text-[#1D1D1F]'
-          )}
-        >
-          <Settings className="w-5 h-5" strokeWidth={pathname === '/settings' ? 2.5 : 2} />
-          <span className="text-[8px] font-black uppercase tracking-tight leading-none">Réglages</span>
-        </Link>
-        <button
-          type="button"
-          title="Déconnexion"
-          className="flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl text-[#1D1D1F]/40 hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-95"
-          onClick={() => signOut({ callbackUrl: '/' })}
-        >
-          <LogOut className="w-5 h-5" strokeWidth={2} />
-          <span className="text-[8px] font-black uppercase tracking-tight leading-none">Exit</span>
-        </button>
+          <HelpCircle className="w-5 h-5" strokeWidth={2} />
+          <span className="text-[8px] font-black uppercase tracking-tight leading-none">Aide</span>
+        </a>
       </div>
+
     </aside>
   );
 
@@ -146,6 +177,10 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
           open ? 'translate-x-0 shadow-2xl flex' : '-translate-x-full'
         )}
       >
+        {/* Background Glow */}
+        <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-[#007AFF]/[0.02] rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-[#007AFF]/[0.02] rounded-full blur-[80px] pointer-events-none translate-y-1/2 -translate-x-1/2" />
+
         {/* Header */}
         <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-black/5 flex items-center justify-center relative min-h-[100px]">
           <Link href="/dashboard" className="block shrink-0" onClick={handleNav}>
@@ -165,7 +200,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
         <nav className="flex-1 overflow-y-auto pt-5 pb-6 px-5 space-y-7 flex flex-col">
           {/* Navigation section */}
           <div>
-            <h2 className="px-4 mb-2.5 text-[10px] font-bold text-[#1D1D1F]/30 uppercase tracking-widest">Navigation</h2>
+            <h2 className="px-4 mb-3 text-[10px] font-black text-[#1D1D1F]/20 uppercase tracking-[0.2em]">Platform</h2>
             <div className="space-y-0.5">
               {navigation.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
@@ -199,7 +234,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
 
           {/* Outils de création */}
           <div>
-            <h2 className="px-4 mb-2.5 text-[10px] font-bold text-[#1D1D1F]/30 uppercase tracking-widest">Outils de création</h2>
+            <h2 className="px-4 mb-3 text-[10px] font-black text-[#1D1D1F]/20 uppercase tracking-[0.2em]">Creative Hub</h2>
             <div className="space-y-0.5">
               {tools.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
@@ -243,47 +278,90 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
             </div>
           </div>
 
-          {/* Compte */}
-          <div className="mt-auto pt-4">
-            <h2 className="px-4 mb-2.5 text-[10px] font-bold text-[#1D1D1F]/30 uppercase tracking-widest">Votre Compte</h2>
-            <div className="pt-2 border-t border-black/5 space-y-0.5">
-              <Link
-                href="/usage"
-                onClick={handleNav}
-                className={cn(
-                  'flex items-center gap-3 min-h-[44px] px-4 py-2.5 rounded-2xl text-[15px] font-medium transition-all duration-200 active:scale-[0.98]',
-                  pathname === '/usage'
-                    ? 'bg-[#007AFF]/10 text-[#007AFF]'
-                    : 'text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#1D1D1F]'
-                )}
-              >
-                <Zap className="w-5 h-5 shrink-0" strokeWidth={pathname === '/usage' ? 2.5 : 2} />
-                <span>Mes quotas</span>
-              </Link>
-              <Link
-                href="/settings"
-                onClick={handleNav}
-                className={cn(
-                  'flex items-center gap-3 min-h-[44px] px-4 py-2.5 rounded-2xl text-[15px] font-medium transition-all duration-200 active:scale-[0.98]',
-                  pathname === '/settings'
-                    ? 'bg-[#007AFF]/10 text-[#007AFF]'
-                    : 'text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#1D1D1F]'
-                )}
-              >
-                <Settings className="w-5 h-5 shrink-0" strokeWidth={pathname === '/settings' ? 2.5 : 2} />
-                <span>Paramètres</span>
-              </Link>
-              <button
-                type="button"
-                className="flex items-center gap-3 min-h-[44px] w-full text-left px-4 py-2.5 rounded-2xl text-[15px] font-medium text-[#1D1D1F]/60 hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-[0.98]"
-                onClick={() => {
-                  onClose?.();
-                  signOut({ callbackUrl: '/' });
-                }}
-              >
-                <LogOut className="w-5 h-5 shrink-0" />
-                <span>Déconnexion</span>
-              </button>
+          {/* Partenariat */}
+          {isAffiliate && (
+            <div>
+              <h2 className="px-4 mb-3 text-[10px] font-black text-[#007AFF]/30 uppercase tracking-[0.2em]">Revenue</h2>
+              <div className="space-y-0.5">
+                <Link
+                  href="/partners"
+                  onClick={handleNav}
+                  className={cn(
+                    'flex items-center gap-3 min-h-[44px] px-4 py-2.5 rounded-2xl text-[15px] font-medium transition-all duration-200 active:scale-[0.98]',
+                    pathname === '/partners'
+                      ? 'bg-[#007AFF]/10 text-[#007AFF]'
+                      : 'text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#1D1D1F]'
+                  )}
+                >
+                  <Receipt className="w-5 h-5 shrink-0" strokeWidth={pathname === '/partners' ? 2.5 : 2} />
+                  <span>Mes commissions</span>
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* Business / Admin */}
+          {isAdmin && (
+            <div>
+              <h2 className="px-4 mb-3 text-[10px] font-black text-[#E11D48]/30 uppercase tracking-[0.2em]">Console Admin</h2>
+              <div className="space-y-0.5">
+                <Link
+                  href="/admin/partners"
+                  onClick={handleNav}
+                  className={cn(
+                    'flex items-center gap-3 min-h-[44px] px-4 py-2.5 rounded-2xl text-[15px] font-medium transition-all duration-200 active:scale-[0.98]',
+                    pathname.startsWith('/admin/partners')
+                      ? 'bg-red-50 text-red-600'
+                      : 'text-[#1D1D1F]/60 hover:bg-red-50/50 hover:text-red-600'
+                  )}
+                >
+                  <ShieldCheck className="w-5 h-5 shrink-0" strokeWidth={pathname.startsWith('/admin/partners') ? 2.5 : 2} />
+                  <span>Gestion Partenaires</span>
+                </Link>
+                {/* On peut ajouter d'autres liens admin ici plus tard */}
+              </div>
+            </div>
+          )}
+
+          <div className="mt-auto space-y-4 relative z-10">
+            {/* Usage Brief Card (Small version of what's in UserAccountNav) */}
+            {userPlanData?.usage && (
+              <div className="p-4 bg-[#F5F5F7] rounded-[24px] border border-black/[0.03]">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-[#86868B]">Quotas IA</span>
+                  <span className="text-[10px] font-bold text-[#1D1D1F]">{userPlanData.usage.total} / {userPlanData.usage.limit}</span>
+                </div>
+                <div className="h-1.5 w-full bg-black/5 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-[#007AFF] rounded-full transition-all duration-1000"
+                    style={{ width: `${Math.min(100, (userPlanData.usage.total / userPlanData.usage.limit) * 100)}%` }}
+                  />
+                </div>
+                <Link href="/usage" onClick={handleNav} className="block mt-2 text-center text-[9px] font-black uppercase text-[#007AFF] hover:underline">
+                  Détails du plan
+                </Link>
+              </div>
+            )}
+
+            {/* Support / Community Card */}
+            <div className="p-5 bg-black rounded-[28px] text-white overflow-hidden relative group">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full blur-xl -translate-y-1/2 translate-x-1/2 group-hover:bg-white/10 transition-colors" />
+              <div className="relative z-10">
+                <div className="w-8 h-8 bg-white/10 rounded-xl flex items-center justify-center mb-3">
+                  <HelpCircle className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="text-xs font-black uppercase tracking-widest mb-1.5 italic">Besoin d'aide ?</h3>
+                <p className="text-[10px] font-medium text-white/50 leading-relaxed max-w-[140px] mb-4">Contactez le support directement sur Instagram.</p>
+                <a
+                  href="https://instagram.com/biangory"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <button className="w-full py-2.5 bg-white text-black text-[9px] font-black uppercase tracking-widest rounded-xl transition-all active:scale-95">
+                    Assistance
+                  </button>
+                </a>
+              </div>
             </div>
           </div>
         </nav>

@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getCurrentUser } from '@/lib/auth-helpers';
+import { getCurrentUser, getIsAdmin } from '@/lib/auth-helpers';
 import { revalidatePath } from 'next/cache';
 import { broadcastWebPushNotification } from '@/lib/web-push';
 
 export async function POST(req: Request) {
     try {
         const user = await getCurrentUser();
-        const isAdmin = user?.email === 'johanrudyb@gmail.com' || user?.email?.endsWith('@biangory.com');
+        const isAdmin = await getIsAdmin();
 
         if (!isAdmin) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

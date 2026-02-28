@@ -50,7 +50,6 @@ export async function POST(request: Request) {
         console.log('[Signup] Tentative inscription pour:', email);
 
         if (!email || !password || !name) {
-            console.log('[Signup] Champs manquants');
             return NextResponse.json(
                 { error: 'Tous les champs sont obligatoires' },
                 { status: 400 }
@@ -58,31 +57,45 @@ export async function POST(request: Request) {
         }
 
         // Vérifier si utilisateur existe déjà
-        console.log('[Signup] Vérification existence utilisateur...');
         const existingUser = await prisma.user.findUnique({
             where: { email },
         });
 
         if (existingUser) {
-            console.log('[Signup] Email déjà utilisé');
             return NextResponse.json(
-                { error: 'Cet email est déjà utilisé' },
+                { error: 'Cet email est déjà utilisé. Connectez-vous.' },
                 { status: 400 }
             );
         }
 
         // Hasher le mot de passe
-        console.log('[Signup] Hashage du mot de passe...');
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // --- 3. GESTION DE L'AFFILIATION ---
+        const { cookies } = await import('next/headers');
+        const cookieStore = await cookies();
+        const refCode = cookieStore.get('outfity_ref')?.value;
+        let referrerId = null;
+
+        if (refCode) {
+            const affiliate = await prisma.affiliate.findUnique({
+                where: { referralCode: refCode },
+                select: { id: true }
+            });
+            if (affiliate) {
+                referrerId = affiliate.id;
+                console.log(`[Signup] Affiliate referral detected: ${refCode} (ID: ${referrerId})`);
+            }
+        }
+
         // Créer utilisateur
-        console.log('[Signup] Création utilisateur...');
         const user = await prisma.user.create({
             data: {
                 name,
                 email,
                 password: hashedPassword,
                 plan: 'starter',
+                affiliateId: referrerId,
             },
         });
 

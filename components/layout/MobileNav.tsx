@@ -8,14 +8,13 @@ import {
     TrendingUp,
     Map,
     Menu,
-    CircleUser
+    ArrowLeftRight
 } from 'lucide-react';
 
 const mobileLinks = [
     { name: 'Accueil', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Viral', href: '/trends', icon: TrendingUp },
     { name: 'Marque', href: '/launch-map', icon: Map },
-    { name: 'Compte', href: '/settings', icon: CircleUser },
 ];
 
 interface MobileNavProps {

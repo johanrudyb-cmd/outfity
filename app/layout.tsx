@@ -106,6 +106,7 @@ import { Providers } from '@/components/providers/Providers';
 import { IOSInstallPrompt } from '@/components/layout/IOSInstallPrompt';
 import { ScrollToTop } from '@/components/layout/ScrollToTop';
 import { UpgradeSessionRefresh } from '@/components/dashboard/UpgradeSessionRefresh';
+import { TrackingCleaner } from '@/components/layout/TrackingCleaner';
 import { Suspense } from 'react';
 
 import Script from 'next/script';
@@ -149,6 +150,9 @@ export default function RootLayout({
             <SurplusModalProvider>{children}</SurplusModalProvider>
             <Suspense fallback={null}>
               <UpgradeSessionRefresh />
+            </Suspense>
+            <Suspense fallback={null}>
+              <TrackingCleaner />
             </Suspense>
             <IOSInstallPrompt />
             <ScrollToTop />

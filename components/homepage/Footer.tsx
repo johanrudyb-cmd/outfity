@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { Instagram } from 'lucide-react';
 
 const SOCIAL_LINKS = [
-  { name: 'Instagram', href: 'https://www.instagram.com/biangory/', icon: 'instagram' },
-  { name: 'TikTok', href: 'https://www.tiktok.com/@biangory', icon: 'tiktok' },
+  { name: 'Instagram', href: 'https://www.instagram.com/outfity_fr/', icon: 'instagram' },
+  { name: 'TikTok', href: 'https://www.tiktok.com/@outfity_fr', icon: 'tiktok' },
 ] as const;
 
 const footerLinks = {

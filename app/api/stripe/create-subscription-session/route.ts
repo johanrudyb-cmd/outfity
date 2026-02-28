@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { stripe, SUBSCRIPTION_PLAN_ID, SUBSCRIPTION_PRICE_EUR } from '@/lib/stripe';
 import { getCurrentUser } from '@/lib/auth-helpers';
+import { cookies } from 'next/headers';
 
 export const runtime = 'nodejs';
 
@@ -16,6 +17,10 @@ export async function POST() {
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
+
+    // Récupérer le code d'affiliation éventuel
+    const cookieStore = await cookies();
+    const affiliateCode = cookieStore.get('outfity_ref')?.value;
 
     // Détecter si l'onboarding est déjà complété pour choisir la bonne URL de redirection
     let onboardingCompleted = false;
@@ -34,7 +39,6 @@ export async function POST() {
     const origin = baseUrl.replace(/\/$/, '');
 
     // Si l'onboarding est déjà fait → page d'accueil Créateur (animations d'unlock) ; sinon → finir l'onboarding
-    // Le param ?upgraded=true est crucial : UpgradeSessionRefresh l'utilise pour déclencher update() et rafraîchir le JWT
     const successUrl = onboardingCompleted
       ? `${origin}/welcome-creator?upgraded=true`
       : `${origin}/onboarding?subscribed=true`;
@@ -63,6 +67,7 @@ export async function POST() {
         metadata: {
           userId: user.id,
           planId: SUBSCRIPTION_PLAN_ID,
+          affiliateCode: affiliateCode || '',
         },
       },
       success_url: successUrl,
@@ -70,6 +75,7 @@ export async function POST() {
       metadata: {
         userId: user.id,
         planId: SUBSCRIPTION_PLAN_ID,
+        affiliateCode: affiliateCode || '',
       },
       client_reference_id: user.id,
       customer_email: user.email ?? undefined,

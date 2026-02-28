@@ -89,20 +89,20 @@ export default function ContactPage() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <a
-                    href="https://www.instagram.com/biangory/"
+                    href="https://www.instagram.com/outfity_fr/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[#007AFF] font-medium hover:underline"
                   >
-                    Instagram @biangory
+                    Instagram @outfity_fr
                   </a>
                   <a
-                    href="https://www.tiktok.com/@biangory"
+                    href="https://www.tiktok.com/@outfity_fr"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[#007AFF] font-medium hover:underline"
                   >
-                    TikTok @biangory
+                    TikTok @outfity_fr
                   </a>
                 </div>
               </div>

@@ -38,7 +38,9 @@ model User {
   aiUsages        AIUsage[]
   surplusCredits  SurplusCredits[]
   posts           BlogPost[]
-  affiliateProfile AffiliateProfile?
+  affiliate     Affiliate? @relation("PartnerAccount")
+  affiliateId   String?    // ID de l'affilié qui a parrainé cet utilisateur
+  referredBy    Affiliate? @relation("Referrals", fields: [affiliateId], references: [id])
   pushSubscriptions PushSubscription[]
 }
 
@@ -777,17 +779,52 @@ model AdminLog {
   @@index([createdAt])
 }
 
-model AffiliateProfile {
-  id           String   @id @default(cuid())
-  userId       String   @unique
-  referralCode String   @unique
-  earnings     Float    @default(0)
-  clicks       Int      @default(0)
-  conversions  Int      @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+model Affiliate {
+  id              String   @id @default(cuid())
+  userId          String?  @unique
+  name            String
+  email           String   @unique
+  referralCode    String   @unique
+  commissionRate  Float    @default(0.15) // 15% par défaut
+  status          String   @default("PENDING") // PENDING, ACTIVE, REJECTED
+  invitationToken String?  @unique
+  earningsTotal   Float    @default(0)
+  earningsPaid    Float    @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User?             @relation("PartnerAccount", fields: [userId], references: [id])
+  referrals       User[]            @relation("Referrals")
+  clicks          AffiliateClick[]
+  commissions     AffiliateCommission[]
+
   @@index([referralCode])
+  @@index([invitationToken])
+}
+
+model AffiliateClick {
+  id          String   @id @default(cuid())
+  affiliateId String
+  ipAddress   String?
+  userAgent   String?
+  referer     String?
+  createdAt   DateTime @default(now())
+
+  affiliate   Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+
+  @@index([affiliateId])
+}
+
+model AffiliateCommission {
+  id              String   @id @default(cuid())
+  affiliateId     String
+  orderId         String?   // ID de commande ou session Stripe
+  amount          Float
+  currency        String    @default("EUR")
+  status          String    @default("PENDING") // PENDING, PAID, CANCELLED
+  createdAt       DateTime  @default(now())
+
+  affiliate       Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+
+  @@index([affiliateId])
 }

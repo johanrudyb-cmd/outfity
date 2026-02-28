@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { Menu } from 'lucide-react';
 import { NotificationsDropdown } from '@/components/notifications/NotificationsDropdown';
 import { SearchBar } from './SearchBar';
+import { UserAccountNav } from './UserAccountNav';
 import Link from 'next/link';
 
 interface HeaderProps {
@@ -37,22 +38,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         {/* À droite : cloche, mon nom */}
         <div className="flex items-center gap-2 sm:gap-4 lg:gap-6 shrink-0 ml-auto">
           <NotificationsDropdown />
-          <div className="hidden sm:flex items-center gap-4 pl-2 lg:pl-6 lg:border-l border-black/5">
-            {user && (
-              <div className="flex items-center gap-4">
-                <div className="hidden md:flex flex-col">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-[#1D1D1F] leading-tight truncate max-w-[120px] lg:max-w-none">
-                      {user.name || 'Utilisateur'}
-                    </span>
-                  </div>
-                  <span className="text-xs text-[#1D1D1F]/60 leading-tight truncate max-w-[120px] lg:max-w-none hidden lg:block">
-                    {user.email}
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
+          <UserAccountNav />
         </div>
       </div>
     </header>

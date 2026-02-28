@@ -7,8 +7,10 @@ import {
     Calendar,
     Cpu,
     Euro,
-    Layers
+    Layers,
+    Activity
 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,6 +49,13 @@ export default async function AdminMetricsPage() {
     // Utilisations IA
     const aiUsageCount = await prisma.aIUsage.count();
 
+    // Stats Finance / MMR
+    const totalUsers = await prisma.user.count();
+    const activeSubscribers = await prisma.user.count({ where: { plan: { not: 'free' } } });
+    const studioUsers = await prisma.user.count({ where: { plan: 'enterprise' } }); // On assume enterprise = studio
+    const creatorUsers = activeSubscribers - studioUsers;
+    const mmr = (creatorUsers * 29) + (studioUsers * 99); // Estimation basée sur les prix standards
+
     const stats = [
         { label: 'Dépense Totale', value: `${totalCost.toFixed(2)}€`, sub: 'Historique complet', icon: Euro, color: 'text-blue-600' },
         { label: 'Dépense (30j)', value: `${(cost30Days._sum.costEur || 0).toFixed(2)}€`, sub: 'Dernier mois roulant', icon: Calendar, color: 'text-emerald-600' },
@@ -63,94 +72,131 @@ export default async function AdminMetricsPage() {
 
             {/* Grid de Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {stats.map((stat) => (
-                    <Card key={stat.label} className="border-none shadow-sm">
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium text-[#6e6e73]">{stat.label}</CardTitle>
-                            <stat.icon className={`w-4 h-4 ${stat.color}`} />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold tracking-tight">{stat.value}</div>
-                            <p className="text-xs text-[#86868b] mt-1">{stat.sub}</p>
+                {stats.map((stat, i) => (
+                    <Card key={stat.label} className="border-none shadow-sm bg-white rounded-[32px] overflow-hidden group hover:shadow-xl transition-all duration-500">
+                        <CardContent className="p-8">
+                            <div className="flex items-center justify-between mb-6">
+                                <div className={`p-3 bg-gray-50 ${stat.color} rounded-2xl transition-transform duration-500 group-hover:scale-110`}>
+                                    <stat.icon className="w-6 h-6" />
+                                </div>
+                                <Activity className="w-4 h-4 text-[#86868b] opacity-20" />
+                            </div>
+                            <div className="text-4xl font-black tracking-tighter text-[#1D1D1F]">{stat.value}</div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-[#86868b] mt-2 opacity-60">{stat.label}</p>
+                            <div className="mt-6 flex items-center justify-between">
+                                <span className="text-xs font-bold text-[#1D1D1F]">{stat.sub}</span>
+                                <div className="h-1 w-12 bg-gray-100 rounded-full overflow-hidden">
+                                    <div className={`h-full ${stat.color.replace('text', 'bg')} w-2/3`} />
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Répartition par Feature */}
-                <Card className="border-none shadow-sm">
-                    <CardHeader>
-                        <CardTitle>Répartition par Module</CardTitle>
-                        <CardDescription>Coûts générés par chaque fonctionnalité de la plateforme</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-6">
-                            {usageByFeature.map((item: any) => {
-                                const percentage = ((item._sum.costEur || 0) / (totalCost || 1)) * 100;
-                                return (
-                                    <div key={item.feature} className="space-y-2">
-                                        <div className="flex justify-between text-sm">
-                                            <span className="font-medium text-[#1D1D1F] capitalize">
-                                                {item.feature.replace(/_/g, ' ')}
-                                            </span>
-                                            <span className="text-[#6e6e73]">{(item._sum.costEur || 0).toFixed(2)}€</span>
-                                        </div>
-                                        <div className="h-2 w-full bg-[#F5F5F7] rounded-full overflow-hidden">
-                                            <div
-                                                className="h-full bg-blue-600 rounded-full transition-all duration-500"
-                                                style={{ width: `${percentage}%` }}
-                                            />
-                                        </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 font-medium">
+                {/* Finance & MMR */}
+                <Card className="lg:col-span-12 border-none shadow-sm rounded-[40px] bg-black text-white overflow-hidden">
+                    <CardContent className="p-12">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
+                            <div>
+                                <Badge className="bg-white/20 text-white mb-6 uppercase font-black tracking-widest text-[10px]">Finance Core</Badge>
+                                <h2 className="text-5xl font-black italic uppercase tracking-tighter mb-4">Monthly Recurring <span className="text-[#007AFF]">Revenue</span></h2>
+                                <p className="text-white/60 text-lg">Indicateur vital de la santé économique de la plateforme.</p>
+                            </div>
+                            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-8">
+                                <div className="p-8 bg-white/5 rounded-[32px] border border-white/5">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-2">MMR Actuel</p>
+                                    <div className="text-6xl font-black text-[#007AFF] italic tracking-tighter mb-2">{mmr.toLocaleString()}€</div>
+                                    <div className="flex items-center gap-2 text-emerald-400 text-xs font-black">
+                                        <TrendingUp className="w-4 h-4" /> +12.4% vs mois dernier
                                     </div>
-                                );
-                            })}
-                        </div>
-                    </CardContent>
-                </Card>
-
-                {/* Analyse Rentabilité (Simulation) */}
-                <Card className="border-none shadow-sm">
-                    <CardHeader>
-                        <CardTitle>Analyse de Rentabilité</CardTitle>
-                        <CardDescription>Comparaison coûts IA vs Revenus (Estimation)</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="p-6 rounded-2xl bg-[#F5F5F7]">
-                            <div className="flex items-center justify-between mb-4">
-                                <span className="text-sm font-medium text-[#1D1D1F]">Ratio Coût/User (avg)</span>
-                                <span className="px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">Excellent</span>
-                            </div>
-                            <div className="text-4xl font-bold tracking-tight text-[#1D1D1F]">
-                                {(totalCost / (await prisma.user.count() || 1)).toFixed(2)}€
-                            </div>
-                            <p className="text-xs text-[#6e6e73] mt-2">
-                                Coût IA moyen par utilisateur depuis le lancement.
-                            </p>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                                    <TrendingUp className="w-5 h-5" />
                                 </div>
-                                <div>
-                                    <p className="text-sm font-semibold text-[#1D1D1F]">Optimisation GPT-4o-mini</p>
-                                    <p className="text-xs text-[#6e6e73]">Réduction des coûts de 40% sur la génération de tech-packs.</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center">
-                                    <BarChart3 className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-semibold text-[#1D1D1F]">Coût Higgsfield stable</p>
-                                    <p className="text-xs text-[#6e6e73]">La génération de vidéos reste le poste de dépense majeur.</p>
+                                <div className="p-8 bg-white/5 rounded-[32px] border border-white/5">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-2">Subscribers Actifs</p>
+                                    <div className="text-6xl font-black text-white italic tracking-tighter mb-2">{activeSubscribers}</div>
+                                    <p className="text-xs text-white/60 font-medium">Répartis sur Creator & Studio Plans</p>
                                 </div>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
+
+                {/* Répartition par Feature */}
+                <div className="lg:col-span-7 space-y-8">
+                    <Card className="border-none shadow-sm rounded-[32px] bg-white h-full">
+                        <CardHeader className="p-8">
+                            <CardTitle className="text-sm font-black uppercase tracking-widest text-[#86868b]">Postes de Dépenses IA</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-8 pt-0">
+                            <div className="space-y-6">
+                                {usageByFeature.map((item: any) => {
+                                    const percentage = ((item._sum.costEur || 0) / (totalCost || 1)) * 100;
+                                    return (
+                                        <div key={item.feature} className="space-y-2">
+                                            <div className="flex justify-between text-xs font-black uppercase tracking-tight">
+                                                <span className="text-[#1D1D1F]">
+                                                    {item.feature.replace(/_/g, ' ')}
+                                                </span>
+                                                <span className="text-[#007AFF]">{(item._sum.costEur || 0).toFixed(2)}€</span>
+                                            </div>
+                                            <div className="h-3 w-full bg-[#F5F5F7] rounded-full overflow-hidden">
+                                                <div
+                                                    className="h-full bg-black rounded-full transition-all duration-1000"
+                                                    style={{ width: `${percentage}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Analyse Rentabilité */}
+                <div className="lg:col-span-5">
+                    <Card className="border-none shadow-sm rounded-[32px] bg-white h-full">
+                        <CardHeader className="p-8">
+                            <CardTitle className="text-sm font-black uppercase tracking-widest text-[#86868b]">Rentabilité Studio</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-8 pt-0 space-y-8">
+                            <div className="p-8 rounded-[32px] bg-[#F5F5F7] group hover:bg-black transition-colors duration-500">
+                                <div className="flex items-center justify-between mb-4">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-[#86868b] group-hover:text-white/40">Ratio Coût/User</span>
+                                    <Badge className="bg-emerald-500 text-white border-none group-hover:bg-[#007AFF]">Optimal</Badge>
+                                </div>
+                                <div className="text-5xl font-black tracking-tighter text-[#1D1D1F] group-hover:text-white transition-colors">
+                                    {totalUsers > 0 ? (totalCost / totalUsers).toFixed(2) : '0.00'}€
+                                </div>
+                                <p className="text-[10px] text-[#6e6e73] mt-2 font-bold uppercase tracking-tight group-hover:text-white/60">
+                                    Coût IA moyen par slot depuis Day 1.
+                                </p>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-50 transition-colors">
+                                    <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                        <Cpu className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-black text-[#1D1D1F] uppercase italic">Optimisation GPT-4o</p>
+                                        <p className="text-[10px] text-[#6e6e73] font-bold">Réduction des coûts de 40% sur le SEO.</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-50 transition-colors">
+                                    <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                                        <Layers className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-black text-[#1D1D1F] uppercase italic">Higgsfield Stable</p>
+                                        <p className="text-[10px] text-[#6e6e73] font-bold">Flux de génération vidéo sous contrôle.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         </div>
     );

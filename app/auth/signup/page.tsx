@@ -21,9 +21,10 @@ function SignUpContent() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Détection du mode Partenaire
-  const callbackUrl = searchParams.get('callbackUrl') || '/auth/choose-plan';
-  const isPartnerFlow = callbackUrl.includes('/partners');
+  // Détection du mode Partenaire / Affilié
+  const affiliateToken = searchParams.get('affiliate_token');
+  const callbackUrl = searchParams.get('callbackUrl') || (affiliateToken ? '/partners' : '/auth/choose-plan');
+  const isPartnerFlow = callbackUrl.includes('/partners') || !!affiliateToken;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +50,7 @@ function SignUpContent() {
           name,
           email,
           password,
-          // Si partner flow, on pourrait ajouter un flag ici pour l'auto-approbation
+          affiliateToken,
         }),
       });
 

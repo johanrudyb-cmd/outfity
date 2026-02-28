@@ -128,6 +128,51 @@ export async function POST(request: Request) {
             });
           } catch (e) { console.error(e); }
         }
+
+        // Gestion des packs de crédits surplus... (keep existing logic)
+        break;
+      }
+
+      case 'invoice.paid': {
+        const invoice = event.data.object as Stripe.Invoice;
+        const subscriptionId = invoice.subscription as string;
+
+        if (!subscriptionId) break;
+
+        // Récupérer la souscription pour voir s'il y a un code affilié
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        const affiliateCode = subscription.metadata?.affiliateCode;
+
+        if (affiliateCode) {
+          console.log('[Stripe Webhook] Affiliate code found in subscription:', affiliateCode);
+          const affiliate = await prisma.affiliate.findUnique({
+            where: { referralCode: affiliateCode }
+          });
+
+          if (affiliate) {
+            const amountPaid = invoice.amount_paid / 100;
+            const commissionAmount = amountPaid * affiliate.commissionRate;
+
+            console.log(`[Stripe Webhook] Crediting ${commissionAmount}€ to affiliate ${affiliate.name} for paid invoice`);
+
+            await prisma.affiliateCommission.create({
+              data: {
+                affiliateId: affiliate.id,
+                orderId: invoice.id,
+                amount: commissionAmount,
+                currency: invoice.currency.toUpperCase(),
+                status: 'PAID'
+              }
+            });
+
+            await prisma.affiliate.update({
+              where: { id: affiliate.id },
+              data: {
+                earningsTotal: { increment: commissionAmount }
+              }
+            });
+          }
+        }
         break;
       }
 

@@ -7,6 +7,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { UserAccountNav } from '@/components/layout/UserAccountNav';
+import { NotificationsDropdown } from '@/components/notifications/NotificationsDropdown';
 
 export function AnimatedHeader() {
   const { data: session } = useSession();
@@ -71,14 +73,22 @@ export function AnimatedHeader() {
           ))}
         </div>
 
-        {/* CTA */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <Link
-            href="/auth/signin"
-            className="px-4 py-2 sm:px-6 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold bg-[#007AFF] text-white hover:bg-[#0056CC] transition-colors shadow-sm whitespace-nowrap"
-          >
-            Connexion
-          </Link>
+        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+          {isLoggedIn ? (
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="hidden sm:block">
+                <NotificationsDropdown />
+              </div>
+              <UserAccountNav />
+            </div>
+          ) : (
+            <Link
+              href="/auth/signin"
+              className="px-4 py-2 sm:px-6 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold bg-[#007AFF] text-white hover:bg-[#0056CC] transition-colors shadow-sm whitespace-nowrap"
+            >
+              Connexion
+            </Link>
+          )}
         </div>
       </div>
 

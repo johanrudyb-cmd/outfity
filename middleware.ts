@@ -5,6 +5,9 @@ export default auth(async (req) => {
   const { nextUrl } = req;
   const isAuthenticated = !!req.auth;
 
+  // 0. Tracking Affiliation (détection du paramètre ?v= ou ?ref=)
+  const vTag = nextUrl.searchParams.get('v') || nextUrl.searchParams.get('ref');
+
   const isAuthPage = nextUrl.pathname.startsWith('/auth');
   const isApiRoute = nextUrl.pathname.startsWith('/api');
   const isPublicAsset = nextUrl.pathname.startsWith('/_next') || nextUrl.pathname.startsWith('/favicon');
@@ -26,32 +29,39 @@ export default auth(async (req) => {
     '/welcome-creator',
   ].some(route => nextUrl.pathname.startsWith(route));
 
-  // 1. Pages publiques ou API => laisser passer
-  if (isPublicAsset || isApiRoute) {
-    return NextResponse.next();
-  }
+  // Préparer la réponse
+  let response = NextResponse.next();
 
-  // 2. Pages d'auth => laisser passer
-  if (isAuthPage) {
-    // On désactive la redirection automatique des pages auth -> dashboard
-    // car cela créait une boucle infinie si le token était valide mais le compte DB supprimé/erroné.
-    // L'utilisateur peut consulter les pages de connexion même avec un vieux cookie.
-    return NextResponse.next();
-  }
-
-  // 3. Route protégée + non connecté => signin
+  // Redirection si route protégée et non connecté
   if (isProtectedRoute && !isAuthenticated) {
     let callbackUrl = nextUrl.pathname;
     if (nextUrl.search) callbackUrl += nextUrl.search;
-    return NextResponse.redirect(
+    response = NextResponse.redirect(
       new URL(`/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`, nextUrl)
     );
   }
 
-  // On laisse le soin aux layouts/pages de gérer la redirection onboarding
-  // pour éviter les crashs de Prisma dans le middleware (Edge Runtime).
+  // Poser le cookie d'affiliation si présent (valable 30 jours)
+  if (vTag) {
+    response.cookies.set('outfity_ref', vTag, {
+      maxAge: 30 * 24 * 60 * 60, // 30 jours
+      path: '/',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
+  }
 
-  return NextResponse.next();
+  // 1. Pages publiques ou API => laisser passer (avec le cookie éventuel)
+  if (isPublicAsset || isApiRoute) {
+    return response;
+  }
+
+  // 2. Pages d'auth => laisser passer
+  if (isAuthPage) {
+    return response;
+  }
+
+  return response;
 });
 
 export const config = {

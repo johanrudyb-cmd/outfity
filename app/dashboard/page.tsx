@@ -6,7 +6,7 @@ import { DashboardStatsSkeleton } from '@/components/dashboard/DashboardStats';
 import { DashboardRecentActivity } from '@/components/dashboard/DashboardRecentActivity';
 import { StrategyUpdateBanner } from '@/components/dashboard/StrategyUpdateBanner';
 import { UpgradeSessionRefresh } from '@/components/dashboard/UpgradeSessionRefresh';
-import { getCurrentUser } from '@/lib/auth-helpers';
+import { getCurrentUser, getIsAdmin } from '@/lib/auth-helpers';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
@@ -34,11 +34,25 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default async function DashboardPage() {
-  const user = await getCurrentUser();
+import { GatewayScreen } from '@/components/dashboard/GatewayScreen';
+
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function DashboardPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const mode = params.mode;
+
+  const [user, isAdmin] = await Promise.all([
+    getCurrentUser(),
+    getIsAdmin()
+  ]);
+
   if (!user) redirect('/auth/signin');
 
-  const [brand, initialLaunchMap] = await Promise.all([
+  // Récupérer le profil affilé ET la marque
+  const [brand, initialLaunchMap, affiliate] = await Promise.all([
     prisma.brand.findFirst({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
@@ -46,8 +60,23 @@ export default async function DashboardPage() {
     prisma.launchMap.findFirst({
       where: { brand: { userId: user.id } },
     }),
+    prisma.affiliate.findUnique({
+      where: { userId: user.id }
+    })
   ]);
 
+  // LOGIQUE DE CHOIX : Si admin OU partenaire actif et pas de mode sélectionné, on affiche le splash
+  const isPartner = affiliate?.status === 'ACTIVE';
+
+  if ((isPartner || isAdmin) && mode !== 'app') {
+    return <GatewayScreen
+      userName={user.name || "Créateur"}
+      brandName={brand?.name}
+      isAdmin={isAdmin}
+    />;
+  }
+
+  // Si on est en mode app (ou pas partenaire), on vérifie le onboarding
   if (!brand) redirect('/onboarding');
 
   const launchMap = initialLaunchMap || await prisma.launchMap.findUnique({
