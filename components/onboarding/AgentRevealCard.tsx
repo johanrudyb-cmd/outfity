@@ -149,26 +149,26 @@ export function AgentRevealCard({ agent, delay = 0, onReveal }: { agent: AgentPr
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />
                     </div>
 
-                    {/* Stats Section */}
-                    <div className="absolute inset-x-0 bottom-0 h-32 p-4 flex flex-col justify-end bg-gradient-to-t from-black to-black/80">
+                    {/* Name & Role Section */}
+                    <div className="absolute inset-x-0 bottom-0 h-32 p-4 flex flex-col justify-end bg-gradient-to-t from-black via-black/90 to-transparent">
                         <div className="flex items-end justify-between mb-2" style={{ transform: 'translateZ(30px)' }}>
-                            <div>
-                                <h3 className="text-xl font-bold text-white uppercase tracking-wider">{agent.name}</h3>
-                                <p className="text-xs text-white/70 font-medium uppercase tracking-widest" style={{ color: agent.color }}>
+                            <div className="overflow-hidden mr-2">
+                                <h3 className="text-lg font-black text-white uppercase tracking-tight leading-none mb-0.5">{agent.name}</h3>
+                                <p className="text-[9px] font-bold uppercase tracking-widest truncate" style={{ color: agent.color }}>
                                     {agent.role}
                                 </p>
                             </div>
-                            <div className="text-2xl font-black italic text-white opacity-20 mb-1">
+                            <div className="text-xl font-black italic text-white/20 shrink-0 leading-none pb-0.5">
                                 {Math.round(agent.stats.reduce((acc, s) => acc + s.value, 0) / agent.stats.length)}
                             </div>
                         </div>
 
                         {/* Mini Stats Grid */}
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 mb-1" style={{ transform: 'translateZ(20px)' }}>
+                        <div className="grid grid-cols-2 gap-x-3 gap-y-1 mb-1" style={{ transform: 'translateZ(20px)' }}>
                             {agent.stats.map((stat, i) => (
-                                <div key={i} className="flex items-center justify-between text-white/90">
-                                    <span className="text-[10px] font-semibold uppercase tracking-wider">{stat.label}</span>
-                                    <span className="text-sm font-bold font-mono text-white">{stat.value}</span>
+                                <div key={i} className="flex items-center justify-between text-white/90 overflow-hidden">
+                                    <span className="text-[9px] font-semibold uppercase tracking-tight truncate flex-1 pr-1 opacity-80">{stat.label}</span>
+                                    <span className="text-[11px] font-bold font-mono text-white shrink-0">{stat.value}</span>
                                 </div>
                             ))}
                         </div>
@@ -205,7 +205,7 @@ export function AgentRevealCard({ agent, delay = 0, onReveal }: { agent: AgentPr
                 className="mt-6 text-center"
             >
                 <div
-                    className="text-xl sm:text-2xl font-black uppercase tracking-widest bg-clip-text text-transparent drop-shadow-lg"
+                    className="text-lg sm:text-xl font-black uppercase tracking-widest bg-clip-text text-transparent drop-shadow-lg"
                     style={{ backgroundImage: `linear-gradient(to right, #666, ${agent.color}, #666)` }}
                 >
                     {agent.name}

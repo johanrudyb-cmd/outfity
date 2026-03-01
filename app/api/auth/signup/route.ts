@@ -50,7 +50,7 @@ export async function POST(request: Request) {
         }
 
         // --- 2. TRAITEMENT NORMAL ---
-        const { name, email, password, turnstileToken } = await request.json();
+        const { name, email, password, turnstileToken, plan = 'starter' } = await request.json();
 
         console.log('[Signup] Tentative inscription pour:', email);
 
@@ -124,7 +124,7 @@ export async function POST(request: Request) {
                     email,
                     password: hashedPassword,
                     affiliateId: referrerId,
-                    plan: 'starter'
+                    plan: plan || 'starter'
                 } as any
             } as any // Cast for now until prisma generate fix
         });

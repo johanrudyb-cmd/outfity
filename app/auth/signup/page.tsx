@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft, Loader2, Sparkles, Shirt, TrendingUp, DollarSign, Check, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import Turnstile from 'react-turnstile';
 
 function SignUpContent() {
@@ -24,6 +25,7 @@ function SignUpContent() {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [debugInfo, setDebugInfo] = useState<{ error: string, url: string } | null>(null);
+  const [plan, setPlan] = useState<'starter' | 'creator'>('starter');
 
   // Password strength logic
   const passwordCriteria = [
@@ -69,6 +71,7 @@ function SignUpContent() {
           password,
           affiliateToken,
           turnstileToken,
+          plan,
         }),
       });
 
@@ -242,6 +245,52 @@ function SignUpContent() {
                     {error}
                   </motion.div>
                 )}
+
+                {/* Choix du Plan */}
+                <div className="space-y-3 pb-2 pt-2">
+                  <label className={`text-[10px] font-black uppercase tracking-widest ${isPartnerFlow ? 'text-gray-400' : 'text-[#86868B]'}`}>Étape 1 : Choisissez votre Plan</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setPlan('starter')}
+                      className={cn(
+                        "p-4 rounded-[22px] border-2 transition-all text-left group relative",
+                        plan === 'starter'
+                          ? isPartnerFlow ? "border-[#007AFF] bg-[#007AFF]/10" : "border-black bg-black/5"
+                          : isPartnerFlow ? "border-white/10 bg-white/5 opacity-50" : "border-gray-200 bg-gray-50 opacity-50"
+                      )}
+                    >
+                      <div className="flex flex-col gap-0.5">
+                        <span className={`text-xs font-black uppercase tracking-widest ${isPartnerFlow ? 'text-white' : 'text-black'}`}>Starter</span>
+                        <span className="text-[10px] font-bold text-gray-400">Gratuit</span>
+                      </div>
+                      {plan === 'starter' && <Check className={`absolute top-4 right-4 w-4 h-4 ${isPartnerFlow ? 'text-[#007AFF]' : 'text-black'}`} strokeWidth={3} />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPlan('creator')}
+                      className={cn(
+                        "p-4 rounded-[22px] border-2 transition-all text-left group relative overflow-hidden",
+                        plan === 'creator'
+                          ? "border-[#007AFF] bg-[#007AFF]/10"
+                          : isPartnerFlow ? "border-white/10 bg-white/5 opacity-50" : "border-gray-200 bg-gray-50 opacity-50"
+                      )}
+                    >
+                      <div className="flex flex-col gap-0.5">
+                        <span className={`text-xs font-black uppercase tracking-widest ${isPartnerFlow ? 'text-white' : 'text-[#007AFF]'}`}>Créateur</span>
+                        <span className="text-[10px] font-bold text-[#007AFF]">Essai offert</span>
+                      </div>
+                      {plan === 'creator' && <Check className="absolute top-4 right-4 w-4 h-4 text-[#007AFF]" strokeWidth={3} />}
+                      <div className="absolute -bottom-1 -right-1 opacity-10">
+                        <Sparkles className="w-8 h-8 text-[#007AFF]" />
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-2">
+                  <label className={`text-[10px] font-black uppercase tracking-widest ${isPartnerFlow ? 'text-gray-400' : 'text-[#86868B]'}`}>Étape 2 : Vos Informations</label>
+                </div>
 
                 <div className="space-y-2">
                   <label className={`text-sm font-medium ${isPartnerFlow ? 'text-gray-300' : 'text-gray-700'}`}>Nom complet</label>
