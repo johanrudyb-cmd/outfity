@@ -44,18 +44,29 @@ export function AppleNav() {
 
         {/* CTA */}
         <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-          <Link
-            href="/auth/signin"
-            className="text-xs sm:text-sm font-medium text-[#000000] hover:text-[#007AFF] transition-colors duration-200 whitespace-nowrap"
-          >
-            Se connecter
-          </Link>
-          <Link
-            href="/auth/signup"
-            className="px-3 py-1.5 sm:px-5 sm:py-2 bg-[#000000] text-white rounded-full text-xs sm:text-sm font-medium hover:bg-[#1D1D1F] transition-all duration-200 whitespace-nowrap"
-          >
-            Créer un compte
-          </Link>
+          {isLoggedIn ? (
+            <Link
+              href="/dashboard"
+              className="px-4 py-1.5 sm:px-6 sm:py-2.5 bg-[#007AFF] text-white rounded-full text-xs sm:text-sm font-bold hover:bg-black transition-all duration-300 shadow-lg shadow-[#007AFF]/20"
+            >
+              Tableau de bord
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/auth/signin"
+                className="text-xs sm:text-sm font-medium text-[#000000] hover:text-[#007AFF] transition-colors duration-200 whitespace-nowrap"
+              >
+                Se connecter
+              </Link>
+              <Link
+                href="/auth/signup"
+                className="px-3 py-1.5 sm:px-5 sm:py-2 bg-[#000000] text-white rounded-full text-xs sm:text-sm font-medium hover:bg-[#1D1D1F] transition-all duration-200 whitespace-nowrap"
+              >
+                Créer un compte
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </nav>

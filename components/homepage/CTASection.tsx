@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, LayoutDashboard, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useSession } from 'next-auth/react';
 
 export default function CTASection() {
+  const { data: session } = useSession();
+  const isLoggedIn = !!session?.user;
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -67,16 +70,28 @@ export default function CTASection() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6 sm:pt-4">
-            <Link href="/auth/signup" className="w-full sm:w-auto">
-              <button type="button" className="w-full sm:w-auto px-8 py-5 bg-[#007AFF] text-white rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 shadow-2xl shadow-[#007AFF]/20">
-                CRÉER MON COMPTE GRATUIT
-              </button>
-            </Link>
-            <Link href="/auth/signin" className="w-full sm:w-auto">
-              <button type="button" className="w-full sm:w-auto px-8 py-5 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest border border-white/10 rounded-2xl hover:bg-white/5 transition-all">
-                SE CONNECTER
-              </button>
-            </Link>
+            {isLoggedIn ? (
+              <Link href="/dashboard" className="w-full sm:w-auto">
+                <button type="button" className="w-full sm:w-auto px-10 py-5 bg-[#007AFF] text-white rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 shadow-2xl shadow-[#007AFF]/40 flex items-center justify-center gap-3 group">
+                  <LayoutDashboard className="w-5 h-5" />
+                  ACCÉDER À MON DASHBOARD
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/auth/signup" className="w-full sm:w-auto">
+                  <button type="button" className="w-full sm:w-auto px-8 py-5 bg-[#007AFF] text-white rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 shadow-2xl shadow-[#007AFF]/20">
+                    CRÉER MON COMPTE GRATUIT
+                  </button>
+                </Link>
+                <Link href="/auth/signin" className="w-full sm:w-auto">
+                  <button type="button" className="w-full sm:w-auto px-8 py-5 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest border border-white/10 rounded-2xl hover:bg-white/5 transition-all">
+                    SE CONNECTER
+                  </button>
+                </Link>
+              </>
+            )}
           </div>
 
           <p className="text-[9px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em] pt-4 opacity-50">

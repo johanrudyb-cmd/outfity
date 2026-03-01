@@ -9,6 +9,7 @@ import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserAccountNav } from '@/components/layout/UserAccountNav';
 import { NotificationsDropdown } from '@/components/notifications/NotificationsDropdown';
+import { LayoutDashboard } from 'lucide-react';
 
 export function AnimatedHeader() {
   const { data: session } = useSession();
@@ -34,6 +35,7 @@ export function AnimatedHeader() {
   }, [isMenuOpen]);
 
   const navLinks = [
+    ...(isLoggedIn ? [{ name: 'Dashboard', href: '/dashboard' }] : []),
     { name: 'Fonctionnalités', href: '#features' },
     { name: 'Tarifs', href: '#pricing-section' },
     { name: 'Témoignages', href: '#testimonials-section' },
@@ -79,6 +81,14 @@ export function AnimatedHeader() {
               <div className="hidden sm:block">
                 <NotificationsDropdown />
               </div>
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest bg-black text-white hover:bg-[#007AFF] transition-all shadow-sm group"
+              >
+                <LayoutDashboard className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
+                <span className="hidden xs:inline">Dashboard</span>
+                <span className="xs:hidden">App</span>
+              </Link>
               <UserAccountNav />
             </div>
           ) : (
@@ -124,11 +134,11 @@ export function AnimatedHeader() {
                 <div className="w-full h-[1px] bg-black/5 my-4" />
                 <div className="w-full">
                   <Link
-                    href="/auth/signin"
+                    href={isLoggedIn ? "/dashboard" : "/auth/signin"}
                     onClick={() => setIsMenuOpen(false)}
                     className="block w-full py-5 bg-[#007AFF] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest text-center shadow-2xl shadow-[#007AFF]/20"
                   >
-                    Connexion
+                    {isLoggedIn ? "Accéder au Dashboard" : "Connexion"}
                   </Link>
                 </div>
               </div>

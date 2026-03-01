@@ -37,9 +37,9 @@ function VerifyEmailContent() {
 
                 if (response.ok) {
                     setStatus('success');
-                    setMessage('Votre email a été vérifié avec succès !');
-                    // Redirection automatique après 3 secondes
-                    setTimeout(() => router.push('/auth/signin'), 3000);
+                    setMessage('Votre email a été vérifié avec succès ! Redirection vers le choix de votre plan...');
+                    // Redirection automatique vers le choix du plan après 2 secondes
+                    setTimeout(() => router.push('/auth/choose-plan?verified=true'), 2000);
                 } else {
                     setStatus('error');
                     setMessage(data.error || 'La vérification a échoué.');

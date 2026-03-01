@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useSession } from 'next-auth/react';
 
 const brands = [
   { name: 'NIKE', logo: '/images/brand-logos/nike.png', scaleDesktop: 1.4, scaleMobile: 1.1 },
@@ -21,6 +22,8 @@ const brands = [
 ];
 
 export function TrendsHero() {
+  const { data: session } = useSession();
+  const isLoggedIn = !!session?.user;
   const [isVisible, setIsVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -79,13 +82,24 @@ export function TrendsHero() {
               Propulsez votre univers créatif grâce aux tendances virales de <span className="text-black font-bold">TikTok</span>. Plus besoin de deviner ce qui marchera.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 px-4">
-              <Link
-                href="/auth/signup"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#007AFF] text-white rounded-full text-sm font-bold uppercase tracking-widest hover:bg-black transition-all duration-300 group shadow-lg shadow-[#007AFF]/20"
-              >
-                Commencer maintenant
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
+              {isLoggedIn ? (
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-black text-white rounded-full text-sm font-black uppercase tracking-widest hover:bg-[#007AFF] transition-all duration-300 group shadow-2xl shadow-black/20"
+                >
+                  <LayoutDashboard className="w-5 h-5" />
+                  Accéder au Dashboard
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              ) : (
+                <Link
+                  href="/auth/signup"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#007AFF] text-white rounded-full text-sm font-bold uppercase tracking-widest hover:bg-black transition-all duration-300 group shadow-lg shadow-[#007AFF]/20"
+                >
+                  Commencer maintenant
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              )}
             </div>
           </div>
 
