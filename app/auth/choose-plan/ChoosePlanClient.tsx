@@ -222,7 +222,7 @@ export function ChoosePlanClient({ userPlan }: { userPlan?: string }) {
                 {plan.isFree ? (
                   <>
                     <Link
-                      href="/dashboard"
+                      href="/onboarding"
                       className={cn(
                         'flex items-center justify-center gap-2 w-full text-center py-4 rounded-xl text-base font-semibold transition-all duration-200',
                         'bg-white text-[#1D1D1F] border-2 border-[#F2F2F2] hover:border-[#007AFF] hover:text-[#007AFF]'
