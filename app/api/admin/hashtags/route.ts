@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getCurrentUser } from '@/lib/auth-helpers';
+import { getIsAdmin } from '@/lib/auth-helpers';
 
 export async function GET() {
     try {
-        const user = await getCurrentUser();
-        if (!user || user.email !== 'joada22@icloud.com') { // Basic admin check or from env
+        const isAdmin = await getIsAdmin();
+        if (!isAdmin) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -22,8 +22,8 @@ export async function GET() {
 
 export async function POST(req: Request) {
     try {
-        const user = await getCurrentUser();
-        if (!user || user.email !== 'joada22@icloud.com') {
+        const isAdmin = await getIsAdmin();
+        if (!isAdmin) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 

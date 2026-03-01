@@ -78,7 +78,7 @@ export const getCurrentUser = cache(async () => {
  */
 export async function getIsAdmin() {
   const user = await getCurrentUser();
-  const adminEmails = ['contact@outfity.fr', 'johanrudyb@gmail.com', 'johanrudy.b@gmail.com'];
+  const adminEmails = ['contact@outfity.fr', 'johanrudyb@gmail.com', 'johanrudy.b@gmail.com', 'joada22@icloud.com'];
   return !!user?.email && (adminEmails.includes(user.email) || user.email.endsWith('@biangory.com'));
 }
 
