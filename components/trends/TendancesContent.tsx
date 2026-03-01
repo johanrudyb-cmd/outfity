@@ -141,7 +141,7 @@ export function TendancesContent({ initialData }: { initialData?: unknown }) {
                   Retour au Dashboard
                 </Link>
               </div>
-              <h1 className="text-6xl md:text-7xl font-black text-black uppercase tracking-tighter leading-[0.9]">
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-black uppercase tracking-tighter leading-[0.9]">
                 QUEL STYLE SERA <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#007AFF] to-[#00C6FF]">VIRAL</span> ?
               </h1>
             </div>
