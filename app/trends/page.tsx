@@ -32,24 +32,24 @@ export default async function TrendsPage() {
       <div className="w-full relative">
         <FeatureTourModal
           featureKey="viral_tiktok_intro"
-          title="Viral sur TikTok & Analyse Tendances"
+          title="Viral sur TikTok & Analyse Prédictive"
           icon={<Rocket className="w-6 h-6 text-primary" />}
           description={
             <div className="space-y-4">
               <p>
-                Bienvenue sur <strong>Viral sur TikTok</strong>, l'outil le plus puissant d'OUTFITY pour sécuriser vos investissements.
+                Bienvenue sur <strong>Viral sur TikTok</strong>. L'erreur numéro 1 des marques est de lancer des collections "à l'aveugle" ou de copier ce qui est <em>déjà</em> viral aujourd'hui (c'est souvent trop tard).
               </p>
               <p>
-                <strong>Pourquoi c'est indispensable ?</strong> Lancer une collection "à l'aveugle" est la plus grande erreur des marques. Cet outil scanne en temps réel ce qui devient viral et ce qui se vend le plus.
+                Cet outil est votre atout secret : il analyse les signaux faibles du marché pour <strong>prédire ce qui va devenir viral demain</strong>, avant même que la mode n'éclate.
               </p>
             </div>
           }
           bulletPoints={[
-            "Identifiez exactement les coupes et matières qui cartonnent en ce moment.",
-            "Évitez les flops : ne produisez que ce que votre audience recherche déjà.",
-            "Générez directement un design prêt à produire depuis une tendance virale."
+            "Anticipez le marché : découvrez les coupes en phase d'émergence avant vos concurrents.",
+            "Évitez les flops : sécurisez vos investissements avec des données prédictives, pas sur l'intuition.",
+            "Passez à l'action : générez un design 3D prêt à produire depuis une future tendance."
           ]}
-          ctaText="J'ai compris, scanner le marché"
+          ctaText="J'ai compris, scanner l'avenir"
         />
 
         {/* Ticker Live en haut */}
