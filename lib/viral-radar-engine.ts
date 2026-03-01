@@ -282,8 +282,19 @@ export class ViralRadarEngine {
             const pinterest = await this.getPinterestTrends();
             const signals = [...tiktok, ...pinterest];
 
-            // On prend les 3 plus gros termes
-            const seeds = [...new Set(signals.map(s => s.term))].slice(0, 3);
+            // On prend les 3 plus gros termes organiques
+            const organicSeeds = [...new Set(signals.map(s => s.term))].slice(0, 3);
+
+            // On récupère les hashtags surveillés par l'admin en base de données
+            let customSeeds: string[] = [];
+            try {
+                const tracked = await (prisma as any).trackedHashtag.findMany({ where: { isActive: true } });
+                customSeeds = tracked.map((t: any) => t.hashtag);
+            } catch (e) {
+                console.warn("[ViralRadar] Could not fetch tracked hashtags", e);
+            }
+
+            const seeds = [...new Set([...organicSeeds, ...customSeeds])];
 
             for (const seed of seeds) {
                 const relatedSignals = signals.filter(s => s.term === seed);

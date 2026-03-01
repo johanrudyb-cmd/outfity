@@ -20,6 +20,7 @@ import {
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { TrackedHashtagsManager } from '@/components/admin/TrackedHashtagsManager';
 
 export const metadata = {
     title: 'Admin Dashboard | OUTFITY',
@@ -218,6 +219,10 @@ export default async function AdminDashboardPage() {
                                 </CardContent>
                             </Card>
                         </Link>
+                    </div>
+
+                    <div className="mt-8">
+                        <TrackedHashtagsManager />
                     </div>
                 </div>
 
