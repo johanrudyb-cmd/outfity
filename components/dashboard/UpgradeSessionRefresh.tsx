@@ -55,7 +55,7 @@ export function UpgradeSessionRefresh() {
             const updated = await update({ refreshing: true });
             const plan = (updated?.user as any)?.plan;
 
-            if (isPaidPlan(plan) || attempts >= 8) { // 8 attempts ~ 10s
+            if (isPaidPlan(plan) || attempts >= 15) { // 15 attempts ~ 30s
                 if (checkInterval.current) clearInterval(checkInterval.current);
 
                 if (isPaidPlan(plan)) {
@@ -71,7 +71,7 @@ export function UpgradeSessionRefresh() {
                     router.refresh();
                 }
             }
-        }, 1200);
+        }, 2000);
 
         return () => {
             if (checkInterval.current) clearInterval(checkInterval.current);

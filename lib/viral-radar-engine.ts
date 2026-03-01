@@ -269,38 +269,23 @@ export class ViralRadarEngine {
     }
 
     async runFullViralRadar() {
-        console.log('\n--- 🌪️ OUTFITY ZERO-BUDGET RADAR ---');
-
-        // Les niches que nous suivons pour les créateurs de marques
-        const niches = ['Streetwear', 'Old Money', 'Techwear', 'Y2K'];
+        console.log('\n--- 🌪️ OUTFITY HYBRID RADAR (Organic + Custom) ---');
         let totalCount = 0;
 
+        // 1. PASSAGE 1 : Les Niches Organiques Standards
+        const niches = ['Streetwear', 'Old Money', 'Techwear', 'Y2K'];
         for (const niche of niches) {
-            console.log(`\n📂 Analyse de la niche : ${niche}...`);
-
+            console.log(`\n📂 Analyse organique niche : ${niche}...`);
             const tiktok = await this.getTikTokTrends();
             const pinterest = await this.getPinterestTrends();
             const signals = [...tiktok, ...pinterest];
 
-            // On prend les 3 plus gros termes organiques
+            // Pour les niches standards, on prend les 3 meilleurs termes organiques
             const organicSeeds = [...new Set(signals.map(s => s.term))].slice(0, 3);
 
-            // On récupère les hashtags surveillés par l'admin en base de données
-            let customSeeds: string[] = [];
-            try {
-                const tracked = await (prisma as any).trackedHashtag.findMany({ where: { isActive: true } });
-                customSeeds = tracked.map((t: any) => t.hashtag);
-            } catch (e) {
-                console.warn("[ViralRadar] Could not fetch tracked hashtags", e);
-            }
-
-            const seeds = [...new Set([...organicSeeds, ...customSeeds])];
-
-            for (const seed of seeds) {
+            for (const seed of organicSeeds) {
                 const relatedSignals = signals.filter(s => s.term === seed);
                 const trendData = await this.generateViralTrend(seed, relatedSignals);
-
-                // On force le style pour correspondre à la niche
                 trendData.style = niche.toUpperCase();
 
                 await (prisma.trendProduct as any).upsert({
@@ -314,13 +299,54 @@ export class ViralRadarEngine {
                     },
                     create: trendData as any
                 });
-
                 totalCount++;
                 console.log(`✨ [${niche}] ${seed.padEnd(25)} | Score: ${trendData.trendScore.toFixed(0)}`);
             }
         }
 
-        console.log(`\n✅ RADAR TERMINÉ : ${totalCount} tendances synchronisées par niches.`);
+        // 2. PASSAGE 2 : Tes Hashtags Personnalisés (Admin)
+        console.log(`\n🚀 Analyse des Hashtags personnalisés (Admin)...`);
+        try {
+            const tiktok = await this.getTikTokTrends();
+            const pinterest = await this.getPinterestTrends();
+            const signals = [...tiktok, ...pinterest];
+
+            const tracked = await (prisma as any).trackedHashtag.findMany({ where: { isActive: true } });
+
+            for (const item of tracked) {
+                const seed = item.hashtag;
+                // On cherche si ce hashtag est déjà présent dans les signaux organiques pour avoir de la data réelle
+                const relatedSignals = signals.filter(s => s.term.toLowerCase().includes(seed.toLowerCase()));
+
+                // Si on a pas de signaux organiques, on crée un signal simulé basé sur le radar
+                const finalSignals = relatedSignals.length > 0 ? relatedSignals : [{
+                    term: seed,
+                    platform: 'TikTok' as const,
+                    score: 70 + Math.random() * 20,
+                    region: 'FR'
+                }];
+
+                const trendData = await this.generateViralTrend(seed, finalSignals);
+                // On utilise la catégorie du hashtag ou "CUSTOM"
+                trendData.style = (item.category || seed).toUpperCase();
+
+                await (prisma.trendProduct as any).upsert({
+                    where: { sourceUrl: trendData.sourceUrl },
+                    update: {
+                        trendScore: trendData.trendScore,
+                        trendGrowthPercent: trendData.trendGrowthPercent,
+                        businessAnalysis: trendData.businessAnalysis,
+                        updatedAt: new Date()
+                    },
+                    create: trendData as any
+                });
+                totalCount++;
+                console.log(`🎯 [CUSTOM] ${seed.padEnd(25)} | Score: ${trendData.trendScore.toFixed(0)}`);
+            }
+        } catch (e) {
+            console.warn("[ViralRadar] Error in custom hashtags pass", e);
+        }
+
+        console.log(`\n✅ RADAR HYBRIDE TERMINÉ : ${totalCount} tendances synchronisées.`);
     }
 }
-

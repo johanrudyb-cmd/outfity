@@ -37,43 +37,34 @@ export async function POST(request: Request) {
 
         const userId = session.client_reference_id || session.metadata?.userId;
         const planId = session.metadata?.planId || SUBSCRIPTION_PLAN_ID;
-
-        console.log('[Stripe Webhook] DEBUG - Session Object:', JSON.stringify(session, null, 2));
-        console.log('[Stripe Webhook] DEBUG - userId found:', userId);
-        console.log('[Stripe Webhook] DEBUG - metadata:', session.metadata);
+        const customerId = session.customer as string;
 
         if (!userId) {
           console.error('[Stripe Webhook] No userId found in session');
           break;
         }
 
-        const customerId = session.customer as string;
-
-        // Activation de l'abonnement
+        // Activation immédiate pour les subscriptions (même avec trial)
         if (session.mode === 'subscription') {
           console.log('[Stripe Webhook] Activating subscription for user:', userId);
           const now = new Date();
 
-          console.log('[Stripe Webhook] DB Update - Attempting update for userId:', userId);
           const updatedUser = await prisma.user.update({
             where: { id: userId },
             data: {
-              plan: SUBSCRIPTION_PLAN_ID,
+              plan: planId, // Utiliser le planId de la métadata
               subscribedAt: now,
               stripeCustomerId: customerId
             },
           });
 
-          console.log('[Stripe Webhook] DB Update - SUCCESS. New plan:', updatedUser.plan);
+          console.log('[Stripe Webhook] DB Update (Session) - SUCCESS. New plan:', updatedUser.plan);
 
           // Reset des quotas
           const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
           await prisma.aIUsage.deleteMany({
-            where: {
-              userId,
-              createdAt: { gte: periodStart },
-            },
-          });
+            where: { userId, createdAt: { gte: periodStart } },
+          }).catch(e => console.error('[Stripe Webhook] Usage reset error:', e));
 
           // Notifier l'utilisateur
           try {
@@ -82,22 +73,6 @@ export async function POST(request: Request) {
               body: "Félicitations ! Tes quotas et outils pros sont débloqués.",
               url: "/dashboard"
             });
-          } catch (e) { console.error(e); }
-
-          // Webhook n8n (optionnel, on log l'erreur mais on ne bloque pas)
-          try {
-            const N8N_WEBHOOK_SUBSCRIPTION_URL = process.env.N8N_WEBHOOK_SUBSCRIPTION_URL || 'http://localhost:5678/webhook/outfity-subscription';
-            fetch(N8N_WEBHOOK_SUBSCRIPTION_URL, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                event: 'subscription_created',
-                userId,
-                email: updatedUser.email,
-                planId,
-                timestamp: now.toISOString()
-              }),
-            }).catch(e => console.error('[Stripe Webhook] n8n fetch error:', e));
           } catch (e) { }
         }
 
@@ -116,26 +91,57 @@ export async function POST(request: Request) {
                 stripeSessionId: `${session.id}-${feature}`,
                 packId,
               },
-            }).catch(e => console.warn('[Stripe Webhook] Credit skip (likely duplicate):', e.message));
+            }).catch(e => console.warn('[Stripe Webhook] Credit skip (duplicate):', e.message));
           }
-
-          // Notifier de l'ajout
-          try {
-            await sendWebPushNotification(userId, {
-              title: "🔋 Quotas rechargés !",
-              body: `Ton pack ${packId} a été ajouté avec succès à ton total.`,
-              url: "/usage"
-            });
-          } catch (e) { console.error(e); }
         }
+        break;
+      }
 
-        // Gestion des packs de crédits surplus... (keep existing logic)
+      case 'customer.subscription.created': {
+        const subscription = event.data.object as Stripe.Subscription;
+        const customerId = subscription.customer as string;
+        const planId = subscription.metadata?.planId || SUBSCRIPTION_PLAN_ID;
+
+        console.log('[Stripe Webhook] Subscription Created:', { customerId, status: subscription.status });
+
+        // Si la souscription est active ou en trial, on s'assure que l'utilisateur a le bon plan
+        if (subscription.status === 'active' || subscription.status === 'trialing') {
+          const user = await prisma.user.findUnique({
+            where: { stripeCustomerId: customerId },
+          });
+
+          // Si on trouve pas par customerId, on cherche par userId dans la métadata (cas rare)
+          const userId = subscription.metadata?.userId;
+          const targetUserId = user?.id || userId;
+
+          if (targetUserId) {
+            await prisma.user.update({
+              where: { id: targetUserId },
+              data: {
+                plan: planId,
+                stripeCustomerId: customerId // Au cas où ce n'était pas encore lié
+              }
+            });
+            console.log('[Stripe Webhook] User plan verified/activated via subscription.created:', targetUserId);
+          }
+        }
         break;
       }
 
       case 'invoice.paid': {
         const invoice = event.data.object as Stripe.Invoice & { subscription?: string };
         const subscriptionId = invoice.subscription;
+        const customerId = invoice.customer as string;
+
+        console.log('[Stripe Webhook] Invoice Paid:', invoice.id);
+
+        // Backup activation : Si l'invoice est payée (même à 0€ en trial), on valide le plan
+        if (customerId) {
+          await prisma.user.update({
+            where: { stripeCustomerId: customerId },
+            data: { plan: SUBSCRIPTION_PLAN_ID } // On assume 'creator' pour les payants
+          }).catch(() => { /* User might not be linked yet, handled by session.completed */ });
+        }
 
         if (!subscriptionId) break;
 
@@ -144,7 +150,6 @@ export async function POST(request: Request) {
         const affiliateCode = subscription.metadata?.affiliateCode;
 
         if (affiliateCode) {
-          console.log('[Stripe Webhook] Affiliate code found in subscription:', affiliateCode);
           const affiliate = await prisma.affiliate.findUnique({
             where: { referralCode: affiliateCode }
           });
@@ -152,48 +157,69 @@ export async function POST(request: Request) {
           if (affiliate) {
             const amountPaid = invoice.amount_paid / 100;
             const commissionAmount = amountPaid * affiliate.commissionRate;
-
-            console.log(`[Stripe Webhook] Crediting ${commissionAmount}€ to affiliate ${affiliate.name} for paid invoice`);
-
-            await prisma.affiliateCommission.create({
-              data: {
-                affiliateId: affiliate.id,
-                orderId: invoice.id,
-                amount: commissionAmount,
-                currency: invoice.currency.toUpperCase(),
-                status: 'PAID'
-              }
-            });
-
-            await prisma.affiliate.update({
-              where: { id: affiliate.id },
-              data: {
-                earningsTotal: { increment: commissionAmount }
-              }
-            });
+            if (commissionAmount > 0) {
+              await prisma.affiliateCommission.create({
+                data: {
+                  affiliateId: affiliate.id,
+                  orderId: invoice.id,
+                  amount: commissionAmount,
+                  currency: invoice.currency.toUpperCase(),
+                  status: 'PAID'
+                }
+              });
+              await prisma.affiliate.update({
+                where: { id: affiliate.id },
+                data: { earningsTotal: { increment: commissionAmount } }
+              });
+            }
           }
         }
         break;
       }
 
-      case 'customer.subscription.deleted':
-      case 'customer.subscription.updated': {
+      case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
-        const status = subscription.status;
-
-        console.log('[Stripe Webhook] Subscription update/delete:', { customerId, status });
 
         const user = await prisma.user.findUnique({
           where: { stripeCustomerId: customerId },
         });
 
-        if (user && (status === 'canceled' || status === 'unpaid')) {
+        if (user) {
           await prisma.user.update({
             where: { id: user.id },
-            data: { plan: 'free' }
+            data: { plan: 'starter' } // Revenir au plan Starter/Free
           });
-          console.log('[Stripe Webhook] User downgraded to free:', user.id);
+          console.log('[Stripe Webhook] Subscription deleted, user downgraded:', user.id);
+        }
+        break;
+      }
+
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object as Stripe.Subscription;
+        const customerId = subscription.customer as string;
+        const status = subscription.status;
+
+        console.log('[Stripe Webhook] Subscription Updated:', { customerId, status });
+
+        const user = await prisma.user.findUnique({
+          where: { stripeCustomerId: customerId },
+        });
+
+        if (user) {
+          if (status === 'canceled' || status === 'unpaid' || status === 'incomplete_expired') {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { plan: 'starter' }
+            });
+            console.log('[Stripe Webhook] User downgraded:', user.id);
+          } else if (status === 'active' || status === 'trialing') {
+            // S'assurer qu'il est bien 'creator' s'il redevient actif
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { plan: SUBSCRIPTION_PLAN_ID }
+            });
+          }
         }
         break;
       }
