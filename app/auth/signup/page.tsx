@@ -11,7 +11,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft, Loader2, Sparkles, Shirt, TrendingUp, DollarSign, Check, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import Turnstile from 'react-turnstile';
 
 function SignUpContent() {
   const router = useRouter();
@@ -22,7 +21,6 @@ function SignUpContent() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [debugInfo, setDebugInfo] = useState<{ error: string, url: string } | null>(null);
   const [plan, setPlan] = useState<'starter' | 'creator'>('starter');
@@ -54,10 +52,6 @@ function SignUpContent() {
       return;
     }
 
-    if (process.env.NODE_ENV !== 'development' && !turnstileToken) {
-      setError('Veuillez valider le captcha.');
-      return;
-    }
 
     setLoading(true);
 
@@ -70,7 +64,6 @@ function SignUpContent() {
           email,
           password,
           affiliateToken,
-          turnstileToken,
           plan,
         }),
       });
@@ -369,14 +362,6 @@ function SignUpContent() {
                   )}
                 </div>
 
-                {/* Turnstile Captcha */}
-                <div className="flex justify-center pt-2">
-                  <Turnstile
-                    sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
-                    onVerify={(token) => setTurnstileToken(token)}
-                    theme={isPartnerFlow ? 'dark' : 'light'}
-                  />
-                </div>
 
                 <Button
                   type="submit"

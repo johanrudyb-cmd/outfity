@@ -50,7 +50,7 @@ export async function POST(request: Request) {
         }
 
         // --- 2. TRAITEMENT NORMAL ---
-        const { name, email, password, turnstileToken, plan = 'starter' } = await request.json();
+        const { name, email, password, plan = 'starter' } = await request.json();
 
         console.log('[Signup] Tentative inscription pour:', email);
 
@@ -61,10 +61,6 @@ export async function POST(request: Request) {
             );
         }
 
-        // --- 3. CAPTCHA VERIFICATION ---
-        if (process.env.NODE_ENV !== 'development' && !await verifyTurnstile(turnstileToken)) {
-            return NextResponse.json({ error: 'Vérification Captcha échouée.' }, { status: 403 });
-        }
 
         // --- 4. PASSWORD ROBUSTNESS ---
         const passCheck = validatePasswordStrength(password);
@@ -138,7 +134,7 @@ export async function POST(request: Request) {
         // Notification Admin
         await notifyAdmin({
             title: 'Tentative de création de compte',
-            message: `${name} (${email}) demande à rejoindre OUTFITY.`,
+            message: `${name} (${email}) demande à rejoindre OUTFITY (Plan: ${plan}).`,
             emoji: '🟡',
             type: 'signup',
             priority: 'low',
