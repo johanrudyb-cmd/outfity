@@ -125,11 +125,14 @@ export async function POST(request: Request) {
             } as any // Cast for now until prisma generate fix
         });
 
-        const verificationUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/auth/verify-email?token=${verificationToken}&email=${encodeURIComponent(email)}`;
+        // Déterminer l'URL de base (priorité à l'env, sinon détection auto)
+        const host = request.headers.get('host') || 'outfity.fr';
+        const protocol = host.includes('localhost') ? 'http' : 'https';
+        const baseUrl = process.env.NEXTAUTH_URL || `${protocol}://${host}`;
 
-        console.log('--- TEST MODE: VERIFICATION LINK ---');
-        console.log(verificationUrl);
-        console.log('------------------------------------');
+        const verificationUrl = `${baseUrl.replace(/\/$/, '')}/auth/verify-email?token=${verificationToken}&email=${encodeURIComponent(email)}`;
+
+        console.log('[Signup] Verification Link:', verificationUrl);
 
         // Notification Admin
         await notifyAdmin({
