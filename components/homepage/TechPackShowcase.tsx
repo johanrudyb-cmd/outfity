@@ -126,7 +126,6 @@ export default function TechPackShowcase() {
               width={800}
               height={1000}
               className="w-full h-auto object-contain"
-              unoptimized
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.style.display = 'none';

@@ -45,7 +45,7 @@ export function AnimatedHeader() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-black/5">
+    <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-black/5">
       <div className="max-w-7xl mx-auto px-6 h-16 sm:h-20 lg:h-24 flex items-center justify-between">
         <div className="flex items-center gap-4">
           {/* Menu Mobile Button */}
@@ -58,7 +58,7 @@ export function AnimatedHeader() {
           </button>
 
           <Link href="/" className="shrink-0">
-            <Image src="/icon.png" alt="Logo" width={140} height={140} className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 lg:h-28 lg:w-28 xl:h-32 xl:w-32 object-contain bg-transparent" unoptimized priority={true} />
+            <Image src="/icon.png" alt="Logo" width={140} height={140} className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 lg:h-28 lg:w-28 xl:h-32 xl:w-32 object-contain bg-transparent" priority={true} />
           </Link>
         </div>
 
@@ -110,7 +110,7 @@ export function AnimatedHeader() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-white/60 backdrop-blur-md z-40 lg:hidden"
+              className="fixed inset-0 bg-white/60 backdrop-blur-sm z-40 lg:hidden"
               onClick={() => setIsMenuOpen(false)}
             />
             <motion.div

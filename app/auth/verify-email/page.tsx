@@ -66,7 +66,6 @@ function VerifyEmailContent() {
                         width={80}
                         height={80}
                         className="mx-auto rounded-2xl shadow-xl mb-8"
-                        unoptimized
                     />
                 </motion.div>
 

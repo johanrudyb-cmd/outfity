@@ -102,7 +102,6 @@ function SignUpContent() {
             width={80}
             height={80}
             className="mx-auto rounded-2xl shadow-xl"
-            unoptimized
           />
           <Card className="border-0 shadow-2xl rounded-[32px] bg-white p-8 sm:p-10">
             <div className={`w-20 h-20 ${debugInfo ? 'bg-amber-50 text-amber-500' : 'bg-blue-50 text-[#007AFF]'} rounded-full flex items-center justify-center mx-auto mb-6`}>
@@ -204,7 +203,6 @@ function SignUpContent() {
               width={80}
               height={80}
               className={`w-20 h-20 mx-auto rounded-2xl shadow-xl ${isPartnerFlow ? 'opacity-90 grayscale-[0.2]' : ''}`}
-              unoptimized
             />
           </Link>
           <h1 className={`text-3xl font-bold tracking-tight mb-2 ${isPartnerFlow ? 'text-white' : 'text-gray-900'}`}>

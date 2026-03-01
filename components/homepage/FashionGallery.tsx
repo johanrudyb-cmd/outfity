@@ -82,25 +82,25 @@ export default function FashionGallery() {
         >
           <div className={cn('relative overflow-hidden rounded-2xl sm:rounded-[32px] bg-[#F5F5F7]', 'md:row-span-2 col-span-2 sm:col-span-1', 'group cursor-pointer', 'transition-all duration-500 hover:scale-[1.02]')}>
             <div className="relative w-full h-full min-h-[300px] sm:min-h-[380px] lg:min-h-[500px]">
-              <Image src={fashionImages[0].src} alt={fashionImages[0].alt} fill className="object-cover transition-transform duration-700 group-hover:scale-110" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" unoptimized />
+              <Image src={fashionImages[0].src} alt={fashionImages[0].alt} fill className="object-cover transition-transform duration-700 group-hover:scale-110" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" />
             </div>
           </div>
 
           <div className={cn('relative overflow-hidden rounded-2xl sm:rounded-[32px] bg-[#F5F5F7]', 'group cursor-pointer', 'transition-all duration-500 hover:scale-[1.02]')}>
             <div className="relative w-full h-full min-h-[180px] sm:min-h-[320px] lg:min-h-[400px]">
-              <Image src={fashionImages[1].src} alt={fashionImages[1].alt} fill className="object-cover transition-transform duration-700 group-hover:scale-110" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" unoptimized />
+              <Image src={fashionImages[1].src} alt={fashionImages[1].alt} fill className="object-cover transition-transform duration-700 group-hover:scale-110" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" />
             </div>
           </div>
 
           <div className={cn('relative overflow-hidden rounded-2xl sm:rounded-[32px] bg-[#F5F5F7]', 'group cursor-pointer', 'transition-all duration-500 hover:scale-[1.02]')}>
             <div className="relative w-full h-full min-h-[180px] sm:min-h-[260px] lg:min-h-[300px]">
-              <Image src={fashionImages[2].src} alt={fashionImages[2].alt} fill className="object-cover transition-transform duration-700 group-hover:scale-110" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" unoptimized />
+              <Image src={fashionImages[2].src} alt={fashionImages[2].alt} fill className="object-cover transition-transform duration-700 group-hover:scale-110" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" />
             </div>
           </div>
 
           <div className={cn('relative overflow-hidden rounded-2xl sm:rounded-[32px] bg-[#F5F5F7]', 'col-span-2', 'group cursor-pointer', 'transition-all duration-500 hover:scale-[1.02]')}>
             <div className="relative w-full h-full min-h-[200px] sm:min-h-[320px] lg:min-h-[400px]">
-              <Image src={fashionImages[3].src} alt={fashionImages[3].alt} fill className="object-cover transition-transform duration-700 group-hover:scale-110" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 100vw, 66vw" unoptimized />
+              <Image src={fashionImages[3].src} alt={fashionImages[3].alt} fill className="object-cover transition-transform duration-700 group-hover:scale-110" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 100vw, 66vw" />
             </div>
           </div>
         </div>

@@ -78,7 +78,6 @@ function SignInContent() {
               width={80}
               height={80}
               className={`w-20 h-20 mx-auto rounded-2xl shadow-xl ${isPartnerFlow ? 'opacity-90 grayscale-[0.2]' : ''}`}
-              unoptimized
             />
           </Link>
           <h1 className={`text-3xl font-bold tracking-tight mb-2 ${isPartnerFlow ? 'text-white' : 'text-gray-900'}`}>

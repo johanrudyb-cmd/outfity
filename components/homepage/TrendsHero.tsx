@@ -125,7 +125,6 @@ export function TrendsHero() {
                         style={{
                           transform: `scale(${isMobile ? brand.scaleMobile : brand.scaleDesktop})`
                         }}
-                        unoptimized
                       />
                     </div>
                   ))}

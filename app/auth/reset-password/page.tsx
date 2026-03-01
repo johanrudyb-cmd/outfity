@@ -107,7 +107,6 @@ function ResetPasswordContent() {
                             width={80}
                             height={80}
                             className="mx-auto rounded-2xl shadow-xl"
-                            unoptimized
                         />
                     </Link>
                     <h1 className="text-3xl font-bold tracking-tight mb-2 text-gray-900 uppercase italic">
