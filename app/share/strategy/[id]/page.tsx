@@ -10,8 +10,8 @@ export const metadata = {
     description: 'Présentation de la stratégie de marque',
 };
 
-export default async function SharedStrategyPage({ params }: { params: { id: string } }) {
-    const brandId = params.id;
+export default async function SharedStrategyPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id: brandId } = await params;
 
     const [brand, launchMap] = await Promise.all([
         prisma.brand.findUnique({ where: { id: brandId } }),
