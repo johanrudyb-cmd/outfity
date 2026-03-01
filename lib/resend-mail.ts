@@ -1,6 +1,5 @@
 import { sanitizeErrorMessage } from './utils';
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const RESEND_API_URL = 'https://api.resend.com/emails';
 
 interface SendEmailParams {
@@ -19,7 +18,8 @@ export async function sendEmail({
     html,
     from = 'OUTFITY <onboarding@resend.dev>'
 }: SendEmailParams) {
-    if (!RESEND_API_KEY) {
+    const apiKey = (process.env.RESEND_API_KEY || '').trim();
+    if (!apiKey) {
         console.warn('[Mail] RESEND_API_KEY manquante. Email non envoyé.');
         return { success: false, error: 'API Key missing' };
     }
@@ -39,7 +39,7 @@ export async function sendEmail({
         const response = await fetch(RESEND_API_URL, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${RESEND_API_KEY}`,
+                'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(payload),
