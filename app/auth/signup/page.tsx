@@ -22,6 +22,8 @@ function SignUpContent() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<{ error: string, url: string } | null>(null);
 
   // Password strength logic
   const passwordCriteria = [
@@ -80,6 +82,9 @@ function SignUpContent() {
 
       // Succès - On affiche le message de vérification par email
       setLoading(false);
+      if (data.debugError) {
+        setDebugInfo({ error: data.debugError, url: data.verificationUrl });
+      }
       setSuccess(true);
 
     } catch (err) {
@@ -88,7 +93,6 @@ function SignUpContent() {
     }
   };
 
-  const [success, setSuccess] = useState(false);
 
   if (success) {
     return (
@@ -107,13 +111,25 @@ function SignUpContent() {
             unoptimized
           />
           <Card className="border-0 shadow-2xl rounded-[32px] bg-white p-8 sm:p-10">
-            <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center text-[#007AFF] mx-auto mb-6">
-              <Sparkles className="w-10 h-10" />
+            <div className={`w-20 h-20 ${debugInfo ? 'bg-amber-50 text-amber-500' : 'bg-blue-50 text-[#007AFF]'} rounded-full flex items-center justify-center mx-auto mb-6`}>
+              {debugInfo ? <X className="w-10 h-10" /> : <Sparkles className="w-10 h-10" />}
             </div>
-            <h2 className="text-2xl font-black text-gray-900 italic uppercase mb-2">Presque prêt !</h2>
+            <h2 className="text-2xl font-black text-gray-900 italic uppercase mb-2">
+              {debugInfo ? '⚠️ Email non envoyé' : 'Presque prêt !'}
+            </h2>
             <p className="text-gray-500 font-medium mb-8">
-              Un email de confirmation a été envoyé à <strong>{email}</strong>. Clique sur le lien pour activer ton compte.
+              {debugInfo
+                ? `L'API Resend a retourné une erreur (${debugInfo.error}). Copie le lien ci-dessous pour valider ton compte manuellement.`
+                : `Un email de confirmation a été envoyé à ${email}. Clique sur le lien pour activer ton compte.`
+              }
             </p>
+
+            {debugInfo && (
+              <div className="mb-8 p-4 bg-gray-50 rounded-2xl break-all text-[10px] font-mono border border-gray-100 italic transition-all active:scale-[0.98] cursor-pointer" onClick={() => { navigator.clipboard.writeText(debugInfo.url); alert('Lien copié !'); }}>
+                {debugInfo.url}
+              </div>
+            )}
+
             <Link href="/auth/signin" className="block w-full">
               <button className="w-full py-4 bg-black text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-zinc-800 transition-all shadow-lg active:scale-95">
                 Retour à la connexion

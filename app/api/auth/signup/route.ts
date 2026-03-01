@@ -153,6 +153,15 @@ export async function POST(request: Request) {
 
         if (!result.success) {
             console.error('[Signup] Email verification failed to send:', result.error);
+            // On retourne quand même un 201 mais avec une info sur l'erreur mail pour le debug
+            return NextResponse.json(
+                {
+                    message: 'Compte en attente, mais l\'email n\'a pas pu être envoyé.',
+                    debugError: result.error,
+                    verificationUrl // On le donne en debug pour que l'utilisateur puisse continuer
+                },
+                { status: 201 }
+            );
         }
 
 
