@@ -21,12 +21,20 @@ import { getIsAdmin } from '@/lib/auth-helpers';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
+import { motion, AnimatePresence } from 'framer-motion';
+
 export function UserAccountNav() {
     const { data: session } = useSession();
     const [isOpen, setIsOpen] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const { data: userPlanData } = useSWR('/api/user/plan', fetcher);
     const user = session?.user;
+
+    const handleSignOut = async () => {
+        setIsLoggingOut(true);
+        await signOut({ callbackUrl: '/' });
+    };
 
     // We check admin from session or hardcoded logic consistent with Sidebar
     const isAdmin = user?.email && (
@@ -78,52 +86,70 @@ export function UserAccountNav() {
                 </div>
             </button>
 
-            {isOpen && (
-                <div className="absolute right-0 top-12 w-72 bg-white/95 backdrop-blur-xl rounded-[32px] shadow-apple-lg z-50 overflow-hidden border border-black/5 animate-in fade-in zoom-in duration-200">
-                    {/* User Info Header */}
-                    <div className="p-6 bg-gradient-to-b from-gray-50/50 to-white border-b border-black/5">
-                        <p className="text-xs font-black text-[#1D1D1F]/30 uppercase tracking-[0.2em] mb-4">Votre Compte</p>
-                        <div className="flex items-center gap-4">
-                            <Avatar className="h-12 w-12 border-2 border-white shadow-md">
-                                <AvatarFallback className="bg-black text-white font-black text-lg">
-                                    {initial}
-                                </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-black text-[#1D1D1F] truncate leading-none mb-1">{user.name}</p>
-                                <p className="text-[10px] font-bold text-[#1D1D1F]/40 truncate">{user.email}</p>
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: 10, filter: 'blur(10px)' }}
+                        animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
+                        exit={{ opacity: 0, scale: 0.95, y: 10, filter: 'blur(10px)' }}
+                        transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+                        className="absolute right-0 top-12 w-72 bg-white/95 backdrop-blur-xl rounded-[32px] shadow-apple-lg z-50 overflow-hidden border border-black/5"
+                    >
+                        {/* User Info Header */}
+                        <div className="p-6 bg-gradient-to-b from-gray-50/50 to-white border-b border-black/5">
+                            <p className="text-xs font-black text-[#1D1D1F]/30 uppercase tracking-[0.2em] mb-4">Votre Compte</p>
+                            <div className="flex items-center gap-4">
+                                <Avatar className="h-12 w-12 border-2 border-white shadow-md">
+                                    <AvatarFallback className="bg-black text-white font-black text-lg">
+                                        {initial}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-black text-[#1D1D1F] truncate leading-none mb-1">{user.name}</p>
+                                    <p className="text-[10px] font-bold text-[#1D1D1F]/40 truncate">{user.email}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Quick Access */}
-                    <div className="p-2 border-t border-black/5 bg-gray-50/30">
-                        <Link
-                            href="/usage"
-                            onClick={() => setIsOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white hover:shadow-sm transition-all text-[#1D1D1F]/60 hover:text-black"
-                        >
-                            <Zap className="w-4 h-4" />
-                            <span className="text-xs font-bold uppercase tracking-widest">Mes Quotas</span>
-                        </Link>
-                        <Link
-                            href="/settings"
-                            onClick={() => setIsOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white hover:shadow-sm transition-all text-[#1D1D1F]/60 hover:text-black"
-                        >
-                            <Settings className="w-4 h-4" />
-                            <span className="text-xs font-bold uppercase tracking-widest">Paramètres</span>
-                        </Link>
-                        <button
-                            onClick={() => signOut({ callbackUrl: '/' })}
-                            className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-red-50 transition-all text-red-500 w-full text-left mt-1"
-                        >
-                            <LogOut className="w-4 h-4" />
-                            <span className="text-xs font-black uppercase tracking-[0.2em]">Déconnexion</span>
-                        </button>
-                    </div>
-                </div>
-            )}
+                        {/* Quick Access */}
+                        <div className="p-2 bg-gray-50/30">
+                            <Link
+                                href="/usage"
+                                onClick={() => setIsOpen(false)}
+                                className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white hover:shadow-sm transition-all text-[#1D1D1F]/60 hover:text-black group"
+                            >
+                                <Zap className="w-4 h-4 group-hover:text-[#007AFF] transition-colors" />
+                                <span className="text-xs font-bold uppercase tracking-widest">Mes Quotas</span>
+                            </Link>
+                            <Link
+                                href="/settings"
+                                onClick={() => setIsOpen(false)}
+                                className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white hover:shadow-sm transition-all text-[#1D1D1F]/60 hover:text-black group"
+                            >
+                                <Settings className="w-4 h-4 group-hover:text-[#007AFF] transition-colors" />
+                                <span className="text-xs font-bold uppercase tracking-widest">Paramètres</span>
+                            </Link>
+
+                            <div className="h-px bg-black/5 my-1 mx-2" />
+
+                            <button
+                                disabled={isLoggingOut}
+                                onClick={handleSignOut}
+                                className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 transition-all text-red-500 w-full text-left active:scale-[0.98] disabled:opacity-50"
+                            >
+                                {isLoggingOut ? (
+                                    <div className="w-4 h-4 rounded-full border-2 border-red-500 border-t-transparent animate-spin" />
+                                ) : (
+                                    <LogOut className="w-4 h-4" />
+                                )}
+                                <span className="text-xs font-black uppercase tracking-[0.2em]">
+                                    {isLoggingOut ? 'Déconnexion...' : 'Déconnexion'}
+                                </span>
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

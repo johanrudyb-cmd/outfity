@@ -38,6 +38,7 @@ export const getCurrentUser = cache(async () => {
           plan: true,
           subscribedAt: true,
           createdAt: true,
+          onboardingCompleted: true,
         },
       });
 
@@ -48,6 +49,7 @@ export const getCurrentUser = cache(async () => {
         email: user.email,
         name: user.name || session.user.name,
         plan: user.plan,
+        onboardingCompleted: user.onboardingCompleted,
         subscribedAt: user.subscribedAt ?? null,
         createdAt: user.createdAt,
       };
@@ -60,6 +62,7 @@ export const getCurrentUser = cache(async () => {
         email: session.user.email,
         name: session.user.name,
         plan: (session.user as any).plan || 'starter', // Fallback plan
+        onboardingCompleted: (session.user as any).onboardingCompleted ?? false,
         subscribedAt: new Date(), // Simulé
         createdAt: new Date(), // Simulé
       };

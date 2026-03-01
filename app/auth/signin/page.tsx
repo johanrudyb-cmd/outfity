@@ -19,7 +19,7 @@ function SignInContent() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const callbackUrl = searchParams.get('callbackUrl') || '/auth/choose-plan';
+  const callbackUrl = searchParams.get('callbackUrl') || '/auth/callback';
   const isPartnerFlow = callbackUrl.includes('/partners');
 
   const handleSubmit = async (e: React.FormEvent) => {

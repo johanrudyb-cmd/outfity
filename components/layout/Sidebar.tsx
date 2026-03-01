@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { X, Settings, LogOut, Zap, LayoutDashboard, TrendingUp, Camera, PenSquare, Calculator, Sparkles, Receipt, ShieldCheck, HelpCircle, MessageCircle } from 'lucide-react';
 import useSWR from 'swr';
 import { useSession } from 'next-auth/react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
@@ -56,18 +57,19 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
         const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
         const Icon = item.icon;
         return (
-          <Link
-            key={item.href}
-            href={item.href}
-            title={item.name}
-            className={cn(
-              'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200 active:scale-95',
-              isActive ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'text-[#1D1D1F]/40 hover:bg-black/5 hover:text-[#1D1D1F]'
-            )}
-          >
-            <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
-            <span className="text-[8px] font-black uppercase tracking-tight leading-none">{item.short}</span>
-          </Link>
+          <motion.div key={item.href} whileTap={{ scale: 0.9 }}>
+            <Link
+              href={item.href}
+              title={item.name}
+              className={cn(
+                'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200',
+                isActive ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'text-[#1D1D1F]/40 hover:bg-black/5 hover:text-[#1D1D1F]'
+              )}
+            >
+              <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
+              <span className="text-[8px] font-black uppercase tracking-tight leading-none">{item.short}</span>
+            </Link>
+          </motion.div>
         );
       })}
 
@@ -93,18 +95,19 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
         }
 
         return (
-          <Link
-            key={item.href}
-            href={item.href}
-            title={item.name}
-            className={cn(
-              'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200 active:scale-95',
-              isActive ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'text-[#1D1D1F]/40 hover:bg-black/5 hover:text-[#1D1D1F]'
-            )}
-          >
-            <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
-            <span className="text-[8px] font-black uppercase tracking-tight leading-none">{item.short}</span>
-          </Link>
+          <motion.div key={item.href} whileTap={{ scale: 0.9 }}>
+            <Link
+              href={item.href}
+              title={item.name}
+              className={cn(
+                'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200',
+                isActive ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'text-[#1D1D1F]/40 hover:bg-black/5 hover:text-[#1D1D1F]'
+              )}
+            >
+              <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
+              <span className="text-[8px] font-black uppercase tracking-tight leading-none">{item.short}</span>
+            </Link>
+          </motion.div>
         );
       })}
 
@@ -112,17 +115,19 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
       {isAffiliate && (
         <>
           <div className="w-8 h-px bg-black/8 my-1" />
-          <Link
-            href="/partners"
-            title="Mes commissions"
-            className={cn(
-              'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200 active:scale-95',
-              pathname === '/partners' ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'text-[#1D1D1F]/40 hover:bg-black/5 hover:text-[#1D1D1F]'
-            )}
-          >
-            <Receipt className="w-5 h-5" strokeWidth={pathname === '/partners' ? 2.5 : 2} />
-            <span className="text-[8px] font-black uppercase tracking-tight leading-none text-center">Partenariat</span>
-          </Link>
+          <motion.div whileTap={{ scale: 0.9 }}>
+            <Link
+              href="/partners"
+              title="Mes commissions"
+              className={cn(
+                'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200',
+                pathname === '/partners' ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'text-[#1D1D1F]/40 hover:bg-black/5 hover:text-[#1D1D1F]'
+              )}
+            >
+              <Receipt className="w-5 h-5" strokeWidth={pathname === '/partners' ? 2.5 : 2} />
+              <span className="text-[8px] font-black uppercase tracking-tight leading-none text-center">Partenariat</span>
+            </Link>
+          </motion.div>
         </>
       )}
 
@@ -130,33 +135,37 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
       {isAdmin && (
         <>
           <div className="w-8 h-px bg-black/8 my-1" />
-          <Link
-            href="/admin/partners"
-            title="Administration"
-            className={cn(
-              'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200 active:scale-95',
-              pathname.startsWith('/admin/partners') ? 'bg-red-50 text-red-600' : 'text-[#1D1D1F]/40 hover:bg-red-50/50 hover:text-red-500'
-            )}
-          >
-            <ShieldCheck className="w-5 h-5" strokeWidth={pathname.startsWith('/admin/partners') ? 2.5 : 2} />
-            <span className="text-[8px] font-black uppercase tracking-tight leading-none text-center">Admin</span>
-          </Link>
+          <motion.div whileTap={{ scale: 0.9 }}>
+            <Link
+              href="/admin/partners"
+              title="Administration"
+              className={cn(
+                'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200',
+                pathname.startsWith('/admin/partners') ? 'bg-red-50 text-red-600' : 'text-[#1D1D1F]/40 hover:bg-red-50/50 hover:text-red-500'
+              )}
+            >
+              <ShieldCheck className="w-5 h-5" strokeWidth={pathname.startsWith('/admin/partners') ? 2.5 : 2} />
+              <span className="text-[8px] font-black uppercase tracking-tight leading-none text-center">Admin</span>
+            </Link>
+          </motion.div>
         </>
       )}
 
       {/* Bottom Spacer + Help */}
       <div className="mt-auto flex flex-col items-center gap-1">
         <div className="w-8 h-px bg-black/8 my-1" />
-        <a
-          href="https://instagram.com/biangory"
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Besoin d'aide ? DM sur Instagram"
-          className="flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl text-[#1D1D1F]/40 hover:bg-black/5 hover:text-[#1D1D1F] transition-all duration-200"
-        >
-          <HelpCircle className="w-5 h-5" strokeWidth={2} />
-          <span className="text-[8px] font-black uppercase tracking-tight leading-none">Aide</span>
-        </a>
+        <motion.div whileTap={{ scale: 0.9 }}>
+          <a
+            href="https://instagram.com/biangory"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Besoin d'aide ? DM sur Instagram"
+            className="flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl text-[#1D1D1F]/40 hover:bg-black/5 hover:text-[#1D1D1F] transition-all duration-200"
+          >
+            <HelpCircle className="w-5 h-5" strokeWidth={2} />
+            <span className="text-[8px] font-black uppercase tracking-tight leading-none">Aide</span>
+          </a>
+        </motion.div>
       </div>
 
     </aside>
@@ -206,27 +215,28 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                 const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
                 const Icon = item.icon;
                 return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    data-tour={item.tourId}
-                    onClick={handleNav}
-                    className={cn(
-                      'flex items-center gap-3 min-h-[44px] px-4 py-2.5 rounded-2xl text-[15px] font-medium transition-all duration-200 active:scale-[0.98]',
-                      isActive
-                        ? 'bg-[#007AFF]/10 text-[#007AFF]'
-                        : 'text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#1D1D1F]'
-                    )}
-                    title={item.name}
-                  >
-                    <Icon className="w-5 h-5 shrink-0" strokeWidth={isActive ? 2.5 : 2} />
-                    <span className="flex-1">{item.name}</span>
-                    {item.badge && (
-                      <Badge variant="secondary" className="text-[10px] font-bold bg-[#007AFF] text-white border-none px-2 py-0">
-                        {item.badge}
-                      </Badge>
-                    )}
-                  </Link>
+                  <motion.div key={item.name} whileHover={{ x: 2 }} whileTap={{ scale: 0.98 }}>
+                    <Link
+                      href={item.href}
+                      data-tour={item.tourId}
+                      onClick={handleNav}
+                      className={cn(
+                        'flex items-center gap-3 min-h-[44px] px-4 py-2.5 rounded-2xl text-[15px] font-medium transition-all duration-200',
+                        isActive
+                          ? 'bg-[#007AFF]/10 text-[#007AFF]'
+                          : 'text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#1D1D1F]'
+                      )}
+                      title={item.name}
+                    >
+                      <Icon className="w-5 h-5 shrink-0" strokeWidth={isActive ? 2.5 : 2} />
+                      <span className="flex-1">{item.name}</span>
+                      {item.badge && (
+                        <Badge variant="secondary" className="text-[10px] font-bold bg-[#007AFF] text-white border-none px-2 py-0">
+                          {item.badge}
+                        </Badge>
+                      )}
+                    </Link>
+                  </motion.div>
                 );
               })}
             </div>
@@ -257,22 +267,23 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                 }
 
                 return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    data-tour={item.tourId}
-                    onClick={handleNav}
-                    className={cn(
-                      'flex items-center gap-3 min-h-[44px] px-4 py-2.5 rounded-2xl text-[15px] font-medium transition-all duration-200 active:scale-[0.98]',
-                      isActive
-                        ? 'bg-[#007AFF]/10 text-[#007AFF]'
-                        : 'text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#1D1D1F]'
-                    )}
-                    title={item.name}
-                  >
-                    <Icon className="w-5 h-5 shrink-0" strokeWidth={isActive ? 2.5 : 2} />
-                    <span>{item.name}</span>
-                  </Link>
+                  <motion.div key={item.name} whileHover={{ x: 2 }} whileTap={{ scale: 0.98 }}>
+                    <Link
+                      href={item.href}
+                      data-tour={item.tourId}
+                      onClick={handleNav}
+                      className={cn(
+                        'flex items-center gap-3 min-h-[44px] px-4 py-2.5 rounded-2xl text-[15px] font-medium transition-all duration-200',
+                        isActive
+                          ? 'bg-[#007AFF]/10 text-[#007AFF]'
+                          : 'text-[#1D1D1F]/60 hover:bg-black/5 hover:text-[#1D1D1F]'
+                      )}
+                      title={item.name}
+                    >
+                      <Icon className="w-5 h-5 shrink-0" strokeWidth={isActive ? 2.5 : 2} />
+                      <span>{item.name}</span>
+                    </Link>
+                  </motion.div>
                 );
               })}
             </div>

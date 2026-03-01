@@ -100,19 +100,24 @@ export function AgentRevealCard({ agent, delay = 0, onReveal }: { agent: AgentPr
                 onMouseMove={handleMouseMove}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
-                className="w-full h-[310px] sm:h-[340px] relative preserve-3d cursor-pointer"
-                animate={isRevealed ? { rotateY: 180 } : { rotateY: 0 }}
-                transition={{ duration: 0.8, type: "spring", stiffness: 60, damping: 15 }}
+                className="w-full h-[310px] sm:h-[340px] relative transition-shadow duration-500"
                 style={{
                     rotateX: isHovered && isRevealed ? rotateX : 0,
                     rotateY: isHovered && isRevealed ? rotateY : (isRevealed ? 180 : 0),
                     transformStyle: 'preserve-3d',
+                    perspective: 1200,
                 }}
+                transition={{ duration: 0.8, type: "spring", stiffness: 50, damping: 20 }}
             >
                 {/* Back of the card (Before Reveal) */}
                 <div
                     className="absolute inset-0 backface-hidden w-full h-full rounded-2xl bg-gradient-to-br from-slate-900 to-black border-2 border-slate-700 shadow-xl overflow-hidden flex flex-col items-center justify-center p-6"
-                    style={{ backfaceVisibility: 'hidden', transform: 'rotateY(0deg)' }}
+                    style={{
+                        backfaceVisibility: 'hidden',
+                        WebkitBackfaceVisibility: 'hidden',
+                        transform: 'rotateY(0deg)',
+                        transformStyle: 'preserve-3d'
+                    }}
                 >
                     <div className="w-16 h-16 rounded-full border border-slate-600 flex items-center justify-center mb-4">
                         <span className="text-3xl text-slate-500 font-serif">O</span>
@@ -129,8 +134,10 @@ export function AgentRevealCard({ agent, delay = 0, onReveal }: { agent: AgentPr
                     className="absolute inset-0 backface-hidden w-full h-full rounded-2xl shadow-2xl overflow-hidden border border-white/20"
                     style={{
                         backfaceVisibility: 'hidden',
+                        WebkitBackfaceVisibility: 'hidden',
                         transform: 'rotateY(180deg)',
                         backgroundColor: '#111',
+                        transformStyle: 'preserve-3d'
                     }}
                 >
                     {/* Background Color Glow */}
@@ -142,8 +149,9 @@ export function AgentRevealCard({ agent, delay = 0, onReveal }: { agent: AgentPr
                             src={agent.image}
                             alt={agent.name}
                             fill
+                            priority
                             className="object-cover object-top opacity-90 brightness-110 contrast-110"
-                            sizes="(max-width: 768px) 100vw, 33vw"
+                            sizes="(max-width: 768px) 240px, 240px"
                         />
                         {/* Inner shadow for depth */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />

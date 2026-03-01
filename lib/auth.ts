@@ -27,7 +27,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               password: true,
               name: true,
               plan: true,
-              emailVerified: true
+              emailVerified: true,
+              onboardingCompleted: true
             }
           });
 
@@ -74,6 +75,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             email: user.email,
             name: user.name,
             plan: user.plan,
+            onboardingCompleted: user.onboardingCompleted,
           };
         } catch (error) {
           console.error('Erreur dans authorize:', error);
@@ -106,6 +108,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.plan = (user as any).plan;
+        token.onboardingCompleted = (user as any).onboardingCompleted;
       }
 
       // Lors d'un update() côté client (ex: après paiement Stripe),
@@ -115,10 +118,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const { prisma } = await import('./prisma');
           const dbUser = await prisma.user.findUnique({
             where: { id: token.id as string },
-            select: { plan: true },
+            select: {
+              plan: true,
+              onboardingCompleted: true
+            },
           });
           if (dbUser) {
             token.plan = dbUser.plan;
+            token.onboardingCompleted = dbUser.onboardingCompleted;
           }
         } catch (error) {
           console.error('[JWT Update] DB read error:', error);
@@ -131,6 +138,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).plan = token.plan;
+        (session.user as any).onboardingCompleted = token.onboardingCompleted;
       }
       return session;
     },

@@ -34,7 +34,7 @@ function SignUpContent() {
 
   // Détection du mode Partenaire / Affilié
   const affiliateToken = searchParams.get('affiliate_token');
-  const callbackUrl = searchParams.get('callbackUrl') || (affiliateToken ? '/partners' : '/auth/choose-plan');
+  const callbackUrl = searchParams.get('callbackUrl') || (affiliateToken ? '/partners' : '/auth/callback');
   const isPartnerFlow = callbackUrl.includes('/partners') || !!affiliateToken;
 
   const handleSubmit = async (e: React.FormEvent) => {
