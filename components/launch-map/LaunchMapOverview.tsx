@@ -53,6 +53,8 @@ const PHASE_COLOR: Record<number, { bg: string; text: string; border: string }> 
   5: { bg: 'bg-[#95BF47]/10', text: 'text-[#5E8E3E]', border: 'border-[#95BF47]/30' },
 };
 
+import { FeatureTourModal } from '@/components/ui/feature-tour-modal';
+
 export function LaunchMapOverview({
   brand,
   launchMap,
@@ -84,7 +86,30 @@ export function LaunchMapOverview({
   const primaryColor = colorPalette?.primary ?? '#007AFF';
 
   return (
-    <div className="bg-[#F5F5F7] pb-32 sm:pb-16 flex-1">
+    <div className="bg-[#F5F5F7] pb-32 sm:pb-16 flex-1 relative">
+      <FeatureTourModal
+        featureKey="launch_map_intro"
+        title="Gérez votre marque de A à Z"
+        icon={<Target className="w-6 h-6 text-primary" />}
+        description={
+          <div className="space-y-4">
+            <p>
+              Bienvenue dans le <strong>Parcours de Lancement</strong>. Vous voici dans le cockpit de votre projet de mode ou de créateur.
+            </p>
+            <p>
+              Plutôt que d'avancer à l'aveuglette, OUTFITY a découpé la création de votre collection en étapes claires et validées par l'industrie.
+            </p>
+          </div>
+        }
+        bulletPoints={[
+          "Créez ou modifiez votre univers de marque et votre logo (Étape 1).",
+          "Générez des designs 3D ultra-réalistes (Étape 2).",
+          "Trouvez des fournisseurs vérifiés et exportez vos fiches techniques.",
+          "Suivez pas-à-pas la progression jusqu'au lancement de votre site."
+        ]}
+        ctaText="Découvrir mon parcours"
+      />
+
       <div className="px-4 sm:px-6 lg:px-12 py-6 sm:py-10 max-w-7xl mx-auto space-y-6 sm:space-y-8">
 
         {/* ── Brand Hero Header ── */}

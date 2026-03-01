@@ -14,9 +14,10 @@ import { LoadingState } from '@/components/ui/loading-state';
 
 interface TrendsAnalyseProps {
   userId: string;
+  userPlan?: string;
 }
 
-export function TrendsAnalyse({ userId }: TrendsAnalyseProps) {
+export function TrendsAnalyse({ userId, userPlan = 'starter' }: TrendsAnalyseProps) {
   const { data, error: swrError, isLoading, mutate } = useSWR('/api/trends/analyse-ia', fetcher);
 
   const [gptTest, setGptTest] = useState<{ ok: boolean; message?: string } | null>(null);
@@ -126,11 +127,17 @@ export function TrendsAnalyse({ userId }: TrendsAnalyseProps) {
             <div className="mt-6 pt-6 border-t text-sm text-muted-foreground">
               <p>
                 Analyse générée à partir des tendances confirmées et des statistiques mondiales. Pour des prévisions détaillées par phase (émergence, croissance, pic), utilisez la page
-                <Link href="/trends/predictions" className="mx-1 underline hover:text-foreground">
+                <Link href="/trends/predictions" className="mx-1 underline hover:text-foreground font-medium text-primary">
                   Prévisions des tendances
                 </Link>
                 .
               </p>
+              {(userPlan === 'starter' || userPlan === 'free') && (
+                <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                  <span className="text-[14px]">🔒</span>
+                  Les prédictions détaillées sont réservées au plan créateur.
+                </div>
+              )}
             </div>
           )}
         </CardContent>

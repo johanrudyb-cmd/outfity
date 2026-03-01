@@ -42,9 +42,10 @@ interface TrendPrediction {
 
 interface TrendPredictionsProps {
   userId: string;
+  userPlan?: string;
 }
 
-export function TrendPredictions({ userId }: TrendPredictionsProps) {
+export function TrendPredictions({ userId, userPlan = 'starter' }: TrendPredictionsProps) {
   const [selectedPhase, setSelectedPhase] = useState<string>('all');
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [selectedTrend, setSelectedTrend] = useState<TrendPrediction | null>(null);
@@ -118,6 +119,20 @@ export function TrendPredictions({ userId }: TrendPredictionsProps) {
         icon={Sparkles}
         description="Émergent → Croissance → Pic → Déclin. Scores calculés à partir des données de scan (vitesse, diversité marques/pays, émergence, stabilité des prix). Ce n’est pas un rapport texte IA ; pour ça, utilisez « Synthèse du Radar » ou « Analyser » sur le classement."
       />
+
+      {(userPlan === 'starter' || userPlan === 'free') && (
+        <Card className="border-primary/50 bg-primary/5 mb-6">
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center text-center">
+              <span className="text-3xl mb-2">🔒</span>
+              <h3 className="text-lg font-semibold text-primary">Prédictions réservées au plan créateur</h3>
+              <p className="text-sm text-muted-foreground mt-1 max-w-xl">
+                Ces données vous donnent un aperçu du fonctionnement. Pour exploiter vos propres analyses de façon illimitée, passez au plan Créateur.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Filtres par phase */}
       <Card>

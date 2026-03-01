@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Phase1Calculator } from '@/components/launch-map/Phase1Calculator';
 import Link from 'next/link';
+import { FeatureTourModal } from '@/components/ui/feature-tour-modal';
+import { Calculator } from 'lucide-react';
 
 export default async function CalculatorPage() {
     const user = await getCurrentUser();
@@ -23,7 +25,28 @@ export default async function CalculatorPage() {
 
     return (
         <DashboardLayout>
-            <div className="min-h-screen bg-[#F5F5F7]">
+            <FeatureTourModal
+                featureKey="calculator_intro"
+                title="Calculateur de Marge Global"
+                icon={<Calculator className="w-6 h-6 text-primary" />}
+                description={
+                    <div className="space-y-4">
+                        <p>
+                            <strong>Le secret des marques rentables ?</strong> Les chiffres avant le design. Ce calculateur de marge vous permet de prévoir vos prix de vente et vos gains.
+                        </p>
+                        <p>
+                            Ajustez le coût de production cible, le budget marketing et les frais de livraison pour construire un business model solide, et non un simple passe-temps.
+                        </p>
+                    </div>
+                }
+                bulletPoints={[
+                    "Testez plusieurs scénarios de vente pour trouver votre prix de vente optimal (Prix MSRP).",
+                    "Visualisez immédiatement votre marge brute et bénéfice net.",
+                    "Sauvegardez vos scénarios pour la Phase 1 du Parcours de Lancement."
+                ]}
+                ctaText="Génial, je calcule"
+            />
+            <div className="min-h-screen relative bg-[#F5F5F7]">
                 <div className="px-4 sm:px-6 lg:px-8 py-6 max-w-[1800px] mx-auto pb-8">
 
                     {/* ── Header ── */}

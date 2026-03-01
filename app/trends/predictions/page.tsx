@@ -12,7 +12,7 @@ export default async function TrendPredictionsPage() {
   return (
     <DashboardLayout>
       <div className="p-8 max-w-7xl mx-auto space-y-8">
-        <TrendPredictions userId={user.id} />
+        <TrendPredictions userId={user.id} userPlan={user.plan || 'starter'} />
       </div>
     </DashboardLayout>
   );
