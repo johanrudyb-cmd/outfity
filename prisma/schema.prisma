@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,37 +8,33 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  emailVerified DateTime?
-  name          String?
-  password      String?   // Pour auth email/password
-  plan            String    @default("free") // free, creator
-  
-  // Onboarding
-  onboardingCompleted Boolean  @default(false)
-  onboardingData      Json?    // stocke les réponses de l'onboarding (univers, produit, nom, pitch)
-
-  subscribedAt    DateTime? 
-  stripeCustomerId String?   @unique
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  accounts        Account[]
-  sessions        Session[]
-  brands          Brand[]
-  notifications   Notification[]
-  factoryReviews  FactoryReview[]
-  preferences     UserPreferences?
-  fashionBrands   FashionBrand[]
-  aiUsages        AIUsage[]
-  surplusCredits  SurplusCredits[]
-  posts           BlogPost[]
-  affiliate     Affiliate? @relation("PartnerAccount")
-  affiliateId   String?    // ID de l'affilié qui a parrainé cet utilisateur
-  referredBy    Affiliate? @relation("Referrals", fields: [affiliateId], references: [id])
-  pushSubscriptions PushSubscription[]
+  id                  String             @id @default(cuid())
+  email               String             @unique
+  emailVerified       DateTime?
+  name                String?
+  password            String?
+  plan                String             @default("free")
+  subscribedAt        DateTime?
+  stripeCustomerId    String?            @unique
+  image               String?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  onboardingCompleted Boolean            @default(false)
+  onboardingData      Json?
+  affiliateId         String?
+  aiUsages            AIUsage[]
+  accounts            Account[]
+  affiliate           Affiliate?         @relation("PartnerAccount")
+  posts               BlogPost[]
+  brands              Brand[]
+  factoryReviews      FactoryReview[]
+  fashionBrands       FashionBrand[]
+  notifications       Notification[]
+  pushSubscriptions   PushSubscription[]
+  sessions            Session[]
+  surplusCredits      SurplusCredits[]
+  referredBy          Affiliate?         @relation("Referrals", fields: [affiliateId], references: [id])
+  preferences         UserPreferences?
 }
 
 model Account {
@@ -50,15 +43,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -75,7 +67,7 @@ model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
-  data       Json?    // Données temporaires (ex: name, password pour signup différé)
+  data       Json?
 
   @@unique([identifier, token])
 }
@@ -87,47 +79,39 @@ model PushSubscription {
   p256dh    String
   auth      String
   createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// ============== CORE BUSINESS ==============
-
 model Brand {
-  id        String   @id @default(cuid())
-  userId    String
-  name      String
-  
-  // Identité de marque
-  logo              String?
-  logoVariations    Json?
-  colorPalette      Json?
-  typography        Json?
-  styleGuide        Json?
-  domain            String?
-  socialHandles     Json?
-  templateBrandSlug String?       // Slug de la marque d'inspiration choisie
-  inspirationChangesCount Int     @default(0)  // Compteur de changements de marque d'inspiration
-  inspirationChangedAt    DateTime?             // Date du dernier changement
-  
-  creationMode      String   @default("quick")
-  autoApplyIdentity Boolean  @default(true)
-  status            String   @default("draft")
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  designs              Design[]
-  collections          Collection[]
-  launchMap            LaunchMap?
-  launchMapDesignDrafts LaunchMapDesignDraft[]
-  ugcContents          UGCContent[]
-  mannequins           Mannequin[]
-  strategyGenerations  StrategyGeneration[]
-  favoriteFactories    BrandFavoriteFactory[]
-  mockShopifyProducts  MockShopifyProduct[]
-  agentMessages        AgentMessage[]
+  id                      String                 @id @default(cuid())
+  userId                  String
+  name                    String
+  logo                    String?
+  logoVariations          Json?
+  colorPalette            Json?
+  typography              Json?
+  styleGuide              Json?
+  domain                  String?
+  socialHandles           Json?
+  templateBrandSlug       String?
+  creationMode            String                 @default("quick")
+  autoApplyIdentity       Boolean                @default(true)
+  status                  String                 @default("draft")
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+  inspirationChangedAt    DateTime?
+  inspirationChangesCount Int                    @default(0)
+  agentMessages           AgentMessage[]
+  user                    User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  favoriteFactories       BrandFavoriteFactory[]
+  collections             Collection[]
+  designs                 Design[]
+  launchMap               LaunchMap?
+  launchMapDesignDrafts   LaunchMapDesignDraft[]
+  mannequins              Mannequin[]
+  mockShopifyProducts     MockShopifyProduct[]
+  strategyGenerations     StrategyGeneration[]
+  ugcContents             UGCContent[]
 
   @@index([userId])
 }
@@ -135,37 +119,35 @@ model Brand {
 model AgentMessage {
   id        String   @id @default(cuid())
   brandId   String
-  agentKey  String   // 'joy', 'virgil', 'pharell', 'ada', 'johan'
-  role      String   // 'user', 'assistant'
-  content   String   @db.Text
+  agentKey  String
+  role      String
+  content   String
   createdAt DateTime @default(now())
-
-  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  brand     Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
 
   @@index([brandId, agentKey, createdAt])
 }
 
 model Design {
-  id          String   @id @default(cuid())
-  brandId     String
-  collectionId String?
-  isTemplate  Boolean  @default(false)
-  templateName String?
-  type        String
-  cut         String?
-  material    String?
-  flatSketchUrl String?
-  productImageUrl String?
-  mockupSpec  Json?
-  techPack    Json?
-  productDescription String?  @db.Text
-  prompt      String?
-  status      String   @default("pending")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  brand      Brand       @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  collection Collection? @relation(fields: [collectionId], references: [id], onDelete: SetNull)
+  id                 String      @id @default(cuid())
+  brandId            String
+  collectionId       String?
+  isTemplate         Boolean     @default(false)
+  templateName       String?
+  type               String
+  cut                String?
+  material           String?
+  flatSketchUrl      String?
+  productImageUrl    String?
+  mockupSpec         Json?
+  techPack           Json?
+  productDescription String?
+  prompt             String?
+  status             String      @default("pending")
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  brand              Brand       @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  collection         Collection? @relation(fields: [collectionId], references: [id])
 
   @@index([brandId])
   @@index([collectionId])
@@ -175,59 +157,56 @@ model Design {
 }
 
 model Collection {
-  id          String   @id @default(cuid())
+  id          String              @id @default(cuid())
   brandId     String
   name        String
   description String?
   coverImage  String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  brand    Brand             @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  designs  Design[]
-  articles CollectionArticle[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  brand       Brand               @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  articles    CollectionArticle[]
+  designs     Design[]
 
   @@index([brandId])
 }
 
 model CollectionArticle {
-  id           String   @id @default(cuid())
+  id           String     @id @default(cuid())
   collectionId String
-  type         String   
+  type         String
   label        String?
-  sortOrder    Int      @default(0)
-  payload      Json     
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  sortOrder    Int        @default(0)
+  payload      Json
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
 
   @@index([collectionId])
 }
 
 model LaunchMap {
-  id        String   @id @default(cuid())
-  brandId   String   @unique
-  phase1    Boolean  @default(false)
-  phase2    Boolean  @default(false)
-  phase3    Boolean  @default(false)
-  phase4    Boolean  @default(false)
-  phase5    Boolean  @default(false)
-  phase6    Boolean  @default(false)
-  phase7    Boolean  @default(false)
-  shopifyShopDomain String?
-  phase1Data Json?
+  id                      String    @id @default(cuid())
+  brandId                 String    @unique
+  phase1                  Boolean   @default(false)
+  phase2                  Boolean   @default(false)
+  phase3                  Boolean   @default(false)
+  phase4                  Boolean   @default(false)
+  phase5                  Boolean   @default(false)
+  phase6                  Boolean   @default(false)
+  phase7                  Boolean   @default(false)
+  shopifyShopDomain       String?
+  phase1Data              Json?
   baseMockupByProductType Json?
-  phaseSummaries Json?
+  phaseSummaries          Json?
   recommendationsCache    Json?
   recommendationsCachedAt DateTime?
   contentCalendar         Json?
   siteCreationTodo        Json?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
   shopifyAccessToken      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  brand                   Brand     @relation(fields: [brandId], references: [id], onDelete: Cascade)
 }
 
 model MockShopifyProduct {
@@ -235,15 +214,14 @@ model MockShopifyProduct {
   brandId     String
   shopifyId   String   @unique
   title       String
-  description String   @db.Text
+  description String
   vendor      String
   type        String
   price       Float
-  imageUrl    String?  @db.Text
+  imageUrl    String?
   status      String   @default("draft")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
   brand       Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
 
   @@index([brandId])
@@ -252,94 +230,89 @@ model MockShopifyProduct {
 model LaunchMapDesignDraft {
   id        String   @id @default(cuid())
   brandId   String
-  imageUrl  String   @db.Text
+  imageUrl  String
   placement String?
   source    String?
   createdAt DateTime @default(now())
-
-  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  brand     Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
 
   @@index([brandId])
   @@index([brandId, createdAt])
 }
 
 model Mannequin {
-  id        String   @id @default(cuid())
-  brandId   String
-  name      String
-  imageUrl  String   @db.Text
-  source    String   @default("virtual_tryon")
-  gender    String   @default("female")
-  description String? @db.Text
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  brandId     String
+  name        String
+  imageUrl    String
+  source      String   @default("virtual_tryon")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  description String?
+  gender      String   @default("female")
+  brand       Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
 
   @@index([brandId])
 }
 
 model StrategyGeneration {
-  id                 String   @id @default(cuid())
-  brandId            String
-  templateBrandSlug  String
-  templateBrandName  String
-  strategyText       String   @db.Text
-  positioning        String?
-  targetAudience     String?
-  visualIdentity     Json?
-  createdAt          DateTime @default(now())
-
-  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  id                String   @id @default(cuid())
+  brandId           String
+  templateBrandSlug String
+  templateBrandName String
+  strategyText      String
+  positioning       String?
+  targetAudience    String?
+  visualIdentity    Json?
+  createdAt         DateTime @default(now())
+  brand             Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
 
   @@index([brandId])
   @@index([brandId, createdAt])
 }
 
 model TemplateStrategy {
-  id                 String   @id @default(cuid())
-  templateBrandSlug  String   @unique
-  templateBrandName  String
-  strategyText       String   @db.Text
-  visualIdentity     Json?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  id                String   @id @default(cuid())
+  templateBrandSlug String   @unique
+  templateBrandName String
+  strategyText      String
+  visualIdentity    Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   @@index([templateBrandSlug])
 }
 
 model Factory {
-  id          String   @id @default(cuid())
-  name        String
-  country     String
-  moq         Int
-  specialties String[]
-  leadTime    Int
-  certifications String[]
-  contactEmail String?
-  contactPhone String?
-  website     String?
-  rating      Float?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  quotes            Quote[]
-  reviews           FactoryReview[]
-  favoriteByBrands  BrandFavoriteFactory[]
-  trendProducts     TrendProduct[]
+  id               String                 @id @default(cuid())
+  name             String
+  country          String
+  moq              Int
+  specialties      String[]
+  leadTime         Int
+  certifications   String[]
+  contactEmail     String?
+  contactPhone     String?
+  website          String?
+  rating           Float?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  favoriteByBrands BrandFavoriteFactory[]
+  reviews          FactoryReview[]
+  quotes           Quote[]
+  trendProducts    TrendProduct[]
 
   @@index([country])
   @@index([specialties])
 }
 
 model BrandFavoriteFactory {
-  id         String   @id @default(cuid())
-  brandId    String
-  factoryId  String
-  createdAt  DateTime @default(now())
-
-  brand   Brand   @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  factory Factory @relation(fields: [factoryId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  brandId   String
+  factoryId String
+  createdAt DateTime @default(now())
+  brand     Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  factory   Factory  @relation(fields: [factoryId], references: [id], onDelete: Cascade)
 
   @@unique([brandId, factoryId])
   @@index([brandId])
@@ -355,8 +328,7 @@ model Quote {
   message   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  factory Factory @relation(fields: [factoryId], references: [id], onDelete: Cascade)
+  factory   Factory  @relation(fields: [factoryId], references: [id], onDelete: Cascade)
 
   @@index([brandId])
   @@index([factoryId])
@@ -367,14 +339,13 @@ model FactoryReview {
   userId    String
   factoryId String
   rating    Int
-  comment   String?  @db.Text
+  comment   String?
   photos    String[]
   verified  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  factory Factory @relation(fields: [factoryId], references: [id], onDelete: Cascade)
+  factory   Factory  @relation(fields: [factoryId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, factoryId])
   @@index([factoryId])
@@ -382,16 +353,15 @@ model FactoryReview {
 }
 
 model SurplusCredits {
-  id               String   @id @default(cuid())
-  userId           String
-  feature          String
-  amount           Int
-  consumed         Int      @default(0)
-  stripeSessionId  String?  @unique
-  packId           String?
-  createdAt        DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String   @id @default(cuid())
+  userId          String
+  feature         String
+  amount          Int
+  consumed        Int      @default(0)
+  stripeSessionId String?  @unique
+  packId          String?
+  createdAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, feature])
 }
@@ -403,8 +373,7 @@ model AIUsage {
   costEur   Float
   metadata  Json?
   createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
   @@index([userId])
@@ -414,84 +383,72 @@ model UGCContent {
   id        String   @id @default(cuid())
   brandId   String
   type      String
-  content   String   @db.Text
+  content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  brand     Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
 
   @@index([brandId])
 }
 
-// ============== TRENDS & ANALYSIS ==============
-
 model BrandSpyAnalysis {
-  id          String   @id @default(cuid())
-  userId      String
-  shopifyUrl  String
-  storeName   String?
-  category    String?
-  launchDate  String?
-  country     String?
-  
+  id                      String   @id @default(cuid())
+  userId                  String
+  shopifyUrl              String
+  storeName               String?
+  category                String?
+  launchDate              String?
+  country                 String?
   estimatedRevenue        Float?
   estimatedDailyRevenue   Float?
-  estimatedMonthlyRevenue  Float?
+  estimatedMonthlyRevenue Float?
   productCount            Int?
   averageOrdersPerMonth   Int?
-  
   trafficSources          Json?
   markets                 Json?
   monthlyTraffic          Json?
   monthlyRevenue          Json?
-  
-  stack       Json?
-  theme       Json?
-  
-  adStrategy  Json?
-  adsEvolution Json?
-  adTypes     Json?
-  
-  aiAnalysis  Json?
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  stack                   Json?
+  theme                   Json?
+  adStrategy              Json?
+  adsEvolution            Json?
+  adTypes                 Json?
+  aiAnalysis              Json?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 }
 
 model BrandAnalysis {
   id              String   @id @default(cuid())
   brandKey        String   @unique
   brandName       String
-  analysis        String   @db.Text
+  analysis        String
   visualIdentity  Json?
   logoUrl         String?
-  
-  signaturePiece  String?
-  dominantStyle   String?
-  cyclePhase      String?
-  launchPotential String?
-  indicativePrice String?
-  websiteUrl      String?
-
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  cyclePhase      String?
+  dominantStyle   String?
+  indicativePrice String?
+  launchPotential String?
+  signaturePiece  String?
+  websiteUrl      String?
 
   @@index([brandKey])
 }
 
 model FashionBrand {
-  id              String   @id @default(cuid())
-  userId          String
-  name            String
-  url             String
-  isTrackingActive Boolean @default(false)
-  lastSales24h    Int      @default(0)
-  lastRevenue24h  Float    @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  snapshots  StoreSnapshot[]
+  id               String          @id @default(cuid())
+  userId           String
+  name             String
+  url              String
+  isTrackingActive Boolean         @default(false)
+  lastSales24h     Int             @default(0)
+  lastRevenue24h   Float           @default(0)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  snapshots        StoreSnapshot[]
 
   @@unique([userId, url])
   @@index([userId])
@@ -499,15 +456,14 @@ model FashionBrand {
 }
 
 model StoreSnapshot {
-  id            String   @id @default(cuid())
+  id            String       @id @default(cuid())
   brandId       String
-  timestamp     DateTime @default(now())
+  timestamp     DateTime     @default(now())
   inventoryData Json
-  salesDiff     Int      @default(0)
-  revenueDiff   Float    @default(0)
-  createdAt     DateTime @default(now())
-
-  brand FashionBrand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  salesDiff     Int          @default(0)
+  revenueDiff   Float        @default(0)
+  createdAt     DateTime     @default(now())
+  brand         FashionBrand @relation(fields: [brandId], references: [id], onDelete: Cascade)
 
   @@index([brandId, timestamp])
   @@index([brandId])
@@ -524,75 +480,70 @@ model TrendingBrand {
   cyclePhase      String
   launchPotential String
   indicativePrice String
-  websiteUrl      String?
   month           String
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  websiteUrl      String?
 
   @@unique([rank, month])
   @@index([month])
 }
 
 model TrendProduct {
-  id            String   @id @default(cuid())
-  name          String
-  category      String
-  style         String
-  material      String
-  averagePrice  Float
-  trendScore    Float
-  saturability  Float
-  imageUrl      String?
-  description   String?  @db.Text
-  searchVolume  Int?
-  marketZone    String?
-  cut           String?
-  visualTags    Json?
-  trendScoreVisual Float?
-  productSignature String?
-  isGlobalTrendAlert Boolean @default(false)
-  sourceBrand   String?
-  productBrand  String?
-  sourceUrl     String   @unique
-  brandWebsiteUrl String?
-  segment       String?
-  ageRange      String?  // '18-24' | '25-34'
-  trendGrowthPercent Int?
-  trendLabel    String?
-  businessAnalysis String? @db.Text
-  color         String?
-  sizes         String?
-  countryOfOrigin String?
-  articleNumber String?
-  careInstructions String? @db.Text
-  daysInTop10   Int?
-  estimatedCogsPercent Float?
-  complexityScore String?
-  sustainabilityScore Float?
-  stockOutRisk  String?
-  markdownPercent Float?
+  id                        String            @id @default(cuid())
+  name                      String
+  category                  String
+  style                     String
+  material                  String
+  averagePrice              Float
+  trendScore                Float
+  saturability              Float
+  imageUrl                  String?
+  description               String?
+  searchVolume              Int?
+  marketZone                String?
+  cut                       String?
+  visualTags                Json?
+  trendScoreVisual          Float?
+  productSignature          String?
+  isGlobalTrendAlert        Boolean           @default(false)
+  sourceBrand               String?
+  productBrand              String?
+  sourceUrl                 String            @unique
+  brandWebsiteUrl           String?
+  segment                   String?
+  trendGrowthPercent        Int?
+  trendLabel                String?
+  businessAnalysis          String?
+  color                     String?
+  sizes                     String?
+  countryOfOrigin           String?
+  articleNumber             String?
+  careInstructions          String?
+  daysInTop10               Int?
+  estimatedCogsPercent      Float?
+  complexityScore           String?
+  sustainabilityScore       Float?
+  stockOutRisk              String?
+  markdownPercent           Float?
   visualAttractivenessScore Float?
-  dominantAttribute String?
-  
-  // -- OPERATIONAL AI ENGINE FIELDS --
-  marketRegion      String?   @default("Europe")
-  weatherSignal     String?   @default("Stable")
-  predictedScore60d Int?      @default(0)
-  productionSafety  String?   @default("INCONNU") // SÛR, RISQUÉ, DANGER
-  upcomingCatalysts Json?     // [{ name, source, impact }]
-  opportunityReason String?   @db.Text
-  saturationReason  String?   @db.Text
-  lastScan          String?   @default("Just now")
-  aiConfidence      Int?      @default(0)
-
-  suggestedRetailPrice Float?
-  matchedSupplierId    String?
-
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  favorites ProductFavorite[]
-  matchedSupplier Factory? @relation(fields: [matchedSupplierId], references: [id], onDelete: SetNull)
+  dominantAttribute         String?
+  createdAt                 DateTime          @default(now())
+  updatedAt                 DateTime          @updatedAt
+  ageRange                  String?
+  aiConfidence              Int?              @default(0)
+  lastScan                  String?           @default("Just now")
+  marketRegion              String?           @default("Europe")
+  matchedSupplierId         String?
+  opportunityReason         String?
+  predictedScore60d         Int?              @default(0)
+  productionSafety          String?           @default("INCONNU")
+  saturationReason          String?
+  suggestedRetailPrice      Float?
+  upcomingCatalysts         Json?
+  weatherSignal             String?           @default("Stable")
+  favorites                 ProductFavorite[]
+  matchedSupplier           Factory?          @relation(fields: [matchedSupplierId], references: [id])
 
   @@index([marketZone])
   @@index([segment])
@@ -601,18 +552,17 @@ model TrendProduct {
 }
 
 model ProductFavorite {
-  id        String   @id @default(cuid())
-  userId   String
+  id        String       @id @default(cuid())
+  userId    String
   productId String
-  createdAt DateTime @default(now())
-
-  product TrendProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+  product   TrendProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([userId, productId])
 }
 
 model TrendSignal {
-  id                String   @id @default(cuid())
+  id                String    @id @default(cuid())
   productName       String
   productType       String
   cut               String?
@@ -624,17 +574,17 @@ model TrendSignal {
   country           String?
   style             String?
   price             Float
-  priceCurrency     String   @default("EUR")
+  priceCurrency     String    @default("EUR")
   imageUrl          String?
-  appearanceCount   Int      @default(1)
-  firstSeenAt       DateTime @default(now())
-  lastSeenAt        DateTime @default(now())
+  appearanceCount   Int       @default(1)
+  firstSeenAt       DateTime  @default(now())
+  lastSeenAt        DateTime  @default(now())
   confirmedAt       DateTime?
   isConfirmed       Boolean   @default(false)
   confirmationScore Int       @default(0)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
   @@index([productType, isConfirmed])
   @@index([brand, sourceSection])
   @@index([confirmedAt])
@@ -647,9 +597,9 @@ model TrendSignal {
 model GeneratedProductImage {
   id         String   @id @default(cuid())
   trendKey   String   @unique
-  promptText String   @db.Text
-  imageUrl   String   @db.Text
-  adviceText String?  @db.Text
+  promptText String
+  imageUrl   String
+  adviceText String?
   rating     Int?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -658,109 +608,100 @@ model GeneratedProductImage {
 }
 
 model ScrapableBrand {
-  id              String   @id @default(cuid())
-  name            String   @unique
-  baseUrl         String
-  newInUrl        String
-  bestSellersUrl  String
-  productSelector String
-  nameSelector    String
-  priceSelector   String
-  imageSelector   String
-  isActive        Boolean  @default(true)
-  country         String?
-  category        String?
-  priority        Int      @default(5)
-  notes           String?  @db.Text
-  lastScrapedAt   DateTime?
-  lastScrapeSuccess Boolean @default(true)
-  totalScraped    Int      @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                String    @id @default(cuid())
+  name              String    @unique
+  baseUrl           String
+  newInUrl          String
+  bestSellersUrl    String
+  productSelector   String
+  nameSelector      String
+  priceSelector     String
+  imageSelector     String
+  isActive          Boolean   @default(true)
+  country           String?
+  category          String?
+  priority          Int       @default(5)
+  notes             String?
+  lastScrapedAt     DateTime?
+  lastScrapeSuccess Boolean   @default(true)
+  totalScraped      Int       @default(0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 }
 
-// ============== SYSTEME DE BLOG (VITAL) ==============
-
 model BlogPost {
-  id          String   @id @default(cuid())
-  title       String
-  slug        String   @unique
-  excerpt     String   @db.Text
-  content     String   @db.Text
-  coverImage  String?
-  sourceUrl   String?
-  tags        String[]
-  relatedBrands String[]
-  published   Boolean  @default(false)
-  publishedAt DateTime @default(now())
-  author      String?   // Nouveau champ texte pour n8n (ex: "OUTFITY Intelligence")
-  authorId    String?
-  categoryId  String?
-  
+  id             String        @id @default(cuid())
+  title          String
+  slug           String        @unique
+  excerpt        String
+  content        String
+  coverImage     String?
+  published      Boolean       @default(false)
+  publishedAt    DateTime      @default(now())
+  tags           String[]
+  relatedBrands  String[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  sourceUrl      String?
+  authorId       String?
+  categoryId     String?
   seoTitle       String?
   seoDescription String?
   seoKeywords    String?
-
-  authorUser User?     @relation(fields: [authorId], references: [id])
-  category  BlogCategory? @relation(fields: [categoryId], references: [id])
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  author         String?
+  authorUser     User?         @relation(fields: [authorId], references: [id])
+  category       BlogCategory? @relation(fields: [categoryId], references: [id])
 
   @@index([published])
   @@index([slug])
 }
 
 model BlogCategory {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  slug        String   @unique
+  id          String     @id @default(cuid())
+  name        String     @unique
+  slug        String     @unique
   description String?
-  
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   posts       BlogPost[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 }
 
 model Notification {
   id        String   @id @default(cuid())
   userId    String
   title     String
-  message   String   @db.Text
+  message   String
   type      String   @default("info")
   read      Boolean  @default(false)
   link      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, read])
   @@index([userId, createdAt])
 }
 
 model UserPreferences {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  preferredCountry String?
-  preferredCountries String[]
-  preferredCategories String[]
-  preferredStyles     String[]
-  priceRangeMin       Float?
-  priceRangeMax       Float?
+  id                         String   @id @default(cuid())
+  userId                     String   @unique
+  preferredCountry           String?
+  preferredCountries         String[]
+  preferredCategories        String[]
+  preferredStyles            String[]
+  priceRangeMin              Float?
+  priceRangeMax              Float?
   preferredSourcingCountries String[]
-  preferredMOQ              Int?
-  maxLeadTime               Int?
-  preferredMarkets          String[]
-  language                  String   @default("fr")
-  currency                  String   @default("EUR")
-  timezone                  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  preferredMOQ               Int?
+  maxLeadTime                Int?
+  preferredMarkets           String[]
+  language                   String   @default("fr")
+  currency                   String   @default("EUR")
+  timezone                   String?
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+  user                       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
   @@index([userId])
 }
 
@@ -769,7 +710,7 @@ model AdminLog {
   userId    String?
   action    String
   details   Json?
-  status    String   @default("success") // success, error
+  status    String   @default("success")
   metadata  Json?
   ipAddress String?
   userAgent String?
@@ -781,51 +722,48 @@ model AdminLog {
 }
 
 model Affiliate {
-  id              String   @id @default(cuid())
-  userId          String?  @unique
+  id              String                @id @default(cuid())
+  userId          String?               @unique
   name            String
-  email           String   @unique
-  referralCode    String   @unique
-  commissionRate  Float    @default(0.15) // 15% par défaut
-  status          String   @default("PENDING") // PENDING, ACTIVE, REJECTED
-  invitationToken String?  @unique
-  earningsTotal   Float    @default(0)
-  earningsPaid    Float    @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  user            User?             @relation("PartnerAccount", fields: [userId], references: [id])
-  referrals       User[]            @relation("Referrals")
+  email           String                @unique
+  referralCode    String                @unique
+  commissionRate  Float                 @default(0.15)
+  status          String                @default("PENDING")
+  invitationToken String?               @unique
+  earningsTotal   Float                 @default(0)
+  earningsPaid    Float                 @default(0)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  user            User?                 @relation("PartnerAccount", fields: [userId], references: [id])
   clicks          AffiliateClick[]
   commissions     AffiliateCommission[]
+  referrals       User[]                @relation("Referrals")
 
   @@index([referralCode])
   @@index([invitationToken])
 }
 
 model AffiliateClick {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   affiliateId String
   ipAddress   String?
   userAgent   String?
   referer     String?
-  createdAt   DateTime @default(now())
-
+  createdAt   DateTime  @default(now())
   affiliate   Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
 
   @@index([affiliateId])
 }
 
 model AffiliateCommission {
-  id              String   @id @default(cuid())
-  affiliateId     String
-  orderId         String?   // ID de commande ou session Stripe
-  amount          Float
-  currency        String    @default("EUR")
-  status          String    @default("PENDING") // PENDING, PAID, CANCELLED
-  createdAt       DateTime  @default(now())
-
-  affiliate       Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  id          String    @id @default(cuid())
+  affiliateId String
+  orderId     String?
+  amount      Float
+  currency    String    @default("EUR")
+  status      String    @default("PENDING")
+  createdAt   DateTime  @default(now())
+  affiliate   Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
 
   @@index([affiliateId])
 }

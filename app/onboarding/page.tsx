@@ -15,10 +15,13 @@ export default async function OnboardingPage() {
     select: { plan: true, onboardingCompleted: true },
   });
 
-  // Si l'onboarding est déjà complété, rediriger vers le dashboard
+  // On ne redirige plus d'ici vers le dashboard pour éviter les boucles infinies 
+  // si le dashboard redirige vers le onboarding parce qu'il manque la marque.
+  /*
   if (user?.onboardingCompleted) {
     redirect('/dashboard');
   }
+  */
 
   return (
     <Suspense fallback={

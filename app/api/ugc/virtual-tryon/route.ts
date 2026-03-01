@@ -5,6 +5,7 @@ import { generateVirtualTryOn } from '@/lib/api/higgsfield';
 import { prisma } from '@/lib/prisma';
 import { NotificationHelpers } from '@/lib/notifications';
 import { withAIUsageLimit } from '@/lib/ai-usage';
+import { uploadUrlToSupabaseStorage, isSupabaseStorageConfigured } from '@/lib/supabase-storage';
 
 export const runtime = 'nodejs';
 
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
     const higgsfieldApiSecret = process.env.HIGGSFIELD_API_SECRET;
     if (!higgsfieldApiKey || !higgsfieldApiSecret) {
       return NextResponse.json(
-        { 
+        {
           error: 'Clés API Higgsfield non configurées. Veuillez configurer HIGGSFIELD_API_KEY et HIGGSFIELD_API_SECRET dans les variables d\'environnement.'
         },
         { status: 503 }
@@ -56,7 +57,7 @@ export async function POST(request: Request) {
       // Si erreur liée à la configuration API
       if (msg.includes('HIGGSFIELD_API_KEY') || msg.includes('doivent être définis')) {
         return NextResponse.json(
-          { 
+          {
             error: 'Clés API Higgsfield non configurées. Veuillez configurer HIGGSFIELD_API_KEY et HIGGSFIELD_API_SECRET dans les variables d\'environnement.'
           },
           { status: 503 }
@@ -65,19 +66,30 @@ export async function POST(request: Request) {
       throw err;
     }
 
+    // Ré-héberger l'image dans Supabase Storage pour une URL permanente (accessible par Higgsfield shooting)
+    let finalImageUrl = imageUrl;
+    if (isSupabaseStorageConfigured()) {
+      try {
+        const filename = `tryon-${Date.now()}.jpg`;
+        finalImageUrl = await uploadUrlToSupabaseStorage(imageUrl, filename, `brands/${brandId}/tryons`);
+      } catch (e) {
+        console.warn('[VirtualTryOn] Supabase Storage re-host failed, using original URL:', e);
+      }
+    }
+
     // Sauvegarder dans la base de données
     await prisma.uGCContent.create({
       data: {
         brandId,
         type: 'virtual_tryon',
-        content: imageUrl,
+        content: finalImageUrl,
       },
     });
 
     // Créer une notification
     await NotificationHelpers.ugcGenerated(user.id, 'virtual_tryon', brandId);
 
-    return NextResponse.json({ imageUrl });
+    return NextResponse.json({ imageUrl: finalImageUrl });
   } catch (error: any) {
     console.error('Erreur lors de la génération Virtual Try-On:', error);
     return NextResponse.json(

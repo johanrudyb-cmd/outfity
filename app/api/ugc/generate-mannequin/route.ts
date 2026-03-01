@@ -6,6 +6,7 @@ import { generateProductImage, isHiggsfieldConfigured } from '@/lib/api/higgsfie
 import { withAIUsageLimit } from '@/lib/ai-usage';
 import { buildMannequinPrompt } from '@/lib/mannequin-questionnaire-types';
 import type { MannequinQuestionnaireAnswers } from '@/lib/mannequin-questionnaire-types';
+import { uploadUrlToSupabaseStorage, isSupabaseStorageConfigured } from '@/lib/supabase-storage';
 
 export const runtime = 'nodejs';
 export const maxDuration = 120;
@@ -58,7 +59,18 @@ export async function POST(request: Request) {
       { brandId }
     );
 
-    return NextResponse.json({ imageUrl, prompt });
+    // Ré-héberger l'image dans Supabase Storage pour une URL permanente
+    let finalImageUrl = imageUrl;
+    if (isSupabaseStorageConfigured()) {
+      try {
+        const filename = `mannequin-${Date.now()}.jpg`;
+        finalImageUrl = await uploadUrlToSupabaseStorage(imageUrl, filename, `brands/${brandId}/mannequins`);
+      } catch (e) {
+        console.warn('[GenerateMannequin] Supabase Storage re-host failed, using original URL:', e);
+      }
+    }
+
+    return NextResponse.json({ imageUrl: finalImageUrl, prompt });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Erreur lors de la génération';
     const isQuota = typeof message === 'string' && (message.includes('limité') || message.includes('Quota') || message.includes('épuisé'));

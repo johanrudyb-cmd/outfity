@@ -44,9 +44,8 @@ function SignInContent() {
         return;
       }
 
-      // Connexion réussie
-      router.push(callbackUrl);
-      router.refresh();
+      // Connexion réussie -> Rechargement complet pour garantir la session côté serveur
+      window.location.href = callbackUrl;
     } catch (err: any) {
       console.error('Erreur lors de la connexion:', err);
       setError('Une erreur est survenue. Vérifiez votre connexion.');

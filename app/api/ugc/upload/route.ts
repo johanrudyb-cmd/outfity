@@ -4,6 +4,7 @@ import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
 import sharp from 'sharp';
+import { uploadToSupabaseStorage, isSupabaseStorageConfigured } from '@/lib/supabase-storage';
 
 export const runtime = 'nodejs';
 
@@ -59,21 +60,37 @@ export async function POST(request: Request) {
       }
     }
 
-    // Créer le dossier uploads s'il n'existe pas
-    const uploadsDir = join(process.cwd(), 'public', 'uploads', brandId);
+    // Générer un nom de fichier unique
+    const timestamp = Date.now();
+    const safeFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const filename = `${timestamp}-${safeFilename}`;
+
+    // ---- STRATÉGIE D'UPLOAD ----
+    // 1. Priorité : Supabase Storage (URL publique permanente, accessible par APIs tierces)
+    // 2. Fallback : système de fichiers local (uniquement en développement)
+
+    if (isSupabaseStorageConfigured()) {
+      try {
+        const folder = brandId ? `brands/${brandId}` : 'misc';
+        const publicUrl = await uploadToSupabaseStorage(buffer, filename, file.type, folder);
+        return NextResponse.json({ url: publicUrl, filename });
+      } catch (storageError: any) {
+        console.error('[Upload] Supabase Storage failed, falling back to local:', storageError?.message);
+        // Fall through to local storage
+      }
+    }
+
+    // Fallback : stockage local (développement uniquement — non persistant sur Vercel)
+    const uploadsDir = join(process.cwd(), 'public', 'uploads', brandId || 'misc');
     if (!existsSync(uploadsDir)) {
       await mkdir(uploadsDir, { recursive: true });
     }
-
-    // Générer un nom de fichier unique
-    const timestamp = Date.now();
-    const filename = `${timestamp}-${file.name}`;
     const filepath = join(uploadsDir, filename);
-
     await writeFile(filepath, buffer);
 
-    // Retourner l'URL publique
-    const url = `/uploads/${brandId}/${filename}`;
+    // AVERTISSEMENT : cette URL ne fonctionnera pas avec les APIs tierces en local
+    const url = `/uploads/${brandId || 'misc'}/${filename}`;
+    console.warn('[Upload] ⚠️ Fichier sauvegardé localement. Configurez SUPABASE_SERVICE_ROLE_KEY pour un stockage persistant.');
 
     return NextResponse.json({ url, filename });
   } catch (error: any) {
