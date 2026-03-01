@@ -114,8 +114,8 @@ export function NotificationsDropdown() {
       </Button>
 
       {isOpen && (
-        <div className="absolute right-0 top-14 w-96 bg-white/95 backdrop-blur-xl rounded-3xl shadow-apple-lg z-50">
-          <div className="p-6 border-b border-black/5">
+        <div className="absolute -right-2 sm:right-0 top-14 w-[calc(100vw-1rem)] sm:w-96 max-w-[380px] bg-white/95 backdrop-blur-xl rounded-3xl shadow-apple-lg z-50">
+          <div className="p-4 sm:p-6 border-b border-black/5">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xl font-semibold tracking-tight text-[#1D1D1F]">Notifications</h3>
               {unreadCount > 0 && (
@@ -150,9 +150,8 @@ export function NotificationsDropdown() {
                 {notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`p-6 transition-colors cursor-pointer hover:bg-black/5 ${
-                      !notification.read ? 'bg-black/2' : ''
-                    }`}
+                    className={`p-6 transition-colors cursor-pointer hover:bg-black/5 ${!notification.read ? 'bg-black/2' : ''
+                      }`}
                     onClick={() => {
                       if (!notification.read) {
                         markAsRead(notification.id);
@@ -168,16 +167,14 @@ export function NotificationsDropdown() {
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1">
                             <p
-                              className={`text-base font-semibold mb-2 ${
-                                notification.read ? 'text-[#1D1D1F]/50' : 'text-[#1D1D1F]'
-                              }`}
+                              className={`text-base font-semibold mb-2 ${notification.read ? 'text-[#1D1D1F]/50' : 'text-[#1D1D1F]'
+                                }`}
                             >
                               {notification.title}
                             </p>
                             <p
-                              className={`text-sm mb-2 line-clamp-2 ${
-                                notification.read ? 'text-[#1D1D1F]/50' : 'text-[#1D1D1F]/70'
-                              }`}
+                              className={`text-sm mb-2 line-clamp-2 ${notification.read ? 'text-[#1D1D1F]/50' : 'text-[#1D1D1F]/70'
+                                }`}
                             >
                               {notification.message}
                             </p>
