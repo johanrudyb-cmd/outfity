@@ -17,7 +17,7 @@ export async function sendEmail({
     to,
     subject,
     html,
-    from = 'OUTFITY <send@outfity.fr>'
+    from = 'OUTFITY <onboarding@resend.dev>'
 }: SendEmailParams) {
     if (!RESEND_API_KEY) {
         console.warn('[Mail] RESEND_API_KEY manquante. Email non envoyé.');
@@ -25,19 +25,24 @@ export async function sendEmail({
     }
 
     try {
-        console.log(`[Mail] Tentative d'envoi vers: ${to} (Subject: ${subject})`);
+        const payload = {
+            from,
+            to: Array.isArray(to) ? to : [to],
+            subject,
+            html,
+        };
+        console.log(`[Mail] Payload sent to Resend:`, JSON.stringify(payload, (key, value) => {
+            if (key === 'html') return value.substring(0, 100) + '...';
+            return value;
+        }, 2));
+
         const response = await fetch(RESEND_API_URL, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${RESEND_API_KEY}`,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                from,
-                to: Array.isArray(to) ? to : [to],
-                subject,
-                html,
-            }),
+            body: JSON.stringify(payload),
         });
 
         const data = await response.json();
