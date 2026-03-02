@@ -106,7 +106,7 @@ Si c'est le premier message (historique contenant "__INIT__"), présente-toi com
             'assistant_chat_qa',
             async () => {
                 const response = await anthropic.messages.create({
-                    model: 'claude-3-5-sonnet-latest',
+                    model: 'claude-3-5-sonnet-20240620',
                     max_tokens: 1024,
                     system: SYSTEM_PROMPT,
                     messages: filteredMessages as any,

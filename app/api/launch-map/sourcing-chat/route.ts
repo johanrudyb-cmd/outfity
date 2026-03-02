@@ -196,7 +196,7 @@ Si "__INIT__", présente-toi comme Ada, experte sourcing chez OUTFITY. Demande Q
             'assistant_chat_qa',
             async () => {
                 const response = await anthropic.messages.create({
-                    model: 'claude-3-5-sonnet-latest',
+                    model: 'claude-3-5-sonnet-20240620',
                     max_tokens: 1024,
                     system: SYSTEM_PROMPT,
                     messages: claudeMessages,

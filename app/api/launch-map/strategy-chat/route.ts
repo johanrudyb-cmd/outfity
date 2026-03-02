@@ -115,7 +115,7 @@ Ensuite, regarde si une stratégie existe dans le contexte :
             'assistant_chat_qa',
             async () => {
                 const response = await anthropic.messages.create({
-                    model: 'claude-3-5-sonnet-latest',
+                    model: 'claude-3-5-sonnet-20240620',
                     max_tokens: 600,
                     system: SYSTEM_PROMPT,
                     messages: filteredMessages as any,

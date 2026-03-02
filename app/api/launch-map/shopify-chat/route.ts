@@ -92,7 +92,7 @@ Si c'est le premier message (ou texte __INIT__), présente-toi comme Johan, expe
             'assistant_chat_qa',
             async () => {
                 const response = await anthropic.messages.create({
-                    model: 'claude-3-5-sonnet-latest',
+                    model: 'claude-3-5-sonnet-20240620',
                     max_tokens: 600,
                     system: SYSTEM_PROMPT,
                     messages: messages.map(m => ({ role: m.role, content: m.content === '__INIT__' ? 'Hello' : m.content })),

@@ -42,7 +42,7 @@ export interface TrendsAnalysisInput {
   topTrends?: Array<{ productName: string; productType: string; style: string | null; country: string | null; confirmationScore: number }>;
 }
 
-const CLAUDE_MODEL = 'claude-3-5-sonnet-latest';
+const CLAUDE_MODEL = 'claude-3-5-sonnet-20240620';
 
 const anthropic = process.env.ANTHROPIC_API_KEY
   ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
