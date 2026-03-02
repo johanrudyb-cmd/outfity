@@ -8,6 +8,7 @@ import { Loader2, CheckCircle2, XCircle, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
+import { signIn } from 'next-auth/react';
 
 function VerifyEmailContent() {
     const searchParams = useSearchParams();
@@ -37,9 +38,23 @@ function VerifyEmailContent() {
 
                 if (response.ok) {
                     setStatus('success');
-                    setMessage('Votre email a été vérifié avec succès ! Redirection vers le choix de votre plan...');
-                    // Redirection automatique vers le choix du plan après 2 secondes
-                    setTimeout(() => router.push('/auth/choose-plan?verified=true'), 2000);
+                    setMessage('Authentification automatique...');
+
+                    // Auto-login avec le token
+                    const result = await signIn('credentials', {
+                        email,
+                        token,
+                        redirect: false,
+                    });
+
+                    if (result?.error) {
+                        console.error('[VerifyEmail] Auto-login failed:', result.error);
+                        setMessage('Email vérifié, mais la connexion automatique a échoué. Veuillez vous connecter manuellement.');
+                        // On ne redirige pas pour laisser l'utilisateur voir le message ou cliquer sur le bouton
+                    } else {
+                        setMessage('Compte actif ! Préparation de votre espace...');
+                        setTimeout(() => router.push('/auth/callback'), 1500);
+                    }
                 } else {
                     setStatus('error');
                     setMessage(data.error || 'La vérification a échoué.');

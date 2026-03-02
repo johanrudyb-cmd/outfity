@@ -81,10 +81,12 @@ export async function POST(request: Request) {
             console.error('[Verify-Email] Erreur n8n:', e);
         }
 
-        // 4. Nettoyer les tokens pour cet email
+        // 4. On garde les tokens un court instant pour l'auto-login client
+        /*
         await prisma.verificationToken.deleteMany({
             where: { identifier: email },
         });
+        */
 
         return NextResponse.json({ success: true, message: 'Email vérifié avec succès' });
     } catch (error) {

@@ -8,16 +8,62 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
+        token: { label: 'Token', type: 'text' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        if (!credentials?.email) {
           return null;
         }
 
         try {
-          // Import dynamique pour éviter les problèmes Edge Runtime
           const { prisma } = await import('./prisma');
           const bcrypt = await import('bcryptjs');
+
+          // --- AUTO-LOGIN VIA TOKEN (After email verification) ---
+          if (credentials.token) {
+            console.log('[Auth] Tentative auto-login avec token pour:', credentials.email);
+            const vToken = await prisma.verificationToken.findFirst({
+              where: {
+                identifier: credentials.email as string,
+                token: credentials.token as string,
+              }
+            });
+
+            if (vToken && new Date() < vToken.expires) {
+              const user = await prisma.user.findUnique({
+                where: { email: credentials.email as string },
+                select: {
+                  id: true,
+                  email: true,
+                  name: true,
+                  plan: true,
+                  onboardingCompleted: true
+                }
+              });
+
+              if (user) {
+                console.log('[Auth] Auto-login réussi pour:', user.email);
+                // On nettoie le token après usage
+                await prisma.verificationToken.delete({
+                  where: { token: credentials.token as string }
+                }).catch(e => console.error('[Auth] Erreur suppression token:', e));
+
+                return {
+                  id: user.id,
+                  email: user.email,
+                  name: user.name,
+                  plan: user.plan,
+                  onboardingCompleted: user.onboardingCompleted,
+                };
+              }
+            }
+            console.log('[Auth] Token invalide ou expiré');
+            return null;
+          }
+
+          if (!credentials.password) {
+            return null;
+          }
 
           const user = await prisma.user.findUnique({
             where: { email: credentials.email as string },

@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { X, Settings, LogOut, Zap, LayoutDashboard, TrendingUp, Camera, PenSquare, Calculator, Sparkles, Receipt, ShieldCheck, HelpCircle, MessageCircle } from 'lucide-react';
+import { X, Settings, LogOut, LayoutDashboard, TrendingUp, Camera, PenSquare, Calculator, Sparkles, Receipt, ShieldCheck, HelpCircle, Crown, ArrowRight } from 'lucide-react';
 import useSWR from 'swr';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
