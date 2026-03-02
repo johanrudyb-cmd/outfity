@@ -62,7 +62,7 @@ function sanitizeDisplayText(text: string): string {
   return text
     .replace(/\bASOS\b/gi, 'Panel Marché ALPHA (Gen-Z)')
     .replace(/\bZalando\b/gi, 'Panel Marché BETA (Premium)')
-    .replace(/#([A-Za-zÀ-ÿ\u00C0-\u024F][A-Za-z0-9À-ÿ_\u00C0-\u024F]*)/g, '$1');
+    .replace(/#([A-Za-z\u00C0-\u00FF\u00C0-\u024F][A-Za-z0-9\u00C0-\u00FF_\u00C0-\u024F]*)/g, '$1');
 }
 
 function stripMarkdownBold(text: string): string {
