@@ -4,6 +4,22 @@ import { prisma } from '@/lib/prisma';
 export const maxDuration = 60; // Set max duration for Vercel/Serverless to 60s
 export const dynamic = 'force-dynamic';
 
+function getJaccardSimilarity(str1: string, str2: string) {
+    const tokenize = (text: string) => new Set(text.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).filter(w => w.length > 2));
+    const set1 = tokenize(str1);
+    const set2 = tokenize(str2);
+    if (set1.size === 0 && set2.size === 0) return 1;
+    if (set1.size === 0 || set2.size === 0) return 0;
+
+    let intersection = 0;
+    set1.forEach(word => {
+        if (set2.has(word)) intersection++;
+    });
+
+    const union = set1.size + set2.size - intersection;
+    return intersection / union;
+}
+
 export async function POST(req: Request) {
     console.log('[N8N_WEBHOOK] Received request...');
 
@@ -57,6 +73,35 @@ export async function POST(req: Request) {
         // et le post appartient à "OUTFITY Intelligence" par défaut dans l'UI.
 
         try {
+            // Anti-doublon sémantique : on vérifie les articles des 3 derniers jours
+            const threeDaysAgo = new Date();
+            threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+            const recentPosts = await prisma.blogPost.findMany({
+                where: { createdAt: { gte: threeDaysAgo } },
+                select: { id: true, title: true, slug: true }
+            });
+
+            // Si un article a le MÊME slug exact, on autorise la mise à jour (Upsert habituel)
+            const isUpdate = recentPosts.some(p => p.slug === slug);
+
+            if (!isUpdate) {
+                // S'il s'agit d'une nouvelle création, on vérifie la similarité
+                const isDuplicate = recentPosts.some(p => {
+                    const similarity = getJaccardSimilarity(p.title, title);
+                    return similarity > 0.75; // 75% de mots en commun
+                });
+
+                if (isDuplicate) {
+                    console.log(`[N8N_WEBHOOK] 🛑 DUPLICATE DETECTED! Post "${title}" is too similar to an existing post.`);
+                    return NextResponse.json({
+                        success: true,
+                        message: 'Skipped. Duplicate post detected based on title similarity.',
+                        skipped: true
+                    }, { status: 200 }); // On renvoie 200 pour que le webhook ne crashe pas du côté de l'appelant
+                }
+            }
+
             const post = await prisma.blogPost.upsert({
                 where: { slug },
                 update: {
