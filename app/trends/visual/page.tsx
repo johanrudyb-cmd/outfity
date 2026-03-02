@@ -10,7 +10,7 @@ import { Camera } from 'lucide-react';
 
 export const metadata = {
     title: 'Analyseur de tendances visuel',
-    description: 'Analysez n'importe quel vêtement par image grâce à l'IA Vision et découvrez son potentiel commercial.',
+    description: "Analysez n'importe quel vêtement par image grâce à l'IA Vision et découvrez son potentiel commercial.",
 };
 
 export default async function VisualTrendPage() {
