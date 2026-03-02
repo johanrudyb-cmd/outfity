@@ -125,10 +125,16 @@ export async function POST(request: Request) {
             } as any // Cast for now until prisma generate fix
         });
 
-        // Déterminer l'URL de base (priorité à l'env, sinon détection auto)
+        // Déterminer l'URL de base intelligemment
         const host = request.headers.get('host') || 'outfity.fr';
         const protocol = host.includes('localhost') ? 'http' : 'https';
-        const baseUrl = process.env.NEXTAUTH_URL || `${protocol}://${host}`;
+
+        // On évite d'utiliser NEXTAUTH_URL si on détecte qu'on est sur le domaine de prod
+        // mais que la variable pointe encore sur localhost
+        let baseUrl = process.env.NEXTAUTH_URL;
+        if (!baseUrl || (baseUrl.includes('localhost') && !host.includes('localhost'))) {
+            baseUrl = `${protocol}://${host}`;
+        }
 
         const verificationUrl = `${baseUrl.replace(/\/$/, '')}/auth/verify-email?token=${verificationToken}&email=${encodeURIComponent(email)}`;
 

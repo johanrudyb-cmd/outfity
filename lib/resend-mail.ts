@@ -16,7 +16,7 @@ export async function sendEmail({
     to,
     subject,
     html,
-    from = 'OUTFITY <send@send.outfity.fr>'
+    from = 'OUTFITY <no-reply@send.outfity.fr>'
 }: SendEmailParams) {
     const apiKey = (process.env.RESEND_API_KEY || '').trim();
     if (!apiKey) {
