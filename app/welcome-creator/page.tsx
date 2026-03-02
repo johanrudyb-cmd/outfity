@@ -23,7 +23,7 @@ export default async function WelcomeCreatorPage() {
     // Récupérer la marque pour vérifier si la stratégie et le logo ont été faits
     const brand = await prisma.brand.findFirst({
         where: { userId: user.id },
-        select: { logo: true, styleGuide: true, launchMap: { select: { phase1: true } } }
+        select: { id: true, logo: true, styleGuide: true, launchMap: { select: { phase1: true } } }
     });
 
     const hasStrategy = !!brand?.launchMap?.phase1 || !!brand?.styleGuide;
@@ -33,5 +33,6 @@ export default async function WelcomeCreatorPage() {
         userName={dbUser.name || user.name || 'Créateur'}
         hasStrategy={hasStrategy}
         hasLogo={hasLogo}
+        brandId={brand?.id || null}
     />;
 }

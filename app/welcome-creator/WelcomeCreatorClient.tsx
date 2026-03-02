@@ -11,49 +11,59 @@ import {
 } from 'lucide-react';
 
 // ─── Écrans ───────────────────────────────────────────────────
-type Screen = 'intro' | 'agents' | 'features' | 'cta';
-const SCREENS: Screen[] = ['intro', 'agents', 'features', 'cta'];
+type Screen = 'intro' | 'agents' | 'features' | 'strategy' | 'cta';
 
 // ─── Features Creator ────────────────────────────────────────
 const CREATOR_FEATURES = [
     {
         icon: Palette,
         color: '#a032ff',
-        title: 'Studio Design illimité',
-        desc: 'Crée tes propres designs et mockups photo ultra-réalistes avec Pharrell.',
+        title: 'Studio Design & Création',
+        desc: 'Pharrell t\'accompagne dans chaque étape de ta création, de la réflexion au guide sur les logiciels.',
     },
     {
         icon: FileText,
-        color: '#ff6b35',
+        color: '#ff2a5f',
         title: 'Tech Packs Professionnels',
-        desc: 'Génère tes fiches techniques de production pour tes usines (Phase 4).',
+        desc: 'Ada t\'aide à remplir tes fiches techniques de production pour tes usines (Phase 4).',
     },
     {
         icon: TrendingUp,
         color: '#007AFF',
         title: 'Radar Tendances Premium',
-        desc: 'Accès aux 100 tendances validées en temps réel + prédictions sur 30/60/90 jours.',
+        desc: 'Virgil t\'accompagne dans ta stratégie d\'ADN et analyse les tendances en temps réel.',
     },
     {
         icon: ShoppingBag,
         color: '#ffaa00',
         title: 'E-shop & Ventes avec Johan',
-        desc: 'Ton nouvel agent personnel optimise ta boutique Shopify et booste ta conversion.',
+        desc: 'Johan te conseille pour optimiser ta boutique Shopify et booster ta conversion.',
     },
     {
         icon: Sparkles,
         color: '#AF52DE',
-        title: 'DA & Réseaux Sociaux avec Joy',
-        desc: 'Crée du contenu viral, des scripts TikTok et gère ton image de marque avec Joy.',
+        title: 'Social Media & Viralité',
+        desc: 'Joy te guide pour créer du contenu viral et gérer ton image sur les réseaux.',
     },
 ];
 
 // ─── Main ────────────────────────────────────────────────────
-export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo }: { userName: string, hasStrategy: boolean, hasLogo: boolean }) {
+export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo, brandId }: { userName: string, hasStrategy: boolean, hasLogo: boolean, brandId: string | null }) {
     const router = useRouter();
     const { update } = useSession();
-    const [screen, setScreen] = useState<Screen>('intro');
     const [screenIndex, setScreenIndex] = useState(0);
+    const [isSaving, setIsSaving] = useState(false);
+
+    // Définition dynamique des écrans
+    const SCREENS: Screen[] = [
+        'intro',
+        'agents',
+        'features',
+        ...(hasStrategy ? [] : (['strategy'] as Screen[])),
+        'cta'
+    ];
+
+    const screen = SCREENS[screenIndex];
 
     // Rafraîchissement silencieux de la session si nécessaire, sans bloquer le rendu
     useEffect(() => {
@@ -65,13 +75,43 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo }: { userN
         if (screen !== 'intro') return;
         const t = setTimeout(() => goNext(), 3200);
         return () => clearTimeout(t);
-    }, [screen]);
+    }, [screen, screenIndex]);
 
     const goNext = () => {
         const next = screenIndex + 1;
         if (next < SCREENS.length) {
-            setScreen(SCREENS[next]);
             setScreenIndex(next);
+        }
+    };
+
+    const [localStrategyDone, setLocalStrategyDone] = useState(false);
+
+    const handleSelectStrategy = async (strategy: string) => {
+        if (!brandId) {
+            setLocalStrategyDone(true);
+            goNext();
+            return;
+        }
+        setIsSaving(true);
+        try {
+            await fetch(`/api/brands/${brandId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    styleGuide: {
+                        preferredStyle: strategy,
+                        positioning: strategy
+                    }
+                })
+            });
+            setLocalStrategyDone(true);
+            goNext();
+        } catch (e) {
+            console.error(e);
+            setLocalStrategyDone(true);
+            goNext();
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -279,6 +319,65 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo }: { userN
                         </motion.div>
                     )}
 
+                    {/* ── ÉCRAN 3.5 : CHOIX STRATÉGIE (si manquant) ── */}
+                    {screen === 'strategy' && (
+                        <motion.div
+                            key="strategy"
+                            initial={{ opacity: 0, x: 40 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -40 }}
+                            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                            className="max-w-2xl w-full space-y-8"
+                        >
+                            <div className="text-center space-y-2">
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-white text-xs font-bold uppercase tracking-widest mb-2"
+                                >
+                                    <Sparkles className="w-3.5 h-3.5 text-blue-400" /> Configuration de l&apos;Atelier
+                                </motion.div>
+                                <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
+                                    Quel est l&apos;esprit de<br />
+                                    <span className="bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] bg-clip-text text-transparent">
+                                        ton projet ?
+                                    </span>
+                                </h2>
+                                <p className="text-white/50 text-sm">Choisis une direction pour Virgil.</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                                {[
+                                    { label: 'Streetwear Luxury', desc: 'Codes urbains.', icon: '💎' },
+                                    { label: 'Quiet Luxury', desc: 'Minimalisme chic.', icon: '🕊️' },
+                                    { label: 'Gorpcore / Techwear', desc: 'Performance & Tech.', icon: '⛰️' },
+                                    { label: 'Parisian Minimalist', desc: 'Chic intemporel.', icon: '🏛️' },
+                                    { label: 'Néo-Vintage Sport', desc: 'Rétro dynamique.', icon: '🏎️' },
+                                    { label: 'Eco-Basics', desc: 'Durable & Essentiel.', icon: '🌿' }
+                                ].map((opt, i) => (
+                                    <motion.button
+                                        key={opt.label}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: i * 0.05 + 0.2 }}
+                                        disabled={isSaving}
+                                        onClick={() => handleSelectStrategy(opt.label)}
+                                        className="p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-white/30 hover:bg-white/10 transition-all text-left space-y-2 group relative overflow-hidden"
+                                    >
+                                        <div className="text-2xl mb-1">{opt.icon}</div>
+                                        <p className="font-bold text-white text-sm group-hover:text-[#007AFF] transition-colors">{opt.label}</p>
+                                        <p className="text-white/40 text-[10px] leading-tight">{opt.desc}</p>
+                                        {isSaving && (
+                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[1px]">
+                                                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                                            </div>
+                                        )}
+                                    </motion.button>
+                                ))}
+                            </div>
+                        </motion.div>
+                    )}
+
                     {/* ── ÉCRAN 4 : CTA / CHECKLIST ── */}
                     {screen === 'cta' && (
                         <motion.div
@@ -291,30 +390,29 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo }: { userN
                         >
                             <div className="space-y-3">
                                 <h2 className="text-4xl font-black tracking-tight">
-                                    {!hasStrategy || !hasLogo ? 'Action Requise' : 'Par où commencer ?'}
+                                    {(!hasStrategy && !localStrategyDone) ? 'Action Requise' : 'Par où commencer ?'}
                                 </h2>
                                 <p className="text-white/80 font-medium">
-                                    {!hasStrategy || !hasLogo
-                                        ? "🚨 Attention : Tu dois impérativement finaliser ton onboarding. Les agents IA refuseront de te répondre ou te donneront de mauvais résultats sans ta Stratégie et ton Logo."
-                                        : "Voici les 3 premières actions que recommande Virgil pour lancer ta marque vite."}
+                                    {(!hasStrategy && !localStrategyDone)
+                                        ? "🚨 Attention : Tu dois impérativement finaliser ta Stratégie. Virgil a besoin de ton ADN de marque pour t'accompagner efficacement."
+                                        : "Ton studio Créateur est prêt ! Voici les premières actions recommandées par Virgil pour lancer ta marque."}
                                 </p>
                             </div>
 
                             <div className="space-y-3 text-left">
-                                {(!hasStrategy || !hasLogo
+                                {(!hasStrategy && !localStrategyDone
                                     ? [
                                         // Stratégie en premier, toujours
-                                        ...(!hasStrategy ? [{ num: '01', title: 'Générer ma Stratégie', href: '/launch-map/phase/1', color: '#ff3b30', desc: 'Obligatoire. Virgil a besoin de ton ADN pour t\'aider.', locked: false }] : []),
-                                        // Logo seulement si stratégie déjà faite
-                                        ...(!hasLogo && hasStrategy ? [{ num: '01', title: 'Créer mon Logo', href: '/launch-map/phase/1', color: '#ff3b30', desc: 'Obligatoire. Utilise le Studio Logo de Virgil pour finaliser ton identité.', locked: false }] : []),
-                                        // Logo verrouillé si stratégie pas encore faite
-                                        ...(!hasLogo && !hasStrategy ? [{ num: '02', title: 'Créer mon Logo', href: '#', color: '#555', desc: '🔒 Étape disponible après la Stratégie (Phase 1)', locked: true }] : []),
+                                        { num: '01', title: 'Générer ma Stratégie', href: '/launch-map/phase/1', color: '#ff3b30', desc: 'Obligatoire. Virgil a besoin de ton ADN pour t\'aider.', locked: false },
+                                        // Logo recommandé après
+                                        { num: '02', title: 'Créer mon Logo', href: '#', color: '#555', desc: '🔒 Recommandé après la Stratégie (Phase 1)', locked: true },
 
                                     ]
                                     : [
-                                        { num: '01', title: 'Génère ta Stratégie de Marque', href: '/launch-map/phase/1', color: '#007AFF', desc: 'Virgil analyse ton univers et crée ton ADN de marque complet.', locked: false },
-                                        { num: '02', title: 'Crée ta Collection & Designs', href: '/launch-map/phase/2', color: '#a032ff', desc: 'Pharrell génère tes designs et mockups ultra-réalistes.', locked: false },
-                                        { num: '03', title: 'Prépare tes Tech Packs (Phase 4)', href: '/launch-map/phase/4', color: '#ff6b35', desc: 'Génère tes fiches techniques d\'usine basées sur tes pièces.', locked: false },
+                                        { num: '01', title: 'Stratégie de Marque', href: '/launch-map/phase/1', color: '#34C759', desc: 'Virgil t\'a aidé à définir ton ADN.', locked: false, completed: true },
+                                        { num: '02', title: 'Identité Visuelle (Logo)', href: '/launch-map/phase/1', color: hasLogo ? '#34C759' : '#007AFF', desc: hasLogo ? 'Terminé ! Ton logo est enregistré.' : 'Recommandé. Crée ton logo avec Pharrell au Studio.', locked: false, completed: hasLogo },
+                                        { num: '03', title: 'Collection & Création', href: '/launch-map/phase/2', color: '#a032ff', desc: 'Pharrell te guide de l\'idée à la conception.', locked: false },
+                                        { num: '04', title: 'Tech Packs (Fiches Usine)', href: '/launch-map/phase/4', color: '#ff2a5f', desc: 'Remplis tes fiches techniques avec Ada.', locked: false },
                                     ]
                                 ).map((item, i) => (
                                     <motion.a
@@ -338,15 +436,19 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo }: { userN
                                             <p className="font-bold text-white text-sm">{item.title}</p>
                                             <p className="text-white/60 text-xs mt-0.5">{item.desc}</p>
                                         </div>
-                                        <CheckCircle2
-                                            className="w-5 h-5 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                                            style={{ color: item.color }}
-                                        />
+                                        {(item as any).completed ? (
+                                            <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-[#34C759]" />
+                                        ) : (
+                                            <CheckCircle2
+                                                className="w-5 h-5 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                style={{ color: item.color }}
+                                            />
+                                        )}
                                     </motion.a>
                                 ))}
                             </div>
 
-                            {hasStrategy && hasLogo && (
+                            {(hasStrategy || localStrategyDone) && (
                                 <motion.button
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}

@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Send, Sparkles, Loader2, ArrowRight, ArrowLeft, MessageCircle, Palette, Shirt } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { BrandIdentity } from './LaunchMapStepper';
+import { LogoGenerator } from '@/components/ugc/LogoGenerator';
 import { MockupPackSelector } from './MockupPackSelector';
 import Link from 'next/link';
-import { isFreePlan } from '@/lib/plan-utils';
 import { BaseAgentChat } from './BaseAgentChat';
 
 interface PhaseMockupCreationProps {
@@ -24,11 +24,25 @@ interface Message {
   timestamp: Date;
 }
 
-// Renders markdown-like content. Handles __SHOW_MOCKUP_SELECTOR__ magic string
+// Renders markdown-like content. Handles __SHOW_MOCKUP_SELECTOR__ & __SHOW_LOGO_GENERATOR__ magic strings
 export function MessageContent({ content, isUser, brandId, brandName, userPlan }: { content: string, isUser: boolean, brandId: string, brandName?: string, userPlan?: string }) {
-  // Hide suggestions [[...]] and mockup selector from the text bubble
+  // Hide suggestions [[...]] and magic selectors from the text bubble
   let displayContent = content.replace(/\[\[.*?\]\]/g, '').trim();
 
+  // Logo Generator
+  if (displayContent.includes('__SHOW_LOGO_GENERATOR__')) {
+    const textPart = displayContent.replace('__SHOW_LOGO_GENERATOR__', '').trim();
+    return (
+      <div className="space-y-4">
+        {textPart && <div className="leading-relaxed text-[15px] whitespace-pre-wrap">{textPart}</div>}
+        <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-4 border border-black/5 overflow-hidden">
+          <LogoGenerator brandId={brandId} />
+        </div>
+      </div>
+    );
+  }
+
+  // Mockup Selector
   const matchRender = displayContent.match(/__SHOW_MOCKUP_SELECTOR(?::([a-zA-Z0-9_\-]+))?__/);
   if (matchRender) {
     const typeFilter = matchRender[1];

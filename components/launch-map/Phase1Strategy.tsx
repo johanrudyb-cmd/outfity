@@ -385,14 +385,12 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
                 </button>
               )}
 
-              {logoProposals.length > 0 && (
-                <Button
-                  onClick={() => onComplete()}
-                  className="h-16 px-12 rounded-[24px] bg-[#1D1D1F] text-white w-full max-w-md font-bold text-sm uppercase tracking-widest shadow-2xl"
-                >
-                  Valider & Continuer <ArrowRight className="w-5 h-5 ml-4" />
-                </Button>
-              )}
+              <Button
+                onClick={() => onComplete()}
+                className="h-16 px-12 rounded-[24px] bg-[#1D1D1F] text-white w-full max-w-md font-bold text-sm uppercase tracking-widest shadow-2xl mt-4"
+              >
+                {logoProposals.length > 0 ? "Valider & Continuer" : "Continuer sans logo"} <ArrowRight className="w-5 h-5 ml-4" />
+              </Button>
             </div>
           </div>
         </div>

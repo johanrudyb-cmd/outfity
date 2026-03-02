@@ -635,7 +635,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                         >
                             <div className="space-y-2">
                                 <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">C'est le moment de choisir ton premier produit.</h2>
-                                <p className="text-[#86868B]">On commencera par générer tout le contenu pour ce produit spécifique.</p>
+                                <p className="text-[#86868B]">On commencera par construire tout l&apos;univers autour de ce produit spécifique.</p>
                             </div>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                 {PRODUCTS.map(p => (
@@ -900,7 +900,7 @@ function LaunchStep({ plan, brandName }: { plan: string; brandName: string }) {
         { label: 'Initialisation du studio...', duration: 1000 },
         { label: 'Connexion aux agents IA...', duration: 1200 },
         { label: 'Analyse des tendances 2026...', duration: 1000 },
-        { label: 'Génération de ta stratégie...', duration: 1500 },
+        { label: 'Initialisation de ton ADN...', duration: 1500 },
         { label: 'Finalisation du dashboard...', duration: 800 },
         { label: 'Bienvenue dans OUTFITY !', duration: 1000 },
     ];
