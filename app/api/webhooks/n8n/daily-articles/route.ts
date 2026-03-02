@@ -31,6 +31,7 @@ export async function GET(req: Request) {
                 slug: true,
                 excerpt: true,
                 content: true,
+                coverImage: true,
                 tags: true,
                 publishedAt: true
             },
