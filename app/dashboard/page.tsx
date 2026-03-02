@@ -98,8 +98,8 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   // Launch Map phases
   const phases = [
-    { id: 0, label: 'IdentitÃ©', icon: LayoutDashboard, done: hasIdentity },
-    { id: 1, label: 'StratÃ©gie', icon: Rocket, done: !!launchMap?.phase1 },
+    { id: 0, label: 'Identité', icon: LayoutDashboard, done: hasIdentity },
+    { id: 1, label: 'Stratégie', icon: Rocket, done: !!launchMap?.phase1 },
     { id: 3, label: 'Visuels', icon: Shirt, done: !!launchMap?.phase3 },
     { id: 4, label: 'Tech Pack', icon: FileText, done: !!launchMap?.phase4 },
     { id: 5, label: 'Sourcing', icon: Factory, done: !!launchMap?.phase5 },
@@ -114,9 +114,9 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     weekday: 'long', day: 'numeric', month: 'long',
   });
 
-  // PrÃ©nom
+  // Prénom
   const nameParts = user.name?.split(' ') ?? [];
-  const firstName = (nameParts.find(p => p.length > 1 && !/^[A-ZÃ€-Å¸\s-]{2,}$/.test(p)) ?? nameParts[0] ?? 'CrÃ©ateur');
+  const firstName = (nameParts.find(p => p.length > 1 && /^[a-zA-Z\u00C0-\u017F\s\-]{2,}$/.test(p)) ?? nameParts[0] ?? 'Créateur');
   const displayName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
 
   // Outils actifs seulement
@@ -132,7 +132,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       disabled: false,
     },
     {
-      title: 'DÃ©tecter une tendance',
+      title: 'Détecter une tendance',
       subtitle: 'Analyse IA par photo',
       href: '/trends/visual',
       icon: Scan,
