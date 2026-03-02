@@ -1,3 +1,4 @@
+﻿export const dynamic = 'force-dynamic';
 import { MesTechPacksContent } from '@/components/launch-map/MesTechPacksContent';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { redirect } from 'next/navigation';
@@ -32,7 +33,7 @@ export default async function MesTechPacksPage() {
           className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Retour à la vue d&apos;ensemble
+          Retour Ã  la vue d&apos;ensemble
         </Link>
       </div>
 
@@ -44,3 +45,4 @@ export default async function MesTechPacksPage() {
     </div>
   );
 }
+

@@ -1,3 +1,4 @@
+﻿export const dynamic = 'force-dynamic';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { redirect } from 'next/navigation';
@@ -5,7 +6,7 @@ import { AnalyzeTabs } from '@/components/brands/AnalyzeTabs';
 
 export const metadata = {
   title: 'Analyse de marque & tendances',
-  description: 'Analyse IA complète de marques mode et analyseur de tendances : positionnement, marketing, opportunités, prévisions.',
+  description: 'Analyse IA complÃ¨te de marques mode et analyseur de tendances : positionnement, marketing, opportunitÃ©s, prÃ©visions.',
 };
 
 import { Suspense } from 'react';
@@ -26,3 +27,4 @@ export default async function BrandAnalyzePage() {
     </DashboardLayout>
   );
 }
+

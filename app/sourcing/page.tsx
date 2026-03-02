@@ -1,3 +1,4 @@
+﻿export const dynamic = 'force-dynamic';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { SourcingHub } from '@/components/sourcing/SourcingHub';
 import { getCurrentUser } from '@/lib/auth-helpers';
@@ -35,7 +36,7 @@ export default async function SourcingPage({
     };
   }
 
-  // Récupérer la marque la plus récente
+  // RÃ©cupÃ©rer la marque la plus rÃ©cente
   let brand = await prisma.brand.findFirst({
     where: { userId: user.id },
     orderBy: { createdAt: 'desc' },
@@ -45,18 +46,18 @@ export default async function SourcingPage({
     brand = await prisma.brand.create({
       data: {
         userId: user.id,
-        name: 'Ma Première Marque',
+        name: 'Ma PremiÃ¨re Marque',
       },
     });
   }
 
-  // Récupérer les devis envoyés
+  // RÃ©cupÃ©rer les devis envoyÃ©s
   const quotes = await prisma.quote.findMany({
     where: { brandId: brand.id },
     include: { factory: true },
   });
 
-  // Fournisseurs favoris (après prisma generate + db push)
+  // Fournisseurs favoris (aprÃ¨s prisma generate + db push)
   let favoriteFactoryIds: string[] = [];
   try {
     const favoriteFactories = await prisma.brandFavoriteFactory.findMany({
@@ -68,7 +69,7 @@ export default async function SourcingPage({
     console.warn('Favorite factories not available (run: npx prisma generate && npx prisma db push):', e);
   }
 
-  // Récupérer les préférences utilisateur
+  // RÃ©cupÃ©rer les prÃ©fÃ©rences utilisateur
   let preferences = null;
   try {
     preferences = await prisma.userPreferences.findUnique({
@@ -83,7 +84,7 @@ export default async function SourcingPage({
       <div className="p-8 max-w-7xl mx-auto space-y-8">
         <PageHeader
           title="Sourcing"
-          description="Trouvez les meilleures usines pour produire vos créations"
+          description="Trouvez les meilleures usines pour produire vos crÃ©ations"
           icon={ShoppingBag}
         />
 
@@ -100,3 +101,4 @@ export default async function SourcingPage({
     </DashboardLayout>
   );
 }
+

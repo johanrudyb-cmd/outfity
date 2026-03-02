@@ -1,3 +1,4 @@
+﻿export const dynamic = 'force-dynamic';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { UGCLab } from '@/components/ugc/UGCLab';
 import { getCurrentUser } from '@/lib/auth-helpers';
@@ -11,7 +12,7 @@ export default async function UGCPage() {
     redirect('/auth/signin');
   }
 
-  // Récupérer la marque la plus récente
+  // RÃ©cupÃ©rer la marque la plus rÃ©cente
   let brand = await prisma.brand.findFirst({
     where: { userId: user.id },
     orderBy: { createdAt: 'desc' },
@@ -21,7 +22,7 @@ export default async function UGCPage() {
     brand = await prisma.brand.create({
       data: {
         userId: user.id,
-        name: 'Ma Première Marque',
+        name: 'Ma PremiÃ¨re Marque',
         launchMap: {
           create: {
             phase1: false,
@@ -36,14 +37,14 @@ export default async function UGCPage() {
     });
   }
 
-  // Récupérer les designs pour Virtual Try-On
+  // RÃ©cupÃ©rer les designs pour Virtual Try-On
   const designs = await prisma.design.findMany({
     where: { brandId: brand.id, status: 'completed' },
     orderBy: { createdAt: 'desc' },
     take: 10,
   });
 
-  // Récupérer l'identité de marque complète
+  // RÃ©cupÃ©rer l'identitÃ© de marque complÃ¨te
   const brandWithIdentity = await prisma.brand.findUnique({
     where: { id: brand.id },
     select: {
@@ -68,3 +69,4 @@ export default async function UGCPage() {
     </DashboardLayout>
   );
 }
+

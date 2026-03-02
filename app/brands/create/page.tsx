@@ -1,3 +1,4 @@
+﻿export const dynamic = 'force-dynamic';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { redirect } from 'next/navigation';
@@ -21,10 +22,10 @@ export default async function CreateBrandPage() {
             </div>
             <div>
               <h1 className="text-4xl font-bold tracking-tight text-foreground">
-                Créez votre marque
+                CrÃ©ez votre marque
               </h1>
               <p className="text-muted-foreground font-medium text-lg mt-1">
-                Définissez l'identité de votre marque en quelques minutes
+                DÃ©finissez l'identitÃ© de votre marque en quelques minutes
               </p>
             </div>
           </div>
@@ -36,3 +37,4 @@ export default async function CreateBrandPage() {
     </DashboardLayout>
   );
 }
+

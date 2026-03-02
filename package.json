@@ -8,7 +8,7 @@
     "dev": "next dev --webpack",
     "dev:turbo": "next dev --turbopack",
     "dev:webpack": "next dev --webpack",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && cross-env NODE_OPTIONS='--max-old-space-size=4096' next build",
     "start": "next start",
     "lint": "next lint",
     "stripe:listen": "stripe_cli\\stripe.exe listen --forward-to localhost:3000/api/stripe/webhook",
@@ -111,6 +111,7 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/nodemailer": "^7.0.9",
     "@types/web-push": "^3.6.4",
+    "cross-env": "^10.1.0",
     "n8n": "^2.7.4"
   }
 }

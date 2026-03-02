@@ -1,3 +1,4 @@
+﻿export const dynamic = 'force-dynamic';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { TrendsAnalyse } from '@/components/trends/TrendsAnalyse';
 import { getCurrentUser } from '@/lib/auth-helpers';
@@ -17,3 +18,4 @@ export default async function TrendsAnalysePage() {
     </DashboardLayout>
   );
 }
+

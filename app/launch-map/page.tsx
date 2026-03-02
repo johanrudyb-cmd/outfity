@@ -1,3 +1,4 @@
+﻿export const dynamic = 'force-dynamic';
 import { LaunchMapOverview } from '@/components/launch-map/LaunchMapOverview';
 import type { BrandIdentity, LaunchMapData } from '@/components/launch-map/LaunchMapStepper';
 import { getCurrentUser } from '@/lib/auth-helpers';
@@ -19,7 +20,7 @@ export default async function LaunchMapPage() {
     brand = await prisma.brand.create({
       data: {
         userId: user.id,
-        name: 'Ma Première Marque',
+        name: 'Ma PremiÃ¨re Marque',
         launchMap: {
           create: {
             phase1: false,
@@ -52,7 +53,7 @@ export default async function LaunchMapPage() {
 
   const suppliersMap = new Map<string, { id: string; name: string; country: string; moq?: number; leadTime?: number; quoteCount: number }>();
 
-  // D'abord ajouter les fournisseurs qui ont reçu des devis
+  // D'abord ajouter les fournisseurs qui ont reÃ§u des devis
   for (const q of quotesWithFactory) {
     const f = q.factory;
     const existing = suppliersMap.get(f.id);
@@ -70,7 +71,7 @@ export default async function LaunchMapPage() {
     }
   }
 
-  // Ensuite ajouter les favoris (s'ils ne sont pas déjà dans la map)
+  // Ensuite ajouter les favoris (s'ils ne sont pas dÃ©jÃ  dans la map)
   for (const fav of favoriteFactories) {
     const f = fav.factory;
     const existing = suppliersMap.get(f.id);
@@ -137,3 +138,4 @@ export default async function LaunchMapPage() {
     />
   );
 }
+

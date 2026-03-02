@@ -1,3 +1,4 @@
+﻿export const dynamic = 'force-dynamic';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,7 +27,7 @@ export default async function NotificationsPage() {
                 Notifications
               </h1>
               <p className="text-muted-foreground font-medium text-lg mt-1">
-                Gérez vos notifications et alertes
+                GÃ©rez vos notifications et alertes
               </p>
             </div>
           </div>
@@ -38,3 +39,4 @@ export default async function NotificationsPage() {
     </DashboardLayout>
   );
 }
+

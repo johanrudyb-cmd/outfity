@@ -1,3 +1,4 @@
+﻿export const dynamic = 'force-dynamic';
 import { Suspense } from 'react';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { redirect } from 'next/navigation';
@@ -15,7 +16,7 @@ export default async function OnboardingPage() {
     select: { plan: true, onboardingCompleted: true },
   });
 
-  // On ne redirige plus d'ici vers le dashboard pour éviter les boucles infinies 
+  // On ne redirige plus d'ici vers le dashboard pour Ã©viter les boucles infinies 
   // si le dashboard redirige vers le onboarding parce qu'il manque la marque.
   /*
   if (user?.onboardingCompleted) {
@@ -33,3 +34,4 @@ export default async function OnboardingPage() {
     </Suspense>
   );
 }
+

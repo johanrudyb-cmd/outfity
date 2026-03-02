@@ -1,3 +1,4 @@
+﻿export const dynamic = 'force-dynamic';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
@@ -17,7 +18,7 @@ export default async function LaunchMapSourcingPage() {
     brand = await prisma.brand.create({
       data: {
         userId: user.id,
-        name: 'Ma Première Marque',
+        name: 'Ma PremiÃ¨re Marque',
       },
     });
   }
@@ -39,3 +40,4 @@ export default async function LaunchMapSourcingPage() {
     </div>
   );
 }
+

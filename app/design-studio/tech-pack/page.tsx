@@ -1,3 +1,4 @@
+﻿export const dynamic = 'force-dynamic';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { TechPackCreator } from '@/components/trends/TechPackCreator';
 import { getCurrentUser } from '@/lib/auth-helpers';
@@ -23,3 +24,4 @@ export default async function DesignStudioTechPackPage({
     </DashboardLayout>
   );
 }
+

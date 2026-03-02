@@ -15,6 +15,8 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: path.resolve(process.cwd()),
   // Ne pas bundler puppeteer / pdfkit (résolution depuis node_modules au runtime pour éviter ENOENT Helvetica.afm)
   serverExternalPackages: ['puppeteer', 'puppeteer-extra', 'puppeteer-extra-plugin-stealth', 'pdfkit', 'nodemailer'],
+  // Désactiver le tracing des fichiers de sortie (évite le scan récursif de node_modules, très gourmand en RAM)
+  outputFileTracing: false,
   // Turbopack désactivé en dev (--webpack) pour éviter "Failed to write app endpoint" sur Windows
   // turbopack: { root: path.resolve(process.cwd()) },
   // Configuration stricte pour sécurité et performance cache

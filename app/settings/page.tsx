@@ -1,3 +1,4 @@
+﻿export const dynamic = 'force-dynamic';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,7 @@ export default async function SettingsPage() {
     redirect('/auth/signin');
   }
 
-  // Récupérer les données utilisateur depuis la base de données (pas depuis le JWT)
+  // RÃ©cupÃ©rer les donnÃ©es utilisateur depuis la base de donnÃ©es (pas depuis le JWT)
   const user = await prisma.user.findUnique({
     where: { id: currentUser.id },
     select: {
@@ -37,8 +38,8 @@ export default async function SettingsPage() {
       <div className="px-4 sm:px-6 lg:px-12 py-8 sm:py-12 lg:py-16 max-w-4xl mx-auto space-y-8 sm:space-y-12 lg:space-y-16">
         {/* Header */}
         <PageHeader
-          title="Paramètres"
-          description="Gérez votre profil et vos préférences"
+          title="ParamÃ¨tres"
+          description="GÃ©rez votre profil et vos prÃ©fÃ©rences"
           icon={SettingsIcon}
         />
 
@@ -48,3 +49,4 @@ export default async function SettingsPage() {
     </DashboardLayout>
   );
 }
+

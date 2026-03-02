@@ -1,3 +1,4 @@
+﻿export const dynamic = 'force-dynamic';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { DesignStudioForm } from '@/components/design-studio/DesignStudioForm';
 import { getCurrentUser } from '@/lib/auth-helpers';
@@ -31,7 +32,7 @@ export default async function DesignStudioPage({
               <div className="space-y-4">
                 <h1 className="text-3xl font-bold text-foreground">Design Studio</h1>
                 <p className="text-muted-foreground text-lg leading-relaxed">
-                  La création de <strong>Tech Packs</strong> professionnels et la génération de <strong>Mockups IA</strong> sont des fonctionnalités exclusives du plan <strong>Créateur</strong>.
+                  La crÃ©ation de <strong>Tech Packs</strong> professionnels et la gÃ©nÃ©ration de <strong>Mockups IA</strong> sont des fonctionnalitÃ©s exclusives du plan <strong>CrÃ©ateur</strong>.
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-6 w-full max-w-md">
@@ -49,7 +50,7 @@ export default async function DesignStudioPage({
                   href="/auth/choose-plan"
                   className="inline-flex items-center justify-center rounded-full font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] bg-black text-white hover:opacity-90 active:scale-[0.98] h-14 px-10 text-lg gap-3 shadow-xl shadow-primary/20"
                 >
-                  🚀 Passer au plan Créateur
+                  ðŸš€ Passer au plan CrÃ©ateur
                 </Link>
               </div>
             </CardContent>
@@ -62,7 +63,7 @@ export default async function DesignStudioPage({
   const params = await searchParams;
   const showMockupForm = params.mode === 'mockup';
 
-  // Récupérer la marque la plus récente
+  // RÃ©cupÃ©rer la marque la plus rÃ©cente
   let brand = await prisma.brand.findFirst({
     where: { userId: user.id },
     orderBy: { createdAt: 'desc' },
@@ -72,12 +73,12 @@ export default async function DesignStudioPage({
     brand = await prisma.brand.create({
       data: {
         userId: user.id,
-        name: 'Ma Première Marque',
+        name: 'Ma PremiÃ¨re Marque',
       },
     });
   }
 
-  // Récupérer les designs existants avec leurs collections
+  // RÃ©cupÃ©rer les designs existants avec leurs collections
   const designs = await prisma.design.findMany({
     where: { brandId: brand.id },
     include: {
@@ -101,10 +102,10 @@ export default async function DesignStudioPage({
               href="/design-studio"
               className="inline-flex items-center justify-center rounded-lg font-semibold h-9 px-4 text-sm hover:bg-muted hover:text-foreground transition-colors"
             >
-              ← Retour au choix
+              â† Retour au choix
             </Link>
           </div>
-          <h2 className="text-lg font-medium mb-4">Créer un nouveau tech pack (mockup IA)</h2>
+          <h2 className="text-lg font-medium mb-4">CrÃ©er un nouveau tech pack (mockup IA)</h2>
           <DesignStudioForm
             brandId={brand.id}
             brand={brand}
@@ -132,13 +133,13 @@ export default async function DesignStudioPage({
             Design Studio
           </h1>
           <p className="text-muted-foreground text-base max-w-xl mx-auto">
-            Créez vos tech packs professionnels pour vos fournisseurs. Choisissez la méthode qui vous convient.
+            CrÃ©ez vos tech packs professionnels pour vos fournisseurs. Choisissez la mÃ©thode qui vous convient.
           </p>
         </div>
 
         <div className="mb-6">
           <h2 className="text-lg font-medium text-center text-muted-foreground mb-6">
-            Comment voulez-vous créer votre tech pack ?
+            Comment voulez-vous crÃ©er votre tech pack ?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card className="border-2 hover:border-primary/50 hover:shadow-lg transition-all duration-200 flex flex-col min-h-[280px]">
@@ -147,10 +148,10 @@ export default async function DesignStudioPage({
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                     <FileText className="w-6 h-6 text-primary" />
                   </div>
-                  <CardTitle className="text-lg">Créer depuis les tendances</CardTitle>
+                  <CardTitle className="text-lg">CrÃ©er depuis les tendances</CardTitle>
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Sélectionnez une tendance de la semaine (Paris, Berlin, Milan…) et copiez les éléments pour votre fournisseur : référence, catégorie, coupe, matière, image.
+                  SÃ©lectionnez une tendance de la semaine (Paris, Berlin, Milanâ€¦) et copiez les Ã©lÃ©ments pour votre fournisseur : rÃ©fÃ©rence, catÃ©gorie, coupe, matiÃ¨re, image.
                 </p>
               </CardHeader>
               <CardContent className="pt-0">
@@ -168,10 +169,10 @@ export default async function DesignStudioPage({
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                     <Sparkles className="w-6 h-6 text-primary" />
                   </div>
-                  <CardTitle className="text-lg">Questionnaire mockup → photo produit</CardTitle>
+                  <CardTitle className="text-lg">Questionnaire mockup â†’ photo produit</CardTitle>
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Répondez à un maximum de questions (produit, coupe, matière, couleurs, détails). L&apos;IA génère une photo produit de votre article, puis vous enregistrez et créez le tech pack visuel.
+                  RÃ©pondez Ã  un maximum de questions (produit, coupe, matiÃ¨re, couleurs, dÃ©tails). L&apos;IA gÃ©nÃ¨re une photo produit de votre article, puis vous enregistrez et crÃ©ez le tech pack visuel.
                 </p>
               </CardHeader>
               <CardContent className="pt-0 flex gap-2">
@@ -193,9 +194,10 @@ export default async function DesignStudioPage({
         </div>
 
         <p className="text-center text-xs text-muted-foreground">
-          Vous pourrez exporter votre tech pack en PDF et l&apos;envoyer à vos fournisseurs.
+          Vous pourrez exporter votre tech pack en PDF et l&apos;envoyer Ã  vos fournisseurs.
         </p>
       </div>
     </DashboardLayout>
   );
 }
+
