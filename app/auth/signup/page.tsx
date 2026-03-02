@@ -113,7 +113,7 @@ function SignUpContent() {
             <p className="text-gray-500 font-medium mb-8">
               {debugInfo
                 ? `L'API Resend a retourné une erreur (${debugInfo.error}). Copie le lien ci-dessous pour valider ton compte manuellement.`
-                : `Un email de confirmation a été envoyé à ${email}. Clique sur le lien pour activer ton compte.`
+                : `Un email de confirmation a été envoyé à ${email}. Pense à vérifier tes spams / courriers indésirables, puis clique sur le lien pour activer ton compte.`
               }
             </p>
 
