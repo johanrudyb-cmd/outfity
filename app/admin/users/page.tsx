@@ -23,6 +23,7 @@ import {
 import { PlanSelector } from './PlanSelector';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { isPaidPlan } from '@/lib/plan-utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -50,7 +51,7 @@ export default async function AdminUsersPage() {
         { label: 'Total Base', value: totalUsers, sub: 'Inscriptions totales', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
         { label: 'Nouveaux (24h)', value: newUsers24hCount, sub: 'Dernière rotation', icon: UserPlus, color: 'text-emerald-600', bg: 'bg-emerald-50' },
         { label: 'Croissance (7j)', value: newUsers7dCount, sub: 'Performance hebdo', icon: Activity, color: 'text-orange-600', bg: 'bg-orange-50' },
-        { label: 'Premium', value: users.filter(u => u.plan !== 'free').length, sub: 'Segments payants', icon: Crown, color: 'text-purple-600', bg: 'bg-purple-50' },
+        { label: 'Premium', value: users.filter(u => isPaidPlan(u.plan)).length, sub: 'Segments payants', icon: Crown, color: 'text-purple-600', bg: 'bg-purple-50' },
     ];
 
     return (
@@ -109,7 +110,7 @@ export default async function AdminUsersPage() {
                                         {(user.name || user.email).charAt(0).toUpperCase()}
                                     </AvatarFallback>
                                 </Avatar>
-                                {user.plan !== 'free' && (
+                                {isPaidPlan(user.plan) && (
                                     <div className="absolute -top-1 -right-1 bg-[#007AFF] text-white p-1.5 rounded-full shadow-lg border-2 border-white">
                                         <Crown className="w-3 h-3" />
                                     </div>
@@ -169,12 +170,10 @@ export default async function AdminUsersPage() {
                                     </TableCell>
                                     <TableCell>
                                         <Badge
-                                            className={`capitalize font-black text-[9px] tracking-widest px-3 py-1 rounded-full ${user.plan === 'pro' ? 'bg-black text-white' :
-                                                user.plan === 'enterprise' ? 'bg-[#007AFF] text-white' :
-                                                    'bg-gray-100 text-gray-500'
+                                            className={`capitalize font-black text-[9px] tracking-widest px-3 py-1 rounded-full ${isPaidPlan(user.plan) ? 'bg-black text-white' : 'bg-gray-100 text-gray-400'
                                                 }`}
                                         >
-                                            {user.plan === 'pro' ? 'Creator' : user.plan === 'enterprise' ? 'Studio' : 'Free'}
+                                            {isPaidPlan(user.plan) ? 'Créateur' : 'Starter'}
                                         </Badge>
                                     </TableCell>
                                     <TableCell>

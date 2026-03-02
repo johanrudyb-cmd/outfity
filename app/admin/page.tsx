@@ -21,6 +21,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { TrackedHashtagsManager } from '@/components/admin/TrackedHashtagsManager';
+import { isPaidPlan } from '@/lib/plan-utils';
 
 export const metadata = {
     title: 'Admin Dashboard | OUTFITY',
@@ -40,8 +41,6 @@ export default async function AdminDashboardPage() {
         affiliateStats,
         activeAffiliates,
         totalPremiumUsers,
-        creatorCount,
-        studioCount
     ] = await Promise.all([
         prisma.user.count(),
         prisma.brand.count(),
@@ -49,12 +48,17 @@ export default async function AdminDashboardPage() {
         prisma.user.count({ where: { updatedAt: { gte: last24h } } }),
         prisma.affiliateCommission.aggregate({ _sum: { amount: true } }),
         prisma.affiliate.count({ where: { status: 'ACTIVE' } }),
-        prisma.user.count({ where: { plan: { not: 'free' } } }),
-        prisma.user.count({ where: { plan: 'pro' } }),
-        prisma.user.count({ where: { plan: 'enterprise' } })
+        prisma.user.count({
+            where: {
+                plan: {
+                    notIn: ['free', 'starter', 'none']
+                }
+            }
+        }),
     ]);
 
-    const mmr = (creatorCount * 29) + (studioCount * 99);
+    // Pour OUTFITY, le seul plan payant est le Créateur à 29€
+    const mmr = totalPremiumUsers * 29;
 
     const totalAffiliateRevenue = affiliateStats._sum.amount || 0;
     const estimatedSales = totalAffiliateRevenue / 0.15; // Estimation basée sur 15%
@@ -93,7 +97,7 @@ export default async function AdminDashboardPage() {
             id: `user-${user.id}`,
             action: 'Inscription Pilote',
             details: `${user.name || 'Nouvel utilisateur'} (${user.email}) a rejoint le cockpit.`,
-            status: user.plan !== 'free' ? 'premium' : 'free',
+            status: isPaidPlan(user.plan) ? 'premium' : 'free',
             createdAt: user.createdAt,
             type: 'user',
             userId: user.id

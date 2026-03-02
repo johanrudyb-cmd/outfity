@@ -11,6 +11,7 @@ import {
     Activity
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { isPaidPlan } from '@/lib/plan-utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,10 +52,16 @@ export default async function AdminMetricsPage() {
 
     // Stats Finance / MMR
     const totalUsers = await prisma.user.count();
-    const activeSubscribers = await prisma.user.count({ where: { plan: { not: 'free' } } });
-    const studioUsers = await prisma.user.count({ where: { plan: 'enterprise' } }); // On assume enterprise = studio
-    const creatorUsers = activeSubscribers - studioUsers;
-    const mmr = (creatorUsers * 29) + (studioUsers * 99); // Estimation basée sur les prix standards
+    const activeSubscribersCount = await prisma.user.count({
+        where: {
+            plan: {
+                notIn: ['free', 'starter', 'none']
+            }
+        }
+    });
+
+    // Pour l'affichage instantané, on peut filtrer si on veut être plus précis sur les types
+    const mmr = activeSubscribersCount * 29;
 
     const stats = [
         { label: 'Dépense Totale', value: `${totalCost.toFixed(2)}€`, sub: 'Historique complet', icon: Euro, color: 'text-blue-600' },
@@ -114,8 +121,8 @@ export default async function AdminMetricsPage() {
                                 </div>
                                 <div className="p-8 bg-white/5 rounded-[32px] border border-white/5">
                                     <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-2">Subscribers Actifs</p>
-                                    <div className="text-6xl font-black text-white italic tracking-tighter mb-2">{activeSubscribers}</div>
-                                    <p className="text-xs text-white/60 font-medium">Répartis sur Creator & Studio Plans</p>
+                                    <div className="text-6xl font-black text-white italic tracking-tighter mb-2">{activeSubscribersCount}</div>
+                                    <p className="text-xs text-white/60 font-medium">Répartis sur le Plan Créateur</p>
                                 </div>
                             </div>
                         </div>
@@ -158,7 +165,7 @@ export default async function AdminMetricsPage() {
                 <div className="lg:col-span-5">
                     <Card className="border-none shadow-sm rounded-[32px] bg-white h-full">
                         <CardHeader className="p-8">
-                            <CardTitle className="text-sm font-black uppercase tracking-widest text-[#86868b]">Rentabilité Studio</CardTitle>
+                            <CardTitle className="text-sm font-black uppercase tracking-widest text-[#86868b]">Rentabilité Acquisition</CardTitle>
                         </CardHeader>
                         <CardContent className="p-8 pt-0 space-y-8">
                             <div className="p-8 rounded-[32px] bg-[#F5F5F7] group hover:bg-black transition-colors duration-500">

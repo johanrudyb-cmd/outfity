@@ -47,9 +47,8 @@ export function PlanSelector({ userId, initialPlan }: PlanSelectorProps) {
                 <SelectValue placeholder="Choisir un plan" />
             </SelectTrigger>
             <SelectContent>
-                <SelectItem value="free" className="text-[10px] font-black uppercase italic tracking-widest">Free</SelectItem>
-                <SelectItem value="pro" className="text-[10px] font-black uppercase italic tracking-widest text-[#007AFF]">Creator</SelectItem>
-                <SelectItem value="enterprise" className="text-[10px] font-black uppercase italic tracking-widest text-emerald-600">Studio</SelectItem>
+                <SelectItem value="starter" className="text-[10px] font-black uppercase italic tracking-widest">Starter</SelectItem>
+                <SelectItem value="creator" className="text-[10px] font-black uppercase italic tracking-widest text-[#007AFF]">Créateur</SelectItem>
             </SelectContent>
         </Select>
     );
