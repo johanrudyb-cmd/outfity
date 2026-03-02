@@ -454,7 +454,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                   <div className="space-y-1.5">
                     <h3 className="font-bold text-lg text-white leading-tight">Lancez votre boutique</h3>
                     <p className="text-[#86868B] text-[13px] font-medium leading-relaxed">
-                      Essayez gratuitement pendant 3 jours, puis payez <strong className="text-white font-bold">1 â‚¬/mois</strong> pendant 3 mois.
+                      Essayez gratuitement pendant 3 jours, puis payez <strong className="text-white font-bold">1 €/mois</strong> pendant 3 mois.
                     </p>
                   </div>
                   {(() => {
