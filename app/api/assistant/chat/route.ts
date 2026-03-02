@@ -155,6 +155,16 @@ FORMAT DE RÉPONSE OBLIGATOIRE (JSON STRICT) :
         return NextResponse.json(result);
     } catch (error: any) {
         console.error('[Assistant Chat Error]:', error);
-        return NextResponse.json({ error: error.message || 'Erreur interne' }, { status: 500 });
+
+        const message = error.message || '';
+        const isQuota = message.includes('Quota') || message.includes('Limite') || message.includes('épuisé');
+
+        if (isQuota) {
+            return NextResponse.json({ error: message }, { status: 403 });
+        }
+
+        return NextResponse.json({
+            error: 'Virgil rencontre un petit souci technique. Réessaie dans quelques secondes.'
+        }, { status: 500 });
     }
 }

@@ -187,7 +187,7 @@ export function BaseAgentChat({
             }
 
             const data = await res.json();
-            const rawContent = data.reply || 'Je rencontre un souci technique. Réessaie dans un instant.';
+            const rawContent = data.reply || data.error || 'Je rencontre un souci technique. Réessaie dans un instant.';
 
             let finalContent = rawContent;
 

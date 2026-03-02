@@ -92,7 +92,7 @@ Si c'est le premier message (ou texte __INIT__), présente-toi comme Johan, expe
             'assistant_chat_qa',
             async () => {
                 const response = await anthropic.messages.create({
-                    model: 'claude-3-5-sonnet-20241022',
+                    model: 'claude-3-5-sonnet-latest',
                     max_tokens: 600,
                     system: SYSTEM_PROMPT,
                     messages: messages.map(m => ({ role: m.role, content: m.content === '__INIT__' ? 'Hello' : m.content })),
@@ -119,9 +119,12 @@ Si c'est le premier message (ou texte __INIT__), présente-toi comme Johan, expe
 
         return NextResponse.json({ reply });
     } catch (error: any) {
-        console.error('[shopify-chat]', error);
-        const message = error.message || 'Erreur serveur.';
+        console.error('[shopify-chat] Error payload:', error);
+        const message = error.message || '';
         const isQuota = message.includes('Quota') || message.includes('Limite') || message.includes('épuisé');
-        return NextResponse.json({ error: message }, { status: isQuota ? 403 : 500 });
+        if (isQuota) return NextResponse.json({ error: message }, { status: 403 });
+        return NextResponse.json({
+            error: 'Johan rencontre un petit souci technique. Réessaie dans un instant.'
+        }, { status: 500 });
     }
 }

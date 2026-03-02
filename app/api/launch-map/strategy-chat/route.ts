@@ -115,7 +115,7 @@ Ensuite, regarde si une stratégie existe dans le contexte :
             'assistant_chat_qa',
             async () => {
                 const response = await anthropic.messages.create({
-                    model: 'claude-3-5-sonnet-20241022',
+                    model: 'claude-3-5-sonnet-latest',
                     max_tokens: 600,
                     system: SYSTEM_PROMPT,
                     messages: filteredMessages as any,
@@ -142,9 +142,18 @@ Ensuite, regarde si une stratégie existe dans le contexte :
 
         return NextResponse.json({ reply });
     } catch (error: any) {
-        console.error('[strategy-chat]', error);
-        const message = error.message || 'Erreur serveur.';
+        console.error('[strategy-chat] Error payload:', error);
+
+        const message = error.message || '';
         const isQuota = message.includes('Quota') || message.includes('Limite') || message.includes('épuisé');
-        return NextResponse.json({ error: message }, { status: isQuota ? 403 : 500 });
+
+        if (isQuota) {
+            return NextResponse.json({ error: message }, { status: 403 });
+        }
+
+        // Don't leak technical error strings (like 404 model not found)
+        return NextResponse.json({
+            error: 'Virgil rencontre un petit souci technique. Réessaie dans quelques secondes.'
+        }, { status: 500 });
     }
 }

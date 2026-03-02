@@ -196,7 +196,7 @@ Si "__INIT__", présente-toi comme Ada, experte sourcing chez OUTFITY. Demande Q
             'assistant_chat_qa',
             async () => {
                 const response = await anthropic.messages.create({
-                    model: 'claude-3-5-sonnet-20241022',
+                    model: 'claude-3-5-sonnet-latest',
                     max_tokens: 1024,
                     system: SYSTEM_PROMPT,
                     messages: claudeMessages,
@@ -223,9 +223,12 @@ Si "__INIT__", présente-toi comme Ada, experte sourcing chez OUTFITY. Demande Q
 
         return NextResponse.json({ reply });
     } catch (error: any) {
-        console.error('[sourcing-chat] ERROR:', error);
-        const message = error.message || 'Erreur serveur.';
+        console.error('[sourcing-chat] Error payload:', error);
+        const message = error.message || '';
         const isQuota = message.includes('Quota') || message.includes('Limite') || message.includes('épuisé');
-        return NextResponse.json({ error: message }, { status: isQuota ? 403 : 500 });
+        if (isQuota) return NextResponse.json({ error: message }, { status: 403 });
+        return NextResponse.json({
+            error: 'Ada rencontre un petit souci technique. Réessaie dans un instant.'
+        }, { status: 500 });
     }
 }
