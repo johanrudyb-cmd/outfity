@@ -22,10 +22,10 @@ export default async function CreateBrandPage() {
             </div>
             <div>
               <h1 className="text-4xl font-bold tracking-tight text-foreground">
-                CrÃ©ez votre marque
+                Créez votre marque
               </h1>
               <p className="text-muted-foreground font-medium text-lg mt-1">
-                DÃ©finissez l'identitÃ© de votre marque en quelques minutes
+                Définissez l'identité de votre marque en quelques minutes
               </p>
             </div>
           </div>

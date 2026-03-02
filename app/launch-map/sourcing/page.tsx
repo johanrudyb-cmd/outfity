@@ -18,7 +18,7 @@ export default async function LaunchMapSourcingPage() {
     brand = await prisma.brand.create({
       data: {
         userId: user.id,
-        name: 'Ma PremiÃ¨re Marque',
+        name: 'Ma Première Marque',
       },
     });
   }

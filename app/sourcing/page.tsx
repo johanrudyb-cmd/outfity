@@ -36,7 +36,7 @@ export default async function SourcingPage({
     };
   }
 
-  // RÃ©cupÃ©rer la marque la plus rÃ©cente
+  // Récupérer la marque la plus récente
   let brand = await prisma.brand.findFirst({
     where: { userId: user.id },
     orderBy: { createdAt: 'desc' },
@@ -46,18 +46,18 @@ export default async function SourcingPage({
     brand = await prisma.brand.create({
       data: {
         userId: user.id,
-        name: 'Ma PremiÃ¨re Marque',
+        name: 'Ma Première Marque',
       },
     });
   }
 
-  // RÃ©cupÃ©rer les devis envoyÃ©s
+  // Récupérer les devis envoyés
   const quotes = await prisma.quote.findMany({
     where: { brandId: brand.id },
     include: { factory: true },
   });
 
-  // Fournisseurs favoris (aprÃ¨s prisma generate + db push)
+  // Fournisseurs favoris (après prisma generate + db push)
   let favoriteFactoryIds: string[] = [];
   try {
     const favoriteFactories = await prisma.brandFavoriteFactory.findMany({
@@ -69,7 +69,7 @@ export default async function SourcingPage({
     console.warn('Favorite factories not available (run: npx prisma generate && npx prisma db push):', e);
   }
 
-  // RÃ©cupÃ©rer les prÃ©fÃ©rences utilisateur
+  // Récupérer les préférences utilisateur
   let preferences = null;
   try {
     preferences = await prisma.userPreferences.findUnique({
@@ -84,7 +84,7 @@ export default async function SourcingPage({
       <div className="p-8 max-w-7xl mx-auto space-y-8">
         <PageHeader
           title="Sourcing"
-          description="Trouvez les meilleures usines pour produire vos crÃ©ations"
+          description="Trouvez les meilleures usines pour produire vos créations"
           icon={ShoppingBag}
         />
 

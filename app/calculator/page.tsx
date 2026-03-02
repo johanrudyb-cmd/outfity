@@ -33,30 +33,30 @@ export default async function CalculatorPage() {
                 description={
                     <div className="space-y-4">
                         <p>
-                            <strong>Le secret des marques rentables ?</strong> Les chiffres avant le design. Ce calculateur de marge vous permet de prÃ©voir vos prix de vente et vos gains.
+                            <strong>Le secret des marques rentables ?</strong> Les chiffres avant le design. Ce calculateur de marge vous permet de prévoir vos prix de vente et vos gains.
                         </p>
                         <p>
-                            Ajustez le coÃ»t de production cible, le budget marketing et les frais de livraison pour construire un business model solide, et non un simple passe-temps.
+                            Ajustez le coût de production cible, le budget marketing et les frais de livraison pour construire un business model solide, et non un simple passe-temps.
                         </p>
                     </div>
                 }
                 bulletPoints={[
-                    "Testez plusieurs scÃ©narios de vente pour trouver votre prix de vente optimal (Prix MSRP).",
-                    "Visualisez immÃ©diatement votre marge brute et bÃ©nÃ©fice net.",
-                    "Sauvegardez vos scÃ©narios pour la Phase 1 du Parcours de Lancement."
+                    "Testez plusieurs scénarios de vente pour trouver votre prix de vente optimal (Prix MSRP).",
+                    "Visualisez immédiatement votre marge brute et bénéfice net.",
+                    "Sauvegardez vos scénarios pour la Phase 1 du Parcours de Lancement."
                 ]}
-                ctaText="GÃ©nial, je calcule"
+                ctaText="Génial, je calcule"
             />
             <div className="min-h-screen relative bg-[#F5F5F7]">
                 <div className="px-4 sm:px-6 lg:px-8 py-6 max-w-[1800px] mx-auto pb-8">
 
-                    {/* â”€â”€ Header â”€â”€ */}
+                    {/* ── Header ── */}
                     <div className="mb-8">
                         <Link
                             href="/dashboard"
                             className="inline-flex items-center gap-2 text-[13px] font-semibold text-[#86868B] hover:text-[#1D1D1F] transition-colors mb-3 group"
                         >
-                            <span className="group-hover:-translate-x-1 transition-transform">â†</span>
+                            <span className="group-hover:-translate-x-1 transition-transform">←</span>
                             Retour
                         </Link>
                         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
@@ -65,7 +65,7 @@ export default async function CalculatorPage() {
                                     Calculateur de marge
                                 </h1>
                                 <p className="text-sm text-[#86868B] mt-1.5 max-w-xl">
-                                    Simulez vos scÃ©narios de vente et validez votre rentabilitÃ© en temps rÃ©el.
+                                    Simulez vos scénarios de vente et validez votre rentabilité en temps réel.
                                 </p>
                             </div>
                         </div>

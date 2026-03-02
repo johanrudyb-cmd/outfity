@@ -6,7 +6,7 @@ import { AnalyzeTabs } from '@/components/brands/AnalyzeTabs';
 
 export const metadata = {
   title: 'Analyse de marque & tendances',
-  description: 'Analyse IA complÃ¨te de marques mode et analyseur de tendances : positionnement, marketing, opportunitÃ©s, prÃ©visions.',
+  description: 'Analyse IA complète de marques mode et analyseur de tendances : positionnement, marketing, opportunités, prévisions.',
 };
 
 import { Suspense } from 'react';

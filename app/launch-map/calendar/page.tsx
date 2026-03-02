@@ -18,7 +18,7 @@ export default async function LaunchMapCalendarPage() {
   if (!brand) {
     return (
       <div className="p-6 text-center text-muted-foreground">
-        Aucune marque. CrÃ©ez une marque depuis la vue d&apos;ensemble.
+        Aucune marque. Créez une marque depuis la vue d&apos;ensemble.
       </div>
     );
   }
@@ -27,19 +27,19 @@ export default async function LaunchMapCalendarPage() {
     <div className="min-h-screen bg-[#F5F5F7] pb-8">
       <div className="px-4 sm:px-6 lg:px-12 py-6 sm:py-10 max-w-7xl mx-auto space-y-6 sm:space-y-8">
 
-        {/* â”€â”€ Header â”€â”€ */}
+        {/* ── Header ── */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <Link
               href="/launch-map"
               className="inline-flex items-center gap-2 text-[13px] font-semibold text-[#86868B] hover:text-[#1D1D1F] transition-colors mb-3 group"
             >
-              <span className="group-hover:-translate-x-1 transition-transform">â†</span>
-              Retour Ã  la vue d'ensemble
+              <span className="group-hover:-translate-x-1 transition-transform">←</span>
+              Retour à la vue d'ensemble
             </Link>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#1D1D1F]">Calendrier de Contenu</h1>
             <p className="text-sm text-[#86868B] mt-1.5 max-w-xl">
-              Planifiez vos tournages, vos sessions de post-production et rÃ©digez vos scripts avec l'aide de l'IA pour maximiser votre portÃ©e.
+              Planifiez vos tournages, vos sessions de post-production et rédigez vos scripts avec l'aide de l'IA pour maximiser votre portée.
             </p>
           </div>
         </div>

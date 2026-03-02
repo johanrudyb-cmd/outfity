@@ -20,7 +20,7 @@ export default async function LaunchMapPage() {
     brand = await prisma.brand.create({
       data: {
         userId: user.id,
-        name: 'Ma PremiÃ¨re Marque',
+        name: 'Ma Première Marque',
         launchMap: {
           create: {
             phase1: false,
@@ -53,7 +53,7 @@ export default async function LaunchMapPage() {
 
   const suppliersMap = new Map<string, { id: string; name: string; country: string; moq?: number; leadTime?: number; quoteCount: number }>();
 
-  // D'abord ajouter les fournisseurs qui ont reÃ§u des devis
+  // D'abord ajouter les fournisseurs qui ont reçu des devis
   for (const q of quotesWithFactory) {
     const f = q.factory;
     const existing = suppliersMap.get(f.id);
@@ -71,7 +71,7 @@ export default async function LaunchMapPage() {
     }
   }
 
-  // Ensuite ajouter les favoris (s'ils ne sont pas dÃ©jÃ  dans la map)
+  // Ensuite ajouter les favoris (s'ils ne sont pas déjà dans la map)
   for (const fav of favoriteFactories) {
     const f = fav.factory;
     const existing = suppliersMap.get(f.id);

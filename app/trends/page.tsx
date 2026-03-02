@@ -10,8 +10,8 @@ import { FeatureTourModal } from '@/components/ui/feature-tour-modal';
 import { Rocket } from 'lucide-react';
 
 export const metadata = {
-  title: 'Elite Radar â€” Analyse de Styles IA',
-  description: 'Analyse prÃ©dictive des tendances mode en temps rÃ©el via Outfity Intelligence.',
+  title: 'Elite Radar — Analyse de Styles IA',
+  description: 'Analyse prédictive des tendances mode en temps réel via Outfity Intelligence.',
 };
 
 export default async function TrendsPage() {
@@ -20,7 +20,7 @@ export default async function TrendsPage() {
   //   redirect('/auth/signin');
   // }
 
-  // PrÃ©-charger les tendances par dÃ©faut (18-24 Homme par exemple) pour affichage instantanÃ©
+  // Pré-charger les tendances par défaut (18-24 Homme par exemple) pour affichage instantané
   const initialData = await getHybridRadarTrends({
     segment: 'homme',
     ageRange: '18-24',
@@ -33,22 +33,22 @@ export default async function TrendsPage() {
       <div className="w-full relative">
         <FeatureTourModal
           featureKey="viral_tiktok_intro"
-          title="Viral sur TikTok & Analyse PrÃ©dictive"
+          title="Viral sur TikTok & Analyse Prédictive"
           icon={<Rocket className="w-6 h-6 text-primary" />}
           description={
             <div className="space-y-4">
               <p>
-                Bienvenue sur <strong>Viral sur TikTok</strong>. L'erreur numÃ©ro 1 des marques est de lancer des collections "Ã  l'aveugle" ou de copier ce qui est <em>dÃ©jÃ </em> viral aujourd'hui (c'est souvent trop tard).
+                Bienvenue sur <strong>Viral sur TikTok</strong>. L'erreur numéro 1 des marques est de lancer des collections "à l'aveugle" ou de copier ce qui est <em>déjà</em> viral aujourd'hui (c'est souvent trop tard).
               </p>
               <p>
-                Cet outil est votre atout secret : il analyse les signaux faibles du marchÃ© pour <strong>prÃ©dire ce qui va devenir viral demain</strong>, avant mÃªme que la mode n'Ã©clate.
+                Cet outil est votre atout secret : il analyse les signaux faibles du marché pour <strong>prédire ce qui va devenir viral demain</strong>, avant même que la mode n'éclate.
               </p>
             </div>
           }
           bulletPoints={[
-            "Anticipez le marchÃ© : dÃ©couvrez les coupes en phase d'Ã©mergence avant vos concurrents.",
-            "Ã‰vitez les flops : sÃ©curisez vos investissements avec des donnÃ©es prÃ©dictives, pas sur l'intuition.",
-            "Passez Ã  l'action : gÃ©nÃ©rez un design 3D prÃªt Ã  produire depuis une future tendance."
+            "Anticipez le marché : découvrez les coupes en phase d'émergence avant vos concurrents.",
+            "Évitez les flops : sécurisez vos investissements avec des données prédictives, pas sur l'intuition.",
+            "Passez à l'action : générez un design 3D prêt à produire depuis une future tendance."
           ]}
           ctaText="J'ai compris, scanner l'avenir"
         />

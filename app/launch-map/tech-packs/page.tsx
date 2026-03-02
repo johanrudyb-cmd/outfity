@@ -33,7 +33,7 @@ export default async function MesTechPacksPage() {
           className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Retour Ã  la vue d&apos;ensemble
+          Retour à la vue d&apos;ensemble
         </Link>
       </div>
 

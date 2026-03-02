@@ -22,9 +22,9 @@ export default async function DesignStudioMockupPage() {
     <DashboardLayout>
       <div className="p-6 md:p-8 max-w-4xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold tracking-tight">CrÃ©er un mockup avec le questionnaire</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Créer un mockup avec le questionnaire</h1>
           <p className="text-muted-foreground mt-1">
-            RÃ©pondez aux questions pour que lâ€™IA gÃ©nÃ¨re une photo produit de votre article, puis enregistrez et gÃ©nÃ©rez le tech pack.
+            Répondez aux questions pour que l'IA génère une photo produit de votre article, puis enregistrez et générez le tech pack.
           </p>
         </div>
         <MockupQuestionnaire brandId={brand.id} brandName={brand.name ?? undefined} />

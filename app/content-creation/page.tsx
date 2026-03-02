@@ -8,8 +8,8 @@ import Link from 'next/link';
 import { ArrowLeft, Sparkles, Zap, Camera, PenTool, LayoutList, Image as ImageIcon } from 'lucide-react';
 
 export const metadata = {
-    title: 'Studio de CrÃ©ation | Biangory',
-    description: 'GÃ©nÃ©rez vos visuels produits, shootings IA et scripts marketing en quelques clics.',
+    title: 'Studio de Création | Biangory',
+    description: 'Générez vos visuels produits, shootings IA et scripts marketing en quelques clics.',
 };
 
 export default async function ContentCreationPage() {
@@ -38,7 +38,7 @@ export default async function ContentCreationPage() {
     return (
         <DashboardLayout>
             <div className="min-h-screen bg-[#F5F5F7]">
-                {/* â”€â”€ Hero Header â”€â”€ */}
+                {/* ── Hero Header ── */}
                 <div className="relative overflow-hidden bg-[#1D1D1F] pb-0">
                     {/* Gradient orbs */}
                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -55,10 +55,10 @@ export default async function ContentCreationPage() {
                             <div>
                                 <p className="text-[12px] font-bold text-[#007AFF] uppercase tracking-widest mb-1">Studio IA</p>
                                 <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight">
-                                    CrÃ©ation de Contenu
+                                    Création de Contenu
                                 </h1>
                                 <p className="text-[15px] text-white/50 mt-2 max-w-lg">
-                                    Shootings produit, Virtual Try-On, identitÃ© visuelle et scripts marketing â€” tout alimentÃ© par l&apos;IA.
+                                    Shootings produit, Virtual Try-On, identité visuelle et scripts marketing — tout alimenté par l&apos;IA.
                                 </p>
                             </div>
                             <div className="hidden sm:flex items-center gap-2 shrink-0 pb-1">
@@ -71,7 +71,7 @@ export default async function ContentCreationPage() {
                     </div>
                 </div>
 
-                {/* â”€â”€ Content â”€â”€ */}
+                {/* ── Content ── */}
                 <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-8 pb-8">
                     <Phase4Marketing
                         brandId={brand.id}

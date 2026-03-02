@@ -45,11 +45,11 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const mode = params.mode;
 
-  // 1. Authentification d'abord (nÃ©cessaire pour l'ID)
+  // 1. Authentification d'abord (nécessaire pour l'ID)
   const user = await getCurrentUser();
   if (!user) redirect('/auth/signin');
 
-  // 2. RÃ´les et Marque en parallÃ¨le (on charge le strict nÃ©cessaire pour le splash screen)
+  // 2. Rôles et Marque en parallèle (on charge le strict nécessaire pour le splash screen)
   const [isAdmin, affiliate, brandNameOnly] = await Promise.all([
     getIsAdmin(),
     prisma.affiliate.findUnique({
@@ -65,10 +65,10 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   const isPartner = affiliate?.status === 'ACTIVE';
 
-  // 3. LOGIQUE DE CHOIX : Splash screen immÃ©diat pour admins et partenaires
+  // 3. LOGIQUE DE CHOIX : Splash screen immédiat pour admins et partenaires
   if ((isPartner || isAdmin) && mode !== 'app') {
     return <GatewayScreen
-      userName={user.name || "CrÃ©ateur"}
+      userName={user.name || "Créateur"}
       brandName={brandNameOnly?.name}
       isAdmin={isAdmin}
     />;
@@ -85,7 +85,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     }),
   ]);
 
-  // Si on est en mode app (ou pas partenaire), on vÃ©rifie le onboarding
+  // Si on est en mode app (ou pas partenaire), on vérifie le onboarding
   if (!brand) redirect('/onboarding');
 
   const launchMap = initialLaunchMap || await prisma.launchMap.findUnique({
@@ -142,7 +142,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       disabled: false,
     },
     {
-      title: 'CrÃ©ation de contenu',
+      title: 'Création de contenu',
       subtitle: 'Posts & planification',
       href: '/content-creation',
       icon: PenLine,
@@ -153,7 +153,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     },
     {
       title: 'Calculateur de marge',
-      subtitle: 'RentabilitÃ© par article',
+      subtitle: 'Rentabilité par article',
       href: '/calculator',
       icon: Calculator,
       iconBg: 'bg-emerald-50',
@@ -167,10 +167,10 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     <DashboardLayout>
       <div className="min-h-screen relative bg-[#FAFAFA] pb-12 overflow-x-hidden">
 
-        {/* Pattern de fond (Dots) faÃ§on "Premium SaaS" avec fondu vers le bas */}
+        {/* Pattern de fond (Dots) façon "Premium SaaS" avec fondu vers le bas */}
         <div className="absolute inset-0 bg-[radial-gradient(#c7c7cc_1px,transparent_1px)] [background-size:24px_24px] [mask-image:linear-gradient(to_bottom,black_40%,transparent_100%)] pointer-events-none opacity-40 mix-blend-multiply" />
 
-        {/* DÃ©coration d'arriÃ¨re-plan (Ambient Glow) lÃ©gÃ¨rement rehaussÃ©e */}
+        {/* Décoration d'arrière-plan (Ambient Glow) légèrement rehaussée */}
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-500/[0.06] rounded-full blur-[120px] pointer-events-none transform translate-x-1/3 -translate-y-1/4" />
         <div className="absolute top-[20%] left-0 w-[500px] h-[500px] bg-violet-500/[0.05] rounded-full blur-[120px] pointer-events-none transform -translate-x-1/2" />
         <div className="absolute bottom-[-10%] left-[20%] w-[800px] h-[800px] bg-orange-500/[0.04] rounded-full blur-[150px] pointer-events-none" />
@@ -181,17 +181,17 @@ export default async function DashboardPage({ searchParams }: PageProps) {
             <UpgradeSessionRefresh />
           </Suspense>
 
-          {/* â”€â”€ Header â”€â”€ */}
+          {/* ── Header ── */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <p className="text-xs font-bold text-[#86868B] uppercase tracking-widest mb-1">
                 {today.charAt(0).toUpperCase() + today.slice(1)}
               </p>
               <h1 className="text-4xl sm:text-5xl font-bold text-[#1D1D1F] tracking-tight leading-none">
-                Hello, {displayName} ðŸ‘‹
+                Hello, {displayName} 👋
               </h1>
               <p className="text-[#86868B] mt-2 text-base">
-                Voici l&apos;Ã©tat de <span className="text-[#1D1D1F] font-semibold">{brand.name}</span> aujourd&apos;hui.
+                Voici l&apos;état de <span className="text-[#1D1D1F] font-semibold">{brand.name}</span> aujourd&apos;hui.
               </p>
             </div>
             <div className="flex items-center gap-3 shrink-0">
@@ -202,7 +202,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                   : "bg-black text-white border-black shadow-lg shadow-black/10"
               )}>
                 {!isFree && <Crown className="w-3 h-3 text-[#FFD700]" />}
-                {isFree ? 'Plan Starter' : 'Plan CrÃ©ateur'}
+                {isFree ? 'Plan Starter' : 'Plan Créateur'}
               </div>
               <DashboardNotifications />
               <DashboardRefresh />
@@ -212,13 +212,13 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           {/* Strategy Update Banner */}
           {!isFree && <StrategyUpdateBanner />}
 
-          {/* â”€â”€ Main Grid â”€â”€ */}
+          {/* ── Main Grid ── */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
-            {/* â”€â”€ LEFT (2/3) â”€â”€ */}
+            {/* ── LEFT (2/3) ── */}
             <div className="lg:col-span-2 space-y-6">
 
-              {/* Launch Map â€” Focus / CTA Hero */}
+              {/* Launch Map — Focus / CTA Hero */}
               <div data-tour="tour-journey" className="relative overflow-hidden rounded-[32px] bg-white border border-black/[0.06] shadow-apple p-8">
                 {/* Decorative glow */}
                 <div className="absolute -top-20 -right-20 w-80 h-80 bg-[#007AFF]/8 rounded-full blur-[100px] pointer-events-none" />
@@ -231,7 +231,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                         <Map className="w-4 h-4 text-[#007AFF]" />
                       </div>
                       <span className="text-[10px] font-bold text-[#007AFF] uppercase tracking-widest">
-                        Launch Map â€” Prochaine Ã©tape
+                        Launch Map — Prochaine étape
                       </span>
                     </div>
 
@@ -240,7 +240,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                         {nextPhase.label}
                       </h2>
                       <p className="text-[#86868B] mt-2 text-base leading-relaxed max-w-lg">
-                        ComplÃ©tez cette phase pour faire avancer <strong className="text-[#1D1D1F]">{brand.name}</strong> vers son lancement.
+                        Complétez cette phase pour faire avancer <strong className="text-[#1D1D1F]">{brand.name}</strong> vers son lancement.
                       </p>
                     </div>
 
@@ -289,7 +289,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                   <div className="relative flex items-start justify-between overflow-x-auto pb-1">
                     {/* Ligne de fond globale */}
                     <div className="absolute top-[18px] left-[8%] right-[8%] h-[2px] bg-[#F5F5F7] -z-10" />
-                    {/* Ligne de progression (calcul approximatif basÃ© sur l'index) */}
+                    {/* Ligne de progression (calcul approximatif basé sur l'index) */}
                     <div
                       className="absolute top-[18px] left-[8%] h-[2px] bg-[#007AFF] -z-10 transition-all duration-1000"
                       style={{ width: `${Math.max(0, (phases.findIndex(p => p.id === nextPhase.id) / (phases.length - 1)) * 84)}%` }}
@@ -313,7 +313,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
                           <div className="flex flex-col items-center gap-1 mt-0.5">
                             <span className="text-[8px] font-black uppercase tracking-widest text-[#86868B]">
-                              Ã‰tape {i + 1}
+                              Étape {i + 1}
                             </span>
                             <span className={cn(
                               "text-[10px] font-bold text-center leading-none",
@@ -329,12 +329,12 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 </div>
               </div>
 
-              {/* Tools Grid â€” AccÃ¨s rapide */}
+              {/* Tools Grid — Accès rapide */}
               <div>
                 <div className="flex items-center justify-between mb-4 px-1">
                   <h2 className="text-lg font-bold text-[#1D1D1F]">Vos outils</h2>
                   <span className="text-[10px] text-[#86868B] font-bold uppercase tracking-widest">
-                    AccÃ¨s rapide
+                    Accès rapide
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-3 sm:gap-4">
@@ -353,7 +353,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                             <div className="flex items-center gap-2 mb-0.5">
                               <p className="font-bold text-[13px] sm:text-sm text-[#1D1D1F] leading-snug truncate">{tool.title}</p>
                               <span className="px-1.5 py-0.5 bg-[#1D1D1F]/5 text-[#1D1D1F]/60 rounded text-[8px] font-black uppercase tracking-widest leading-none shrink-0 border border-black/5">
-                                BientÃ´t
+                                Bientôt
                               </span>
                             </div>
                             <p className="text-[11px] text-[#86868B] line-clamp-1">{tool.subtitle}</p>
@@ -390,7 +390,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
             </div>
 
-            {/* â”€â”€ RIGHT (1/3) â”€â”€ */}
+            {/* ── RIGHT (1/3) ── */}
             <div className="space-y-6">
 
               {/* Weekly Calendar */}
@@ -403,7 +403,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                     <div>
                       <h3 className="font-bold text-[#1D1D1F] text-sm">Cette semaine</h3>
                       <p className="text-[10px] text-[#86868B] font-bold uppercase tracking-widest">
-                        {weekEvents.length} post{weekEvents.length !== 1 ? 's' : ''} prÃ©vu{weekEvents.length !== 1 ? 's' : ''}
+                        {weekEvents.length} post{weekEvents.length !== 1 ? 's' : ''} prévu{weekEvents.length !== 1 ? 's' : ''}
                       </p>
                     </div>
                   </div>
@@ -415,7 +415,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 {weekEvents.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-6 text-center bg-[#F5F5F7] rounded-2xl">
                     <CalendarIcon className="w-8 h-8 text-[#C7C7CC] mb-2" />
-                    <p className="text-sm font-semibold text-[#1D1D1F]">Aucun post prÃ©vu</p>
+                    <p className="text-sm font-semibold text-[#1D1D1F]">Aucun post prévu</p>
                     <p className="text-[11px] text-[#86868B] mt-0.5 mb-3">Planifiez votre contenu de la semaine</p>
                     <Link href="/content-creation">
                       <button className="text-[11px] font-bold text-[#007AFF] hover:underline">
@@ -438,7 +438,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 )}
               </div>
 
-              {/* ActivitÃ© RÃ©cente */}
+              {/* Activité Récente */}
               <Suspense fallback={null}>
                 <DashboardRecentActivity />
               </Suspense>
@@ -480,13 +480,13 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                     <div className="w-10 h-10 rounded-2xl bg-[#007AFF] flex items-center justify-center">
                       <Sparkles className="w-5 h-5 text-white" />
                     </div>
-                    <h3 className="font-bold text-base text-white">Passez au Plan CrÃ©ateur</h3>
+                    <h3 className="font-bold text-base text-white">Passez au Plan Créateur</h3>
                     <p className="text-white/70 text-xs leading-relaxed">
-                      DÃ©verrouillez tous les outils IA, mockups illimitÃ©s et support prioritaire.
+                      Déverrouillez tous les outils IA, mockups illimités et support prioritaire.
                     </p>
                     <Link href="/auth/choose-plan">
                       <Button className="w-full bg-[#007AFF] hover:bg-[#0056CC] text-white font-bold rounded-full h-10 text-sm border-0 shadow-lg shadow-blue-900/30 mt-1">
-                        DÃ©bloquer maintenant
+                        Débloquer maintenant
                         <ArrowRight className="ml-2 w-4 h-4" />
                       </Button>
                     </Link>

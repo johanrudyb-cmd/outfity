@@ -10,7 +10,7 @@ import { Camera } from 'lucide-react';
 
 export const metadata = {
     title: 'Analyseur de tendances visuel',
-    description: 'Analysez nâ€™importe quel vÃªtement par image grÃ¢ce Ã  lâ€™IA Vision et dÃ©couvrez son potentiel commercial.',
+    description: 'Analysez n'importe quel vêtement par image grâce à l'IA Vision et découvrez son potentiel commercial.',
 };
 
 export default async function VisualTrendPage() {
@@ -24,24 +24,24 @@ export default async function VisualTrendPage() {
             <div className="relative">
                 <FeatureTourModal
                     featureKey="detect_trend_visual_intro"
-                    title="DÃ©tecter une Tendance"
+                    title="Détecter une Tendance"
                     icon={<Camera className="w-6 h-6 text-primary" />}
                     description={
                         <div className="space-y-4">
                             <p>
-                                <strong>Vous avez vu une piÃ¨ce stylÃ©e dans la rue ou sur un influenceur ?</strong> Ne la lancez pas sans savoir si le marchÃ© est prÃªt.
+                                <strong>Vous avez vu une pièce stylée dans la rue ou sur un influenceur ?</strong> Ne la lancez pas sans savoir si le marché est prêt.
                             </p>
                             <p>
-                                Prenez une photo, envoyez-la ici, et notre IA vous dira s'il s'agit d'une tendance montante, d'un best-seller, ou si c'est dÃ©jÃ  passÃ© de mode.
+                                Prenez une photo, envoyez-la ici, et notre IA vous dira s'il s'agit d'une tendance montante, d'un best-seller, ou si c'est déjà passé de mode.
                             </p>
                         </div>
                     }
                     bulletPoints={[
-                        "Analysez n'importe quel vÃªtement Ã  partir d'une simple capture d'Ã©cran.",
-                        "Obtenez des prÃ©dictions chiffrÃ©es sur le potentiel commercial.",
-                        "Transformez l'inspiration en un design final et prÃªt Ã  produire en 1 clic."
+                        "Analysez n'importe quel vêtement à partir d'une simple capture d'écran.",
+                        "Obtenez des prédictions chiffrées sur le potentiel commercial.",
+                        "Transformez l'inspiration en un design final et prêt à produire en 1 clic."
                     ]}
-                    ctaText="C'est parti, je scanne le marchÃ©"
+                    ctaText="C'est parti, je scanne le marché"
                 />
 
                 <MarketTicker />

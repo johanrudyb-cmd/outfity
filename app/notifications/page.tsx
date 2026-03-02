@@ -27,7 +27,7 @@ export default async function NotificationsPage() {
                 Notifications
               </h1>
               <p className="text-muted-foreground font-medium text-lg mt-1">
-                GÃ©rez vos notifications et alertes
+                Gérez vos notifications et alertes
               </p>
             </div>
           </div>
