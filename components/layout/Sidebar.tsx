@@ -384,6 +384,32 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                 </a>
               </div>
             </div>
+
+            {/* Upgrade CTA for Free Users */}
+            {(userPlanData?.plan === 'starter' || userPlanData?.plan === 'free' || !userPlanData?.plan) && (
+              <Link
+                href="/auth/choose-plan"
+                onClick={handleNav}
+                className="block group"
+              >
+                <div className="p-5 bg-gradient-to-br from-[#007AFF] to-[#0056CC] rounded-[28px] text-white overflow-hidden relative shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-white/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-white/30 transition-colors" />
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
+                        <Crown className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em]">Premium</span>
+                    </div>
+                    <h3 className="text-xs font-black uppercase tracking-widest mb-1 italic leading-tight">Passer en Créateur</h3>
+                    <p className="text-[9px] font-medium text-white/70 leading-relaxed mb-3">Débloquez tous les agents et designs illimités.</p>
+                    <div className="w-full py-2 bg-white text-[#007AFF] text-[9px] font-black uppercase tracking-widest rounded-xl flex items-center justify-center gap-2">
+                      Upgrade <ArrowRight className="w-3 h-3" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            )}
           </div>
         </nav>
       </aside>
