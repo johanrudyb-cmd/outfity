@@ -21,7 +21,11 @@ export function BlogClient({ posts, categories }: { posts: any[], categories: st
     const gridPosts = filteredPosts.slice(1);
 
     // estimate read time statically for the demo, normally derived from word count
-    const getReadTime = () => "4 min de lecture";
+    const getReadTime = (content: string) => {
+        if (!content) return "2 min de lecture";
+        const mins = Math.max(2, Math.ceil(content.length / 800));
+        return `${mins} min de lecture`;
+    };
 
     return (
         <main className="bg-white">
@@ -80,7 +84,7 @@ export function BlogClient({ posts, categories }: { posts: any[], categories: st
                                             <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-white/80 text-[9px] sm:text-[10px] md:text-xs font-bold uppercase tracking-widest">
                                                 <span>{new Date(featuredPost.publishedAt).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</span>
                                                 <span className="hidden sm:inline">•</span>
-                                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {getReadTime()}</span>
+                                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {getReadTime(featuredPost.content)}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -193,7 +197,7 @@ export function BlogClient({ posts, categories }: { posts: any[], categories: st
                                             <div className="flex items-center gap-3 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-[#86868b] mb-4">
                                                 <span>{new Date(post.publishedAt).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })}</span>
                                                 <span className="w-1 h-1 rounded-full bg-[#E5E5E7]" />
-                                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {getReadTime()}</span>
+                                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {getReadTime(post.content)}</span>
                                             </div>
 
                                             <h3 className="text-xl sm:text-2xl font-black text-[#1D1D1F] tracking-tight leading-tight mb-4 group-hover:text-[#007AFF] transition-colors line-clamp-3">
