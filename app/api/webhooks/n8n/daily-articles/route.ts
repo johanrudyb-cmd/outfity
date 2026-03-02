@@ -30,7 +30,7 @@ export async function GET(req: Request) {
                 title: true,
                 slug: true,
                 excerpt: true,
-                content: true,
+                // content: true, // Removed to avoid 504 timeout on large articles
                 coverImage: true,
                 tags: true,
                 publishedAt: true
