@@ -110,7 +110,7 @@ const getBaseTemplate = ({ title, description, buttonText, buttonUrl, footerText
 <body>
     <div class="container">
         <div class="card">
-            <img src="https://send.outfity.fr/icon.png" alt="OUTFITY" class="logo">
+            <img src="https://outfity.fr/icon.png" alt="OUTFITY" class="logo">
             <h1>${title}</h1>
             <p>${description}</p>
             
