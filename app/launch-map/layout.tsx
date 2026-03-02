@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { LaunchMapNav } from '@/components/launch-map/LaunchMapNav';
 import { getCurrentUser } from '@/lib/auth-helpers';

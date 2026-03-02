@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { getIsAdmin } from '@/lib/auth-helpers';
 import { redirect } from 'next/navigation';
 import { Toaster } from 'sonner';
