@@ -80,9 +80,22 @@ export function UserAccountNav() {
                     <span className="text-xs font-black text-[#1D1D1F] uppercase tracking-tight leading-none">
                         {user.name?.split(' ')[0]}
                     </span>
-                    <span className="text-[10px] font-bold text-[#1D1D1F]/40 leading-none mt-1">
-                        {isAdmin ? 'Administrateur' : userPlanData?.plan?.name || 'Membre'}
-                    </span>
+                    <div className="mt-1">
+                        {isAdmin ? (
+                            <span className="text-[8px] font-black uppercase tracking-widest text-[#FF3B30] bg-red-50 px-1.5 py-0.5 rounded-md border border-red-100">
+                                Admin
+                            </span>
+                        ) : (
+                            <span className={cn(
+                                "text-[8px] font-black uppercase tracking-[0.1em] px-1.5 py-0.5 rounded-md border",
+                                userPlanData?.plan === 'creator'
+                                    ? "bg-black text-white border-black shadow-sm"
+                                    : "bg-[#007AFF]/5 text-[#007AFF] border-[#007AFF]/10"
+                            )}>
+                                {userPlanData?.plan === 'creator' ? 'Créateur' : 'Starter'}
+                            </span>
+                        )}
+                    </div>
                 </div>
             </button>
 
@@ -97,7 +110,23 @@ export function UserAccountNav() {
                     >
                         {/* User Info Header */}
                         <div className="p-6 bg-gradient-to-b from-gray-50/50 to-white border-b border-black/5">
-                            <p className="text-xs font-black text-[#1D1D1F]/30 uppercase tracking-[0.2em] mb-4">Votre Compte</p>
+                            <div className="flex items-center justify-between mb-4">
+                                <p className="text-xs font-black text-[#1D1D1F]/30 uppercase tracking-[0.2em]">Votre Compte</p>
+                                {isAdmin ? (
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-[#FF3B30] bg-red-50 px-2 py-0.5 rounded-full border border-red-100">
+                                        Admin
+                                    </span>
+                                ) : (
+                                    <span className={cn(
+                                        "text-[9px] font-black uppercase tracking-[0.1em] px-2 py-0.5 rounded-full border",
+                                        userPlanData?.plan === 'creator'
+                                            ? "bg-black text-white border-black shadow-sm"
+                                            : "bg-[#007AFF]/5 text-[#007AFF] border-[#007AFF]/10"
+                                    )}>
+                                        Plan {userPlanData?.plan === 'creator' ? 'Créateur' : 'Starter'}
+                                    </span>
+                                )}
+                            </div>
                             <div className="flex items-center gap-4">
                                 <Avatar className="h-12 w-12 border-2 border-white shadow-md">
                                     <AvatarFallback className="bg-black text-white font-black text-lg">

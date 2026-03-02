@@ -194,11 +194,15 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               </p>
             </div>
             <div className="flex items-center gap-3 shrink-0">
-              {!isFree && (
-                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-[#007AFF]/10 text-[#007AFF] rounded-full text-[10px] font-bold border border-[#007AFF]/20 uppercase tracking-widest">
-                  <Crown className="w-3 h-3" /> Plan Créateur
-                </div>
-              )}
+              <div className={cn(
+                "hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold border uppercase tracking-widest",
+                isFree
+                  ? "bg-[#007AFF]/5 text-[#007AFF] border-[#007AFF]/20"
+                  : "bg-black text-white border-black shadow-lg shadow-black/10"
+              )}>
+                {!isFree && <Crown className="w-3 h-3 text-[#FFD700]" />}
+                {isFree ? 'Plan Starter' : 'Plan Créateur'}
+              </div>
               <DashboardNotifications />
               <DashboardRefresh />
             </div>

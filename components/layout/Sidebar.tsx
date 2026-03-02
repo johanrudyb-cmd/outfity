@@ -338,9 +338,19 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
             {/* Usage Brief Card (Small version of what's in UserAccountNav) */}
             {userPlanData?.usage && (
               <div className="p-4 bg-[#F5F5F7] rounded-[24px] border border-black/[0.03]">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[9px] font-black uppercase tracking-widest text-[#86868B]">Quotas IA</span>
-                  <span className="text-[10px] font-bold text-[#1D1D1F]">{userPlanData.usage.total} / {userPlanData.usage.limit}</span>
+                <div className="flex items-center justify-between mb-3">
+                  <span className={cn(
+                    "text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-md border shrink-0",
+                    userPlanData?.plan === 'creator'
+                      ? "bg-black text-white border-black shadow-sm"
+                      : "bg-[#007AFF]/5 text-[#007AFF] border-[#007AFF]/10"
+                  )}>
+                    {userPlanData?.plan === 'creator' ? 'Créateur' : 'Starter'}
+                  </span>
+                  <div className="flex flex-col items-end">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-[#86868B] mb-0.5">Quotas IA</span>
+                    <span className="text-[10px] font-bold text-[#1D1D1F]">{userPlanData.usage.total} / {userPlanData.usage.limit}</span>
+                  </div>
                 </div>
                 <div className="h-1.5 w-full bg-black/5 rounded-full overflow-hidden">
                   <div
@@ -348,8 +358,8 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                     style={{ width: `${Math.min(100, (userPlanData.usage.total / userPlanData.usage.limit) * 100)}%` }}
                   />
                 </div>
-                <Link href="/usage" onClick={handleNav} className="block mt-2 text-center text-[9px] font-black uppercase text-[#007AFF] hover:underline">
-                  Détails du plan
+                <Link href="/usage" onClick={handleNav} className="block mt-3 text-center text-[9px] font-black uppercase text-[#007AFF] hover:underline">
+                  Détails & Quotas
                 </Link>
               </div>
             )}
