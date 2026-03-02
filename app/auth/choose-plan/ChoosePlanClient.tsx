@@ -10,17 +10,11 @@ function CountdownTimer() {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    // On définit une fin de promo persistante (par ex: 24h après la première visite)
-    const PROMO_DURATION = 24 * 60 * 60 * 1000; // 24 heures en ms
-    let endTime = localStorage.getItem('outfity_promo_end');
-
-    if (!endTime) {
-      endTime = String(Date.now() + PROMO_DURATION);
-      localStorage.setItem('outfity_promo_end', endTime);
-    }
+    // On définit une fin de promo fixe : 1er Avril 2026 à Minuit
+    const PROMO_END_DATE = new Date('2026-04-01T00:00:00').getTime();
 
     const calculateTimeLeft = () => {
-      const difference = Number(endTime) - Date.now();
+      const difference = PROMO_END_DATE - Date.now();
 
       if (difference <= 0) {
         return { days: 0, hours: 0, minutes: 0, seconds: 0 };
@@ -40,7 +34,7 @@ function CountdownTimer() {
     const timer = setInterval(() => {
       const updated = calculateTimeLeft();
       setTimeLeft(updated);
-      if (Number(endTime) - Date.now() <= 0) {
+      if (PROMO_END_DATE - Date.now() <= 0) {
         clearInterval(timer);
       }
     }, 1000);
