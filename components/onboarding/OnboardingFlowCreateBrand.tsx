@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, ArrowLeft, Sparkles, CheckCircle, Info, ArrowRight } from 'lucide-react';
+import { Loader2, ArrowLeft, Sparkles, CheckCircle, Info } from 'lucide-react';
 import {
   getSeasonalRecommendation,
   getProductTypeLabel,
@@ -119,7 +119,7 @@ export function OnboardingFlowCreateBrand({ onBack, demoMode = false, userPlan =
     } finally {
       setNameSuggestionsLoading(false);
     }
-  }, [selectedUniverse, userPlan, demoMode]);
+  }, [selectedUniverse, userPlan, demoMode, selectedName]);
 
   useEffect(() => {
     if (step === 'identity' && selectedUniverse && nameSuggestions.length === 0) {
@@ -148,9 +148,9 @@ export function OnboardingFlowCreateBrand({ onBack, demoMode = false, userPlan =
             {step === 'validation' && "Félicitations !"}
           </h1>
           <p className="text-muted-foreground">
-            {step === 'start' && "Je suis votre mentor OUTFITY. Je vais vous guider pas à pas sans rien vous imposer."}
-            {step === 'universe' && "L'univers définit le ton de votre marque. Choisissez celui qui résonne le plus avec vous."}
-            {step === 'identity' && "Votre nom est le premier point de contact avec votre communauté."}
+            {step === 'start' && "Je suis ton mentor OUTFITY. On va poser les bases ensemble, et Virgil prendra le relais pour ta stratégie."}
+            {step === 'universe' && "L'univers définit le ton de ta marque. Choisis celui qui résonne le plus avec toi."}
+            {step === 'identity' && "Ton nom est le premier point de contact avec ta communauté."}
           </p>
         </div>
       </div>

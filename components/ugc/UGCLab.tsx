@@ -51,30 +51,33 @@ const TABS = [
     label: 'Shooting Photo',
     sublabel: 'Mettez vos produits en scène avec l\'IA',
     icon: Camera,
-    badge: null,
+    badge: 'BIENTÔT',
     color: 'from-[#34C759] to-[#30D158]',
     bgColor: 'bg-[#34C759]/10',
     activeColor: 'border-[#34C759] text-[#34C759]',
+    unavailable: true,
   },
   {
     id: 'tryon' as Tab,
     label: 'Virtual Try-On',
     sublabel: 'Visualisez vos pièces sur mannequin IA',
     icon: ImageIcon,
-    badge: 'PREMIUM',
+    badge: 'BIENTÔT',
     color: 'from-[#FF9500] to-[#FF6000]',
     bgColor: 'bg-[#FF9500]/10',
     activeColor: 'border-[#FF9500] text-[#FF9500]',
+    unavailable: true,
   },
   {
     id: 'scripts' as Tab,
-    label: 'Scripts Marketing',
+    label: 'JOY (Contenu)',
     sublabel: 'Posts Instagram, TikTok & Reels structurés',
-    icon: LayoutList,
-    badge: null,
+    icon: Sparkles,
+    badge: 'ACTIF',
     color: 'from-[#007AFF] to-[#0056CC]',
     bgColor: 'bg-[#007AFF]/10',
     activeColor: 'border-[#007AFF] text-[#007AFF]',
+    unavailable: false,
   },
 ] as const;
 
@@ -156,12 +159,16 @@ export function UGCLab({ brandId, brandName, designs = [], brand, userPlan = 'fr
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => {
+                  if (tab.unavailable) return;
+                  setActiveTab(tab.id);
+                }}
                 className={cn(
                   'relative group text-left p-3 sm:p-5 rounded-[18px] sm:rounded-[24px] border-2 transition-all duration-200 overflow-hidden',
                   isActive
                     ? `${tab.bgColor} ${tab.activeColor} shadow-lg`
                     : 'bg-white border-black/[0.06] hover:border-black/20 hover:shadow-md',
+                  tab.unavailable && 'opacity-60 grayscale cursor-not-allowed hover:border-black/[0.06] hover:shadow-none'
                 )}
               >
                 {isActive && (
@@ -176,10 +183,17 @@ export function UGCLab({ brandId, brandName, designs = [], brand, userPlan = 'fr
                     <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5">
                       <p className={cn("text-[12px] sm:text-[13px] font-bold leading-tight", isActive ? "text-current" : "text-[#1D1D1F]")}>{tab.label}</p>
                       {tab.badge && (
-                        <span className="text-[8px] sm:text-[9px] font-black bg-[#FF9500]/15 text-[#FF9500] px-1.5 py-0.5 rounded-full hidden sm:inline">{tab.badge}</span>
+                        <span className={cn(
+                          "text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded-full hidden sm:inline",
+                          tab.unavailable ? "bg-black/5 text-[#86868B]" : "bg-[#007AFF]/15 text-[#007AFF]"
+                        )}>
+                          {tab.badge}
+                        </span>
                       )}
                     </div>
-                    <p className="text-[10px] sm:text-[11px] text-[#86868B] leading-snug hidden md:block">{tab.sublabel}</p>
+                    <p className="text-[10px] sm:text-[11px] text-[#86868B] leading-snug hidden md:block">
+                      {tab.unavailable ? 'Momentanément indisponible' : tab.sublabel}
+                    </p>
                   </div>
                 </div>
               </button>

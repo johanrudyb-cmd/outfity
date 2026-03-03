@@ -20,6 +20,7 @@ export function WelcomeValidationAnimation({ onComplete }: { onComplete?: () => 
     setProgress(0);
     if (stepIndex >= VALIDATION_STEPS.length) {
       onComplete?.();
+      // On redirige vers le dashboard comme avant
       router.push('/dashboard?tutorial=1');
       return;
     }
@@ -51,10 +52,10 @@ export function WelcomeValidationAnimation({ onComplete }: { onComplete?: () => 
             <div
               key={step.label}
               className={`flex items-center gap-3 rounded-lg border-2 p-3 transition-colors ${i < stepIndex
-                  ? 'border-success bg-success/10'
-                  : i === stepIndex
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border bg-muted/30'
+                ? 'border-success bg-success/10'
+                : i === stepIndex
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border bg-muted/30'
                 }`}
             >
               {i < stepIndex ? (

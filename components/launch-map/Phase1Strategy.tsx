@@ -1,32 +1,17 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Loader2,
   ArrowRight,
   ArrowLeft,
   Sparkles,
-  Target,
   Compass,
   Zap,
-  Check,
-  History,
-  FileText,
-  Upload,
-  Image as ImageIcon,
-  Layers,
-  Fingerprint,
-  Wind,
-  Feather,
-  Globe
 } from 'lucide-react';
 import { getBrandLogoUrl } from '@/lib/curated-brands';
-import { POSITIONING_OPTIONS } from '@/lib/constants/identity-options';
 import {
   getReferenceBrandsForPositioning,
   getTargetAudienceOptionsForPositioning,
@@ -39,7 +24,6 @@ import { cn } from '@/lib/utils';
 import { isFreePlan } from '@/lib/plan-utils';
 import { useToast } from '@/components/ui/toast';
 import { USAGE_REFRESH_EVENT } from '@/lib/hooks/useAIUsage';
-import { useSurplusModal } from '@/components/usage/SurplusModalContext';
 import { getTechnicalStyleKeywords } from '@/lib/brand-style-keywords';
 import { PreviewWatermark } from '@/components/ui/preview-watermark';
 
@@ -62,7 +46,7 @@ function styleGuideField(sg: Record<string, unknown> | null | undefined, key: st
 export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode = false, userPlan = 'free', strategyText }: Phase1StrategyProps) {
   const router = useRouter();
   const { toast } = useToast();
-  const openSurplusModal = useSurplusModal();
+  const searchParams = useSearchParams();
   const sg = brand?.styleGuide && typeof brand.styleGuide === 'object' ? brand.styleGuide as Record<string, unknown> : null;
 
   // Clé de session unique par marque pour la persistance inter-onglets
@@ -70,15 +54,11 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
 
   // --- States ---
   const [viewMode, setViewMode] = useState<'chat' | 'classic'>('chat');
-
-  // Compteur de changements restants pour la marque d'inspiration
   const [changesRemaining, setChangesRemaining] = useState(3);
-  const [savingInspiration, setSavingInspiration] = useState(false);
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [positioning, setPositioning] = useState(() => styleGuideField(sg, 'preferredStyle') || styleGuideField(sg, 'positioning') || '');
   const [targetAudience, setTargetAudience] = useState(() => styleGuideField(sg, 'targetAudience') || '');
   const [selectedSlug, setSelectedSlug] = useState<string | null>(brand?.templateBrandSlug || null);
-  // Restore strategy from sessionStorage if it was generated earlier in this session
+
   const [strategyResult, setStrategyResultState] = useState<string | null>(() => {
     if (typeof window === 'undefined') return strategyText || null;
     try {
@@ -87,58 +67,21 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
     } catch { return strategyText || null; }
   });
 
-  // Wrapper pour sauvegarder automatiquement en sessionStorage à chaque mise à jour
   const setStrategyResult = (val: string | null) => {
     setStrategyResultState(val);
     try {
       if (val) sessionStorage.setItem(SESSION_KEY, val);
       else sessionStorage.removeItem(SESSION_KEY);
-    } catch { /* sessionStorage indisponible (mode privé strict) */ }
+    } catch { }
   };
 
   const [strategyLoading, setStrategyLoading] = useState(false);
-  const [strategyError, setStrategyError] = useState('');
   const [analyzedBrandsFromDb, setAnalyzedBrandsFromDb] = useState<Array<{ brandName: string; slug: string }>>([]);
-  const [strategyHistory, setStrategyHistory] = useState<any[]>([]);
   const [showLogoStep, setShowLogoStep] = useState(false);
   const [logoGenerating, setLogoGenerating] = useState(false);
   const [logoProposals, setLogoProposals] = useState<Array<{ url: string; urlTransparent: string }>>([]);
   const [logoError, setLogoError] = useState('');
-  const [validateLoading, setValidateLoading] = useState(false);
   const [strategyModalOpen, setStrategyModalOpen] = useState(false);
-  const [viewingTemplate, setViewingTemplate] = useState<any>(null);
-
-  // --- Step Definitions ---
-  const steps = useMemo(() => [
-    {
-      id: 'positioning',
-      title: 'L\'Esprit.',
-      subtitle: 'Quelle est l\'âme stylistique de votre mouvement ?',
-      icon: <Compass className="w-6 h-6" />,
-      accent: 'bg-[#007AFF]'
-    },
-    {
-      id: 'audience',
-      title: 'La Cible.',
-      subtitle: 'Pour qui bat le cœur de votre création ?',
-      icon: <Target className="w-6 h-6" />,
-      accent: 'bg-indigo-500'
-    },
-    {
-      id: 'inspiration',
-      title: 'Le Génie.',
-      subtitle: 'Sur les épaules de quels géants voulez-vous bâtir ?',
-      icon: <Sparkles className="w-6 h-6" />,
-      accent: 'bg-emerald-500'
-    },
-    {
-      id: 'review',
-      title: 'L\'Anatomie.',
-      subtitle: 'Découvrez le plan d\'attaque forgé par l\'IA.',
-      icon: <FileText className="w-6 h-6" />,
-      accent: 'bg-rose-500'
-    }
-  ], []);
 
   // --- Logic ---
   useEffect(() => {
@@ -149,39 +92,12 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
       });
   }, []);
 
-  const fetchStrategyHistory = useCallback(async () => {
-    if (!brandId || demoMode) return;
-    try {
-      const res = await fetch(`/api/brands/strategy/history?brandId=${encodeURIComponent(brandId)}`);
-      const data = await res.json();
-      if (res.ok && data.strategies) setStrategyHistory(data.strategies);
-    } catch (e) { console.error('[StrategyHistory]', e); }
-  }, [brandId, demoMode]);
-
-  useEffect(() => { fetchStrategyHistory(); }, [fetchStrategyHistory]);
-
   const referenceBrands = useMemo(() => {
     const fromRef = positioning ? getReferenceBrandsForPositioning(positioning).map(b => ({ brandName: b.name, slug: b.slug })) : [];
     const refSlugs = new Set(fromRef.map(b => b.slug.toLowerCase()));
     const extra = analyzedBrandsFromDb.filter(b => !refSlugs.has(b.slug.toLowerCase()));
     return [...fromRef, ...extra];
   }, [positioning, analyzedBrandsFromDb]);
-
-  const targetAudienceOptions = useMemo(
-    () => (positioning ? getTargetAudienceOptionsForPositioning(positioning) : []),
-    [positioning]
-  );
-
-  // Charger le compteur de changements depuis l'API
-  useEffect(() => {
-    if (!brandId || demoMode) return;
-    fetch(`/api/launch-map/inspiration?brandId=${encodeURIComponent(brandId)}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(d => {
-        if (d?.remaining !== undefined) setChangesRemaining(d.remaining);
-      })
-      .catch(() => { });
-  }, [brandId, demoMode]);
 
   const handleCalquerStrategie = async (slug: string) => {
     if (isFreePlan(userPlan)) { router.push('/auth/choose-plan'); return; }
@@ -206,11 +122,8 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
       const data = await strategyRes.json();
       if (!strategyRes.ok) throw new Error(data.error || 'Erreur');
       setStrategyResult(data.strategy);
-      setStrategyModalOpen(true);
-      fetchStrategyHistory();
       window.dispatchEvent(new CustomEvent(USAGE_REFRESH_EVENT));
       toast({ title: 'Stratégie générée', message: 'L\'IA a forgé votre plan d\'attaque.', type: 'success' });
-      setCurrentStepIndex(3); // Go to review step
     } catch (e) {
       toast({ title: 'Erreur', message: 'Impossible de générer la stratégie.', type: 'error' });
     } finally {
@@ -218,61 +131,17 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
     }
   };
 
-  // Sauvegarder le choix d'inspiration (plan gratuit, pas d'appel IA)
-  const handleSaveInspirationOnly = async () => {
-    if (!selectedSlug || !brandId) return;
-    setSavingInspiration(true);
-    try {
-      const res = await fetch('/api/launch-map/inspiration', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          brandId,
-          templateBrandSlug: selectedSlug,
-          positioning,
-          targetAudience,
-        }),
-      });
-      const data = await res.json();
-      if (res.status === 429) {
-        toast({ title: 'Limite atteinte', message: data.message || 'Maximum 3 changements par mois.', type: 'error' });
-        return;
+  useEffect(() => {
+    const shouldGenerate = searchParams.get('generate') === 'true';
+    if (shouldGenerate && !strategyLoading && !strategyResult) {
+      const slug = selectedSlug || brand?.templateBrandSlug;
+      if (slug) {
+        handleCalquerStrategie(slug);
+      } else {
+        toast({ title: 'Informations manquantes', message: 'Virgil a besoin d\'une marque d\'inspiration pour générer le manifeste.', type: 'info' });
       }
-      if (!res.ok) throw new Error(data.error || 'Erreur');
-      setChangesRemaining(data.remaining ?? 3);
-      toast({ title: 'Marque sauvegardée ✅', message: `${getInspirationBrandName()} sera ton modèle d'inspiration.`, type: 'success' });
-      onComplete();
-    } catch (e) {
-      toast({ title: 'Erreur', message: 'Impossible de sauvegarder.', type: 'error' });
-    } finally {
-      setSavingInspiration(false);
     }
-  };
-
-  // Nom lisible de la marque d'inspiration actuellement sélectionnée
-  const getInspirationBrandName = () =>
-    referenceBrands.find(b => b.slug === selectedSlug)?.brandName || selectedSlug || '';
-
-  const handleValidate = async () => {
-    setValidateLoading(true);
-    try {
-      if (demoMode) {
-        setShowLogoStep(true);
-        return;
-      }
-      const res = await fetch('/api/launch-map/strategy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ brandId, templateBrandSlug: selectedSlug, positioning, targetAudience }),
-      });
-      if (!res.ok) throw new Error('Erreur');
-      setShowLogoStep(true);
-    } catch (e) {
-      toast({ title: 'Erreur', message: 'Échec de la validation.', type: 'error' });
-    } finally {
-      setValidateLoading(false);
-    }
-  };
+  }, [searchParams, selectedSlug, brand?.templateBrandSlug, strategyResult]);
 
   const handleGenerateLogo = async () => {
     setLogoGenerating(true);
@@ -304,20 +173,9 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
       document.body.removeChild(link);
       window.URL.revokeObjectURL(blobUrl);
     } catch (e) {
-      console.error('Download failed', e);
       window.open(url, '_blank');
     }
   };
-
-  const currentStep = steps[currentStepIndex];
-  const canGoNext = () => {
-    if (currentStep.id === 'positioning') return !!positioning;
-    if (currentStep.id === 'audience') return !!targetAudience;
-    if (currentStep.id === 'inspiration') return !!selectedSlug;
-    return true;
-  };
-
-  // --- UI Components ---
 
   const renderLogoStep = () => {
     const inspirationName = referenceBrands.find(b => b.slug === selectedSlug)?.brandName || "Inspiration";
@@ -325,11 +183,6 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
 
     return (
       <div className="min-h-screen w-full bg-[#F5F5F7] flex flex-col items-center relative overflow-y-auto overflow-x-hidden text-[#1D1D1F] pb-32 sm:pb-0">
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[70%] bg-indigo-500/5 rounded-full blur-[160px]" />
-          <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[60%] bg-emerald-500/5 rounded-full blur-[140px]" />
-        </div>
-
         <div className="w-full max-w-7xl px-6 sm:px-8 pt-6 sm:pt-10 z-20 flex justify-between items-end">
           <div className="space-y-1">
             <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF]">Phase 1 : Identité Visuelle</p>
@@ -338,15 +191,15 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
           <Button variant="ghost" onClick={() => setShowLogoStep(false)} className="rounded-full h-10 px-6">Retour</Button>
         </div>
 
-        <div className="flex-1 w-full max-w-6xl px-4 sm:px-6 lg:px-8 flex flex-col z-20 py-4 sm:py-6 lg:py-10">
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 lg:gap-20 items-center">
-            <div className="space-y-8 sm:space-y-10">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-[24px] sm:rounded-[28px] bg-white border border-black/5 shadow-xl flex items-center justify-center text-[#007AFF]">
-                <Sparkles className="w-8 h-8 sm:w-10 sm:h-10" />
+        <div className="flex-1 w-full max-w-6xl px-4 sm:px-6 lg:px-8 flex flex-col z-20 py-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+            <div className="space-y-10">
+              <div className="w-20 h-20 rounded-[28px] bg-white border border-black/5 shadow-xl flex items-center justify-center text-[#007AFF]">
+                <Sparkles className="w-10 h-10" />
               </div>
               <div className="space-y-4">
-                <h3 className="text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-bold tracking-tight leading-[1.1]">L&apos;Emblème.</h3>
-                <p className="text-base sm:text-lg md:text-xl xl:text-2xl text-[#86868B] max-w-md font-medium leading-relaxed">
+                <h3 className="text-5xl font-bold tracking-tight leading-[1.1]">L&apos;Emblème.</h3>
+                <p className="text-xl text-[#86868B] max-w-md font-medium">
                   La synthèse visuelle de votre stratégie inspirée par <span className="text-[#1D1D1F]">{inspirationName}</span>.
                 </p>
               </div>
@@ -360,7 +213,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
               {logoGenerating ? (
                 <div className="w-full aspect-square max-w-md bg-white rounded-[56px] shadow-2xl flex flex-col items-center justify-center gap-6 border border-black/5 animate-pulse">
                   <Loader2 className="w-12 h-12 animate-spin text-[#007AFF]" />
-                  <p className="text-sm font-bold uppercase tracking-widest text-black/40">Ciselage de vos emblèmes...</p>
+                  <p className="text-sm font-bold uppercase tracking-widest text-black/40">Ciselage...</p>
                 </div>
               ) : logoProposals.length > 0 ? (
                 <div className="grid grid-cols-2 gap-4 w-full">
@@ -404,6 +257,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
     const inspirName = referenceBrands.find(b => b.slug === selectedSlug)?.brandName
       || referenceBrands.find(b => b.slug === brand?.templateBrandSlug)?.brandName
       || (brand?.templateBrandSlug ?? null);
+
     return (
       <Phase1StrategyChat
         brandId={brandId}
@@ -411,6 +265,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
         onComplete={onComplete}
         userPlan={userPlan}
         onShowClassic={() => setViewMode('classic')}
+        onShowManifeste={() => setStrategyModalOpen(true)}
         inspirationBrandName={inspirName}
         inspirationBrandSlug={selectedSlug || brand?.templateBrandSlug || null}
         changesRemaining={changesRemaining}
@@ -418,354 +273,82 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
     );
   }
 
+  // --- Simple View (Manifesto Recap) ---
   return (
-    <div className="flex-1 w-full bg-[#F5F5F7] flex flex-col items-center relative min-h-0 overflow-y-auto stylish-scrollbar text-[#1D1D1F] selection:bg-[#007AFF]/20 pb-32 sm:pb-0">
-
-      {/* Immersive Background */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[70%] bg-[#007AFF]/5 rounded-full blur-[160px] animate-pulse duration-[8s]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[60%] bg-slate-200 rounded-full blur-[140px] animate-pulse duration-[6s] delay-1000" />
-
-        <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] select-none">
-          <h1 className="text-[25vw] font-black tracking-tighter uppercase whitespace-nowrap leading-none text-black">
-            {brand?.name || brandName || 'STRATEGY'}
-          </h1>
-        </div>
-      </div>
-
-      {/* Atelier Header */}
+    <div className="flex-1 w-full bg-[#F5F5F7] flex flex-col items-center relative min-h-0 overflow-y-auto stylish-scrollbar text-[#1D1D1F] pb-32 sm:pb-0">
       <div className="w-full max-w-7xl px-6 sm:px-8 pt-6 sm:pt-10 z-20 flex justify-between items-start">
         <div className="space-y-1">
           <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF]">Phase 1 : La Stratégie</p>
-          <h2 className="text-2xl font-bold tracking-tight">Atelier <span className="text-[#007AFF]">Marketing</span></h2>
+          <h2 className="text-2xl font-bold tracking-tight">Manifeste <span className="text-[#007AFF]">Stratégique</span></h2>
         </div>
-        <div className="flex gap-3 items-center flex-wrap justify-end">
-          <div className="hidden sm:flex gap-1.5 bg-white/40 p-1.5 rounded-full backdrop-blur-xl border border-black/5 shadow-sm">
-            {steps.map((_, i) => (
-              <div
-                key={i}
-                className={cn(
-                  "h-2 rounded-full transition-all duration-700",
-                  i <= currentStepIndex ? "w-10 bg-[#007AFF]" : "w-2 bg-black/10"
-                )}
-              />
-            ))}
-          </div>
-          <button
-            onClick={() => setViewMode('chat')}
-            className="flex items-center gap-2 text-[11px] font-bold text-[#007AFF] bg-white/80 border border-[#007AFF]/20 px-4 py-2 rounded-full shadow-sm hover:bg-white transition-all active:scale-95"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            Virgil
-          </button>
-        </div>
+        <button
+          onClick={() => setViewMode('chat')}
+          className="flex items-center gap-2 text-[11px] font-bold text-[#007AFF] bg-white border border-[#007AFF]/20 px-4 py-2 rounded-full shadow-sm hover:bg-[#F5F5F7] transition-all active:scale-95"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Retour à Virgil
+        </button>
       </div>
 
-      {/* Main Stage */}
-      <div className="flex-1 w-full max-w-6xl px-4 sm:px-6 lg:px-8 flex flex-col z-20 py-4 sm:py-6 lg:py-8 relative">
-        {isFreePlan(userPlan) && (
-          <div className="absolute inset-x-4 inset-y-0 z-[60] backdrop-blur-md bg-white/40 flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-500 rounded-[48px] border border-black/5">
-            <div className="w-20 h-20 bg-black rounded-[28px] flex items-center justify-center mb-6 shadow-2xl">
-              <Compass className="w-10 h-10 text-white" />
+      <div className="flex-1 w-full max-w-6xl px-4 sm:px-6 lg:px-8 z-20 py-8">
+        {strategyResult ? (
+          <div className="rounded-[48px] bg-white shadow-2xl border border-black/5 overflow-hidden">
+            <StrategyPresentationView
+              isOpen={true}
+              onClose={() => setViewMode('chat')}
+              strategyText={strategyResult}
+              brandName={brandName || brand?.name || ''}
+              embedded={true}
+              isFree={isFreePlan(userPlan) && !demoMode}
+            />
+          </div>
+        ) : (
+          <div className="h-[60vh] flex flex-col items-center justify-center text-center space-y-6">
+            <div className="w-20 h-20 bg-white rounded-3xl shadow-xl flex items-center justify-center text-[#007AFF]">
+              <Compass className="w-10 h-10" />
             </div>
-            <h3 className="text-3xl font-black text-black mb-3 uppercase tracking-tight">Atelier Stratégique Verrouillé</h3>
-            <p className="text-[#86868B] max-w-sm mb-8 font-medium">
-              L'atelier de configuration avancée et la génération de stratégie IA sont réservés au <strong>Plan Créateur</strong>.
-            </p>
-            <div className="flex flex-col gap-4">
-              <Button
-                onClick={() => setViewMode('chat')}
-                variant="outline"
-                className="h-14 px-10 rounded-full font-bold text-sm uppercase tracking-widest border-2"
-              >
-                Retourner voir Virgil
-              </Button>
-              <Link href="/auth/choose-plan">
-                <Button className="h-14 px-10 bg-[#007AFF] hover:bg-[#0056CC] text-white rounded-full font-bold text-sm uppercase tracking-widest shadow-xl shadow-blue-500/20 active:scale-95 transition-all">
-                  Passer au Plan Créateur <Sparkles className="ml-2 w-4 h-4" />
-                </Button>
-              </Link>
+            <div className="space-y-2">
+              <h3 className="text-2xl font-bold">Initialise ta stratégie</h3>
+              <p className="text-[#86868B] max-w-sm">
+                Discute avec <b>Virgil</b> pour définir ton ADN de marque. Une fois prêt, ton manifeste apparaîtra ici.
+              </p>
             </div>
+            <Button onClick={() => setViewMode('chat')} className="rounded-full h-12 px-8 bg-[#007AFF] text-white">
+              Lancer la discussion
+            </Button>
           </div>
         )}
-        <div className={cn("flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 lg:gap-12 xl:gap-20 items-center", isFreePlan(userPlan) && "opacity-20 grayscale select-none pointer-events-none")}>
-
-          {/* Left Side: Context */}
-          <div className="space-y-6 md:space-y-8 lg:space-y-10 animate-in fade-in slide-in-from-left-8 duration-1000">
-            <div className={cn("w-20 h-20 rounded-[28px] flex items-center justify-center shadow-xl text-white transition-all duration-700 bg-white border border-black/5")}>
-              <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-white", currentStep.accent)}>
-                {currentStep.icon}
-              </div>
-            </div>
-            <div className="space-y-4">
-              <h3 className="text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-bold tracking-tight leading-[1.1] text-[#1D1D1F]">{currentStep.title}</h3>
-              <p className="text-base sm:text-lg md:text-xl xl:text-2xl text-[#86868B] max-w-md font-medium leading-relaxed">{currentStep.subtitle}</p>
-            </div>
-          </div>
-
-          {/* Right Side: Interaction */}
-          <div className="relative min-h-[280px] sm:min-h-[360px] md:min-h-[400px] xl:min-h-[450px] flex flex-col justify-center">
-            <div className="max-w-xl w-full mx-auto">
-
-              {currentStep.id === 'positioning' && (
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 w-full animate-in fade-in duration-700">
-                  {POSITIONING_OPTIONS.map((opt) => (
-                    <button
-                      key={opt}
-                      onClick={() => setPositioning(opt)}
-                      className={cn(
-                        "p-3 sm:p-4 rounded-[20px] text-left border transition-all duration-500 group",
-                        positioning === opt
-                          ? "bg-white border-white text-black shadow-lg scale-[1.02]"
-                          : "bg-white/40 border-black/5 text-[#86868B] hover:bg-white hover:border-black/10"
-                      )}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-[12px] sm:text-[13px] font-bold tracking-tight text-[#1D1D1F] leading-tight">{opt}</span>
-                        {positioning === opt && (
-                          <div className="w-5 h-5 shrink-0 rounded-full bg-[#007AFF] flex items-center justify-center text-white">
-                            <Check className="w-3.5 h-3.5" />
-                          </div>
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {currentStep.id === 'audience' && (
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 w-full animate-in fade-in duration-700">
-                  {targetAudienceOptions.length > 0 ? targetAudienceOptions.map((opt) => (
-                    <button
-                      key={opt}
-                      onClick={() => setTargetAudience(opt)}
-                      className={cn(
-                        "p-3 sm:p-4 rounded-[20px] text-left border transition-all duration-500 group",
-                        targetAudience === opt
-                          ? "bg-white border-white text-black shadow-lg scale-[1.02]"
-                          : "bg-white/40 border-black/5 text-[#86868B] hover:bg-white hover:border-black/10"
-                      )}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-[12px] sm:text-[13px] font-bold tracking-tight text-[#1D1D1F] leading-tight">{opt}</span>
-                        {targetAudience === opt && (
-                          <div className="w-5 h-5 shrink-0 rounded-full bg-[#007AFF] flex items-center justify-center text-white">
-                            <Check className="w-3.5 h-3.5" />
-                          </div>
-                        )}
-                      </div>
-                    </button>
-                  )) : (
-                    <div className="col-span-full bg-amber-50 p-4 rounded-3xl border border-amber-200 text-amber-800 text-sm font-medium">
-                      Veuillez d&apos;abord choisir un positionnement.
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {currentStep.id === 'inspiration' && (
-                <div className="w-full space-y-4 animate-in fade-in duration-700">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                    {referenceBrands.slice(0, 9).map((brand) => (
-                      <button
-                        key={brand.slug}
-                        onClick={() => {
-                          setSelectedSlug(brand.slug);
-                          if (userPlan !== 'free') handleCalquerStrategie(brand.slug);
-                        }}
-                        className={cn(
-                          "p-3 rounded-[24px] border transition-all duration-500 flex flex-col items-center gap-2 text-center group",
-                          selectedSlug === brand.slug
-                            ? "bg-white border-white shadow-xl scale-[1.05]"
-                            : "bg-white/40 border-black/5 hover:bg-white hover:border-black/10"
-                        )}
-                      >
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white border border-black/5 flex items-center justify-center p-2 shadow-sm group-hover:scale-110 transition-transform">
-                          <BrandLogo brandName={brand.brandName} logoUrl={getBrandLogoUrl(brand.brandName)} className="w-full h-full object-contain" />
-                        </div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-[#1D1D1F] leading-tight px-1">{brand.brandName}</span>
-                      </button>
-                    ))}
-                  </div>
-                  {strategyLoading && (
-                    <div className="flex items-center gap-3 p-4 bg-white/80 rounded-2xl border border-black/5 animate-pulse">
-                      <Loader2 className="w-5 h-5 animate-spin text-[#007AFF]" />
-                      <span className="text-xs font-bold uppercase tracking-widest">Génération du plan d&apos;attaque...</span>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {currentStep.id === 'review' && (
-                <div className="w-full space-y-6 animate-in zoom-in-95 duration-700 text-right">
-                  {strategyResult ? (
-                    <>
-                      <button
-                        onClick={() => setStrategyModalOpen(true)}
-                        className="p-6 sm:p-10 rounded-[40px] bg-white shadow-2xl border border-black/5 text-left w-full group transition-all hover:scale-[1.02] active:scale-[0.99]"
-                      >
-                        <div className="flex justify-between items-start mb-4">
-                          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] sm:rounded-[22px] bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center group-hover:bg-[#007AFF] group-hover:text-white transition-colors">
-                            <FileText className="w-6 h-6 sm:w-8 sm:h-8" />
-                          </div>
-                          <div className="px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-600 text-[9px] sm:text-[10px] font-black tracking-widest uppercase">Stratégie Prête</div>
-                        </div>
-                        <p className="text-2xl font-bold mb-2">Manifeste Stratégique</p>
-                        <p className="text-[#86868B] text-sm leading-relaxed line-clamp-3">
-                          {strategyResult.slice(0, 300)}...
-                        </p>
-                        <div className="mt-8 flex items-center gap-2 text-[#007AFF] font-bold text-xs uppercase tracking-widest">
-                          Lire l&apos;intégralité <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => { setStrategyResult(null); setCurrentStepIndex(2); }}
-                        className="text-[11px] font-bold text-[#86868B] hover:text-[#FF3B30] uppercase tracking-widest transition-colors active:scale-95"
-                      >
-                        ↺ Régénérer la stratégie
-                      </button>
-                    </>
-                  ) : (
-                    <div className="p-10 rounded-[48px] bg-white/40 border border-black/5 text-center">
-                      <p className="text-[#86868B] font-medium">Choisissez une marque d&apos;inspiration pour générer votre stratégie.</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
       </div>
 
-      {/* Control Architecture */}
-      <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8 lg:pb-12 z-20">
-        <div className="flex items-center justify-between pt-6 sm:pt-10 border-t border-black/5">
-          <div className="flex gap-4">
-            <button
-              onClick={() => currentStepIndex > 0 && setCurrentStepIndex(i => i - 1)}
-              className={cn(
-                "h-12 sm:h-14 px-8 rounded-2xl font-bold text-[12px] uppercase tracking-widest transition-all border border-black/5 bg-white flex items-center gap-2",
-                currentStepIndex === 0 ? "opacity-0 pointer-events-none" : "opacity-100"
-              )}
-            >
-              <ArrowLeft className="w-4 h-4" /> Retour
-            </button>
-          </div>
-
-          <Button
-            onClick={() => {
-              if (currentStepIndex < steps.length - 1) {
-                setCurrentStepIndex(i => i + 1);
-              } else if (isFreePlan(userPlan)) {
-                // Plan gratuit : sauvegarder le choix sans appel IA
-                handleSaveInspirationOnly();
-              } else {
-                // Plan créateur : générer la stratégie avec l'IA puis passer au chat
-                if (selectedSlug) {
-                  handleCalquerStrategie(selectedSlug).then(() => {
-                    setViewMode('chat');
-                  });
-                } else {
-                  handleValidate();
-                }
-              }
-            }}
-            disabled={!canGoNext() || validateLoading || strategyLoading || savingInspiration}
-            className="h-12 sm:h-14 px-12 sm:px-16 rounded-2xl bg-[#1D1D1F] hover:bg-black text-white font-bold text-[13px] sm:text-[14px] uppercase tracking-[0.2em] sm:tracking-[0.3em] transition-all shadow-2xl active:scale-95 group overflow-hidden relative"
-          >
-            <span className="relative z-10 flex items-center gap-4">
-              {validateLoading || savingInspiration || strategyLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : currentStepIndex < steps.length - 1 ? (
-                <>Suivant <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></>
-              ) : isFreePlan(userPlan) ? (
-                <>Valider ma Marque ✓</>
-              ) : (
-                <>Générer ma Stratégie <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></>
-              )}
-            </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Strategy Overlay Modal */}
+      {/* Manifeste Modal */}
       {strategyModalOpen && (
-        <div className="fixed inset-0 z-[100] bg-[#F5F5F7] flex flex-col animate-in fade-in duration-500">
-          {/* Atelier Immersive Header - Fixed */}
-          <div className="h-20 shrink-0 px-8 flex items-center justify-between bg-white/60 backdrop-blur-3xl border-b border-black/5 relative z-50">
-            <div className="flex items-center gap-6">
-              <button
-                onClick={() => setStrategyModalOpen(false)}
-                className="w-10 h-10 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center transition-all group"
-              >
-                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-              </button>
-              <div className="h-6 w-px bg-black/10 hidden sm:block" />
-              <div className="hidden sm:block">
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#007AFF]">Livrable Stratégique</p>
-                <h2 className="text-lg font-bold tracking-tight">Manifeste <span className="opacity-40">de Marque</span></h2>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="hidden md:flex gap-1.5 bg-black/5 p-1 rounded-full">
-                {[0, 1, 2, 3].map(i => (
-                  <div key={i} className={cn("h-1.5 rounded-full", i === 3 ? "w-8 bg-[#007AFF]" : "w-1.5 bg-black/10")} />
-                ))}
-              </div>
-            </div>
+        <div className="fixed inset-0 z-[100] bg-white flex flex-col animate-in fade-in duration-300">
+          <div className="flex-1 overflow-y-auto">
+            <StrategyPresentationView
+              isOpen={true}
+              onClose={() => setStrategyModalOpen(false)}
+              strategyText={strategyResult ?? ''}
+              brandName={brandName || brand?.name || ''}
+              isTemplateView={false}
+              embedded={true}
+              isFree={isFreePlan(userPlan) && !demoMode}
+            />
           </div>
-
-          <div className="flex-1 overflow-y-auto custom-scrollbar bg-[#F5F5F7]">
-            <div className="w-full">
-              <StrategyPresentationView
-                isOpen={true}
-                onClose={() => setStrategyModalOpen(false)}
-                strategyText={strategyResult ?? ''}
-                brandName={brandName || brand?.name || ''}
-                isTemplateView={false}
-                embedded={true}
-                isFree={isFreePlan(userPlan) && !demoMode}
-              />
-            </div>
-          </div>
-
-          <div className="p-6 sm:p-8 border-t border-black/5 flex flex-col sm:flex-row gap-4 items-center justify-center bg-white/60 backdrop-blur-3xl relative z-50">
+          <div className="p-6 border-t flex justify-center gap-4 bg-white/80 backdrop-blur-md">
+            <Button variant="outline" onClick={() => setStrategyModalOpen(false)} className="rounded-full px-8">Fermer</Button>
             <Button
-              variant="outline"
               onClick={() => {
                 const url = `${window.location.origin}/share/strategy/${brandId}`;
                 navigator.clipboard.writeText(url);
-                toast({ title: 'Lien copié !', message: 'Le lien de partage public a été copié dans votre presse-papiers.', type: 'success' });
+                toast({ title: 'Lien copié !', message: 'Le lien de partage public a été copié.', type: 'success' });
               }}
-              className="h-14 sm:h-16 px-12 sm:px-12 rounded-full border-2 border-black/10 hover:border-black/20 text-[#1D1D1F] font-bold uppercase tracking-widest transition-all active:scale-[0.98]"
+              className="rounded-full px-8 bg-[#007AFF] text-white"
             >
-              Copier le lien de Partage
-            </Button>
-            <Button
-              onClick={() => { setStrategyModalOpen(false); setViewMode('chat'); }}
-              className="h-14 sm:h-16 px-12 sm:px-20 rounded-full bg-[#007AFF] hover:bg-[#0056CC] text-white font-bold uppercase tracking-widest shadow-xl shadow-blue-500/20 transition-all active:scale-[0.98]"
-            >
-              Continuer avec Virgil
+              Partager
             </Button>
           </div>
         </div>
       )}
-
-      {/* Sidebar Progress Tracker */}
-      <div className="fixed right-12 top-1/2 -translate-y-1/2 flex flex-col gap-8 z-30 hidden 2xl:flex bg-white/60 backdrop-blur-3xl p-5 rounded-full border border-black/5 shadow-apple-sm">
-        {steps.map((st, i) => (
-          <div
-            key={st.id}
-            onClick={() => i <= currentStepIndex || (i === 1 && !!positioning) || (i === 2 && !!targetAudience) ? setCurrentStepIndex(i) : null}
-            className={cn(
-              "w-3.5 h-3.5 rounded-full transition-all duration-700 cursor-pointer border-2",
-              i === currentStepIndex ? "bg-[#007AFF] scale-150 border-white shadow-lg" : "bg-black/10 hover:bg-black/20 border-transparent"
-            )}
-            title={st.title}
-          />
-        ))}
-      </div>
     </div>
   );
 }

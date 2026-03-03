@@ -1140,6 +1140,10 @@ export async function analyzeVisualTrend(base64Image: string): Promise<{
   cyclePhase: 'emergent' | 'croissance' | 'pic' | 'declin';
   marketAdvice: string;
 }> {
+  if (process.env.ANTHROPIC_API_KEY) {
+    const { analyzeVisualTrend: claudeVisualTrend } = await import('./claude');
+    return claudeVisualTrend(base64Image);
+  }
   if (!openai) throw new Error('AI not configured');
 
   // Nettoyer le préfixe base64 si présent
@@ -1153,15 +1157,16 @@ export async function analyzeVisualTrend(base64Image: string): Promise<{
         content: `Tu es un expert en analyse de tendances mode (Fashion Trend Analyst) spécialisé UNIQUEMENT dans les vêtements.
 
 RÈGLE CRITIQUE : Tu n'analyses QUE les vêtements portés sur le corps (t-shirt, pantalon, robe, veste, sweat, manteau, jupe, short, etc.).
+RÈGLE CRITIQUE 2 : Tu DOIS répondre entiérement en FRANÇAIS (valeurs JSON incluses). Si tu détectes "oversized hoodie", écris "Sweat à capuche oversize". 
 
 Si l'image montre autre chose qu'un vêtement (sac à main, chaussures, accessoire, bijou, montre, ceinture, chapeau, meuble, nourriture, personne sans vêtement visible, etc.), tu DOIS retourner :
 { "isClothingItem": false, "rejectionReason": "description courte de ce qui est visible" }
 
-Si l'image contient bien un vêtement, réponds avec isClothingItem: true et la structure complète :
+Si l'image contient bien un vêtement, réponds avec isClothingItem: true et la structure complète en FRANÇAIS UNIQUEMENT :
 {
   "isClothingItem": true,
   "category": "Type de vêtement principal (ex: T-shirt, Pantalon, Robe)",
-  "style": "Style identifié (ex: Gorpcore, Minimalisme, Y2K)",
+  "style": "Style identifié (ex: Urbain, Minimaliste, Y2K)",
   "tags": ["tag1", "tag2", "tag3"],
   "materials": ["matière1", "..."],
   "colors": ["couleur1", "..."],
@@ -1169,12 +1174,14 @@ Si l'image contient bien un vêtement, réponds avec isClothingItem: true et la 
   "analysis": "Description courte de l'esthétique et de pourquoi c'est tendance",
   "cyclePhase": "emergent",
   "marketAdvice": "Conseil business actionnable pour une marque de mode"
-}`
+}
+TRÈS IMPORTANT: AUCUN MOT ANGLAIS pour les styles, catégories ou tags, traduis tout en français.`
       },
       {
         role: "user",
         content: [
-          { type: "text", text: "Analyse uniquement si c'est un vêtement. Sinon, rejette." },
+          { type: "text", text: "Analyse uniquement si c'est un vêtement. Sinon, rejette. TOUTES LES DONNÉES DOIVENT ÊTRE EN FRANÇAIS." },
+
           {
             type: "image_url",
             image_url: {

@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowRight, Pencil, Target, PenTool, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Pencil, Target, PenTool, RefreshCw, CheckCircle2, FileText } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -16,12 +16,13 @@ interface Phase1StrategyChatProps {
     onComplete: () => void;
     userPlan?: string;
     onShowClassic?: () => void;
+    onShowManifeste?: () => void;
     inspirationBrandName?: string | null;  // nom de la marque d'inspiration
     inspirationBrandSlug?: string | null;  // slug pour le logo
     changesRemaining?: number;             // combien de changements restants ce mois
 }
 
-export function Phase1StrategyChat({ brandId, brand, onComplete, userPlan = 'free', onShowClassic, inspirationBrandName, inspirationBrandSlug, changesRemaining = 3 }: Phase1StrategyChatProps) {
+export function Phase1StrategyChat({ brandId, brand, onComplete, userPlan = 'free', onShowClassic, onShowManifeste, inspirationBrandName, inspirationBrandSlug, changesRemaining = 3 }: Phase1StrategyChatProps) {
     const renderMessageContent = (content: string, isUser: boolean) => {
         const parts = content.split(/(\[.*?\]\(.*?\))/g);
         return (
@@ -75,6 +76,15 @@ export function Phase1StrategyChat({ brandId, brand, onComplete, userPlan = 'fre
                     </span>
                 </Button>
             )}
+            {onShowManifeste && (
+                <Button
+                    onClick={onShowManifeste}
+                    className="h-8 sm:h-9 text-[10px] sm:text-xs font-bold rounded-xl gap-1.5 px-3 sm:px-4 bg-[#007AFF] text-white hover:bg-[#0056CC] transition-apple shadow-sm shadow-blue-500/20"
+                >
+                    <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                    Manifeste
+                </Button>
+            )}
         </div>
     );
 
@@ -111,10 +121,10 @@ export function Phase1StrategyChat({ brandId, brand, onComplete, userPlan = 'fre
             welcomeTitle="Affinez votre stratégie"
             welcomeDescription={<>Je suis <b>Virgil</b>, ton expert stratégie. Je suis là pour t'aider à définir ton positionnement, créer ton ADN de marque et concevoir un plan d'action qui marche.</>}
             welcomePrompts={[
+                "Générer mon Manifeste",
                 "Explique-moi ma stratégie",
-                "Comment l'appliquer concrètement ?",
                 "Par quoi dois-je commencer ?",
-                "Peux-tu me donner des exemples de marques similaires ?"
+                "Mes marques similaires"
             ]}
             welcomeIcons={
                 <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-12 opacity-40">

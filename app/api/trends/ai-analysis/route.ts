@@ -2,12 +2,16 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
+const openaiApiKey = process.env.CHATGPT_API_KEY || process.env.OPENAI_API_KEY;
+const openai = openaiApiKey ? new OpenAI({
+    apiKey: openaiApiKey,
+}) : null;
 
 export async function POST(request: Request) {
     try {
+        if (!openai) {
+            return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 });
+        }
         const { segment, category, subFilter, currentScore, futureScore, leadTime, isOffSeason, styles } = await request.json();
 
         const prompt = `

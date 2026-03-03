@@ -42,7 +42,7 @@ export interface TrendsAnalysisInput {
   topTrends?: Array<{ productName: string; productType: string; style: string | null; country: string | null; confirmationScore: number }>;
 }
 
-const CLAUDE_MODEL = 'claude-3-5-sonnet-20240620';
+const CLAUDE_MODEL = 'claude-3-haiku-20240307';
 
 const anthropic = process.env.ANTHROPIC_API_KEY
   ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -1386,4 +1386,81 @@ Extrais fréquence et heure de post. JSON : { "maxPostsPerDay": number, "label":
   } catch {
     return { maxPostsPerDay: 1, label: '1 post par jour (par défaut)', recommendedPostTime: '18:00' };
   }
+}
+
+/**
+ * Analyse une image de mode pour en extraire les tendances (Claude 3.5 Sonnet Vision).
+ */
+export async function analyzeVisualTrend(base64Image: string): Promise<{
+  category: string;
+  style: string;
+  tags: string[];
+  materials: string[];
+  colors: string[];
+  baseTrendScore: number;
+  analysis: string;
+  cyclePhase: 'emergent' | 'croissance' | 'pic' | 'declin';
+  marketAdvice: string;
+}> {
+  if (!anthropic) throw new Error('Claude AI not configured');
+
+  const system = `Tu es un expert en analyse de tendances mode (Fashion Trend Analyst) spécialisé UNIQUEMENT dans les vêtements.
+
+RÈGLE CRITIQUE : Tu n'analyses QUE les vêtements portés sur le corps (t-shirt, pantalon, robe, veste, sweat, manteau, jupe, short, etc.).
+RÈGLE CRITIQUE 2 : Tu DOIS répondre entiérement en FRANÇAIS (valeurs JSON incluses). Si tu détectes "oversized hoodie", écris "Sweat à capuche oversize". 
+
+Si l'image montre autre chose qu'un vêtement (sac à main, chaussures, accessoire, bijou, montre, ceinture, chapeau, meuble, nourriture, personne sans vêtement visible, etc.), tu DOIS retourner :
+{ "isClothingItem": false, "rejectionReason": "description courte de ce qui est visible" }
+
+Si l'image contient bien un vêtement, réponds avec isClothingItem: true et la structure complète en FRANÇAIS UNIQUEMENT :
+{
+  "isClothingItem": true,
+  "category": "Type de vêtement principal (ex: T-shirt, Pantalon, Robe)",
+  "style": "Style identifié (ex: Urbain, Minimaliste, Y2K)",
+  "tags": ["tag1", "tag2", "tag3"],
+  "materials": ["matière1", "..."],
+  "colors": ["#HEX1 (Nom FR)", "#HEX2 (Nom FR)"],
+  "baseTrendScore": 0,
+  "analysis": "Description courte de l'esthétique et de pourquoi c'est tendance",
+  "cyclePhase": "emergent",
+  "marketAdvice": "Conseil business actionnable pour une marque de mode"
+}
+Réponds UNIQUEMENT par un objet JSON valide. TRÈS IMPORTANT: Les couleurs doivent être au format "#HEX (NOM EN FRANÇAIS)". AUCUN MOT ANGLAIS pour les styles, catégories ou tags, traduis tout en français (ex: "streetwear" -> "streetwear" accepté car courant, mais "baggy pants" -> "pantalon ample").`;
+
+  const user = `Analyse uniquement si c'est un vêtement. Sinon, rejette. TOUTES LES DONNÉES DOIVENT ÊTRE EN FRANÇAIS.`;
+
+
+  const text = await generateTextWithOptionalImage(system, user, {
+    imageUrl: base64Image,
+    maxTokens: 1000,
+    temperature: 0.3,
+  });
+
+  if (!text) throw new Error('Réponse Claude vide');
+
+  let parsed: any;
+  try {
+    const cleaned = text.replace(/^```json?\s*|\s*```$/g, '').trim();
+    parsed = JSON.parse(cleaned);
+  } catch {
+    throw new Error('Réponse Claude invalide (JSON attendu)');
+  }
+
+  // Rejet si l'IA détecte que ce n'est pas un vêtement
+  if (parsed.isClothingItem === false) {
+    const reason = parsed.rejectionReason || 'objet non reconnu';
+    throw Object.assign(new Error(`NOT_CLOTHING:${reason}`), { code: 'NOT_CLOTHING', reason });
+  }
+
+  return {
+    category: parsed.category || 'Inconnu',
+    style: parsed.style || 'Basique',
+    tags: Array.isArray(parsed.tags) ? parsed.tags : [],
+    materials: Array.isArray(parsed.materials) ? parsed.materials : [],
+    colors: Array.isArray(parsed.colors) ? parsed.colors : [],
+    baseTrendScore: typeof parsed.baseTrendScore === 'number' ? parsed.baseTrendScore : 50,
+    analysis: parsed.analysis || '',
+    cyclePhase: parsed.cyclePhase || 'emergent',
+    marketAdvice: parsed.marketAdvice || '',
+  };
 }

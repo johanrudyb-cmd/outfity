@@ -34,7 +34,7 @@ const getCachedBlogPosts = unstable_cache(
       take: 100, // Fetch more posts to build accurate category filters
     });
   },
-  ['blog-page-posts-v3'], // Nouvelle clé pour invalider l'ancien cache vide
+  ['blog-page-posts-v4'], // Invalidation manuelle du cache suite au nettoyage
   { revalidate: 3600, tags: ['blog'] }
 );
 

@@ -89,7 +89,8 @@ export async function POST(req: Request) {
                 // S'il s'agit d'une nouvelle création, on vérifie la similarité
                 const isDuplicate = recentPosts.some(p => {
                     const similarity = getJaccardSimilarity(p.title, title);
-                    return similarity > 0.75; // 75% de mots en commun
+                    console.log(`[N8N_WEBHOOK] Checking similarity for "${title}" vs "${p.title}": ${Math.round(similarity * 100)}%`);
+                    return similarity > 0.65; // Seuil abaissé à 65% pour être plus strict sur les doublons
                 });
 
                 if (isDuplicate) {

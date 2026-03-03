@@ -3,11 +3,10 @@ import { getCurrentUser } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
 import OpenAI from 'openai';
 
-const openai = process.env.CHATGPT_API_KEY
-  ? new OpenAI({
-      apiKey: process.env.CHATGPT_API_KEY,
-    })
-  : null;
+const openaiApiKey = process.env.CHATGPT_API_KEY || process.env.OPENAI_API_KEY;
+const openai = openaiApiKey ? new OpenAI({
+  apiKey: openaiApiKey,
+}) : null;
 
 export const runtime = 'nodejs';
 

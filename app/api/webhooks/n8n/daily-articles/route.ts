@@ -6,11 +6,16 @@ export const maxDuration = 60;
 
 export async function GET(req: Request) {
     try {
-        // 1. Validation de la clé secrète pour s'assurer que seul n8n peut appeler cette route
+        // 1. Validation de la clé secrète (accepte Authorization Bearer OU x-n8n-secret)
         const authHeader = req.headers.get('authorization');
-        const expectedSecret = `Bearer ${process.env.N8N_OUTBOUND_SECRET || 'n8n_secret_token_default'}`;
+        const n8nSecretHeader = req.headers.get('x-n8n-secret');
+        const secret = process.env.N8N_OUTBOUND_SECRET || 'bmad_n8n_secret_2024_ultra_secure';
 
-        if (authHeader !== expectedSecret) {
+        const isAuthorized =
+            authHeader === `Bearer ${secret}` ||
+            n8nSecretHeader === secret;
+
+        if (!isAuthorized) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -40,11 +45,11 @@ export async function GET(req: Request) {
             }
         });
 
-        // 3. Renvoi propre pour n8n
+        // 3. Renvoi propre pour n8n — on expose les articles à la racine pour faciliter le Split
         return NextResponse.json({
             success: true,
             count: recentArticles.length,
-            articles: recentArticles
+            item: recentArticles
         }, { status: 200 });
 
     } catch (error) {

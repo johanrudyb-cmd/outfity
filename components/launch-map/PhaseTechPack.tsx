@@ -141,7 +141,9 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
   const [labels, setLabels] = useState<LabelState[]>([
     { letter: 'A', imageUrl: null, widthIn: 14, heightIn: 8, placement: 'Poitrine (centre)', type: 'Logo devant' },
     { letter: 'B', imageUrl: null, widthIn: 14, heightIn: 8, placement: 'Dos', type: 'Logo arrière' },
-    { letter: 'C', imageUrl: null, widthIn: 2, heightIn: 2, placement: 'Étiquette de cou', type: 'Neck tag', isNeckTag: true },
+    { letter: 'C', imageUrl: null, widthIn: 4, heightIn: 4, placement: 'Manche gauche', type: 'Logo manche gauche' },
+    { letter: 'D', imageUrl: null, widthIn: 4, heightIn: 4, placement: 'Manche droite', type: 'Logo manche droite' },
+    { letter: 'E', imageUrl: null, widthIn: 2, heightIn: 2, placement: 'Étiquette de cou', type: 'Neck tag', isNeckTag: true },
   ]);
   const [colorSwatches, setColorSwatches] = useState<{ hex: string }[]>([{ hex: '#1E5182' }, { hex: '#F5F69B' }]);
   const [uploadingLogo, setUploadingLogo] = useState<string | null>(null);
@@ -533,7 +535,7 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
 
   if (justCompleted) {
     return (
-      <div className="max-w-2xl mx-auto min-h-[420px] flex flex-col">
+      <div className="w-full space-y-12">
         <Card className="border-2 border-primary/30 bg-primary/5">
           <CardContent className="pt-6 pb-6 text-center">
             <div className="flex justify-center mb-4">
@@ -578,7 +580,7 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
   }
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto min-h-[400px] lg:h-[calc(100vh-180px)] lg:flex lg:flex-col lg:overflow-hidden relative">
+    <div className="w-full min-h-[400px] lg:h-[calc(100vh-140px)] lg:flex lg:flex-col lg:overflow-hidden relative bg-white border border-black/5 rounded-[32px] shadow-sm overflow-hidden">
       {/* Mobile Tab Switcher */}
       <div className="lg:hidden sticky top-0 z-50 bg-background border-b flex p-1 gap-1">
         <button
@@ -603,22 +605,19 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
         </button>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(380px,480px)_1fr] gap-0 xl:flex-1 xl:min-h-0 xl:overflow-hidden">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(420px,560px)_1fr] gap-0 xl:flex-1 xl:min-h-0 xl:overflow-hidden">
         <div className={cn(
-          "border-b xl:border-b-0 xl:border-r border-border overflow-y-auto p-4 xl:p-6 space-y-6 bg-background xl:min-h-0",
+          "border-b xl:border-b-0 xl:border-r border-border overflow-y-auto p-4 xl:p-8 space-y-8 bg-white xl:min-h-0",
           mobileTab !== 'form' && "hidden xl:block"
         )}>
-          <div>
-            <h2 className="text-lg font-semibold mb-1">{isEditMode ? 'Modifier le tech pack' : 'Remplir le tech pack'}</h2>
-            <p className="text-sm text-muted-foreground">
-              {isEditMode ? 'Modifiez les champs ci-dessous. L\'aperçu se met à jour en direct.' : 'Formulaire à gauche, aperçu en direct à droite.'}
-            </p>
-            {isEditMode && (
-              <Link href="/launch-map/tech-packs" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mt-2">
-                ← Retour aux tech packs
-              </Link>
-            )}
-          </div>
+          {!standalone && (
+            <div>
+              <h2 className="text-xl font-black text-[#1D1D1F] tracking-tight mb-1">{isEditMode ? 'Modifier le tech pack' : 'Remplir le tech pack'}</h2>
+              <p className="text-sm text-[#86868B]">
+                {isEditMode ? 'Modifiez les champs ci-dessous.' : 'Configurez les détails techniques de votre produit.'}
+              </p>
+            </div>
+          )}
           {/* 1. Type de produit */}
           <Card className="border-2 overflow-hidden">
             <button
@@ -779,44 +778,155 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
 
                 <div className="space-y-2">
                   <h4 className="text-sm font-semibold text-primary">Logos et Emplacements</h4>
+                  <p className="text-xs text-muted-foreground -mt-1">Configurez chaque logo : son emplacement sur le vêtement, son image et ses dimensions.</p>
                   {labels.map((lb, idx) => (
-                    <div key={`${lb.letter}-${idx}`} className="border rounded-lg p-2 space-y-2 bg-muted/20">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-bold text-primary text-xs">[{lb.letter}]</span>
-                        <span className="text-xs font-semibold flex-1 truncate">{lb.type}</span>
+                    <div key={`${lb.letter}-${idx}`} className="border-2 rounded-xl p-3 space-y-3 bg-white">
+                      {/* En-tête du label */}
+                      <div className="flex items-center gap-2">
+                        <span className="w-7 h-7 rounded-lg bg-primary/10 text-primary font-black text-xs flex items-center justify-center shrink-0">{lb.letter}</span>
+                        <input
+                          type="text"
+                          value={lb.type}
+                          onChange={(e) => setLabels((prev) => prev.map((l, i) => i === idx ? { ...l, type: e.target.value } : l))}
+                          className="flex-1 text-xs font-semibold border-0 bg-transparent focus:outline-none focus:ring-1 focus:ring-primary/30 rounded px-1 py-0.5"
+                          placeholder="Nom du logo (ex: Logo poitrine)"
+                        />
                         <input type="file" accept="image/*" className="hidden" id={`label-${idx}`} onChange={(e) => idx === 0 ? handleLogoUpload(e, 'frontDesign') : handleLogoUpload(e, 'label', idx)} />
-                        <Button type="button" variant="ghost" size="sm" onClick={() => document.getElementById(`label-${idx}`)?.click()} disabled={uploadingLogo === (idx === 0 ? 'frontDesign' : `label-${idx}`)} className="h-7 text-[10px] px-2 border">
-                          {lb.imageUrl ? 'Changer' : 'Logo'}
+                        <Button type="button" variant="ghost" size="sm" onClick={() => document.getElementById(`label-${idx}`)?.click()} disabled={uploadingLogo === (idx === 0 ? 'frontDesign' : `label-${idx}`)} className="h-7 text-[10px] px-2 border shrink-0">
+                          {lb.imageUrl ? 'Changer' : '+ Logo'}
                         </Button>
-                        {lb.imageUrl && <img src={lb.imageUrl} alt="" className="h-6 w-6 object-contain border rounded" />}
+                        {lb.imageUrl && <img src={lb.imageUrl} alt="" className="h-7 w-7 object-contain border rounded-lg shrink-0" />}
+                        {labels.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => setLabels((prev) => prev.filter((_, i) => i !== idx).map((l, i) => ({ ...l, letter: String.fromCharCode(65 + i) })))}
+                            className="text-muted-foreground hover:text-red-500 text-sm transition-colors shrink-0 ml-1"
+                            title="Supprimer cet emplacement"
+                          >✕</button>
+                        )}
                       </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 items-end">
-                        <div className="col-span-1">
+                      {/* Emplacement + Dimensions */}
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="col-span-3 sm:col-span-1">
                           <Label className="text-[10px] text-[#8E8E93] font-bold uppercase mb-1 block">Emplacement</Label>
                           <select value={lb.placement} onChange={(e) => setLabels((prev) => prev.map((l, i) => (i === idx ? { ...l, placement: e.target.value } : l)))} className="w-full rounded-lg border border-input bg-background px-2 py-1 text-[10px] h-8 focus:ring-1 focus:ring-primary">
                             {placementOptions.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
                           </select>
                         </div>
-                        <div className="col-span-1">
+                        <div>
                           <Label className="text-[10px] text-[#8E8E93] font-bold uppercase mb-1 block">Largeur (in)</Label>
                           <Input type="number" step={0.5} value={lb.widthIn} onChange={(e) => setLabels((prev) => prev.map((l, i) => (i === idx ? { ...l, widthIn: parseFloat(e.target.value) || 0 } : l)))} className="h-8 text-[10px] px-2 rounded-lg" />
                         </div>
-                        <div className="col-span-2 sm:col-span-1">
+                        <div>
                           <Label className="text-[10px] text-[#8E8E93] font-bold uppercase mb-1 block">Hauteur (in)</Label>
                           <Input type="number" step={0.5} value={lb.heightIn} onChange={(e) => setLabels((prev) => prev.map((l, i) => (i === idx ? { ...l, heightIn: parseFloat(e.target.value) || 0 } : l)))} className="h-8 text-[10px] px-2 rounded-lg" />
                         </div>
                       </div>
                     </div>
                   ))}
-                  <Button type="button" variant="outline" size="sm" className="w-full text-xs h-8" onClick={() => setLabels((prev) => [...prev, { letter: String.fromCharCode(65 + prev.length), imageUrl: null, widthIn: 14, heightIn: 8, placement: placementOptions[0] || 'Poitrine (centre)', type: 'Logo supp.' }])}>
-                    + Ajouter un logo
+                  <Button type="button" variant="outline" size="sm" className="w-full text-xs h-9 border-dashed" onClick={() => setLabels((prev) => [...prev, { letter: String.fromCharCode(65 + prev.length), imageUrl: null, widthIn: 14, heightIn: 8, placement: placementOptions[0] || 'Poitrine (centre)', type: `Logo ${String.fromCharCode(65 + prev.length)}` }])}>
+                    + Ajouter un emplacement de logo
                   </Button>
                 </div>
 
-                <div className="pt-2">
-                  <Label className="text-sm font-semibold text-primary">Fabricant / Marque</Label>
-                  <Input placeholder="ex. Voltrix" value={manufacturer} onChange={(e) => setManufacturer(e.target.value)} className="mt-1 h-9 text-sm" />
+                <div className="space-y-2 pt-2 border-t">
+                  <h4 className="text-sm font-semibold text-primary">Impression & Détails</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <Label>Type d&apos;impression</Label>
+                      <select value={printType} onChange={(e) => setPrintType(e.target.value)} className="mt-1 w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm h-9">
+                        {PRINT_TYPE_OPTIONS.map((opt) => <option key={opt.value || 'empty'} value={opt.value}>{opt.label}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <Label>N° d&apos;issue</Label>
+                      <Input placeholder="ex. 001" value={issueNo} onChange={(e) => setIssueNo(e.target.value)} className="mt-1 h-9 text-sm" />
+                    </div>
+                    <div>
+                      <Label>Date de sortie</Label>
+                      <Input type="date" value={outDate} onChange={(e) => setOutDate(e.target.value)} className="mt-1 h-9 text-sm" />
+                    </div>
+                    <div>
+                      <Label>Fabriqué en</Label>
+                      <Input placeholder="ex. Portugal" value={madeIn} onChange={(e) => setMadeIn(e.target.value)} className="mt-1 h-9 text-sm" />
+                    </div>
+                  </div>
                 </div>
+
+                <div className="space-y-2 pt-2 border-t">
+                  <h4 className="text-sm font-semibold text-primary">Designer</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <Label>Nom du designer</Label>
+                      <Input placeholder="ex. BIANGORY STUDIO" value={designerName} onChange={(e) => setDesignerName(e.target.value)} className="mt-1 h-9 text-sm" />
+                    </div>
+                    <div>
+                      <Label>Fabricant / Marque</Label>
+                      <Input placeholder="ex. Voltrix" value={manufacturer} onChange={(e) => setManufacturer(e.target.value)} className="mt-1 h-9 text-sm" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-2 border-t">
+                  <h4 className="text-sm font-semibold text-primary">Tailles disponibles</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {SIZE_OPTIONS.map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => setSizes((prev) => prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s])}
+                        className={cn(
+                          "px-3 py-1.5 rounded-lg border-2 text-xs font-bold transition-all",
+                          sizes.includes(s) ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:border-primary/50'
+                        )}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-2 border-t">
+                  <h4 className="text-sm font-semibold text-primary">Nuancier de couleurs</h4>
+                  <div className="flex flex-wrap gap-3 items-center">
+                    {colorSwatches.map((swatch, i) => (
+                      <div key={i} className="flex items-center gap-1.5">
+                        <input
+                          type="color"
+                          value={swatch.hex}
+                          onChange={(e) => setColorSwatches((prev) => prev.map((s, j) => j === i ? { hex: e.target.value } : s))}
+                          className="w-10 h-10 rounded-lg border-2 border-border cursor-pointer p-0.5"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setColorSwatches((prev) => prev.filter((_, j) => j !== i))}
+                          className="text-muted-foreground hover:text-red-500 text-xs transition-colors"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setColorSwatches((prev) => [...prev, { hex: '#000000' }])}
+                      className="px-3 py-1.5 rounded-lg border-2 border-dashed border-border text-xs font-bold hover:border-primary/50 transition-all"
+                    >
+                      + Couleur
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-2 border-t">
+                  <h4 className="text-sm font-semibold text-primary">Instructions d&apos;entretien</h4>
+                  <Textarea
+                    value={careInstructions}
+                    onChange={(e) => setCareInstructions(e.target.value)}
+                    rows={4}
+                    className="text-xs font-mono"
+                    placeholder="MACHINE WASH COLD..."
+                  />
+                </div>
+
               </CardContent>
             )}
           </Card>

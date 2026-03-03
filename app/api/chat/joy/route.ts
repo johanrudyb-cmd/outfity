@@ -3,6 +3,7 @@ import { getCurrentUser } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
 import { generateChat } from '@/lib/api/claude';
 import { withAIUsageLimit } from '@/lib/ai-usage';
+import { getTrendsWithRecommendation } from '@/lib/trend-detector';
 
 export async function POST(req: Request) {
     try {
@@ -26,13 +27,40 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Marque introuvable' }, { status: 404 });
         }
 
+        // VÉRIFICATION STRATÉGIE (FONDATION)
+        const latestStrategy = await prisma.strategyGeneration.findFirst({
+            where: { brandId },
+            orderBy: { createdAt: 'desc' },
+            select: { strategyText: true },
+        });
+
+        if (!latestStrategy?.strategyText) {
+            return NextResponse.json({
+                text: "Salut, c'est Joy. J'ai hâte de te faire percer, mais Virgil doit d'abord forger ta stratégie. On ne peut pas devenir viral sans savoir qui on est vraiment. File voir Virgil. [Faire ma stratégie avec Virgil](/launch-map/phase/1)"
+            });
+        }
+
         const summaries = (brand.launchMap as any)?.phaseSummaries || {};
 
+        // Fetch Trends (Radar)
+        const trends = await getTrendsWithRecommendation(5);
+        const radarEvents = trends
+            .filter(t => t.recommendation === 'recommended')
+            .map(t => `- ${t.productName} (${t.cut || 'coupe standard'}) : confirmé par ${t.confirmationScore} leaders mode.`)
+            .join('\n');
+
         let systemPrompt = `Tu es Joy (DA & Réseaux Sociaux). Tu parles comme une humaine sur WhatsApp.
+Tu accompagnes l'utilisateur pour rendre sa marque virale.
+Tu as accès aux PRÉDICTIONS VIRAL SUR TIKTOK (signaux prédictifs du marché) : utilise-les pour justifier tes choix et conseiller d'anticiper les tendances.
+
+PRÉDICTIONS VIRAL SUR TIKTOK :
+${radarEvents || 'Analyse prédictive en cours...'}
+
 RÈGLES VITALES :
 1. TEXTE BRUT UNIQUEMENT : Interdiction absolue d'utiliser du gras (**), des titres (##), des listes (•) ou des tirets. Écris comme tu parlerais.
 2. ZERO EMOJI : Aucun émoji, jamais.
 3. STYLE DIRECT : Pas de "Voici des options", pas de politesse d'IA.
+4. VALIDATION DE MARCHÉ : L'erreur n°1 est de lancer une collection à l'aveugle. Rappelle que l'outil "Viral sur TikTok" est INDISPENSABLE pour prédire ce qui va marcher demain avant les autres. Redirige-le vers l'outil. Bouton : [Vérifier sur Viral sur TikTok](/trends)
 INITIALISATION : "Salut, c'est Joy. On va faire de ${brand.name} la prochaine marque qui explose. On attaque par quoi ?"`;
 
         if (contextImageUrl) {

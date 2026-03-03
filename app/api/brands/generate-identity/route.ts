@@ -2,11 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import OpenAI from 'openai';
 
-const openai = process.env.CHATGPT_API_KEY
-  ? new OpenAI({
-      apiKey: process.env.CHATGPT_API_KEY,
-    })
-  : null;
+const openaiApiKey = process.env.CHATGPT_API_KEY || process.env.OPENAI_API_KEY;
+const openai = openaiApiKey ? new OpenAI({
+  apiKey: openaiApiKey,
+}) : null;
 
 // POST - Générer l'identité de marque avec IA
 export async function POST(request: NextRequest) {
@@ -131,7 +130,7 @@ export async function POST(request: NextRequest) {
       const logoPrompt = `Logo minimaliste et moderne pour la marque "${names[i]}", style ${style || 'contemporain'}, 
       palette de couleurs ${colorPalette.primary}, ${colorPalette.secondary}, ${colorPalette.accent}, 
       design épuré, adapté pour marque de vêtement, vectoriel, fond transparent`;
-      
+
       logoPrompts.push(logoPrompt);
     }
 

@@ -477,9 +477,24 @@ export function ContentCalendarView({
   async function handleAutoScheduleAll(posts: GeneratedPostItem[]) {
     if (posts.length === 0) return;
 
-    // Space out posts over the next 30 days starting from tomorrow
+    // Trouver la date du dernier post existant pour reprendre le planning à la suite
+    const lastContentEvent = [...events]
+      .filter(ev => ev.type === 'content')
+      .sort((a, b) => a.start.localeCompare(b.start))
+      .pop();
+
+    let startDate = addDays(new Date(), 1); // Par défaut, demain
+    if (lastContentEvent) {
+      const lastDate = parseISO(lastContentEvent.start.slice(0, 10));
+      const nextAvailableDate = addDays(lastDate, 1);
+      // On commence soit demain, soit après le dernier post s'il est plus loin
+      if (isBefore(startDate, nextAvailableDate)) {
+        startDate = nextAvailableDate;
+      }
+    }
+
     const newEvents: ContentCalendarEvent[] = [];
-    let currentDate = addDays(new Date(), 1); // Start tomorrow
+    let currentDate = startDate;
 
     // Simple spacing algorithm: roughly space them out depending on how many there are
     // Wait at least 'daysBetweenPosts' between each post

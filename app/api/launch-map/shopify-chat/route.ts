@@ -51,6 +51,19 @@ export async function POST(req: NextRequest) {
 
         if (!brand) return NextResponse.json({ error: 'Marque introuvable.' }, { status: 404 });
 
+        // VÉRIFICATION STRATÉGIE (FONDATION)
+        const latestStrategy = await prisma.strategyGeneration.findFirst({
+            where: { brandId },
+            orderBy: { createdAt: 'desc' },
+            select: { strategyText: true },
+        });
+
+        if (!latestStrategy?.strategyText) {
+            return NextResponse.json({
+                reply: "Salut, c'est Johan. J'adore ton enthousiasme pour Shopify, mais Virgil doit d'abord forger ta stratégie. On ne peut pas monter une boutique sans fondations solides. File voir Virgil. [Définir ma stratégie avec Virgil](/launch-map/phase/1)"
+            });
+        }
+
         const sg = brand.styleGuide as Record<string, unknown> | null;
         const colorPalette = brand.colorPalette as Record<string, string> | null;
         const typography = brand.typography as Record<string, string> | null;
@@ -92,7 +105,7 @@ Si c'est le premier message (ou texte __INIT__), présente-toi comme Johan, expe
             'assistant_chat_qa',
             async () => {
                 const response = await anthropic.messages.create({
-                    model: 'claude-3-5-sonnet-20240620',
+                    model: 'claude-3-haiku-20240307',
                     max_tokens: 600,
                     system: SYSTEM_PROMPT,
                     messages: messages.map(m => ({ role: m.role, content: m.content === '__INIT__' ? 'Hello' : m.content })),

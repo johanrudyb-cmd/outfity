@@ -108,16 +108,16 @@ export function OnboardingFlowExistingBrand({ onBack, demoMode = false, prefille
   };
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 max-w-3xl mx-auto">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={onBack} disabled={step > 0}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
-          <h1 className="text-xl font-bold text-foreground">Importer votre univers</h1>
+          <h1 className="text-xl font-bold text-foreground">Importe ton univers</h1>
           <p className="text-sm text-muted-foreground">
-            {step === 0 && "Présentez-moi votre marque actuelle pour que je puisse vous guider au mieux."}
-            {step === 1 && "Vérifions ensemble les détails de votre identité."}
+            {step === 0 && "Présente-moi ta marque actuelle, et Virgil t'aidera ensuite à affiner ta stratégie."}
+            {step === 1 && "Vérifions ensemble les détails de ton identité."}
           </p>
         </div>
       </div>
@@ -128,8 +128,8 @@ export function OnboardingFlowExistingBrand({ onBack, demoMode = false, prefille
           <CardHeader>
             <CardTitle className="text-lg">Les Fondations</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6 text-2xl font-bold">
-            <div className="grid gap-6 sm:grid-cols-2 text-2xl">
+          <CardContent className="space-y-6">
+            <div className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-2">
                 <label className="text-sm font-semibold">Nom de la marque *</label>
                 <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex. Zenith Apparel" className="border-2 rounded-xl" />
@@ -155,7 +155,7 @@ export function OnboardingFlowExistingBrand({ onBack, demoMode = false, prefille
                 <select
                   value={productType}
                   onChange={(e) => setProductType(e.target.value as ProductTypeId)}
-                  className="w-full h-10 px-3 text-sm bg-background border-2 rounded-xl"
+                  className="w-full h-10 px-3 text-sm bg-background border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20"
                 >
                   {PRODUCT_TYPE_IDS.map((id) => (
                     <option key={id} value={id}>{getProductTypeLabel(id)}</option>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -62,14 +62,22 @@ export function VisualTrendScanner() {
     const [error, setError] = useState<string | null>(null);
     const [leadTime, setLeadTime] = useState(60);
     const [segment, setSegment] = useState<'homme' | 'femme'>('homme');
-    const [history, setHistory] = useState<HistoryItem[]>(() => {
-        if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem('trend_scan_history');
-            return saved ? JSON.parse(saved) : [];
-        }
-        return [];
-    });
+    const [history, setHistory] = useState<HistoryItem[]>([]);
+    const [mounted, setMounted] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Hydration fix: load history only on client
+    useEffect(() => {
+        setMounted(true);
+        const saved = localStorage.getItem('trend_scan_history');
+        if (saved) {
+            try {
+                setHistory(JSON.parse(saved));
+            } catch (e) {
+                console.error("Failed to parse history", e);
+            }
+        }
+    }, []);
 
     // Sauvegarde de l'historique
     const saveToHistory = (item: HistoryItem) => {
@@ -82,6 +90,13 @@ export function VisualTrendScanner() {
         const newHistory = history.filter(h => h.id !== id);
         setHistory(newHistory);
         localStorage.setItem('trend_scan_history', JSON.stringify(newHistory));
+    };
+
+    const clearHistory = () => {
+        if (confirm("Effacer tout l'historique ?")) {
+            setHistory([]);
+            localStorage.removeItem('trend_scan_history');
+        }
     };
 
     // --- LOGIQUE ANALYTIQUE ---
@@ -192,22 +207,17 @@ export function VisualTrendScanner() {
         const monthLabel = releaseDate.toLocaleDateString('fr-FR', { month: 'long' });
         const capitalizedMonth = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
 
-        // Prix (Logic simplifié de CategoryAnalysis)
+        // Prix (Standard fixe du marché indépendant / OUTFITY)
         let baseRefPrice = 45;
-        if (techCategory === 'TSHIRT') baseRefPrice = segment === 'femme' ? 35 : 38;
-        else if (techCategory === 'SWEAT') baseRefPrice = segment === 'femme' ? 70 : 75;
-        else if (techCategory === 'JACKEX') baseRefPrice = 110;
-        else if (techCategory === 'JEAN' || techCategory === 'PANT') baseRefPrice = 65;
-        else if (techCategory === 'DRESS') baseRefPrice = 85;
+        if (techCategory === 'TSHIRT') baseRefPrice = segment === 'femme' ? 35 : 45;
+        else if (techCategory === 'SWEAT') baseRefPrice = segment === 'femme' ? 70 : 85;
+        else if (techCategory === 'JACKEX') baseRefPrice = 135;
+        else if (techCategory === 'JEAN' || techCategory === 'PANT') baseRefPrice = 75;
+        else if (techCategory === 'DRESS') baseRefPrice = 95;
 
-        let multiplier = 1.1;
-        if (styleName.includes('BOXY') || styleName.includes('OVERSIZE')) multiplier += 0.15;
-        if (styleName.includes('HEAVY')) multiplier += 0.25;
-
-        const finalTarget = baseRefPrice * multiplier;
         const priceRange = {
-            min: Math.floor(finalTarget * 0.9 / 5) * 5,
-            max: Math.ceil(finalTarget * 1.1 / 5) * 5
+            min: Math.floor(baseRefPrice * 0.9 / 5) * 5,
+            max: Math.ceil(baseRefPrice * 1.1 / 5) * 5
         };
 
         let commentary = "";
@@ -397,12 +407,13 @@ export function VisualTrendScanner() {
                     </div>
 
                     {/* Section Historique */}
-                    {history.length > 0 && (
+                    {mounted && history.length > 0 && (
                         <div className="pt-12 border-t border-black/5 animate-in fade-in slide-in-from-bottom-6 duration-1000">
                             <div className="flex items-center gap-4 mb-8">
                                 <HistoryIcon className="w-5 h-5 text-gray-400" />
                                 <h3 className="text-sm font-black uppercase tracking-widest text-[#1D1D1F]">Historique de Scan</h3>
                                 <div className="h-px bg-gray-100 flex-1" />
+                                <button onClick={clearHistory} className="text-[9px] font-black uppercase text-gray-400 hover:text-red-500 transition-colors">Effacer tout</button>
                             </div>
                             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 md:gap-4">
                                 {history.map((item) => (
@@ -461,7 +472,7 @@ export function VisualTrendScanner() {
                                             <span className="text-[9px] font-black text-[#007AFF] uppercase tracking-[0.2em]">{result.style}</span>
                                         </div>
                                         <div className="w-1.5 h-1.5 rounded-full bg-[#34C759] animate-pulse" />
-                                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Diagnostic Live</span>
+                                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Diagnostic en Temps Réel</span>
                                     </div>
                                 </div>
                             </div>
@@ -485,133 +496,226 @@ export function VisualTrendScanner() {
                         </div>
                     </div>
 
-                    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6 md:space-y-8">
-                        {/* KPI Grid Section */}
-                        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                            <AnimatedGaugeCard title="SCORE IVS (VIRALITÉ)" score={result.trendScore} sub="Momentum Actuel" icon={Zap} color={result.trendScore >= 75 ? "text-[#34C759]" : result.trendScore >= 50 ? "text-yellow-500" : "text-red-500"} />
-                            <TopKpiCard title="POTENTIEL SORTIE" value={`${futureScore}/100`} sub={`Le ${chartData[chartData.length - 1]?.date}`} icon={TrendingUp} color={futureScore >= result.trendScore ? "text-green-500" : "text-red-500"} highlight={true} />
-                            <TopKpiCard title="PROJECTION PRIX" value={`${strategicAnalysis?.priceRange.max}€`} sub="Max Target Conseillé" icon={DollarSign} color="text-emerald-500" />
-                            <TopKpiCard title="FIABILITÉ SCAN" value={`${reliabilityIndex}%`} sub="Data Confidence" icon={Target} color="text-blue-500" />
-                        </div>
-
-                        {/* Analysis Hub */}
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-                            {/* Main Chart Section */}
-                            <div className="lg:col-span-8 bg-white rounded-[24px] md:rounded-[40px] p-5 md:p-8 shadow-apple border border-white relative flex flex-col min-h-[400px] md:min-h-[450px]">
-                                <div className="flex flex-col sm:flex-row justify-between items-start gap-4 sm:gap-6 mb-6 md:mb-8">
-                                    <div>
-                                        <h2 className="text-2xl md:text-3xl font-black text-black uppercase tracking-tight mb-1">Courbe Prédictive 90j</h2>
-                                        <p className="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest">Base de données : 12M+ points d&apos;influence</p>
-                                    </div>
-
-                                    <div className="flex flex-col items-end gap-2 bg-gray-50 px-5 py-3 rounded-2xl border border-black/5">
-                                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Lead Time (Production)</span>
-                                        <div className="flex gap-1.5 md:gap-2">
-                                            {[30, 60, 90].map(days => (
-                                                <button
-                                                    key={days}
-                                                    onClick={() => setLeadTime(days)}
-                                                    className={cn(
-                                                        "px-4 py-2 rounded-xl text-[10px] font-black transition-all",
-                                                        leadTime === days ? "bg-black text-white shadow-md" : "bg-white text-gray-400 border border-black/5 hover:text-black"
-                                                    )}
-                                                >
-                                                    {days / 30} MOIS
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="flex-1 w-full relative">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PredictiveChart
-                                            data={chartData}
-                                            color={futureScore >= result.trendScore ? "#34C759" : "#FF3B30"}
-                                            predictionColor="#007AFF"
-                                        />
-                                    </ResponsiveContainer>
+                    <div className="w-full px-4 sm:px-6 lg:px-12 py-6 md:py-8 space-y-6 md:space-y-8">
+                        {/* Control Bar Responsive (White card with filters and Price / Colors) */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-center gap-4 lg:gap-6 bg-white rounded-[25px] p-4 md:p-6 shadow-sm border border-gray-100">
+                            <div className="flex flex-col px-2 lg:px-4 lg:border-r lg:border-gray-100">
+                                <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Choix du type de vêtement</span>
+                                <div className="bg-black text-white rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest text-center">
+                                    {result.category}
                                 </div>
                             </div>
 
-                            {/* Sidebar Recommendation */}
-                            <div className="lg:col-span-4 space-y-6">
-                                <div className="bg-white rounded-[24px] md:rounded-[40px] p-5 md:p-8 shadow-apple border border-white flex flex-col h-full overflow-hidden">
-                                    <h3 className="text-[11px] md:text-xs font-black uppercase tracking-[0.2em] text-[#007AFF] mb-6 md:mb-8 flex items-center gap-2.5">
-                                        <div className="w-7 h-7 md:w-8 md:h-8 rounded-xl bg-blue-50 flex items-center justify-center">
-                                            <Zap className="w-4 h-4" />
-                                        </div>
-                                        ANALYSE EXPERTE
-                                    </h3>
+                            <div className="flex flex-col px-2 lg:px-4 lg:border-r lg:border-gray-100">
+                                <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Quand tu veux sortir ta collection ?</span>
+                                <div className="flex gap-2">
+                                    {[30, 60, 90].map(days => {
+                                        const isDisabled = isFree && days > 30;
+                                        return (
+                                            <motion.button
+                                                key={days}
+                                                onClick={() => !isDisabled && setLeadTime(days)}
+                                                whileHover={!isDisabled ? { scale: 1.05 } : {}}
+                                                whileTap={!isDisabled ? { scale: 0.95 } : {}}
+                                                className={cn(
+                                                    "flex-1 md:flex-none px-4 md:px-5 py-2.5 rounded-xl text-[9px] md:text-[10px] font-black uppercase transition-all duration-300 relative overflow-hidden",
+                                                    leadTime === days && !isDisabled
+                                                        ? "bg-[#007AFF] text-white shadow-lg shadow-blue-500/30"
+                                                        : "bg-gray-50 text-gray-400 hover:text-black hover:bg-gray-100",
+                                                    isDisabled && "opacity-50 cursor-not-allowed grayscale"
+                                                )}
+                                            >
+                                                {days / 30}M
+                                                {isDisabled && <Lock className="w-2 h-2 absolute top-1 right-1 text-gray-400" />}
+                                            </motion.button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
 
-                                    <div className="space-y-10 flex-1 flex flex-col">
-                                        {/* Strategic Card Premium */}
-                                        <div className="bg-gray-50/50 rounded-[40px] p-8 relative overflow-hidden border border-black/5">
+                            <div className="flex flex-col px-2 lg:px-4 lg:border-r lg:border-gray-100 sm:col-span-2 lg:col-span-1 border border-transparent relative overflow-hidden">
+                                <div className={cn("transition-all duration-500 flex flex-col h-full", isFree && "blur-[8px] opacity-40 select-none pointer-events-none")}>
+                                    <div className="flex items-center gap-2 mb-1.5">
+                                        <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest">Prix Conseillé</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 bg-[#F5F5F7] px-4 py-2 rounded-xl border border-blue-100">
+                                        <Sparkles className="w-3.5 h-3.5 text-[#007AFF]" />
+                                        <span className="text-xs md:text-sm font-black text-black">
+                                            {strategicAnalysis?.priceRange.min}€ - {strategicAnalysis?.priceRange.max}€
+                                        </span>
+                                    </div>
+                                </div>
+                                {isFree && (
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <Lock className="w-4 h-4 text-gray-300" />
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Couleurs Responsive */}
+                            <div className="flex gap-4 md:gap-8 px-2 lg:px-4 sm:col-span-2 lg:col-span-1 relative overflow-hidden">
+                                <div className={cn("transition-all duration-500 flex-1 flex flex-col", isFree && "blur-[8px] opacity-40 select-none pointer-events-none")}>
+                                    <span className="text-[8px] md:text-[9px] font-black text-[#007AFF] uppercase tracking-widest mb-1.5 whitespace-nowrap">COULEURS VIRALES PROJETÉES</span>
+                                    <div className="flex items-center gap-1.5 bg-blue-50/30 px-2.5 py-1.5 rounded-xl border border-blue-100/30">
+                                        {result.colors.map((c, idx) => {
+                                            const cssMap: Record<string, string> = { 'noir': '#000000', 'blanc': '#ffffff', 'gris': '#808080', 'rouge': '#ff3b30', 'bleu': '#007aff', 'bleu marine': '#0d1b2a', 'bleu clair': '#add8e6', 'vert': '#34c759', 'jaune': '#ffcc00', 'orange': '#ff9500', 'rose': '#ff2d55', 'violet': '#af52de', 'marron': '#a52a2a', 'beige': '#f5f5dc', 'crème': '#fffdd0', 'kaki': '#8f9779', 'bordeaux': '#800000' };
+
+                                            // Extrait le HEX si présent: #000000 (Noir) -> #000000
+                                            const hexMatch = c.match(/#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})/);
+                                            const hexFromPrompt = hexMatch ? `#${hexMatch[1]}` : null;
+                                            const cleanName = c.replace(/#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})/, '').replace(/[()]/g, '').toLowerCase().trim();
+
+                                            const bgColor = hexFromPrompt || (cssMap[cleanName] || cleanName);
+                                            return (
+                                                <div key={idx} className="w-3 h-3 md:w-3.5 md:h-3.5 rounded-sm shadow-inner" style={{ backgroundColor: bgColor }} title={c} />
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                                {isFree && (
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <Lock className="w-4 h-4 text-gray-300" />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8">
+                            {/* Main Chart Responsive */}
+                            <div className="flex-1 lg:col-span-8 xl:col-span-9 bg-white rounded-[32px] md:rounded-[40px] p-6 md:p-10 shadow-sm border border-gray-100 relative flex flex-col h-[400px] md:h-[500px] lg:h-[650px] overflow-hidden">
+                                <div className="transition-all duration-500 flex flex-col flex-1">
+                                    <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-8">
+                                        <div>
+                                            <h3 className="text-xl font-black text-black uppercase tracking-tighter mb-1">Diagnostic de Tendance</h3>
+                                            <p className="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest">Data Viralité TikTok & Instagram</p>
+                                        </div>
+                                        <div className="flex flex-col items-start sm:items-end w-full sm:w-auto">
+                                            <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Score Tendance</span>
                                             <div className={cn(
-                                                "absolute top-0 left-0 w-full h-1",
-                                                strategicAnalysis?.recommendationLevel === "OPTIMAL" ? "bg-[#34C759]" :
-                                                    strategicAnalysis?.recommendationLevel === "PRUDENT" ? "bg-[#FF9500]" : "bg-[#FF3B30]"
-                                            )} />
-
-                                            <div className="flex items-center justify-between mb-8">
-                                                <div className="px-4 py-1.5 bg-white rounded-full shadow-sm border border-black/5">
-                                                    <span className="text-[10px] font-black text-black uppercase tracking-widest">{strategicAnalysis?.targetMonth}</span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-[9px] font-black uppercase text-gray-400">Fiabilité {reliabilityIndex}%</span>
-                                                </div>
-                                            </div>
-
-                                            <h4 className={cn(
-                                                "text-2xl font-black uppercase tracking-tighter leading-none mb-6",
-                                                strategicAnalysis?.recommendationLevel === "OPTIMAL" ? "text-[#34C759]" : "text-black"
+                                                "text-xl md:text-2xl font-black flex items-center gap-2 transition-all",
+                                                result.trendScore >= 85 ? "text-[#34C759]" : result.trendScore > 50 ? "text-[#FF9500]" : "text-[#FF3B30]"
                                             )}>
-                                                {strategicAnalysis?.recommendationLevel === "OPTIMAL" ? "Lancement Optimal" :
-                                                    strategicAnalysis?.recommendationLevel === "PRUDENT" ? "Opportunité Prudente" : "Risque Critiqué"}
-                                            </h4>
-
-                                            <p className="text-sm text-gray-600 font-bold leading-relaxed mb-8 italic">
-                                                {strategicAnalysis?.commentary}
-                                            </p>
-
-                                            <div className="grid grid-cols-2 gap-4 pt-8 border-t border-black/5">
-                                                <div className="bg-white p-4 rounded-3xl border border-black/5 shadow-sm">
-                                                    <span className="text-[8px] font-black text-gray-400 uppercase block mb-1.5 text-center">Opportunité</span>
-                                                    <div className={cn(
-                                                        "text-center font-black text-[10px] px-2 py-0.5 rounded-full border",
-                                                        strategicAnalysis?.marginLevel === "PEAK" ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20" :
-                                                            strategicAnalysis?.marginLevel === "STABLE" ? "bg-blue-50 text-[#007AFF] border-blue-100" :
-                                                                "bg-orange-50 text-orange-500 border-orange-100"
-                                                    )}>
-                                                        {strategicAnalysis?.marginLevel === "PEAK" ? "MARGE MAX" :
-                                                            strategicAnalysis?.marginLevel === "STABLE" ? "STABLE" : "LIMITÉE"}
-                                                    </div>
-                                                </div>
-                                                <div className="bg-white p-4 rounded-3xl border border-black/5 shadow-sm">
-                                                    <span className="text-[8px] font-black text-gray-400 uppercase block mb-1.5 text-center">Tendance</span>
-                                                    <div className={cn(
-                                                        "text-center font-black text-[10px] px-2 py-0.5 rounded-full border",
-                                                        futureScore >= result.trendScore ? "bg-green-50 text-[#34C759] border-green-100" : "bg-red-50 text-[#FF3B30] border-red-100"
-                                                    )}>
-                                                        {futureScore >= result.trendScore ? 'HAUSSE' : 'BAISSE'}
-                                                    </div>
+                                                {result.trendScore}
+                                                <span className="text-[10px] opacity-50 font-black">PTS</span>
+                                                <div className={cn(
+                                                    "text-[9px] md:text-[10px] px-2 py-1 rounded-full font-black flex items-center gap-1",
+                                                    (futureScore - result.trendScore) >= 0 ? "bg-[#34C759]/10 text-[#34C759]" : "bg-[#FF3B30]/10 text-[#FF3B30]"
+                                                )}>
+                                                    {(futureScore - result.trendScore) >= 0 ? `+${futureScore - result.trendScore}` : (futureScore - result.trendScore)}
+                                                    <span className="opacity-70">({(((futureScore - result.trendScore) / result.trendScore) * 100).toFixed(1)}%)</span>
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
 
-                                        <div className="bg-[#007AFF] rounded-[24px] md:rounded-[40px] p-6 md:p-8 text-white relative overflow-hidden shadow-apple">
-                                            <div className="flex items-center gap-3 mb-6">
-                                                <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
-                                                    <Target className="w-5 h-5 text-white" />
-                                                </div>
-                                                <span className="text-xs font-black uppercase tracking-[0.2em]">Verdict Marché</span>
-                                            </div>
-                                            <p className="text-sm font-bold leading-relaxed opacity-95">
-                                                "{result.analysis}"
-                                            </p>
+                                    {/* Conteneur de la Courbe avec hauteur garantie */}
+                                    <div className="w-full relative h-[300px] md:h-[400px] lg:flex-1 lg:min-h-0 overflow-hidden">
+                                        <div className="w-full h-full">
+                                            <PredictiveChart
+                                                data={chartData}
+                                                color={futureScore > result.trendScore ? "#34C759" : "#FF3B30"}
+                                                predictionColor="#007AFF"
+                                                isFree={isFree}
+                                            />
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+
+                            {/* Diagnostic Sidebar Responsive */}
+                            <div className="lg:col-span-4 xl:col-span-3 bg-white rounded-[32px] md:rounded-[40px] p-6 md:p-8 shadow-sm border border-gray-100 flex flex-col h-auto lg:h-[650px] relative overflow-hidden">
+                                <div className={cn("space-y-6 flex-1 flex flex-col min-h-0", isFree && "blur-[12px] opacity-40 select-none pointer-events-none")}>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-[#007AFF] mb-1">Score</p>
+                                    <div className="bg-white rounded-[24px] md:rounded-[32px] p-5 md:p-6 border border-gray-100 shadow-sm relative overflow-hidden flex-1 flex flex-col">
+                                        <div className={cn(
+                                            "absolute top-0 left-0 w-full h-1.5",
+                                            futureScore >= 85 ? "bg-[#34C759]" : futureScore >= 65 ? "bg-[#FF9500]" : "bg-[#FF3B30]"
+                                        )} />
+
+                                        <div className="flex items-center justify-between mb-6">
+                                            <div className="flex items-center gap-2">
+                                                <div className={cn("w-2 h-2 rounded-full animate-pulse", futureScore >= 50 ? "bg-[#34C759]" : "bg-[#FF3B30]")} />
+                                                <span className="text-[8px] md:text-[9px] font-black uppercase text-gray-400">Tendance</span>
+                                            </div>
+                                            <div className="px-3 py-1 bg-[#007AFF] rounded-full shadow-sm shadow-blue-500/10">
+                                                <span className="text-[9px] md:text-[10px] font-black text-white uppercase">{leadTime / 30} MOIS</span>
+                                            </div>
+                                        </div>
+
+                                        <h4 className={cn(
+                                            "text-base md:text-lg font-black uppercase tracking-tight leading-tight mb-6 transition-colors",
+                                            strategicAnalysis?.recommendationLevel === "OPTIMAL" ? "text-[#34C759]" :
+                                                strategicAnalysis?.recommendationLevel === "PRUDENT" ? "text-black" :
+                                                    strategicAnalysis?.recommendationLevel === "NON-OPTIMAL" ? "text-[#FF9500]" : "text-[#FF3B30]"
+                                        )}>
+                                            {strategicAnalysis?.recommendationLevel === "OPTIMAL" ? "Lancement Optimal" :
+                                                strategicAnalysis?.recommendationLevel === "PRUDENT" ? "Lancement Prudent" :
+                                                    strategicAnalysis?.recommendationLevel === "NON-OPTIMAL" ? "Manque de Pertinence" : "Risque Élevé"}
+                                        </h4>
+
+                                        <div className="bg-[#F8F9FA] rounded-2xl p-4 md:p-5 mb-6 space-y-4">
+                                            <div className="flex justify-between items-end">
+                                                <div className="flex-1">
+                                                    <p className="text-[8px] font-black text-gray-400 uppercase">Score actuel</p>
+                                                    <p className="text-xl md:text-2xl font-black">{result.trendScore}</p>
+                                                </div>
+                                                <ArrowRight className="w-4 h-4 text-gray-300 mx-2 mb-1" />
+                                                <div className="flex-1 text-right">
+                                                    <p className="text-[8px] font-black text-gray-400 uppercase">Potentiel (J+{leadTime})</p>
+                                                    <p className={cn("text-xl md:text-2xl font-black", futureScore >= result.trendScore ? "text-[#34C759]" : "text-[#FF3B30]")}>{futureScore}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex-1 bg-blue-50/20 rounded-2xl p-4 border border-blue-100/30 mb-6 min-h-[80px]">
+                                            <p className="text-[10px] md:text-[11px] text-gray-700 font-bold leading-relaxed">
+                                                {strategicAnalysis?.commentary}
+                                            </p>
+                                        </div>
+
+                                        <div className="pt-4 border-t border-gray-100 flex justify-between items-center mt-auto">
+                                            <div>
+                                                <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase block mb-1">Prix Cible</span>
+                                                <span className="text-xs md:text-sm font-black text-[#007AFF]">
+                                                    {strategicAnalysis?.priceRange.min}€ - {strategicAnalysis?.priceRange.max}€
+                                                </span>
+                                            </div>
+                                            <div className="text-center">
+                                                <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase block mb-1">Opportunité</span>
+                                                <span className={cn(
+                                                    "text-[10px] md:text-xs font-black px-2 py-0.5 rounded-full border",
+                                                    strategicAnalysis?.marginLevel === "PEAK" ? "bg-[#34C759]/10 text-[#34C759] border-[#34C759]/20" :
+                                                        strategicAnalysis?.marginLevel === "STABLE" ? "bg-[#007AFF]/10 text-[#007AFF] border-[#007AFF]/20" :
+                                                            "bg-[#FF9500]/10 text-[#FF9500] border-[#FF9500]/20"
+                                                )}>
+                                                    {strategicAnalysis?.marginLevel === "PEAK" ? "Excellent" :
+                                                        strategicAnalysis?.marginLevel === "STABLE" ? "Bonne" : "Limitée"}
+                                                </span>
+                                            </div>
+                                            <div className="text-right">
+                                                <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase block mb-1">Fiabilité</span>
+                                                <span className="text-[10px] md:text-xs font-black">{reliabilityIndex}%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {isFree && (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-20">
+                                        <div className="w-12 h-12 rounded-[18px] bg-white shadow-apple flex items-center justify-center mb-4">
+                                            <Lock className="w-6 h-6 text-[#007AFF]" />
+                                        </div>
+                                        <h3 className="text-lg font-black uppercase tracking-tight text-black mb-1">Plan Creator</h3>
+                                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-6">
+                                            Accédez aux conseils stratégiques complets.
+                                        </p>
+                                        <Link href="/auth/choose-plan">
+                                            <button className="px-6 py-3 bg-[#007AFF] text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg">
+                                                Débloquer
+                                            </button>
+                                        </Link>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -623,13 +727,13 @@ export function VisualTrendScanner() {
 
                                 <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
                                     <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                                        <div className="w-16 h-16 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/10">
-                                            <Sparkles className="w-8 h-8 text-[#00C6FF] group-hover:rotate-12 transition-transform" />
+                                        <div className="w-16 h-16 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/10 overflow-hidden">
+                                            <img src="/images/agents/pharrell_final.png" alt="Pharrell" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                         </div>
                                         <div>
                                             <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight mb-2">Passez à l'action</h3>
                                             <p className="text-white/60 text-sm md:text-base font-medium max-w-xl mx-auto md:mx-0">
-                                                Générez instantanément votre propre collection inspirée de cette analyse prédictive grâce au Design Studio.
+                                                Générez instantanément votre propre design inspiré de cette tendance avec Pharrell, votre Directeur Artistique IA.
                                             </p>
                                         </div>
                                     </div>
@@ -638,7 +742,7 @@ export function VisualTrendScanner() {
                                         <div className="relative inline-flex group/btn w-full md:w-auto cursor-pointer">
                                             <div className="absolute -inset-1 bg-gradient-to-r from-[#00C6FF] to-[#007AFF] rounded-full blur opacity-40 group-hover/btn:opacity-80 transition duration-1000 animate-pulse" />
                                             <div className="relative flex items-center justify-center gap-3 bg-white text-black px-8 py-5 rounded-full font-black uppercase tracking-widest text-[11px] group-hover/btn:scale-105 active:scale-95 transition-all w-full">
-                                                Lancer le studio
+                                                Consulter Pharrell
                                                 <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                                             </div>
                                         </div>
@@ -647,28 +751,7 @@ export function VisualTrendScanner() {
                             </Link>
                         </div>
 
-                        {/* DB Matches Section */}
-                        {result.dbMatches.length > 0 && (
-                            <div className="space-y-10 pt-10">
-                                <div className="flex items-center gap-6">
-                                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-black shrink-0">Réseaux similaires</h3>
-                                    <div className="h-px bg-black/5 flex-1" />
-                                </div>
-                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                                    {result.dbMatches.map((match: ProductMatch) => (
-                                        <Card key={match.id} className="bg-white p-3 rounded-[32px] shadow-apple-sm border border-white hover:shadow-apple transition-all overflow-hidden group">
-                                            <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-gray-50 mb-4 relative">
-                                                <img src={match.imageUrl} alt={match.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                            </div>
-                                            <div className="px-2 min-w-0">
-                                                <p className="text-[11px] font-black uppercase truncate text-black leading-tight mb-1">{match.name}</p>
-                                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{match.style}</p>
-                                            </div>
-                                        </Card>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+
 
                         {/* Extra Details Row */}
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-10">
@@ -680,9 +763,18 @@ export function VisualTrendScanner() {
                                     <div>
                                         <span className="text-[9px] font-black text-gray-400 uppercase block mb-2">Palette débloquée</span>
                                         <div className="flex gap-2">
-                                            {result.colors.map(c => (
-                                                <div key={c} className="w-5 h-5 rounded-full border border-black/5 shadow-sm" style={{ backgroundColor: c.toLowerCase() }} />
-                                            ))}
+                                            {result.colors.map((c, idx) => {
+                                                const cssMap: Record<string, string> = { 'noir': '#000000', 'blanc': '#ffffff', 'gris': '#808080', 'rouge': '#ff3b30', 'bleu': '#007aff', 'bleu marine': '#0d1b2a', 'bleu clair': '#add8e6', 'vert': '#34c759', 'jaune': '#ffcc00', 'orange': '#ff9500', 'rose': '#ff2d55', 'violet': '#af52de', 'marron': '#a52a2a', 'beige': '#f5f5dc', 'crème': '#fffdd0', 'kaki': '#8f9779', 'bordeaux': '#800000' };
+
+                                                const hexMatch = c.match(/#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})/);
+                                                const hexFromPrompt = hexMatch ? `#${hexMatch[1]}` : null;
+                                                const cleanName = c.replace(/#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})/, '').replace(/[()]/g, '').toLowerCase().trim();
+
+                                                const bgColor = hexFromPrompt || (cssMap[cleanName] || cleanName);
+                                                return (
+                                                    <div key={idx} className="w-5 h-5 rounded-full border border-black/5 shadow-sm" style={{ backgroundColor: bgColor }} title={c} />
+                                                )
+                                            })}
                                         </div>
                                     </div>
                                 </div>
@@ -706,7 +798,7 @@ export function VisualTrendScanner() {
                                         <Activity className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <span className="text-[9px] font-black text-gray-400 uppercase block mb-1">Inférence Style</span>
+                                        <span className="text-[9px] font-black text-gray-400 uppercase block mb-1">Détection de Style</span>
                                         <span className="text-sm font-black uppercase text-black">{result.style}</span>
                                     </div>
                                 </div>
@@ -718,7 +810,7 @@ export function VisualTrendScanner() {
                                         <DollarSign className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <span className="text-[9px] font-black text-gray-400 uppercase block mb-1">Pricing Target</span>
+                                        <span className="text-[9px] font-black text-gray-400 uppercase block mb-1">Objectif de Prix</span>
                                         <span className="text-sm font-black uppercase text-black">{strategicAnalysis?.priceRange.max}€ TTC</span>
                                     </div>
                                 </div>

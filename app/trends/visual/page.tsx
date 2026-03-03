@@ -45,7 +45,7 @@ export default async function VisualTrendPage() {
                 />
 
                 <MarketTicker />
-                <div className="px-4 sm:px-6 lg:px-12 py-8 sm:py-12 lg:py-16 max-w-7xl mx-auto space-y-8">
+                <div className="w-full px-4 sm:px-6 lg:px-12 py-8 sm:py-12 lg:py-16 mx-auto space-y-8 pb-12">
                     <TrendsSubNav active="analyseur" />
                     <VisualTrendScanner />
                 </div>

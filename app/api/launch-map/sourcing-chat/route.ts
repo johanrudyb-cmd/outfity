@@ -63,6 +63,19 @@ export async function POST(req: NextRequest) {
 
         if (!brand) return NextResponse.json({ error: 'Marque introuvable.' }, { status: 404 });
 
+        // VÉRIFICATION STRATÉGIE (FONDATION)
+        const latestStrategy = await prisma.strategyGeneration.findFirst({
+            where: { brandId },
+            orderBy: { createdAt: 'desc' },
+            select: { strategyText: true },
+        });
+
+        if (!latestStrategy?.strategyText) {
+            return NextResponse.json({
+                reply: "Hello, c'est Ada. On va trouver tes usines, mais avant ça, Virgil doit forger ta stratégie. On ne produit rien sans une vision claire du marché. Profites-en pour voir Virgil. [Définir ma stratégie avec Virgil](/launch-map/phase/1)"
+            });
+        }
+
         // Fetch factories — server-side only, NEVER exposed to client
         const factories = await prisma.factory.findMany({ orderBy: { rating: 'desc' } });
 
@@ -196,7 +209,7 @@ Si "__INIT__", présente-toi comme Ada, experte sourcing chez OUTFITY. Demande Q
             'assistant_chat_qa',
             async () => {
                 const response = await anthropic.messages.create({
-                    model: 'claude-3-5-sonnet-20240620',
+                    model: 'claude-3-haiku-20240307',
                     max_tokens: 1024,
                     system: SYSTEM_PROMPT,
                     messages: claudeMessages,

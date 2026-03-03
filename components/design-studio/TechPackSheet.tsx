@@ -157,6 +157,9 @@ export function TechPackSheet({ design, designerName, manufacturer, mainPlacemen
   const labels: TechPackLabelAnnotation[] = sd?.labels?.length ? sd.labels : [
     { letter: 'A', imageUrl: sd?.frontDesignUrl ?? design.brand?.logo ?? undefined, widthIn: 14, heightIn: 8, placement: printPlacement, type: 'Logo devant' },
     { letter: 'B', imageUrl: undefined, widthIn: 14, heightIn: 8, placement: 'Dos', type: 'Logo arrière' },
+    { letter: 'C', imageUrl: undefined, widthIn: 4, heightIn: 4, placement: 'Manche gauche', type: 'Logo manche gauche' },
+    { letter: 'D', imageUrl: undefined, widthIn: 4, heightIn: 4, placement: 'Manche droite', type: 'Logo manche droite' },
+    { letter: 'E', imageUrl: undefined, widthIn: 2, heightIn: 2, placement: 'Étiquette de cou', type: 'Neck tag', isNeckTag: true },
   ];
   const designerLogoUrl = sd?.designerLogoUrl ?? null;
   const designerDisplay = sd?.designerName ?? designerName ?? '—';
@@ -189,7 +192,7 @@ export function TechPackSheet({ design, designerName, manufacturer, mainPlacemen
               <span className="text-[8px] sm:text-[10px] text-gray-400 uppercase">Logo</span>
             </div>
           )}
-          <span className="text-[10px] font-bold uppercase tracking-wide text-center leading-tight">{brandName}</span>
+          <span className="text-[10px] font-bold uppercase tracking-wide text-center leading-tight break-words w-full">{brandName}</span>
         </div>
         <div className="flex flex-col border-b sm:border-b-0 sm:border-r border-black min-h-0">
           <div className="grid grid-cols-2 border-b border-black items-center">
@@ -268,6 +271,9 @@ export function TechPackSheet({ design, designerName, manufacturer, mainPlacemen
                   <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 200 100" preserveAspectRatio="none">
                     {labels.map((lb, i) => {
                       const coords = getUnifiedCoordsForMockup(lb.placement, mockupType, i);
+                      // Alterner rouge/bleu pour distinguer les annotations
+                      const colorCycle: ('red' | 'blue')[] = ['red', 'blue', 'red', 'blue', 'red', 'blue', 'red', 'blue'];
+                      const color = colorCycle[i % colorCycle.length];
                       return (
                         <AnnotationArrow
                           key={lb.letter}
@@ -276,7 +282,7 @@ export function TechPackSheet({ design, designerName, manufacturer, mainPlacemen
                           fromY={coords.pointOnGarment.y}
                           toX={coords.letterPosition.x}
                           toY={coords.letterPosition.y}
-                          color={coords.color}
+                          color={color}
                           isNeckTag={lb.isNeckTag}
                         />
                       );
@@ -294,16 +300,16 @@ export function TechPackSheet({ design, designerName, manufacturer, mainPlacemen
           <div className="flex-1 grid gap-1 p-2 bg-white min-h-0 overflow-auto" style={{ gridTemplateColumns: `repeat(${labelCount > 4 ? 3 : 2}, minmax(0, 1fr))`, gridAutoRows: 'minmax(60px, auto)' }}>
             {labels.map((lb) => (
               <div key={lb.letter} className="border border-black flex flex-col items-center justify-center bg-white p-1.5 min-h-[60px]">
-                <span className="font-bold text-primary text-[8px] sm:text-[9px] mb-0.5 whitespace-nowrap overflow-hidden text-ellipsis w-full text-center">[{lb.letter}] {labelTypeToEn(lb.type)}</span>
+                <span className="font-bold text-primary text-[8px] sm:text-[9px] mb-0.5 w-full text-center leading-tight break-words px-1">[{lb.letter}] {labelTypeToEn(lb.type)}</span>
                 {lb.imageUrl ? (
-                  <div className="relative w-10 h-8 sm:w-12 sm:h-10 mx-auto shrink-0">
+                  <div className="relative w-10 h-8 sm:w-12 sm:h-10 mx-auto shrink-0 max-w-full my-auto">
                     <Image src={lb.imageUrl} alt={`${lb.letter}`} fill className="object-contain" unoptimized />
                   </div>
                 ) : (
                   <span className="text-gray-400 text-[10px]">—</span>
                 )}
                 <span className="font-bold font-mono mt-0.5 text-red-600 text-[8px] sm:text-[9px]">{lb.widthIn}&quot; × {lb.heightIn}&quot;</span>
-                <span className="text-gray-500 mt-0.5 text-[7px] sm:text-[8px] truncate max-w-full">{placementToEn(lb.placement)}</span>
+                <span className="text-gray-500 mt-0.5 text-[7px] sm:text-[8px] text-center w-full break-words leading-tight px-1">{placementToEn(lb.placement)}</span>
               </div>
             ))}
           </div>
@@ -344,13 +350,6 @@ export function TechPackSheet({ design, designerName, manufacturer, mainPlacemen
             ))}
           </div>
         </div>
-      </div>
-      {/* Disclaimer */}
-      <div className="border-t-[2px] sm:border-t-[3px] border-black bg-stone-50 p-3 sm:p-4">
-        <p className="text-[9px] sm:text-[10px] text-gray-500 text-center font-bold uppercase tracking-tight leading-relaxed">
-          Technical specifications are for prototyping guidance only. <br className="hidden sm:block" />
-          Verify all measurements with a professional pattern maker before mass production.
-        </p>
       </div>
     </div>
   );

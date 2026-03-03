@@ -271,7 +271,7 @@ function MesTechPacksContentInner({ brandId, brandName, brand }: MesTechPacksCon
   };
 
   return (
-    <div className="p-6 md:p-8 max-w-[1600px] mx-auto space-y-8">
+    <div className="w-full space-y-12">
       {/* Tech pack caché pour capture PNG directe (pas de navigation) */}
       {downloadDesignToCapture && (
         <div
@@ -294,11 +294,13 @@ function MesTechPacksContentInner({ brandId, brandName, brand }: MesTechPacksCon
       )}
 
       {/* Outil vierge prêt à compléter — visible dès la première ouverture */}
-      <div className="border-2 border-dashed border-primary/30 rounded-xl p-4 bg-primary/5">
-        <h2 className="text-lg font-semibold mb-2">Créer un nouveau tech pack</h2>
-        <p className="text-sm text-muted-foreground mb-4">
-          Remplissez le formulaire ci-dessous pour créer une fiche technique. Une fois validé, il apparaîtra dans la liste.
-        </p>
+      <div className="w-full py-2">
+        <div className="mb-8">
+          <h2 className="text-3xl font-black text-[#1D1D1F] tracking-tight">Créer un nouveau tech pack</h2>
+          <p className="text-[15px] text-[#86868B] mt-2">
+            Remplissez le formulaire ci-dessous pour créer une fiche technique. Une fois validé, il apparaîtra dans la liste détaillée.
+          </p>
+        </div>
         <Suspense fallback={<div className="min-h-[200px] flex items-center justify-center text-muted-foreground">Chargement...</div>}>
           <PhaseTechPack
             key={`${formKey}-${searchParams.get('edit') ?? 'new'}`}
@@ -391,10 +393,6 @@ function MesTechPacksContentInner({ brandId, brandName, brand }: MesTechPacksCon
                                 <Button variant="outline" size="sm" className="gap-1" onClick={() => handleModify(design)}>
                                   <Pencil className="w-3.5 h-3.5" />
                                   Modifier
-                                </Button>
-                                <Button variant="outline" size="sm" className="gap-1" onClick={() => handleSendToSupplier(design)}>
-                                  <Send className="w-3.5 h-3.5" />
-                                  Envoyer
                                 </Button>
                                 <Button
                                   variant="outline"

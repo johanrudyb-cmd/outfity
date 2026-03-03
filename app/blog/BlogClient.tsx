@@ -70,21 +70,21 @@ export function BlogClient({ posts, categories }: { posts: any[], categories: st
                                     )}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
 
-                                    <div className="absolute top-6 left-6">
-                                        <span className="px-4 py-2 bg-[#007AFF] shadow-lg shadow-[#007AFF]/30 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-white">
+                                    <div className="absolute top-4 left-4 sm:top-8 sm:left-8 z-20">
+                                        <span className="px-4 py-2 bg-[#007AFF] shadow-xl shadow-[#007AFF]/20 backdrop-blur-md rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white">
                                             {featuredPost.tags && featuredPost.tags.length > 0 ? featuredPost.tags[0] : 'À LA UNE'}
                                         </span>
                                     </div>
 
-                                    <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-12">
-                                        <div className="space-y-3 sm:space-y-4">
-                                            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white leading-[1.1] tracking-tight group-hover:text-[#007AFF] transition-colors drop-shadow-lg">
+                                    <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 lg:p-12">
+                                        <div className="space-y-3 sm:space-y-4 max-w-[90%] sm:max-w-[85%]">
+                                            <h2 className="text-xl sm:text-3xl lg:text-4xl font-black text-white leading-[1.1] tracking-tight group-hover:text-[#007AFF] transition-colors drop-shadow-2xl line-clamp-3">
                                                 {featuredPost.title}
                                             </h2>
-                                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-white/80 text-[9px] sm:text-[10px] md:text-xs font-bold uppercase tracking-widest">
+                                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-white/80 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest">
                                                 <span>{new Date(featuredPost.publishedAt).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</span>
-                                                <span className="hidden sm:inline">•</span>
-                                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {getReadTime(featuredPost.content)}</span>
+                                                <span className="opacity-40">•</span>
+                                                <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {getReadTime(featuredPost.content)}</span>
                                             </div>
                                         </div>
                                     </div>

@@ -15,7 +15,10 @@ export async function POST(req: NextRequest) {
     try {
         const { messages, confirmedAnalysis } = await req.json();
 
-        if (!openai) {
+        const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
+        const useClaude = !!anthropicApiKey && (!openaiApiKey || confirmedAnalysis); // On préfère Claude pour les analyses ou si pas de clé OpenAI
+
+        if (!openai && !anthropicApiKey) {
             return NextResponse.json({ error: 'Service IA non configuré' }, { status: 503 });
         }
 
@@ -52,7 +55,10 @@ TON RÔLE :
 1. Agir comme le Directeur Stratégique et Marketing de l'utilisateur : guide ses choix créatifs et son positionnement marché.
 2. Analyser ses données actuelles pour le guider dans les prochaines étapes de son lancement (Launch Map).
 3. Maîtriser l'ELITE RADAR : Tu connais parfaitement le système d'analyse prédictive d'Outfity.
-
+ 
+RÈGLE D'OR (LA STRATÉGIE D'ABORD) :
+Si l'utilisateur n'a pas encore de Manifeste Stratégique (stratégie actuelle = 'Non générée'), ton unique priorité est de lui dire de commencer par là. On ne peut rien construire de solide sur du sable. Explique-lui que c'est la première étape indispensable du succès. Redirige-le vers l'Atelier Stratégique. Bouton : [Forger ma Stratégie](/launch-map/phase/1)
+ 
 EXPERTISE ELITE RADAR (NOUVEAU SYSTÈME) :
 - Analyse Prédictive : Tu sais que le succès d'une pièce dépend de son mois de mise en rayon (Lead Time).
 - Moteur Chromatique : Tu conseilles des couleurs basées sur la saison cible (ex: Lemon Sorbet pour l'été, Forest Green pour l'hiver) et tu sais distinguer les "Couleurs Actuelles" des "Couleurs Cibles" du projet.
@@ -103,17 +109,24 @@ FORMAT DE RÉPONSE OBLIGATOIRE (JSON STRICT) :
             user.plan || 'free',
             featureKey,
             async () => {
-                const completion = await openai.chat.completions.create({
-                    model: 'gpt-4o-mini',
-                    messages: [
-                        { role: 'system', content: systemPrompt },
-                        ...messages.slice(-5),
-                    ],
-                    response_format: { type: 'json_object' },
-                    temperature: 0.7,
-                });
+                let rawResponse = '{}';
 
-                const rawResponse = completion.choices[0].message.content || '{}';
+                if (useClaude) {
+                    const { generateChat } = await import('\@/lib/api/claude');
+                    rawResponse = await generateChat(systemPrompt, messages.slice(-5));
+                } else if (openai) {
+                    const completion = await openai.chat.completions.create({
+                        model: 'gpt-4o-mini',
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            ...messages.slice(-5),
+                        ],
+                        response_format: { type: 'json_object' },
+                        temperature: 0.7,
+                    });
+                    rawResponse = completion.choices[0].message.content || '{}';
+                }
+
                 const parsed = JSON.parse(rawResponse);
 
                 // Si l'IA détecte une demande d'analyse mais que le client n'a pas encore "confirmé"

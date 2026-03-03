@@ -26,22 +26,24 @@ export default async function MesTechPacksPage() {
   };
 
   return (
-    <div className="p-6 md:p-8 max-w-[1600px] mx-auto space-y-6">
-      <div className="flex items-center gap-4">
-        <Link
-          href="/launch-map"
-          className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Retour à la vue d&apos;ensemble
-        </Link>
-      </div>
+    <div className="w-full bg-[#F5F5F7] min-h-screen">
+      <div className="max-w-[1800px] mx-auto w-full px-4 md:px-8 lg:px-12 py-8 space-y-8">
+        <div className="flex items-center gap-4 mb-4">
+          <Link
+            href="/launch-map"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#86868B] hover:text-[#1D1D1F] transition-colors group"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            Retour à la vue d&apos;ensemble
+          </Link>
+        </div>
 
-      <MesTechPacksContent
-        brandId={brand.id}
-        brandName={brand.name}
-        brand={brandForTechPack}
-      />
+        <MesTechPacksContent
+          brandId={brand.id}
+          brandName={brand.name}
+          brand={brandForTechPack}
+        />
+      </div>
     </div>
   );
 }

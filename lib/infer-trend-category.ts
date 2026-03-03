@@ -4,13 +4,13 @@
 export function inferCategory(name: string): string {
   const n = name.toLowerCase();
 
-  if (n.includes('hoodie') || n.includes('sweat') || n.includes('pullover')) return 'SWEAT';
-  if (n.includes('t-shirt') || n.includes('tee ') || n.includes('tee-shirt') || n.includes('top') || n.includes('body')) return 'TSHIRT';
+  if (n.includes('hoodie') || n.includes('sweat') || n.includes('pullover') || n.includes('pull ') || n.includes('capuche')) return 'SWEAT';
+  if (n.includes('t-shirt') || n.includes('tee ') || n.includes('tee-shirt') || n.includes('top') || n.includes('body') || n.includes('débardeur') || (n.includes('haut') && !n.includes('bas'))) return 'TSHIRT';
   if (n.includes('polo')) return 'TSHIRT';
-  if (n.includes('veste') || n.includes('jacket') || n.includes('blazer') || n.includes('manteau') || n.includes('trench') || n.includes('bomber')) return 'JACKEX';
+  if (n.includes('veste') || n.includes('jacket') || n.includes('blazer') || n.includes('manteau') || n.includes('trench') || n.includes('bomber') || n.includes('blouson') || n.includes('cardigan')) return 'JACKEX';
   if (n.includes('jean') || n.includes('denim')) return 'JEAN';
-  if (n.includes('pantalon') || n.includes('pant') || n.includes('chino') || n.includes('cargo') || n.includes('jupe') || n.includes('skirt')) return 'PANT';
-  if (n.includes('robe') || n.includes('dress') || n.includes('ensemble')) return 'DRESS';
+  if (n.includes('pantalon') || n.includes('pant') || n.includes('chino') || n.includes('cargo') || n.includes('bas') || n.includes('jogging') || n.includes('legging')) return 'PANT';
+  if (n.includes('robe') || n.includes('dress') || n.includes('ensemble') || n.includes('jupe') || n.includes('skirt')) return 'DRESS';
   if (n.includes('short')) return 'PANT';
 
   return 'TSHIRT'; // Default to TSHIRT if unknown

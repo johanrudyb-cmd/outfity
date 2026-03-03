@@ -18,7 +18,7 @@ const getCachedBlogPosts = unstable_cache(
             return [];
         }
     },
-    ['homepage-blog-posts'],
+    ['homepage-blog-posts-v2'],
     { revalidate: 3600, tags: ['blog'] } // Cache 1 heure
 );
 

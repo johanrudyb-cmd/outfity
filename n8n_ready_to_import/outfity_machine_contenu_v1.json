@@ -1,0 +1,327 @@
+{
+    "name": "OUTFITY - Machine a Contenu (9 Videos/Jour)",
+    "nodes": [
+        {
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {
+                            "field": "cronExpression",
+                            "expression": "0 22 * * *"
+                        }
+                    ]
+                }
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000001",
+            "name": "Chaque soir a 22h",
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "typeVersion": 1.1,
+            "position": [
+                0,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "method": "GET",
+                "url": "https://outfity.fr/api/webhooks/n8n/daily-articles",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "x-n8n-secret",
+                            "value": "bmad_n8n_secret_2024_ultra_secure"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "a1b2c3d4-0002-0002-0002-000000000002",
+            "name": "Fetch OUTFITY Articles",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                220,
+                100
+            ]
+        },
+        {
+            "parameters": {
+                "fieldToSplitOut": "item",
+                "options": {}
+            },
+            "id": "a1b2c3d4-0003-0003-0003-000000000003",
+            "name": "Split Articles",
+            "type": "n8n-nodes-base.itemLists",
+            "typeVersion": 3.1,
+            "position": [
+                440,
+                100
+            ]
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "=Voici une news publiee sur mon site OUTFITY :\n\nTitre : {{ $json.title }}\nResume : {{ $json.excerpt }}\n\nTa mission : Transforme cet article en un script de video facecam (TikTok, Reels, Shorts) ultra-dynamique de 45 a 60 secondes maximum.\n\nREGLES STRICTES :\n\nHOOK (0 a 3 sec) : Une phrase d'accroche percutante. Pas de 'Bonjour a tous'. Entre direct avec une verite dure, un chiffre dingue ou une question qui fache.\nDEVELOPPEMENT (4 a 35 sec) : Resume le coeur de la news en 2 phrases, puis donne ton analyse business/marketing. Pourquoi c'est important pour ceux qui ont une marque ?\nCALL TO ACTION (36 a 45 sec) : Fais le pont vers OUTFITY. Ex : 'C'est exactement pour ca qu'on a cree OUTFITY, le lien est dans mon profil'.\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[Titre du post]\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Texte]\n(Corps) : [Texte]\n(CTA) : [Texte]\n\n📱 CAPTION RESEAUX : [3-4 lignes agressives + 5 hashtags niche mode]",
+                "hasOutputParser": false,
+                "messages": {
+                    "messageValues": [
+                        {
+                            "message": "Tu es le fondateur d'OUTFITY, un SaaS revolutionnaire pour creer des marques de vetements. Tu es expert en marketing direct, croissance, e-commerce. Ton ton est tranchant, direct, tu detestes le bullshit. Tu parles d'egal a egal avec des entrepreneurs. Tu refuses les introductions bateau. Ton but est d'apporter une valeur massive en 45 secondes tout en positionnant OUTFITY comme l'outil ultime."
+                        }
+                    ]
+                }
+            },
+            "id": "a1b2c3d4-0004-0004-0004-000000000004",
+            "name": "Claude - Script News",
+            "type": "@n8n/n8n-nodes-langchain.chainLlm",
+            "typeVersion": 1.4,
+            "position": [
+                660,
+                100
+            ]
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "Tu es le fondateur d'OUTFITY. Ignore les articles. Trouve un conseil BRUTAL et peu connu sur la LOGISTIQUE ou la PRODUCTION de vetements pour maximiser la rentabilite d'une marque independante (ex: negociation usine, gestion stock, packaging couts). Fais-en un script facecam de 45s.\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[Titre : Conseil Business du Jour]\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Texte]\n(Corps) : [Texte]\n(CTA) : [Texte]\n\n📱 CAPTION RESEAUX : [3-4 lignes + 5 hashtags]",
+                "hasOutputParser": false,
+                "messages": {
+                    "messageValues": [
+                        {
+                            "message": "Tu es le fondateur d'OUTFITY, expert en logistique, production et rentabilite des marques de mode. Tes conseils sont cash, operationnels, et font economiser de l'argent."
+                        }
+                    ]
+                }
+            },
+            "id": "a1b2c3d4-0005-0005-0005-000000000005",
+            "name": "Claude - Conseil Business",
+            "type": "@n8n/n8n-nodes-langchain.chainLlm",
+            "typeVersion": 1.4,
+            "position": [
+                660,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "Tu es le fondateur d'OUTFITY. Trouve un HACK MARKETING ou une strategie de VIRALITE (TikTok organique, Instagram, psychologie du prix, micro-influenceurs) pour faire exploser une marque de vetements independante. Pas de theorie, que du concret et actionnable. Script facecam 45s.\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[Titre : Strategie Marketing du Jour]\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Texte]\n(Corps) : [Texte]\n(CTA) : [Texte]\n\n📱 CAPTION RESEAUX : [3-4 lignes + 5 hashtags]",
+                "hasOutputParser": false,
+                "messages": {
+                    "messageValues": [
+                        {
+                            "message": "Tu es le fondateur d'OUTFITY, expert en marketing viral, growth hacking et acquisition organique pour marques de mode. Tu donnes des conseils que les agences facturent 5000 euros, gratuitement."
+                        }
+                    ]
+                }
+            },
+            "id": "a1b2c3d4-0006-0006-0006-000000000006",
+            "name": "Claude - Conseil Marketing",
+            "type": "@n8n/n8n-nodes-langchain.chainLlm",
+            "typeVersion": 1.4,
+            "position": [
+                660,
+                500
+            ]
+        },
+        {
+            "parameters": {
+                "model": "claude-3-5-sonnet-20240620",
+                "options": {}
+            },
+            "id": "a1b2c3d4-0007-0007-0007-000000000007",
+            "name": "Anthropic Chat Model",
+            "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+            "typeVersion": 1.2,
+            "position": [
+                550,
+                350
+            ]
+        },
+        {
+            "parameters": {
+                "mode": "append",
+                "options": {}
+            },
+            "id": "a1b2c3d4-0008-0008-0008-000000000008",
+            "name": "Merge All Scripts",
+            "type": "n8n-nodes-base.merge",
+            "typeVersion": 3,
+            "position": [
+                900,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "append",
+                "documentId": {
+                    "value": "REMPLACE_PAR_TON_GOOGLE_DOC_ID",
+                    "__rl": true,
+                    "mode": "id"
+                },
+                "text": "=--------------------------------------------------\n📅 DATE : {{ $now.format('DD/MM/YYYY') }}\n--------------------------------------------------\n\n{{ $json.text }}\n\n",
+                "options": {}
+            },
+            "id": "a1b2c3d4-0009-0009-0009-000000000009",
+            "name": "Google Docs - Archive Scripts",
+            "type": "n8n-nodes-base.googleDocs",
+            "typeVersion": 2,
+            "position": [
+                1120,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "calendar": {
+                    "value": "primary",
+                    "__rl": true,
+                    "mode": "list"
+                },
+                "start": "={{ $today.plus({ days: 1, hours: 11 }).plus({ minutes: $itemIndex * (660 / ($input.all().length > 1 ? $input.all().length - 1 : 1)) }).toISO() }}",
+                "end": "={{ $today.plus({ days: 1, hours: 11 }).plus({ minutes: ($itemIndex * (660 / ($input.all().length > 1 ? $input.all().length - 1 : 1))) + 30 }).toISO() }}",
+                "additionalFields": {
+                    "summary": "=🎬 {{ $json.title || 'Conseil Strategique OUTFITY' }}",
+                    "description": "={{ $json.text }}\n\n{{ $json.coverImage ? '🖼️ PHOTO DE L\\'ARTICLE :\n' + $json.coverImage : '' }}"
+                }
+            },
+            "id": "a1b2c3d4-0010-0010-0010-000000000010",
+            "name": "Google Calendar - Planning Tournage",
+            "type": "n8n-nodes-base.googleCalendar",
+            "typeVersion": 1.1,
+            "position": [
+                1120,
+                400
+            ]
+        }
+    ],
+    "connections": {
+        "Chaque soir a 22h": {
+            "main": [
+                [
+                    {
+                        "node": "Fetch OUTFITY Articles",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Claude - Conseil Business",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Claude - Conseil Marketing",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Fetch OUTFITY Articles": {
+            "main": [
+                [
+                    {
+                        "node": "Split Articles",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Split Articles": {
+            "main": [
+                [
+                    {
+                        "node": "Claude - Script News",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Claude - Script News": {
+            "main": [
+                [
+                    {
+                        "node": "Merge All Scripts",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Claude - Conseil Business": {
+            "main": [
+                [
+                    {
+                        "node": "Merge All Scripts",
+                        "type": "main",
+                        "index": 1
+                    }
+                ]
+            ]
+        },
+        "Claude - Conseil Marketing": {
+            "main": [
+                [
+                    {
+                        "node": "Merge All Scripts",
+                        "type": "main",
+                        "index": 2
+                    }
+                ]
+            ]
+        },
+        "Merge All Scripts": {
+            "main": [
+                [
+                    {
+                        "node": "Google Docs - Archive Scripts",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Google Calendar - Planning Tournage",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Anthropic Chat Model": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "Claude - Script News",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Claude - Conseil Business",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Claude - Conseil Marketing",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "staticData": null,
+    "tags": [],
+    "triggerCount": 0,
+    "versionId": "v1"
+}

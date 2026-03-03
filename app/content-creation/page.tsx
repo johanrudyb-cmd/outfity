@@ -58,7 +58,7 @@ export default async function ContentCreationPage() {
                                     Création de Contenu
                                 </h1>
                                 <p className="text-[15px] text-white/50 mt-2 max-w-lg">
-                                    Shootings produit, Virtual Try-On, identité visuelle et scripts marketing — tout alimenté par l&apos;IA.
+                                    JOY, votre Directrice Artistique virtuelle, vous accompagne pour transformer votre marque en machine à contenu viral.
                                 </p>
                             </div>
                             <div className="hidden sm:flex items-center gap-2 shrink-0 pb-1">
