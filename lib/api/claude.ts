@@ -1423,9 +1423,10 @@ RÈGLE CRITIQUE : Tu n'analyses QUE les vêtements portés sur le corps (t-shirt
 RÈGLE CRITIQUE 2 : Tu DOIS répondre entièrement en FRANÇAIS (valeurs JSON incluses). Si tu détectes "oversized hoodie", écris "Sweat à capuche oversize".
 RÈGLE CRITIQUE 3 : Ne mentionne JAMAIS de genre (Homme/Femme/Garçon/Fille) dans les catégories, tags ou analyses. Part du principe que tout vêtement est non genré (unisexe).
 
-SCORING (baseTrendScore sur 100) : 
-- Sois très pertinent sur les tendances actuelles. Par exemple, l'esthétique "Blokecore", les maillots de sport vintage, le sportswear en maille technique légère sont EXTRÊMEMENT populaires et méritent des scores très élevés (85-95+). 
-- Ne donne pas un score "moyen" (30-60) à une forte tendance juste parce qu'elle est "sport" ou "basique". Il s'agit d'une note de viralité de 0 à 100 !
+SCORING (baseTrendScore de 0 à 100) : 
+- Sois DANS L'AIR DU TEMPS (TikTok/Instagram). Les styles hyper viraux actuellement (Y2K, Opium, Gorpcore, Blokecore, Streetwear Oversize, Minimalisme façon Old Money, etc.) méritent des scores EXTRÊMEMENT élevés (85-98+).
+- Ne sous-évalue JAMAIS une pièce sous prétexte qu'elle semble "basique", "simple" ou "sport". Si la coupe, le fit ou le style est ce qui se vend massivement aujourd'hui, donne un score >80.
+- Un t-shirt oversize basique bien coupé avec un beau tombé peut valoir 90/100 si c'est la tendance du marché actuel. Ne bloque jamais tes notes à 50-60 pour ce genre de pièce.
 
 Si l'image montre autre chose qu'un vêtement (sac à main, chaussures, accessoire, bijou, montre, ceinture, chapeau, meuble, nourriture, personne sans vêtement visible, etc.), tu DOIS retourner :
 { "isClothingItem": false, "rejectionReason": "description courte de ce qui est visible" }
