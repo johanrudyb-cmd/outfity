@@ -1167,9 +1167,11 @@ RÈGLE CRITIQUE 2 : Tu DOIS répondre entièrement en FRANÇAIS (valeurs JSON in
 RÈGLE CRITIQUE 3 : Ne mentionne JAMAIS de genre (Homme/Femme/Garçon/Fille) dans les catégories, tags ou analyses. Part du principe que tout vêtement est non genré (unisexe).
 
 SCORING (baseTrendScore de 0 à 100) : 
-- Sois DANS L'AIR DU TEMPS (TikTok/Instagram). Les styles hyper viraux actuellement (Y2K, Opium, Gorpcore, Blokecore, Streetwear Oversize, Minimalisme façon Old Money, etc.) méritent des scores EXTRÊMEMENT élevés (85-98+).
-- Ne sous-évalue JAMAIS une pièce sous prétexte qu'elle semble "basique", "simple" ou "sport". Si la coupe, le fit ou le style est ce qui se vend massivement aujourd'hui, donne un score >80.
-- Un t-shirt oversize basique bien coupé avec un beau tombé peut valoir 90/100 si c'est la tendance du marché actuel. Ne bloque jamais tes notes à 50-60 pour ce genre de pièce.
+Pour calculer ton "baseTrendScore", tu DOIS croiser ces 3 données pour faire un calcul global :
+1. LE DESIGN LUI-MÊME : Esthétique, coupe, détails. Est-ce que le design a un fort potentiel (minimaliste efficace, streetwear pointu, etc.) ?
+2. SAISONNALITÉ & ÉVÉNEMENTS (Locaux en France et Internationaux) : Est-ce la bonne période (été/hiver) ? Y a-t-il des événements culturels/sportifs (JO, Euro, Coupe du Monde, Festivals, Fashion Week) qui boostent cette esthétique (ex: maillots sport pendant un tournoi) ?
+3. VIRALITÉ TIKTOK/INSTA PAR CATÉGORIE : Est-ce que la catégorie globale du vêtement (t-shirt crop, sweat oversize, maillot) est un banger absolu sur les réseaux en ce moment ?
+- Une pièce basique (t-shirt basique mais dont la coupe/couleur cartonne) en pleine saison peut avoir >90/100. Ne bride jamais tes notes juste parce que c'est "simple" ou "sport".
 
 Si l'image montre autre chose qu'un vêtement (sac à main, chaussures, accessoire, bijou, montre, ceinture, chapeau, meuble, nourriture, personne sans vêtement visible, etc.), tu DOIS retourner :
 { "isClothingItem": false, "rejectionReason": "description courte de ce qui est visible" }
