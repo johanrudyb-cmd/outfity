@@ -50,7 +50,7 @@ export function FeatureUsageBadge({ featureKey, showLabel = true, className, isF
                     </span>
                 </div>
 
-                {(isAlmostFinished || isExhausted) && (
+                {(isAlmostFinished || isExhausted) && isFree && (
                     <button
                         onClick={handleClick}
                         className={cn(
@@ -58,7 +58,7 @@ export function FeatureUsageBadge({ featureKey, showLabel = true, className, isF
                             isExhausted ? "text-red-600 hover:text-red-700 font-black" : "text-amber-600 hover:text-amber-700"
                         )}
                     >
-                        {isFree ? "Passer Créateur" : "Recharger"}
+                        Passer Créateur
                     </button>
                 )}
             </div>

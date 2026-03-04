@@ -134,23 +134,19 @@ export function QuotaGenerateButton({
                                 Quota mensuel atteint
                             </p>
                             <p className="text-xs text-blue-700 dark:text-blue-300 mt-0.5">
-                                {isFree ? "Débloquez les générations illimitées pour booster votre création de contenu." : "Rechargez ce module pour continuer à l'utiliser sans attendre le mois prochain."}
+                                {isFree ? "Débloquez les générations illimitées pour booster votre création de contenu." : "Vos crédits mensuels pour cette fonctionnalité sont épuisés. Ils seront réinitialisés le mois prochain."}
                             </p>
                             <p className="text-[10px] text-blue-600/60 dark:text-blue-400/60 mt-1 uppercase tracking-wider font-semibold">
                                 Renouvellement le {getNextMonthDate()}
                             </p>
                         </div>
                     </div>
-                    {isFree ? (
+                    {isFree && (
                         <Link href="/auth/choose-plan" className="shrink-0 w-full sm:w-auto">
                             <Button size="sm" className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-600/20">
                                 Passer Créateur →
                             </Button>
                         </Link>
-                    ) : (
-                        <Button size="sm" onClick={openSurplusModal} className="shrink-0 w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-600/20">
-                            Recharger les crédits
-                        </Button>
                     )}
                 </div>
             )}
