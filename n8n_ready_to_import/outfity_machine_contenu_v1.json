@@ -47,7 +47,29 @@
         },
         {
             "parameters": {
-                "fieldToSplitOut": "item",
+                "promptType": "define",
+                "text": "=Voici la liste des articles publies aujourd'hui sur OUTFITY :\n\n{{ $json.item.map(a => `- [ID: ${a.id}] ${a.title}: ${a.excerpt}`).join('\\n') }}\n\nTa mission : Selectionne UNIQUEMENT les 3 articles les plus pertinents pour ma cible (entrepreneurs qui lancent une marque de vetements, focus sur la croissance, le design et le marketing).\n\nRenvoie UNIQUEMENT un objet JSON avec une cle 'selected' contenant le tableau des 3 articles complets (id, title, excerpt, slug, coverImage, tags).",
+                "hasOutputParser": false,
+                "messages": {
+                    "messageValues": [
+                        {
+                            "message": "Tu es un redacteur en chef expert en mode et business. Tu sais reperer les news qui vont vraiment aider un createur de marque a reussir. Tu ignores le superflu."
+                        }
+                    ]
+                }
+            },
+            "id": "a1b2c3d4-0012-0012-0012-000000000012",
+            "name": "Claude - Selectionneur de News",
+            "type": "@n8n/n8n-nodes-langchain.chainLlm",
+            "typeVersion": 1.4,
+            "position": [
+                420,
+                0
+            ]
+        },
+        {
+            "parameters": {
+                "fieldToSplitOut": "selected",
                 "options": {}
             },
             "id": "a1b2c3d4-0003-0003-0003-000000000003",
@@ -55,8 +77,8 @@
             "type": "n8n-nodes-base.itemLists",
             "typeVersion": 3.1,
             "position": [
-                440,
-                100
+                600,
+                0
             ]
         },
         {
@@ -77,8 +99,8 @@
             "type": "@n8n/n8n-nodes-langchain.chainLlm",
             "typeVersion": 1.4,
             "position": [
-                660,
-                100
+                820,
+                0
             ]
         },
         {
@@ -135,7 +157,7 @@
             "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
             "typeVersion": 1.2,
             "position": [
-                550,
+                500,
                 350
             ]
         },
@@ -250,6 +272,17 @@
             "main": [
                 [
                     {
+                        "node": "Claude - Selectionneur de News",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Claude - Selectionneur de News": {
+            "main": [
+                [
+                    {
                         "node": "Split Articles",
                         "type": "main",
                         "index": 0
@@ -333,6 +366,11 @@
                 [
                     {
                         "node": "Claude - Script News",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    },
+                    {
+                        "node": "Claude - Selectionneur de News",
                         "type": "ai_languageModel",
                         "index": 0
                     }
