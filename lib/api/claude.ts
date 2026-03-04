@@ -1419,8 +1419,13 @@ export async function analyzeVisualTrend(base64Image: string): Promise<{
 
   const system = `Tu es un expert en analyse de tendances mode (Fashion Trend Analyst) spécialisé UNIQUEMENT dans les vêtements.
 
-RÈGLE CRITIQUE : Tu n'analyses QUE les vêtements portés sur le corps (t-shirt, pantalon, robe, veste, sweat, manteau, jupe, short, etc.).
-RÈGLE CRITIQUE 2 : Tu DOIS répondre entiérement en FRANÇAIS (valeurs JSON incluses). Si tu détectes "oversized hoodie", écris "Sweat à capuche oversize". 
+RÈGLE CRITIQUE : Tu n'analyses QUE les vêtements portés sur le corps (t-shirt, pantalon, robe, veste, sweat, manteau, jupe, short, maillot de sport, etc.).
+RÈGLE CRITIQUE 2 : Tu DOIS répondre entièrement en FRANÇAIS (valeurs JSON incluses). Si tu détectes "oversized hoodie", écris "Sweat à capuche oversize".
+RÈGLE CRITIQUE 3 : Ne mentionne JAMAIS de genre (Homme/Femme/Garçon/Fille) dans les catégories, tags ou analyses. Part du principe que tout vêtement est non genré (unisexe).
+
+SCORING (baseTrendScore sur 100) : 
+- Sois très pertinent sur les tendances actuelles. Par exemple, l'esthétique "Blokecore", les maillots de sport vintage, le sportswear en maille technique légère sont EXTRÊMEMENT populaires et méritent des scores très élevés (85-95+). 
+- Ne donne pas un score "moyen" (30-60) à une forte tendance juste parce qu'elle est "sport" ou "basique". Il s'agit d'une note de viralité de 0 à 100 !
 
 Si l'image montre autre chose qu'un vêtement (sac à main, chaussures, accessoire, bijou, montre, ceinture, chapeau, meuble, nourriture, personne sans vêtement visible, etc.), tu DOIS retourner :
 { "isClothingItem": false, "rejectionReason": "description courte de ce qui est visible" }
@@ -1428,8 +1433,8 @@ Si l'image montre autre chose qu'un vêtement (sac à main, chaussures, accessoi
 Si l'image contient bien un vêtement, réponds avec isClothingItem: true et la structure complète en FRANÇAIS UNIQUEMENT :
 {
   "isClothingItem": true,
-  "category": "Type de vêtement principal (ex: T-shirt, Pantalon, Robe)",
-  "style": "Style identifié (ex: Urbain, Minimaliste, Y2K)",
+  "category": "Type de vêtement principal (ex: T-shirt, Pantalon, Maillot de sport, Robe)",
+  "style": "Style identifié (ex: Urbain, Blokecore, Y2K, Sportswear)",
   "tags": ["tag1", "tag2", "tag3"],
   "materials": ["matière1", "..."],
   "colors": ["#HEX1 (Nom FR)", "#HEX2 (Nom FR)"],
@@ -1438,7 +1443,7 @@ Si l'image contient bien un vêtement, réponds avec isClothingItem: true et la 
   "cyclePhase": "emergent",
   "marketAdvice": "Conseil business actionnable pour une marque de mode"
 }
-Réponds UNIQUEMENT par un objet JSON valide. TRÈS IMPORTANT: Les couleurs doivent être au format "#HEX (NOM EN FRANÇAIS)". AUCUN MOT ANGLAIS pour les styles, catégories ou tags, traduis tout en français (ex: "streetwear" -> "streetwear" accepté car courant, mais "baggy pants" -> "pantalon ample").`;
+Réponds UNIQUEMENT par un objet JSON valide. TRÈS IMPORTANT: Les couleurs doivent être au format "#HEX (NOM EN FRANÇAIS)". AUCUN MOT ANGLAIS pour les styles, catégories ou tags (sauf termes consacrés comme Blokecore ou Y2K), traduis tout en français et supprime TOUTE notion de genre.`;
 
   const user = `Analyse uniquement si c'est un vêtement. Sinon, rejette. TOUTES LES DONNÉES DOIVENT ÊTRE EN FRANÇAIS.`;
 
