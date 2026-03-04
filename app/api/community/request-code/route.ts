@@ -29,7 +29,19 @@ export async function POST(req: Request) {
         let code = '';
 
         if (lead) {
-            code = lead.code;
+            if (lead.isUsed) {
+                // Generate a new code because the previous one was used
+                code = generateCode();
+                while (await prisma.communityLead.findUnique({ where: { code } })) {
+                    code = generateCode();
+                }
+                lead = await prisma.communityLead.update({
+                    where: { id: lead.id },
+                    data: { code, isUsed: false, usedAt: null }
+                });
+            } else {
+                code = lead.code;
+            }
         } else {
             // Generate a unique code
             code = generateCode();

@@ -22,12 +22,14 @@ export async function POST(req: Request) {
         }
 
         // Mark as used
-        if (!lead.isUsed) {
-            await prisma.communityLead.update({
-                where: { id: lead.id },
-                data: { isUsed: true, usedAt: new Date() }
-            });
+        if (lead.isUsed) {
+            return NextResponse.json({ valid: false, error: "Ce code a déjà été utilisé. Veuillez redemander un code avec votre email." }, { status: 403 });
         }
+
+        await prisma.communityLead.update({
+            where: { id: lead.id },
+            data: { isUsed: true, usedAt: new Date() }
+        });
 
         return NextResponse.json({ valid: true });
     } catch (error) {
