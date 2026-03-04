@@ -62,7 +62,7 @@
         {
             "parameters": {
                 "promptType": "define",
-                "text": "=Voici une news publiee sur mon site OUTFITY :\n\nTitre : {{ $json.title }}\nResume : {{ $json.excerpt }}\n\nTa mission : Transforme cet article en un script de video facecam (TikTok, Reels, Shorts) ultra-dynamique de 45 a 60 secondes maximum.\n\nREGLES STRICTES :\n\nHOOK (0 a 3 sec) : Une phrase d'accroche percutante. Pas de 'Bonjour a tous'. Entre direct avec une verite dure, un chiffre dingue ou une question qui fache.\nDEVELOPPEMENT (4 a 35 sec) : Resume le coeur de la news en 2 phrases, puis donne ton analyse business/marketing. Pourquoi c'est important pour ceux qui ont une marque ?\nCALL TO ACTION (36 a 45 sec) : Fais le pont vers OUTFITY. Ex : 'C'est exactement pour ca qu'on a cree OUTFITY, le lien est dans mon profil'.\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[Titre du post]\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Texte]\n(Corps) : [Texte]\n(CTA) : [Texte]\n\n📱 CAPTION RESEAUX : [3-4 lignes agressives + 5 hashtags niche mode]",
+                "text": "=Voici une news publiee sur mon site OUTFITY :\n\nTitre : {{ $json.title }}\nResume : {{ $json.excerpt }}\n\nTa mission : Transforme cet article en un script de video facecam (TikTok, Reels, Shorts) ultra-dynamique de 45 a 60 secondes maximum.\n\nREGLES STRICTES :\n\nHOOK (0 a 3 sec) : Une phrase d'accroche percutante. Pas de 'Bonjour a tous'. Entre direct avec une verite dure, un chiffre dingue ou une question qui fache.\nDEVELOPPEMENT (4 a 35 sec) : Resume le coeur de la news en 2 phrases, puis donne ton analyse business/marketing. Pourquoi c'est important pour ceux qui ont une marque ?\nCALL TO ACTION (36 a 45 sec) : Fais le pont vers OUTFITY. Ex : 'C'est exactement pour ca qu'on a cree OUTFITY, le lien est dans mon profil'.\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[ACTU] - {{ $json.title }}\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Texte]\n(Corps) : [Texte]\n(CTA) : [Texte]\n\n📱 CAPTION RESEAUX : [3-4 lignes agressives + 5 hashtags niche mode]",
                 "hasOutputParser": false,
                 "messages": {
                     "messageValues": [
@@ -84,7 +84,7 @@
         {
             "parameters": {
                 "promptType": "define",
-                "text": "Tu es le fondateur d'OUTFITY. Ignore les articles. Trouve un conseil BRUTAL et peu connu sur la LOGISTIQUE ou la PRODUCTION de vetements pour maximiser la rentabilite d'une marque independante (ex: negociation usine, gestion stock, packaging couts). Fais-en un script facecam de 45s.\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[Titre : Conseil Business du Jour]\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Texte]\n(Corps) : [Texte]\n(CTA) : [Texte]\n\n📱 CAPTION RESEAUX : [3-4 lignes + 5 hashtags]",
+                "text": "Tu es le fondateur d'OUTFITY. Ignore les articles. Trouve un conseil BRUTAL et peu connu sur la LOGISTIQUE ou la PRODUCTION de vetements pour maximiser la rentabilite d'une marque independante (ex: negociation usine, gestion stock, packaging couts). Fais-en un script facecam de 45s.\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Texte]\n(Corps) : [Texte]\n(CTA) : [Texte]\n\n[BUSINESS] - Conseil Business\n\n📱 CAPTION RESEAUX : [3-4 lignes + 5 hashtags]",
                 "hasOutputParser": false,
                 "messages": {
                     "messageValues": [
@@ -106,7 +106,7 @@
         {
             "parameters": {
                 "promptType": "define",
-                "text": "Tu es le fondateur d'OUTFITY. Trouve un HACK MARKETING ou une strategie de VIRALITE (TikTok organique, Instagram, psychologie du prix, micro-influenceurs) pour faire exploser une marque de vetements independante. Pas de theorie, que du concret et actionnable. Script facecam 45s.\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[Titre : Strategie Marketing du Jour]\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Texte]\n(Corps) : [Texte]\n(CTA) : [Texte]\n\n📱 CAPTION RESEAUX : [3-4 lignes + 5 hashtags]",
+                "text": "Tu es le fondateur d'OUTFITY. Trouve un HACK MARKETING ou une strategie de VIRALITE (TikTok organique, Instagram, psychologie du prix, micro-influenceurs) pour faire exploser une marque de vetements independante. Pas de theorie, que du concret et actionnable. Script facecam 45s.\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Texte]\n(Corps) : [Texte]\n(CTA) : [Texte]\n\n[MARKETING] - Strategie Marketing\n\n📱 CAPTION RESEAUX : [3-4 lignes + 5 hashtags]",
                 "hasOutputParser": false,
                 "messages": {
                     "messageValues": [
@@ -142,7 +142,7 @@
         {
             "parameters": {
                 "promptType": "define",
-                "text": "Tu es le fondateur d'OUTFITY. Fais un post de type 'Vendeur educatif' (Donner, Donner, Demander). Pars d'une vraie problematique liee a la creation de marque (ex: L'erreur qui tue 90% des marques a leur lancement), apporte ENORMEMENT de valeur et de conseils concrets pour eduquer l'audience, puis termine par un Appel a l'Action vers ta ressource privee gratuite. Le texte du CTA : 'Si tu veux aller plus loin et eviter de perdre des mois, j'ai condense toute la methode dans ma ressource privee : Faire ses premiers 1 000€ avec sa marque de vetement. Commente OUTFITY pour la recevoir en DM.' Script facecam 45s maximum.\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[Titre : Conseil & Outils du Jour]\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Texte]\n(Corps) : [Texte]\n(CTA) : [Texte]\n\n📱 CAPTION RESEAUX : [3-4 lignes de valeur + 5 hashtags]",
+                "text": "Tu es le fondateur d'OUTFITY. Fais un post de type 'Vendeur educatif' (Donner, Donner, Demander). Pars d'une vraie problematique liee a la creation de marque (ex: L'erreur qui tue 90% des marques a leur lancement), apporte ENORMEMENT de valeur et de conseils concrets pour eduquer l'audience, puis termine par un Appel a l'Action vers ta ressource privee gratuite. Le texte du CTA : 'Si tu veux aller plus loin et eviter de perdre des mois, j'ai condense toute la methode dans ma ressource privee : Faire ses premiers 1 000€ avec sa marque de vetement. Commente OUTFITY pour la recevoir en DM.' Script facecam 45s maximum.\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[OFFRE] - Formation 1000€\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Texte]\n(Corps) : [Texte]\n(CTA) : [Texte]\n\n📱 CAPTION RESEAUX : [3-4 lignes de valeur + 5 hashtags]",
                 "hasOutputParser": false,
                 "messages": {
                     "messageValues": [
@@ -202,10 +202,10 @@
                     "__rl": true,
                     "mode": "list"
                 },
-                "start": "={{ $today.plus({ days: 1, hours: 11 }).plus({ minutes: $itemIndex * (660 / ($input.all().length > 1 ? $input.all().length - 1 : 1)) }).toISO() }}",
-                "end": "={{ $today.plus({ days: 1, hours: 11 }).plus({ minutes: ($itemIndex * (660 / ($input.all().length > 1 ? $input.all().length - 1 : 1))) + 30 }).toISO() }}",
+                "start": "={{ ($json.text.includes('[OFFRE]')) ? $today.plus({ days: 1, hours: 18 }).toISO() : $today.plus({ days: 1, hours: 11 }).plus({ minutes: $itemIndex * 90 }).toISO() }}",
+                "end": "={{ ($json.text.includes('[OFFRE]')) ? $today.plus({ days: 1, hours: 18, minutes: 30 }).toISO() : $today.plus({ days: 1, hours: 11, minutes: 30 }).plus({ minutes: $itemIndex * 90 }).toISO() }}",
                 "additionalFields": {
-                    "summary": "=🎬 {{ $json.title || 'Conseil Strategique OUTFITY' }}",
+                    "summary": "=🎬 {{$json.text.match(/\\[(.*?)\\]/)?.[0] || '[CONTENU]'}} {{ $json.title || 'Strategie OUTFITY' }}",
                     "description": "={{ $json.text }}\n\n{{ $json.coverImage ? '🖼️ PHOTO DE L\\'ARTICLE :\n' + $json.coverImage : '' }}"
                 }
             },
