@@ -145,15 +145,15 @@ export function TendancesContent({ initialData }: { initialData?: unknown }) {
                 QUEL STYLE SERA <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#007AFF] to-[#00C6FF]">VIRAL</span> ?
               </h1>
             </div>
-            <div className="flex p-1.5 rounded-2xl w-fit transition-colors duration-700 bg-[#F5F5F7]">
+            <div className="flex p-1.5 rounded-2xl w-full sm:w-fit transition-colors duration-700 bg-[#F5F5F7]">
               {['homme', 'femme'].map(s => (
                 <button
                   key={s}
                   onClick={() => setSegment(s)}
                   className={cn(
-                    "px-6 lg:px-10 py-3 lg:py-4 text-[10px] sm:text-[11px] font-black uppercase tracking-widest rounded-xl transition-all duration-500",
+                    "flex-1 sm:flex-none px-6 lg:px-10 py-3 lg:py-4 text-[10px] sm:text-[11px] font-black uppercase tracking-widest rounded-xl transition-all duration-500",
                     segment === s
-                      ? "bg-[#007AFF] text-white shadow-[0_10px_30px_-10px_rgba(0,122,255,0.5)] scale-105"
+                      ? "bg-[#007AFF] text-white shadow-[0_10px_30px_-10px_rgba(0,122,255,0.5)] scale-[1.02] sm:scale-105"
                       : "text-gray-400 hover:text-black"
                   )}
                 >
