@@ -34,15 +34,12 @@ export function QuotaGenerateButton({
     const status = useQuota(featureKey);
     const openSurplusModal = useSurplusModal();
 
-    // Fallback states as loading
-    if (!status) {
-        return (
-            <div className="rounded-xl border border-black/5 bg-black/5 p-4 animate-pulse h-[140px]" />
-        );
-    }
+    const isLoadingQuota = !status;
+    const { isUnlimited, limit, used, remaining, isExhausted, isAlmostFinished } = status || {
+        isUnlimited: false, limit: 0, used: 0, remaining: 0, isExhausted: false, isAlmostFinished: false
+    };
 
-    const { isUnlimited, limit, used, remaining, isExhausted, isAlmostFinished } = status;
-    const isButtonDisabled = disabled || isExhausted || loading;
+    const isButtonDisabled = disabled || isExhausted || loading || isLoadingQuota;
 
     const getNextMonthDate = () => {
         const d = new Date();
@@ -66,7 +63,9 @@ export function QuotaGenerateButton({
 
                 {/* Badge de quota */}
                 <div className="shrink-0">
-                    {isUnlimited ? (
+                    {isLoadingQuota ? (
+                        <div className="h-6 w-32 bg-black/5 rounded-full animate-pulse" />
+                    ) : isUnlimited ? (
                         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 text-emerald-600 rounded-full border border-emerald-500/20">
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             <span className="text-[10px] font-bold uppercase tracking-wide">
@@ -105,8 +104,8 @@ export function QuotaGenerateButton({
                                 "bg-primary text-primary-foreground hover:bg-primary/90"
                     )}
                 >
-                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                    {buttonText} {(!isExhausted && !isUnlimited && limit > 0) && `✨ (${remaining} restant${remaining > 1 ? 's' : ''})`}
+                    {(loading || isLoadingQuota) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                    {buttonText} {(!isLoadingQuota && !isExhausted && !isUnlimited && limit > 0) && `✨ (${remaining} restant${remaining > 1 ? 's' : ''})`}
                 </Button>
 
                 {(!isUnlimited && remaining > 0 && remaining <= 2) && (
