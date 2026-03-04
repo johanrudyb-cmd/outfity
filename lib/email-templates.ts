@@ -148,5 +148,13 @@ export const getTemplates = {
         buttonText: "Confirmer mon adresse email",
         buttonUrl: url,
         footerText: "Si vous n'avez pas créé de compte sur OUTFITY, veuillez ignorer cet email."
+    }),
+
+    communityCode: (resourceName: string, code: string) => getBaseTemplate({
+        title: "TON ACCÈS EST PRÊT.",
+        description: `Tu as rejoint la communauté des créateurs qui construisent sérieusement.<br><br>Voici ton code d'accès exclusif pour <strong>${resourceName}</strong> :<br><br><div style="font-size: 32px; font-weight: 900; letter-spacing: 0.2em; background-color: #f5f5f7; padding: 24px; border-radius: 16px; margin: 32px 0;">${code}</div>Ce code est personnel et à usage unique.`,
+        buttonText: "Débloquer ma ressource",
+        buttonUrl: "https://outfity.fr/communaute",
+        footerText: "Pour aller plus loin, rejoins les créateurs qui lancent leur marque avec succès grâce à OUTFITY."
     })
 };

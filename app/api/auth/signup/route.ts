@@ -87,6 +87,7 @@ export async function POST(request: Request) {
         const { cookies } = await import('next/headers');
         const cookieStore = await cookies();
         const refCode = cookieStore.get('outfity_ref')?.value;
+        const resTag = cookieStore.get('outfity_resource')?.value;
         let referrerId = null;
 
         if (refCode) {
@@ -120,6 +121,7 @@ export async function POST(request: Request) {
                     email,
                     password: hashedPassword,
                     affiliateId: referrerId,
+                    landingResourceId: resTag || null,
                     plan: plan || 'starter'
                 } as any
             } as any // Cast for now until prisma generate fix

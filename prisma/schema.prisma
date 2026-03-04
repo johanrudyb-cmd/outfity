@@ -22,6 +22,7 @@ model User {
   onboardingCompleted Boolean            @default(false)
   onboardingData      Json?
   affiliateId         String?
+  landingResourceId   String?            // Source de conversion (ex: marketing, calculator)
   aiUsages            AIUsage[]
   accounts            Account[]
   affiliate           Affiliate?         @relation("PartnerAccount")
@@ -749,10 +750,14 @@ model AffiliateClick {
   ipAddress   String?
   userAgent   String?
   referer     String?
+  path        String?   // Le chemin exact (ex: /communaute/unlock)
+  resourceId  String?   // L'ID de la ressource si applicable (ex: marketing)
   createdAt   DateTime  @default(now())
   affiliate   Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
 
   @@index([affiliateId])
+  @@index([path])
+  @@index([resourceId])
 }
 
 model AffiliateCommission {
@@ -778,3 +783,17 @@ model TrackedHashtag {
 
   @@index([isActive])
 }
+
+model CommunityLead {
+  id         String   @id @default(cuid())
+  email      String
+  resourceId String
+  code       String   @unique
+  isUsed     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  usedAt     DateTime?
+
+  @@unique([email, resourceId])
+  @@index([code])
+}
+

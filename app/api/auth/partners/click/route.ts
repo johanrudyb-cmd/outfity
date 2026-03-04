@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(req: Request) {
     try {
-        const { code } = await req.json();
+        const { code, path, resourceId } = await req.json();
 
         if (!code) {
             return NextResponse.json({ error: 'Missing code' }, { status: 400 });
@@ -24,6 +24,8 @@ export async function POST(req: Request) {
         await prisma.affiliateClick.create({
             data: {
                 affiliateId: affiliate.id,
+                path: path || null,
+                resourceId: resourceId || null,
                 // On pourrait extraire IP de l'en-tête x-forwarded-for
             }
         });

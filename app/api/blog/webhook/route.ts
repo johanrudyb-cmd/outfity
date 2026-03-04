@@ -73,33 +73,46 @@ export async function POST(req: Request) {
         // et le post appartient à "OUTFITY Intelligence" par défaut dans l'UI.
 
         try {
-            // Anti-doublon sémantique : on vérifie les articles des 3 derniers jours
-            const threeDaysAgo = new Date();
-            threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+            // Anti-doublon : fenêtre élargie à 7 jours
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
             const recentPosts = await prisma.blogPost.findMany({
-                where: { createdAt: { gte: threeDaysAgo } },
-                select: { id: true, title: true, slug: true }
+                where: { createdAt: { gte: sevenDaysAgo } },
+                select: { id: true, title: true, slug: true, sourceUrl: true }
             });
 
-            // Si un article a le MÊME slug exact, on autorise la mise à jour (Upsert habituel)
+            // 1. Si un article a le MÊME slug exact → mise à jour autorisée (upsert habituel)
             const isUpdate = recentPosts.some(p => p.slug === slug);
 
             if (!isUpdate) {
-                // S'il s'agit d'une nouvelle création, on vérifie la similarité
+                // 2. Vérification par sourceUrl (fingerprint parfaite) — même URL = doublon certain
+                if (sourceUrl) {
+                    const sameSource = recentPosts.some(p => p.sourceUrl && p.sourceUrl === sourceUrl);
+                    if (sameSource) {
+                        console.log(`[N8N_WEBHOOK] 🛑 DUPLICATE DETECTED (same sourceUrl)! Skipping "${title}".`);
+                        return NextResponse.json({
+                            success: true,
+                            message: 'Skipped. Duplicate post detected by sourceUrl.',
+                            skipped: true
+                        }, { status: 200 });
+                    }
+                }
+
+                // 3. Vérification par similarité sémantique du titre (seuil abaissé à 55%)
                 const isDuplicate = recentPosts.some(p => {
                     const similarity = getJaccardSimilarity(p.title, title);
-                    console.log(`[N8N_WEBHOOK] Checking similarity for "${title}" vs "${p.title}": ${Math.round(similarity * 100)}%`);
-                    return similarity > 0.65; // Seuil abaissé à 65% pour être plus strict sur les doublons
+                    console.log(`[N8N_WEBHOOK] Similarity "${title}" vs "${p.title}": ${Math.round(similarity * 100)}%`);
+                    return similarity > 0.55;
                 });
 
                 if (isDuplicate) {
-                    console.log(`[N8N_WEBHOOK] 🛑 DUPLICATE DETECTED! Post "${title}" is too similar to an existing post.`);
+                    console.log(`[N8N_WEBHOOK] 🛑 DUPLICATE DETECTED (title similarity)! Skipping "${title}".`);
                     return NextResponse.json({
                         success: true,
-                        message: 'Skipped. Duplicate post detected based on title similarity.',
+                        message: 'Skipped. Duplicate post detected by title similarity.',
                         skipped: true
-                    }, { status: 200 }); // On renvoie 200 pour que le webhook ne crashe pas du côté de l'appelant
+                    }, { status: 200 });
                 }
             }
 

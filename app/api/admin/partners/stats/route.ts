@@ -19,14 +19,21 @@ export async function GET(req: Request) {
         if (period === '1y') startDate = subDays(new Date(), 365);
 
         // Récupérer tous les clics et commissions depuis startDate
-        const [clicks, commissions] = await Promise.all([
+        const [clicks, commissions, signups] = await Promise.all([
             prisma.affiliateClick.findMany({
                 where: { createdAt: { gte: startDate } },
-                select: { createdAt: true }
+                select: { createdAt: true, resourceId: true }
             }),
             prisma.affiliateCommission.findMany({
                 where: { createdAt: { gte: startDate } },
                 select: { amount: true, createdAt: true }
+            }),
+            prisma.user.findMany({
+                where: {
+                    affiliateId: { not: null },
+                    createdAt: { gte: startDate }
+                },
+                select: { id: true, landingResourceId: true }
             })
         ]);
 
@@ -58,10 +65,24 @@ export async function GET(req: Request) {
         const currentMonthStart = startOfMonth(new Date());
         const lastMonthStart = startOfMonth(subDays(currentMonthStart, 5)); // Environ le mois dernier
 
+        // Calcul du breakdown par ressource
+        const resourceStats: Record<string, { clicks: number, conversions: number }> = {};
+        clicks.forEach((c: any) => {
+            const rid = c.resourceId || 'direct';
+            if (!resourceStats[rid]) resourceStats[rid] = { clicks: 0, conversions: 0 };
+            resourceStats[rid].clicks++;
+        });
+        signups.forEach((s: any) => {
+            const rid = s.landingResourceId || 'direct';
+            if (!resourceStats[rid]) resourceStats[rid] = { clicks: 0, conversions: 0 };
+            resourceStats[rid].conversions++;
+        });
+
         const stats = {
             currentMonth: await getPeriodStats(currentMonthStart, now),
             lastMonth: await getPeriodStats(lastMonthStart, currentMonthStart),
-            chartData
+            chartData,
+            resourceStats
         };
 
         return NextResponse.json(stats);

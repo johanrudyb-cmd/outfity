@@ -54,6 +54,7 @@ export async function POST(request: Request) {
                 email: signupData.email,
                 password: signupData.password,
                 affiliateId: signupData.affiliateId,
+                landingResourceId: signupData.landingResourceId || null,
                 plan: signupData.plan || 'starter',
                 emailVerified: new Date(),
             },

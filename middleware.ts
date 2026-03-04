@@ -7,6 +7,7 @@ export default auth(async (req) => {
 
   // 0. Tracking Affiliation (détection du paramètre ?v= ou ?ref=)
   const vTag = nextUrl.searchParams.get('v') || nextUrl.searchParams.get('ref');
+  const rTag = nextUrl.searchParams.get('resource');
 
   const isAuthPage = nextUrl.pathname.startsWith('/auth');
   const isApiRoute = nextUrl.pathname.startsWith('/api');
@@ -45,6 +46,15 @@ export default auth(async (req) => {
   if (vTag) {
     response.cookies.set('outfity_ref', vTag, {
       maxAge: 30 * 24 * 60 * 60, // 30 jours
+      path: '/',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
+  }
+
+  if (rTag) {
+    response.cookies.set('outfity_resource', rTag, {
+      maxAge: 30 * 24 * 60 * 60,
       path: '/',
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

@@ -55,6 +55,7 @@ export function PartnerDashboardClient({ user, affiliate }: PartnerDashboardClie
     const [stats, setStats] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [baseUrl, setBaseUrl] = useState('https://outfity.fr');
+    const [selectedResourceId, setSelectedResourceId] = useState<string | null>(null);
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -68,7 +69,11 @@ export function PartnerDashboardClient({ user, affiliate }: PartnerDashboardClie
         const fetchPersonalStats = async () => {
             setIsLoading(true);
             try {
-                const res = await fetch(`/api/auth/partners/stats?period=${period}`);
+                const url = new URL('/api/auth/partners/stats', window.location.origin);
+                url.searchParams.set('period', period);
+                if (selectedResourceId) url.searchParams.set('resourceId', selectedResourceId);
+
+                const res = await fetch(url.toString());
                 const data = await res.json();
                 if (data.error) throw new Error(data.error);
                 setStats(data);
@@ -79,7 +84,7 @@ export function PartnerDashboardClient({ user, affiliate }: PartnerDashboardClie
             }
         };
         fetchPersonalStats();
-    }, [period]);
+    }, [period, selectedResourceId]);
 
     // Calcul des commissions en attente (seulement celles qui sont PENDING)
     const pendingAmount = affiliate.commissions
@@ -180,13 +185,37 @@ export function PartnerDashboardClient({ user, affiliate }: PartnerDashboardClie
                 {/* GRAPH SECTION - JUST LIKE ADMIN */}
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                     <Card className="border-none shadow-sm rounded-[42px] bg-white overflow-hidden p-6 sm:p-8 lg:p-12">
-                        <div className="flex items-center gap-4 mb-10">
-                            <div className="p-2.5 bg-blue-100 rounded-xl text-[#007AFF]">
-                                <BarChart3 className="w-6 h-6" />
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+                            <div className="flex items-center gap-4">
+                                <div className="p-2.5 bg-blue-100 rounded-xl text-[#007AFF]">
+                                    <BarChart3 className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-black text-[#1D1D1F] tracking-tight leading-none uppercase italic">Performance Visuelle</h2>
+                                    <p className="text-[#6e6e73] font-medium mt-1 text-sm">Évolution croisée de l'audience et des commissions.</p>
+                                </div>
                             </div>
-                            <div>
-                                <h2 className="text-2xl font-black text-[#1D1D1F] tracking-tight leading-none uppercase italic">Performance Visuelle</h2>
-                                <p className="text-[#6e6e73] font-medium mt-1 text-sm">Évolution croisée de l'audience et des commissions.</p>
+
+                            {/* Resource Filter */}
+                            <div className="flex items-center gap-2 bg-[#F5F5F7] p-1.5 rounded-2xl border border-black/5 overflow-x-auto no-scrollbar max-w-[400px]">
+                                <button
+                                    onClick={() => setSelectedResourceId(null)}
+                                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${!selectedResourceId ? 'bg-white text-[#007AFF] shadow-sm' : 'text-[#86868B] hover:text-[#1D1D1F]'}`}
+                                >
+                                    Global
+                                </button>
+                                <button
+                                    onClick={() => setSelectedResourceId('marketing')}
+                                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${selectedResourceId === 'marketing' ? 'bg-white text-[#007AFF] shadow-sm' : 'text-[#86868B] hover:text-[#1D1D1F]'}`}
+                                >
+                                    Guide 1000€
+                                </button>
+                                <button
+                                    onClick={() => setSelectedResourceId('direct')}
+                                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${selectedResourceId === 'direct' ? 'bg-white text-[#007AFF] shadow-sm' : 'text-[#86868B] hover:text-[#1D1D1F]'}`}
+                                >
+                                    Direct
+                                </button>
                             </div>
                         </div>
 
@@ -286,6 +315,58 @@ export function PartnerDashboardClient({ user, affiliate }: PartnerDashboardClie
                                             <div className="p-6 bg-[#007AFF]/5 text-[#007AFF] rounded-[32px] border border-[#007AFF]/10">
                                                 <p className="text-[9px] font-black uppercase tracking-[0.2em] mb-4 opacity-40">Conseil Pro</p>
                                                 <p className="text-sm font-bold leading-relaxed">Testez votre propre lien de temps en temps pour vérifier le tracking.</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Free Resources Links Section */}
+                                        <div className="mt-12 pt-10 border-t border-black/5">
+                                            <h3 className="text-lg font-black uppercase italic tracking-tight text-[#1D1D1F] mb-2">Lead Magnets Gratuits (Tracking Inclus)</h3>
+                                            <p className="text-sm font-medium text-[#86868B] mb-6">Proposez ces ressources gratuites exclusives à votre audience. S'ils décident de s'inscrire ensuite, vous toucherez la commission.</p>
+
+                                            <div className="space-y-4">
+                                                {[
+                                                    { id: 'marketing', name: 'Faire ses premiers 1 000€ avec sa marque de vêtement' },
+                                                ].map((res) => {
+                                                    const resLink = `${baseUrl}/communaute/unlock?resource=${res.id}&ref=${affiliate.referralCode}`;
+                                                    const resClicks = stats?.clicksByResource?.[res.id] || 0;
+                                                    const resConv = stats?.convByResource?.[res.id] || 0;
+                                                    const convRate = resClicks > 0 ? ((resConv / resClicks) * 100).toFixed(1) : 0;
+
+                                                    return (
+                                                        <div key={res.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-[#F5F5F7] rounded-2xl border border-black/5 hover:border-black/10 transition-colors">
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center gap-3">
+                                                                    <p className="font-bold text-sm text-[#1D1D1F]">{res.name}</p>
+                                                                    <div className="flex gap-2">
+                                                                        <Badge className={`border-none text-[8px] font-black ${resClicks > 0 ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'bg-black/5 text-black/20'}`}>
+                                                                            {resClicks} Clics
+                                                                        </Badge>
+                                                                        {resConv > 0 && (
+                                                                            <Badge className="bg-emerald-500/10 text-emerald-600 border-none text-[8px] font-black">
+                                                                                {convRate}% Conv.
+                                                                            </Badge>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                                <p className="text-[10px] font-mono text-[#86868B] mt-1 break-all bg-white px-2 py-1 rounded inline-block border border-black/5">{resLink}</p>
+                                                            </div>
+                                                            <Button
+                                                                variant="outline"
+                                                                onClick={() => {
+                                                                    navigator.clipboard.writeText(resLink);
+                                                                    toast({
+                                                                        type: 'success',
+                                                                        title: 'Copié !',
+                                                                        message: "Lien de la ressource copié !"
+                                                                    });
+                                                                }}
+                                                                className="shrink-0 h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-black hover:text-white transition-all shadow-sm"
+                                                            >
+                                                                <Copy className="w-3.5 h-3.5 mr-2" /> Copier
+                                                            </Button>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     </CardContent>

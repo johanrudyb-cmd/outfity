@@ -12,10 +12,11 @@ export async function GET(req: Request) {
     try {
         const { searchParams } = new URL(req.url);
         const period = searchParams.get('period') || '30d';
+        const filterResourceId = searchParams.get('resourceId');
 
         const affiliate = await prisma.affiliate.findUnique({
             where: { userId: user.id },
-            select: { id: true }
+            select: { id: true, commissionRate: true }
         });
 
         if (!affiliate) {
@@ -27,14 +28,14 @@ export async function GET(req: Request) {
         if (period === '90d') startDate = subDays(new Date(), 90);
         if (period === '1y') startDate = subDays(new Date(), 365);
 
-        // Clis et Commissions personnels
-        const [clicks, commissions, signups, activeSubsCount] = await Promise.all([
+        // On récupère tout GLOBALEMENT pour les compteurs
+        const [allClicks, allCommissions, allSignups, activeSubsCount] = await Promise.all([
             prisma.affiliateClick.findMany({
                 where: {
                     affiliateId: affiliate.id,
                     createdAt: { gte: startDate }
                 },
-                select: { createdAt: true }
+                select: { createdAt: true, resourceId: true }
             }),
             prisma.affiliateCommission.findMany({
                 where: {
@@ -53,10 +54,10 @@ export async function GET(req: Request) {
                     email: true,
                     name: true,
                     plan: true,
-                    createdAt: true
+                    createdAt: true,
+                    landingResourceId: true
                 },
-                orderBy: { createdAt: 'desc' },
-                take: 10
+                orderBy: { createdAt: 'desc' }
             }),
             prisma.user.count({
                 where: {
@@ -66,14 +67,9 @@ export async function GET(req: Request) {
             })
         ]);
 
-        // Calcul de l'Estimated MMR (29€ * 15% par défaut si non spécifié, ou via affiliate)
-        const affiliateData = await prisma.affiliate.findUnique({
-            where: { id: affiliate.id },
-            select: { commissionRate: true }
-        });
-        const mmr = (activeSubsCount || 0) * 29 * (affiliateData?.commissionRate || 0.15);
+        const mmr = (activeSubsCount || 0) * 29 * (affiliate.commissionRate || 0.15);
 
-        // Grouper par jour pour le graphique
+        // Grouper par jour avec filtrage par ressource pour le GRAPHIQUE
         const dailyData: Record<string, { date: string, clics: number, revenue: number }> = {};
         let current = new Date(startDate);
         const now = new Date();
@@ -83,25 +79,48 @@ export async function GET(req: Request) {
             current.setDate(current.getDate() + 1);
         }
 
-        clicks.forEach((c: { createdAt: Date }) => {
+        allClicks.forEach((c: any) => {
+            if (filterResourceId && c.resourceId !== filterResourceId) return;
             const dayKey = format(c.createdAt, 'yyyy-MM-dd');
             if (dailyData[dayKey]) dailyData[dayKey].clics++;
         });
 
-        commissions.forEach((c: { createdAt: Date, amount: number }) => {
+        // Pour le filtrage du revenu, c'est délicat car non lié à resourceId.
+        // On affiche le revenu global sur le graphique (ou filtré si on avait le lien).
+        allCommissions.forEach((c: any) => {
             const dayKey = format(c.createdAt, 'yyyy-MM-dd');
             if (dailyData[dayKey]) dailyData[dayKey].revenue += c.amount;
         });
 
         const chartData = Object.values(dailyData).sort((a, b) => a.date.localeCompare(b.date));
 
-        // Anonymisation des emails des signups
-        const maskedSignups = signups.map(s => {
+        // Calcul des clics par ressource (GLOBALE pour les badges)
+        const clicksByResource: Record<string, number> = {};
+        allClicks.forEach((c: any) => {
+            const resId = c.resourceId || 'direct';
+            clicksByResource[resId] = (clicksByResource[resId] || 0) + 1;
+        });
+
+        // Calcul des conversions par ressource (GLOBALE pour les badges)
+        const convByResource: Record<string, number> = {};
+        allSignups.forEach((s: any) => {
+            const resId = s.landingResourceId || 'direct';
+            convByResource[resId] = (convByResource[resId] || 0) + 1;
+        });
+
+        // Filtrage de la liste des signups si demandé
+        const filteredSignups = filterResourceId
+            ? allSignups.filter(s => s.landingResourceId === filterResourceId)
+            : allSignups;
+
+        const maskedSignups = filteredSignups.slice(0, 10).map(s => {
             const [local, domain] = s.email.split('@');
-            const maskedLocal = local.length > 2 ? local.substring(0, 2) + '***' : local + '***';
             return {
-                ...s,
-                email: `${maskedLocal}@${domain}`
+                id: s.id,
+                name: s.name,
+                plan: s.plan,
+                createdAt: s.createdAt,
+                email: `${local.substring(0, 2)}***@${domain}`
             };
         });
 
@@ -109,7 +128,9 @@ export async function GET(req: Request) {
             chartData,
             recentSignups: maskedSignups,
             mmr,
-            activeSubsCount
+            activeSubsCount,
+            clicksByResource,
+            convByResource
         });
     } catch (error) {
         console.error('Error fetching affiliate personal stats:', error);

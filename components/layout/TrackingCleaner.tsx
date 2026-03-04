@@ -23,7 +23,11 @@ export function TrackingCleaner() {
             fetch('/api/auth/partners/click', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code })
+                body: JSON.stringify({
+                    code,
+                    path: pathname,
+                    resourceId: searchParams.get('resource')
+                })
             }).catch(err => console.error('Click logging failed:', err));
 
             // Créer une nouvelle URL sans les paramètres de tracking

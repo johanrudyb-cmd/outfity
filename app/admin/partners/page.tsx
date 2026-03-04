@@ -348,6 +348,34 @@ export default function AdminPartnersPage() {
                 </Card>
             </motion.div>
 
+            {/* Resource Breakdown Section */}
+            {stats?.resourceStats && Object.keys(stats.resourceStats).length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {Object.entries(stats.resourceStats).map(([resId, data]: [string, any]) => {
+                        const convRate = data.clicks > 0 ? ((data.conversions / data.clicks) * 100).toFixed(1) : 0;
+                        return (
+                            <Card key={resId} className="border-none shadow-sm rounded-[32px] bg-white p-6 flex items-center justify-between group hover:shadow-lg transition-all duration-300">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-[#F5F5F7] rounded-2xl flex items-center justify-center text-[#007AFF]">
+                                        <Sparkles className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-[#86868b]">{resId === 'direct' ? 'Lien Direct' : resId}</p>
+                                        <h4 className="text-xl font-black text-[#1D1D1F] tracking-tight truncate">{resId === 'marketing' ? 'Faire ses premiers 1 000€ avec sa marque de vêtement' : resId}</h4>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-xl font-black text-[#1D1D1F]">{data.clicks} <span className="text-[10px] font-bold text-[#86868b] uppercase">Clics</span></div>
+                                    <div className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full inline-block mt-1">
+                                        {convRate}% Conv. ({data.conversions})
+                                    </div>
+                                </div>
+                            </Card>
+                        );
+                    })}
+                </div>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                 {/* Invitation Panel */}
                 <div className="lg:col-span-4 space-y-6">
