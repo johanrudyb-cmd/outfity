@@ -25,7 +25,7 @@ import Link from 'next/link';
 const resources = [
     {
         id: "marketing",
-        title: "Faire ses premiers 1 000€ avec sa marque de vêtement",
+        title: "Faire ses premiers 1\xA0000€ avec sa marque de vêtement",
         description: "Les meilleures stratégies de positionnement, TikTok organique et conversions pour ta marque.",
         icon: Globe,
         category: "FORMATION PRIVÉE",
@@ -44,9 +44,8 @@ export default function CommunityPage() {
     const [verifying, setVerifying] = useState(false);
     const [error, setError] = useState("");
 
-    // Load unlocked items from local storage on mount
     useEffect(() => {
-        const stored = localStorage.getItem('unlocked_resources');
+        const stored = localStorage.getItem('unlocked_resources_v2');
         if (stored) {
             setUnlockedItems(JSON.parse(stored));
         }
@@ -73,7 +72,7 @@ export default function CommunityPage() {
                 // Unlock success
                 const newUnlocked = [...unlockedItems, resourceId];
                 setUnlockedItems(newUnlocked);
-                localStorage.setItem('unlocked_resources', JSON.stringify(newUnlocked));
+                localStorage.setItem('unlocked_resources_v2', JSON.stringify(newUnlocked));
                 setActiveCodeResource(null);
                 setCode("");
             } else {

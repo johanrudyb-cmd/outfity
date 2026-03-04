@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
 const resourcesList = [
-    { id: 'marketing', name: 'Faire ses premiers 1 000€ avec sa marque de vêtement' },
+    { id: 'marketing', name: 'Faire ses premiers 1\xA0000€ avec sa marque de vêtement' },
 ];
 
 export default function UnlockPage() {
