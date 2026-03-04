@@ -108,7 +108,7 @@ import { ScrollToTop } from '@/components/layout/ScrollToTop';
 import { UpgradeSessionRefresh } from '@/components/dashboard/UpgradeSessionRefresh';
 import { TrackingCleaner } from '@/components/layout/TrackingCleaner';
 import { Suspense } from 'react';
-
+import NextTopLoader from 'nextjs-toploader';
 import Script from 'next/script';
 
 export default function RootLayout({
@@ -144,6 +144,15 @@ export default function RootLayout({
               "url": "https://outfity.fr"
             }),
           }}
+        />
+        <NextTopLoader
+          color="#00AEEF"
+          showSpinner={false}
+          shadow="0 0 10px #00AEEF,0 0 5px #00AEEF"
+          height={3}
+          crawl={true}
+          easing="ease"
+          speed={200}
         />
         <ErrorBoundary>
           <Providers>
