@@ -90,7 +90,7 @@ export function VisualTrendScanner() {
                         // On évite les doublons par ID
                         const existingIds = new Set(prev.map(h => h.id));
                         const newItems = data.history.filter((h: any) => !existingIds.has(h.id));
-                        return [...newItems, ...prev].slice(0, 20);
+                        return [...newItems, ...prev].slice(0, 6);
                     });
                 }
             } catch (e) {
@@ -102,7 +102,7 @@ export function VisualTrendScanner() {
 
     // Sauvegarde de l'historique
     const saveToHistory = (item: HistoryItem) => {
-        const newHistory = [item, ...history].slice(0, 10);
+        const newHistory = [item, ...history].slice(0, 6);
         setHistory(newHistory);
         localStorage.setItem('trend_scan_history', JSON.stringify(newHistory));
     };

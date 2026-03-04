@@ -17,7 +17,7 @@ export async function GET() {
             orderBy: {
                 createdAt: 'desc',
             },
-            take: 20,
+            take: 6,
         });
 
         // Transformer les entrées AIUsage en HistoryItems pour le frontend
