@@ -61,7 +61,6 @@ export function VisualTrendScanner() {
     const [result, setResult] = useState<AnalysisResult | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [leadTime, setLeadTime] = useState(60);
-    const [segment, setSegment] = useState<'homme' | 'femme'>('homme');
     const [history, setHistory] = useState<HistoryItem[]>([]);
     const [mounted, setMounted] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -231,8 +230,8 @@ export function VisualTrendScanner() {
 
         // Prix (Standard fixe du marché indépendant / OUTFITY)
         let baseRefPrice = 45;
-        if (techCategory === 'TSHIRT') baseRefPrice = segment === 'femme' ? 35 : 45;
-        else if (techCategory === 'SWEAT') baseRefPrice = segment === 'femme' ? 70 : 85;
+        if (techCategory === 'TSHIRT') baseRefPrice = 40;
+        else if (techCategory === 'SWEAT') baseRefPrice = 80;
         else if (techCategory === 'JACKEX') baseRefPrice = 135;
         else if (techCategory === 'JEAN' || techCategory === 'PANT') baseRefPrice = 75;
         else if (techCategory === 'DRESS') baseRefPrice = 95;
@@ -265,7 +264,7 @@ export function VisualTrendScanner() {
             : (futureScore >= 80 ? "PEAK" : (futureScore >= 50 ? "STABLE" : "LIMITÉE"));
 
         return { commentary, priceRange, recommendationLevel, targetMonth: capitalizedMonth, marginLevel, isOnSeason };
-    }, [result, techCategory, leadTime, futureScore, isOffSeason, segment]);
+    }, [result, techCategory, leadTime, futureScore, isOffSeason]);
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -501,20 +500,7 @@ export function VisualTrendScanner() {
                         </div>
 
                         <div className="flex items-center gap-4">
-                            <div className="flex p-1.5 bg-gray-100/50 rounded-2xl shrink-0 border border-black/5 w-full md:w-auto overflow-x-auto">
-                                {['homme', 'femme'].map(s => (
-                                    <button
-                                        key={s}
-                                        onClick={() => setSegment(s as 'homme' | 'femme')}
-                                        className={cn(
-                                            "flex-1 md:flex-none px-6 md:px-8 py-2.5 md:py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all",
-                                            segment === s ? "bg-white text-black shadow-apple-sm" : "text-gray-400 hover:text-black"
-                                        )}
-                                    >
-                                        {s}
-                                    </button>
-                                ))}
-                            </div>
+                            {/* Choix homme/femme retiré comme demandé (Non Genré) */}
                         </div>
                     </div>
 

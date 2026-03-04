@@ -66,7 +66,7 @@ export async function POST(req: Request) {
 
         // 4. Enregistrement de l'utilisation avec TOUTES les métadonnées pour l'historique
         const usageId = await recordAIUsage(user.id, 'trends_hybrid_scan', {
-            image: image.length < 500000 ? image : undefined, // On garde l'image si pas trop lourde
+            image: image.length < 5000000 ? image : undefined, // Limite à 5MB (env. 3.7MB en base64) au lieu de 500KB pour supporter les photos smartphone
             analysis: finalAnalysis,
             timestamp: new Date().toISOString()
         });
