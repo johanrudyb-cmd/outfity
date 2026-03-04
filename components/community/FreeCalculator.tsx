@@ -44,11 +44,11 @@ const WEIGHT_OPTIONS_BY_PRODUCT: Record<string, { value: string; label: string }
 };
 
 function getDropSuggestion(productKey: string, isLuxe: boolean): { cogs: number; suggestedPrice: number } {
-    const defaults: Record<string, { cogs: number; price: number }> = {
-        hoodie: isLuxe ? { cogs: 35, price: 120 } : { cogs: 18, price: 65 },
-        veste: isLuxe ? { cogs: 70, price: 280 } : { cogs: 28, price: 95 },
-        tshirt: isLuxe ? { cogs: 22, price: 85 } : { cogs: 10, price: 35 },
-        pantalon: isLuxe ? { cogs: 40, price: 160 } : { cogs: 18, price: 65 },
+    const defaults: Record<string, { cogs: number; suggestedPrice: number }> = {
+        hoodie: isLuxe ? { cogs: 35, suggestedPrice: 120 } : { cogs: 18, suggestedPrice: 65 },
+        veste: isLuxe ? { cogs: 70, suggestedPrice: 280 } : { cogs: 28, suggestedPrice: 95 },
+        tshirt: isLuxe ? { cogs: 22, suggestedPrice: 85 } : { cogs: 10, suggestedPrice: 35 },
+        pantalon: isLuxe ? { cogs: 40, suggestedPrice: 160 } : { cogs: 18, suggestedPrice: 65 },
     };
     return defaults[productKey] ?? defaults.tshirt;
 }
@@ -212,12 +212,12 @@ export function FreeCalculator() {
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 blur-[80px] -translate-y-1/2 translate-x-1/4" />
                     <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
                         <div className="space-y-2">
-                            <h4 className="text-xl font-black">Besoin d\'un Tech Pack Pro ?</h4>
-                            <p className="text-blue-100 font-medium">L\'IA de Virgil génère ton dossier technique en 1 clic.</p>
+                            <h4 className="text-xl font-black">Besoin d&apos;un Tech Pack Pro ?</h4>
+                            <p className="text-blue-100 font-medium">L&apos;IA de Virgil génère ton dossier technique en 1 clic.</p>
                         </div>
                         <Link href="/auth/choose-plan">
                             <Button className="bg-white text-blue-600 hover:bg-white/90 px-8 py-6 rounded-2xl font-black uppercase tracking-widest text-[10px] h-auto shadow-xl">
-                                Découvrir l\'IA
+                                Découvrir l&apos;IA
                             </Button>
                         </Link>
                     </div>
@@ -276,7 +276,7 @@ export function FreeCalculator() {
 
                         <Link href="/auth/choose-plan">
                             <Button className="w-full py-8 bg-blue-500 hover:bg-blue-600 text-white rounded-3xl font-black uppercase tracking-widest text-xs h-auto mt-4 group">
-                                Lancer mon drop avec l\'IA
+                                Lancer mon drop avec l&apos;IA
                                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                             </Button>
                         </Link>
@@ -285,7 +285,7 @@ export function FreeCalculator() {
 
                 {/* Small Stats Grid */}
                 <div className="grid grid-cols-2 gap-4">
-                    <StatCard label="Chiffre d\'Affaire" value={`${Math.round(revenue)}€`} sub={`Sur ${soldUnits} ventes`} />
+                    <StatCard label="Chiffre d&apos;Affaire" value={`${Math.round(revenue)}€`} sub={`Sur ${soldUnits} ventes`} />
                     <StatCard label="Investissement" value={`${Math.round(totalInvestment)}€`} sub="Total engagé" />
                 </div>
 
@@ -296,7 +296,7 @@ export function FreeCalculator() {
                     <div className="space-y-1">
                         <p className="text-[10px] font-black uppercase tracking-widest text-[#1D1D1F]">Astuce de Pro</p>
                         <p className="text-[12px] text-[#86868B] font-medium leading-relaxed">
-                            Une marque de streetwear rentable vise généralement une <strong className="text-[#1D1D1F]">marge brute > 65%</strong> pour couvrir ses frais de d\'acquisition.
+                            Une marque de streetwear rentable vise généralement une <strong className="text-[#1D1D1F]">marge brute &gt; 65%</strong> pour couvrir ses frais d&apos;acquisition.
                         </p>
                     </div>
                 </div>
