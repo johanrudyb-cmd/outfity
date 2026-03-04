@@ -1454,7 +1454,7 @@ Réponds UNIQUEMENT par un objet JSON valide. TRÈS IMPORTANT: Les couleurs doiv
   const text = await generateTextWithOptionalImage(system, user, {
     imageUrl: base64Image,
     maxTokens: 1000,
-    temperature: 0.3,
+    temperature: 0.1,
   });
 
   if (!text) throw new Error('Réponse Claude vide');

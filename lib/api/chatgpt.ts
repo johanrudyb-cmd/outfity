@@ -1206,6 +1206,7 @@ TRÈS IMPORTANT: AUCUN MOT ANGLAIS pour les styles, catégories ou tags (sauf te
       },
     ],
     response_format: { type: "json_object" },
+    temperature: 0.1,
   });
 
   const raw = response.choices[0]?.message?.content?.trim();
