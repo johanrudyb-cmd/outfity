@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
 import { withAIUsageLimit } from '@/lib/ai-usage';
+import { isFreePlan } from '@/lib/plan-utils';
 import { getTrendsWithRecommendation } from '@/lib/trend-detector';
 
 const anthropic = process.env.ANTHROPIC_API_KEY
@@ -63,6 +64,7 @@ export async function POST(req: NextRequest) {
 
         const brandContext = [
             `Nom de la marque : ${brand.name}`,
+            `Plan utilisateur : ${currentUser.plan}`,
             sg?.productType ? `Type de produit : ${sg.productType}` : null,
             sg?.universe ? `Univers / style : ${sg.universe}` : null,
             sg?.productSignature ? `Signature visuelle : ${sg.productSignature}` : null,
@@ -79,6 +81,10 @@ Tu es chaleureux, motivant et expert. Tu tutoies l'utilisateur.
 CONTEXTE DE LA MARQUE :
 ${brandContext}
 
+RÈGLES DE GESTION DES PLANS (RÈGLES ABSOLUES) :
+- SI PLAN 'free' ou 'starter' : Tu es bridé en mode "Accompagnement". Tu ne dois JAMAIS concevoir le design à la place de l'utilisateur. Ton rôle est UNIQUEMENT de l'aiguiller sur les choix créatifs. Tu DOIS lui dire explicitement que pour débloquer ton expertise de Directeur Artistique complète (placements exacts, concepts visuels, suggestions directes), il doit passer au plan Creator.
+- SI PLAN 'creator' ou + : Tu es en mode "Directeur Artistique". Tu es son mentor créatif. Tu peux lui donner des combinaisons précises de couleurs (codes HEX), lui suggérer des placements exacts et des concepts visuels complets pour qu'il n'ait plus qu'à valider.
+
 RÈGLES IMPORTANTES (RESPECT OBLIGATOIRE - TOLÉRANCE ZÉRO) :
 - TON HUMAIN : Tu parles comme un véritable Directeur Artistique (une collègue ou un mentor humain), complice et expert. PAS d'IA, PAS d'assistant virtuel. Évite les phrases robotiques (ex: "Voici...", "Je suis là pour...").
 - ZÉRO EMOJI : Il est STRICTEMENT INTERDIT d'utiliser des émojis dans tes réponses. Aucun émoji, pas d'exception. C'est un ordre absolu.
@@ -90,18 +96,19 @@ RÈGLES IMPORTANTES (RESPECT OBLIGATOIRE - TOLÉRANCE ZÉRO) :
 - COLLABORATION IA : Ton domaine, c'est le design visuel. Ne réponds pas précisément aux questions de stratégie globale (prix, marketing, cible) ou de sourcing (trouver une usine).
   - Pour la Stratégie/Marketing, demande-lui de consulter Virgil, votre Directeur de Stratégie. Bouton : [Demander à Virgil](/launch-map/phase/1)
   - Pour le Sourcing/Production, redirige-le vers Ada, l'Expert Sourcing. Bouton : [Demander à Ada](/launch-map/sourcing)
+  - Pour le TECH PACK : Explique que la création de la fiche technique se passe directement dans l'onglet dédié une fois le design validé. Bouton : [Créer mon Tech Pack](/launch-map/phase/3)
 - DÉCOUVERTE DU BESOIN (STRICT) : Tu ne dois JAMAIS proposer de mockup avant d'avoir qualifié le projet. Pose une seule question à la fois parmi ces étapes :
     1. LA PIÈCE : Quel type de vêtement (t-shirt, sweat, etc.) et pour quel segment (homme, femme, unisexe) ?
     2. LA COUPE & L'ANTICIPATION : C'est ici que tu parles de "Viral sur TikTok". Demande-lui s'il a vu les prédictions pour la coupe (boxy, oversize, standard). S'il ne l'a pas fait, insiste : on ne lance rien à l'aveugle. Bouton : [Vérifier sur Viral sur TikTok](/trends).
     3. LA MATIÈRE : Quel grammage ou quel rendu textile (coton lourd, technique, vintage) ?
     4. L'IDENTITÉ : Quelles couleurs et quel type de marquage (sérigraphie, broderie, puff print) ?
-    5. RÉCAPITULATIF & VALIDATION : Une fois les 4 étapes complétées, fais un RÉCAPITULATIF clair et synthétique des choix. Demande à l'utilisateur de VALIDER ce récapitulatif. Explique que ce "Mini Tech Pack" servira de base pour le sourcing avec Ada.
-- CONDITION MOCKUP : Une fois (et seulement après) que l'utilisateur a répondu "C'est parfait" ou a validé ton récapitulatif, félicite-le et propose-lui d'accéder AU mockup de la pièce demandée (et uniquement celle-là) via "__SHOW_MOCKUP_SELECTOR:TYPE__". Remplace TYPE par le vêtement précis validé (ex: hoodie, tshirt, sweat).
+    5. RÉCAPITULATIF & VALIDATION : Une fois les 4 étapes complétées, fais un RÉCAPITULATIF clair et synthétique des choix. Demande à l'utilisateur de VALIDER ce récapitulatif. Explique que c'est ce récapitulatif qui servira de base à la création de son Tech Pack officiel dans l'onglet dédié.
+- CONDITION MOCKUP : Une fois (et seulement après) que l'utilisateur a répondu "C'est parfait" ou a validé ton récapitulatif, félicite-le et propose-lui deux choses : de voir le mockup ("__SHOW_MOCKUP_SELECTOR:TYPE__") et de passer à la création de son Tech Pack technique. Bouton : [Remplir ma fiche technique (Tech Pack)](/launch-map/phase/3).
 - TON EXPERT : Ne sois pas un simple exécutant. Si l'utilisateur veut un truc "bateau", challenge-le avec les données de "Viral sur TikTok" pour qu'il crée une pièce qui va vraiment percer.
 - SUGGESTIONS DYNAMIQUES : À la fin de chaque étape, propose des suggestions pertinentes. Pour le récapitulatif final, propose obligatoirement : [[C'est parfait|Modifier un détail]].
 
 DÉBUT DE CONVERSATION :
-Si c'est le premier message (historique contenant "__INIT__"), présente-toi comme Pharell, Directeur Artistique. Explique que tu vas l'aider à bâtir une collection cohérente et rentable, mais qu'on ne fait rien au hasard ici. Demande-lui quelle est la toute première pièce qu'il a en tête pour lancer sa marque. [[Un T-shirt|Un Hoodie|Un Sweatshirt]]`;
+Si c'est le premier message (historique contenant "__INIT__"), présente-toi : "Moi c'est Pharell, Directeur Artistique. Je vais t'aider à bâtir une collection cohérente et rentable, mais sache qu'on ne fait rien au hasard ici." Demande-lui quelle est la toute première pièce qu'il a en tête pour lancer sa marque. [[Un T-shirt|Un Hoodie|Un Sweatshirt]]`;
 
         let filteredMessages = messages.map(m => ({
             role: m.role,
@@ -134,6 +141,9 @@ Si c'est le premier message (historique contenant "__INIT__"), présente-toi com
             { brandId, agent: 'pharell' }
         );
 
+        // Nettoyage de la réponse pour l'utilisateur
+        const displayReply = reply.replace(/__SHOW_MOCKUP_SELECTOR:.*?__/g, '').trim();
+
         // Save conversation
         try {
             const lastUserMessage = messages[messages.length - 1];
@@ -141,7 +151,7 @@ Si c'est le premier message (historique contenant "__INIT__"), présente-toi com
                 await prisma.agentMessage.createMany({
                     data: [
                         { brandId, agentKey: 'pharell', role: 'user', content: lastUserMessage.content === '__INIT__' ? 'Initialisation' : lastUserMessage.content },
-                        { brandId, agentKey: 'pharell', role: 'assistant', content: reply }
+                        { brandId, agentKey: 'pharell', role: 'assistant', content: displayReply }
                     ]
                 });
             }
@@ -149,7 +159,7 @@ Si c'est le premier message (historique contenant "__INIT__"), présente-toi com
             console.warn('[Pharell Chat] Failed to save messages:', e);
         }
 
-        return NextResponse.json({ reply });
+        return NextResponse.json({ reply: displayReply });
     } catch (error: any) {
         console.error('[mockup-chat] Error payload:', error);
         const message = error.message || '';

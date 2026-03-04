@@ -4,9 +4,15 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 
-export function DashboardRefresh() {
+export function DashboardRefresh({ autoRunOnce = false }: { autoRunOnce?: boolean }) {
   const router = useRouter();
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useEffect(() => {
+    if (autoRunOnce) {
+      router.refresh();
+    }
+  }, [autoRunOnce, router]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -22,9 +28,9 @@ export function DashboardRefresh() {
   useEffect(() => {
     // Ne pas auto-refresh si la page n'est pas visible (onglet inactif)
     if (typeof document === 'undefined') return;
-    
+
     let intervalId: NodeJS.Timeout | null = null;
-    
+
     const handleVisibilityChange = () => {
       if (document.hidden) {
         // Page cachée : arrêter le refresh

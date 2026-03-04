@@ -96,14 +96,14 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   const weekEvents = getWeekEvents(launchMap?.contentCalendar ?? null);
   const isFree = isFreePlan(user.plan);
 
-  // Launch Map phases
+  // Launch Map phases - Synchronized with Launch Map logic
   const phases = [
     { id: 0, label: 'Identité', icon: LayoutDashboard, done: hasIdentity },
     { id: 1, label: 'Stratégie', icon: Rocket, done: !!launchMap?.phase1 },
-    { id: 3, label: 'Visuels', icon: Shirt, done: !!launchMap?.phase3 },
-    { id: 4, label: 'Tech Pack', icon: FileText, done: !!launchMap?.phase4 },
-    { id: 5, label: 'Sourcing', icon: Factory, done: !!launchMap?.phase5 },
-    { id: 7, label: 'Boutique', icon: Store, done: !!launchMap?.phase7 },
+    { id: 2, label: 'Mockup', icon: Shirt, done: !!launchMap?.phase2 },
+    { id: 3, label: 'Tech Pack', icon: FileText, done: !!launchMap?.phase3 },
+    { id: 4, label: 'Sourcing', icon: Factory, done: !!launchMap?.phase4 },
+    { id: 5, label: 'Boutique', icon: Store, done: !!launchMap?.phase5 },
   ];
   const completedCount = phases.filter(p => p.done).length;
   const progress = Math.round((completedCount / phases.length) * 100);
@@ -165,6 +165,8 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   return (
     <DashboardLayout>
+      {/* Force metadata refresh on mount to ensure percentage is accurate */}
+      <DashboardRefresh autoRunOnce={true} />
       <div className="min-h-screen relative bg-[#FAFAFA] pb-12 overflow-x-hidden">
 
         {/* Pattern de fond (Dots) façon "Premium SaaS" avec fondu vers le bas */}

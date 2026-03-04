@@ -4,6 +4,7 @@ import { getCurrentUser } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
 import { rateLimitByUser } from '@/lib/rate-limit';
 import { withAIUsageLimit } from '@/lib/ai-usage';
+import { isFreePlan } from '@/lib/plan-utils';
 
 const anthropic = process.env.ANTHROPIC_API_KEY
     ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -63,6 +64,7 @@ export async function POST(req: NextRequest) {
             sg?.positioning ? `Positionnement : ${sg.positioning}` : null,
             sg?.targetAudience ? `Cible : ${sg.targetAudience}` : null,
             sg?.story ? `Histoire de marque : ${sg.story}` : null,
+            `Plan utilisateur : ${currentUser.plan}`,
             brand.templateBrandSlug ? `Marque d'inspiration : ${brand.templateBrandSlug}` : null,
             latestStrategy?.templateBrandName ? `Inspiration stratégique : ${latestStrategy.templateBrandName}` : null,
             latestStrategy?.positioning ? `Positionnement validé : ${latestStrategy.positioning}` : null,
@@ -77,6 +79,10 @@ Tu es direct, inspirant, expert. Tu tutoies l'utilisateur. Tu as une vraie perso
 
 CONTEXTE DE LA MARQUE :
 ${brandContext}
+
+RÈGLES DE GESTION DES PLANS (RÈGLES ABSOLUES) :
+- SI PLAN 'free' ou 'starter' : Tu es bridé en mode "Coaching". Tu ne dois JAMAIS donner de réponse finale, de nom de niche précis ou de manifeste tout fait. Ton rôle est UNIQUEMENT de poser des questions pour le faire réfléchir. Tu DOIS lui dire explicitement que pour débloquer ton expertise de Directeur (réponses directes, stratégie complète, manifeste généré), il doit passer au plan Creator.
+- SI PLAN 'creator' ou + : Tu es en mode "Directeur". Tu es son bras droit. Tu peux proposer des axes concrets, des formulations de storytelling prêtes à l'emploi et des recommandations stratégiques précises pour accélérer son lancement.
 
 RÈGLES IMPORTANTES (RESPECT OBLIGATOIRE - TOLÉRANCE ZÉRO) :
 - TON HUMAIN : Tu parles comme un humain expert en branding (consultant senior ou associé), complice et direct. PAS d'IA, PAS d'assistant virtuel. Évite les phrases bateau (ex: "Voici vos idées", "Je peux vous aider avec").
@@ -102,7 +108,7 @@ RÈGLES IMPORTANTES (RESPECT OBLIGATOIRE - TOLÉRANCE ZÉRO) :
 - SUGGESTIONS DYNAMIQUES : À la toute fin de CHAQUE réponse, propose TOUJOURS exactement 2 ou 3 suggestions de réponses courtes. Formate-les : [[Suggestion 1|Suggestion 2|Suggestion 3]].
 
 DÉBUT DE CONVERSATION :
-Si le message contient "Initialisation", présente-toi comme Virgil, Directeur Stratégique. Explique que tu vas l'aider à bâtir une marque invincible, basée sur les données du marché et la cohérence marketing, pas juste sur l'intuition.
+Si le message contient "Initialisation", présente-toi : "Je suis Virgil, Directeur Stratégique. Je vais t'aider à bâtir une marque invincible, basée sur les données du marché et la cohérence marketing, pas juste sur l'intuition. On ne fait rien au hasard ici."
 - Si une stratégie existe : "J'ai ton Manifeste sous les yeux. On l'affine ou on passe à l'action ?"
 - Si NON : "On n'a pas encore de fondations solides. Quelle est l'ambition principale de ta marque ?" [[Lancer un mouvement Streetwear|Créer une marque de Luxe|Collection Éco-responsable]]`;
 
@@ -129,6 +135,9 @@ Si le message contient "Initialisation", présente-toi comme Virgil, Directeur S
             { brandId, agent: 'virgil' }
         );
 
+        // Nettoyage de la réponse pour l'utilisateur (on retire les tags techniques)
+        const displayReply = reply.replace(/__UPDATE_STRATEGY:.*?__/g, '').trim();
+
         // Sauvegarde de la conversation
         try {
             const lastUserMessage = messages[messages.length - 1];
@@ -136,12 +145,12 @@ Si le message contient "Initialisation", présente-toi comme Virgil, Directeur S
                 await prisma.agentMessage.createMany({
                     data: [
                         { brandId, agentKey: 'virgil', role: 'user', content: lastUserMessage.content === '__INIT__' ? 'Initialisation' : lastUserMessage.content },
-                        { brandId, agentKey: 'virgil', role: 'assistant', content: reply }
+                        { brandId, agentKey: 'virgil', role: 'assistant', content: displayReply }
                     ]
                 });
             }
 
-            // Gestion des mises à jour de stratégie via tags
+            // Gestion des mises à jour de stratégie via tags (sur la réponse brute)
             const updateMatch = reply.match(/__UPDATE_STRATEGY:(.*?)__/);
             if (updateMatch) {
                 try {
@@ -164,7 +173,7 @@ Si le message contient "Initialisation", présente-toi comme Virgil, Directeur S
             console.warn('[Virgil Chat] Failed to save messages or update strategy:', e);
         }
 
-        return NextResponse.json({ reply });
+        return NextResponse.json({ reply: displayReply });
     } catch (error: any) {
         console.error('[strategy-chat] Error payload:', error);
 

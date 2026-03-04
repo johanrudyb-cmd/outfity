@@ -124,19 +124,30 @@ export async function checkAIUsageLimit(
   const planQuotas = QUOTA_CONFIG[packId];
 
   // Mapper QuotaFeatureKey (quota-config.ts) vers AIFeatureKey (ai-usage-config.ts)
+  // On utilise getMaxPerMonthForFeature en priorité pour permettre la granularité par plan (ex: starter vs creator)
   const featureToQuotaLimit: Partial<Record<AIFeatureKey, number>> = {
-    brand_analyze: planQuotas.brand_analyze_limit,
-    brand_strategy: planQuotas.brand_strategy_limit,
-    strategy_view: planQuotas.strategy_view_limit,
-    ugc_scripts: planQuotas.ugc_scripts_limit,
-    brand_logo: planQuotas.brand_logo_limit,
-    trends_check_image: planQuotas.trends_check_limit,
-    trends_hybrid_scan: planQuotas.trends_hybrid_scan_limit,
-    ugc_shooting_photo: planQuotas.ugc_shooting_photo_limit,
-    ugc_shooting_product: planQuotas.ugc_shooting_product_limit,
-    launch_map_site_texts: planQuotas.site_texts_limit,
-    factories_match: planQuotas.factories_match,
+    brand_analyze: getMaxPerMonthForFeature(plan, 'brand_analyze'),
+    brand_strategy: getMaxPerMonthForFeature(plan, 'brand_strategy'),
+    strategy_view: getMaxPerMonthForFeature(plan, 'strategy_view'),
+    ugc_scripts: getMaxPerMonthForFeature(plan, 'ugc_scripts'),
+    brand_logo: getMaxPerMonthForFeature(plan, 'brand_logo'),
+    trends_check_image: getMaxPerMonthForFeature(plan, 'trends_check_image'),
+    trends_hybrid_scan: getMaxPerMonthForFeature(plan, 'trends_hybrid_scan'),
+    ugc_shooting_photo: getMaxPerMonthForFeature(plan, 'ugc_shooting_photo'),
+    ugc_shooting_product: getMaxPerMonthForFeature(plan, 'ugc_shooting_product'),
+    launch_map_site_texts: getMaxPerMonthForFeature(plan, 'launch_map_site_texts'),
+    factories_match: getMaxPerMonthForFeature(plan, 'factories_match'),
   };
+
+  // Remplissage avec fallback sur QUOTA_CONFIG si la valeur est toujours -1 (indéfini dans ai-usage-config)
+  if (featureToQuotaLimit.brand_analyze === -1) featureToQuotaLimit.brand_analyze = planQuotas.brand_analyze_limit;
+  if (featureToQuotaLimit.brand_strategy === -1) featureToQuotaLimit.brand_strategy = planQuotas.brand_strategy_limit;
+  if (featureToQuotaLimit.strategy_view === -1) featureToQuotaLimit.strategy_view = planQuotas.strategy_view_limit;
+  if (featureToQuotaLimit.ugc_scripts === -1) featureToQuotaLimit.ugc_scripts = planQuotas.ugc_scripts_limit;
+  if (featureToQuotaLimit.brand_logo === -1 || featureToQuotaLimit.brand_logo === 0) featureToQuotaLimit.brand_logo = planQuotas.brand_logo_limit;
+  if (featureToQuotaLimit.trends_hybrid_scan === -1 || featureToQuotaLimit.trends_hybrid_scan === 0) {
+    if (!isFreePlan(plan)) featureToQuotaLimit.trends_hybrid_scan = planQuotas.trends_hybrid_scan_limit;
+  }
 
   // Pack Fashion Launch : quotas par feature (priorité)
   if (feature in featureToQuotaLimit || feature === 'ugc_virtual_tryon') {
@@ -219,19 +230,23 @@ export async function recordAIUsage(
   userId: string,
   feature: AIFeatureKey,
   metadata?: Record<string, unknown>
-): Promise<void> {
-  // 🔑 ADMIN BYPASS — pas d'enregistrement de consommation
-  if (await isAdminUser(userId)) return;
+): Promise<string | undefined> {
+  // 🔑 NOTE: On autorise l'enregistrement pour les admins pour l'historique (ex: Scanner IVS)
+  // mais on peut mettre le coût à 0 si on veut vraiment qu'ils ne "consomment" rien.
   try {
+    const isAdmin = await isAdminUser(userId);
+
     // ugc_virtual_tryon : consommer 1 surplus (payé via pack) au lieu d'enregistrer AIUsage
-    if (feature === 'ugc_virtual_tryon') {
+    if (feature === 'ugc_virtual_tryon' && !isAdmin) {
       const { consumeSurplus } = await import('./surplus-credits');
       if (await consumeSurplus(userId, feature)) {
         return; // Crédit consommé, pas de coût additionnel
       }
     }
-    const cost = getCostForFeature(feature);
-    await prisma.aIUsage.create({
+
+    const cost = isAdmin ? 0 : getCostForFeature(feature);
+
+    const usage = await prisma.aIUsage.create({
       data: {
         userId,
         feature,
@@ -239,8 +254,10 @@ export async function recordAIUsage(
         metadata: (metadata ?? undefined) as Prisma.InputJsonValue | undefined,
       },
     });
+    return usage.id;
   } catch (e) {
     console.warn('[AI Usage] Échec enregistrement consommation:', e);
+    return undefined;
   }
 }
 

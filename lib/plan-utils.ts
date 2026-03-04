@@ -4,12 +4,13 @@
  * composants utilisaient 'free'. Ce helper unifie la vérification.
  */
 
-const FREE_PLAN_VALUES = ['free', 'starter', 'none'];
+const FREE_PLAN_VALUES = ['free', 'none'];
 
-/** Renvoie true si le plan est gratuit (starter/free) */
+/** Renvoie true si le plan est gratuit (free/none) */
 export function isFreePlan(plan: string | null | undefined): boolean {
     if (!plan) return true;
     const p = plan.toLowerCase();
+    // 'starter' n'est plus considéré comme un plan avec flou (paywall)
     return FREE_PLAN_VALUES.includes(p);
 }
 

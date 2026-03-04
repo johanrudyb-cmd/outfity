@@ -79,6 +79,28 @@ export function VisualTrendScanner() {
         }
     }, []);
 
+    // Load history from server
+    useEffect(() => {
+        const fetchHistory = async () => {
+            if (!session) return;
+            try {
+                const res = await fetch('/api/trends/visual-history');
+                const data = await res.json();
+                if (data.history && data.history.length > 0) {
+                    setHistory(prev => {
+                        // On évite les doublons par ID
+                        const existingIds = new Set(prev.map(h => h.id));
+                        const newItems = data.history.filter((h: any) => !existingIds.has(h.id));
+                        return [...newItems, ...prev].slice(0, 20);
+                    });
+                }
+            } catch (e) {
+                console.error("Failed to fetch server history:", e);
+            }
+        };
+        if (mounted && session) fetchHistory();
+    }, [mounted, session]);
+
     // Sauvegarde de l'historique
     const saveToHistory = (item: HistoryItem) => {
         const newHistory = [item, ...history].slice(0, 10);
@@ -288,7 +310,7 @@ export function VisualTrendScanner() {
 
             setResult(data.analysis);
             saveToHistory({
-                id: Date.now().toString(),
+                id: data.id || Date.now().toString(),
                 image,
                 analysis: data.analysis,
                 date: new Date().toISOString()
