@@ -481,15 +481,13 @@ export function VisualTrendScanner() {
             ) : (
                 <div className="animate-in fade-in slide-in-from-bottom-6 duration-1000 relative z-10">
                     {/* Immersive Header */}
-                    <div className="bg-white/80 backdrop-blur-xl border-b border-black/5 px-4 sm:px-6 md:px-12 py-4 md:py-6 sticky top-0 z-[50] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
+                    <div className="bg-white/80 backdrop-blur-xl border-b border-black/5 px-4 sm:px-6 md:px-12 py-4 md:py-6 relative md:sticky md:top-0 z-[50] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
                         <div className="flex items-center gap-4 md:gap-8">
                             <button onClick={reset} className="flex items-center gap-3 text-[10px] font-black text-gray-400 hover:text-black transition-all uppercase tracking-widest group">
                                 <div className="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center group-hover:bg-gray-100 transition-colors">
                                     <ArrowRight className="w-4 h-4 rotate-180" />
                                 </div>
-                                <span className="hidden sm:block">RETOUR SCAN</span>
                             </button>
-                            <div className="hidden md:block h-10 w-px bg-black/5" />
                             <div className="flex items-center gap-3 md:gap-5">
                                 <div className="w-10 h-10 md:w-14 md:h-14 rounded-2xl overflow-hidden border-2 border-white shadow-apple shrink-0">
                                     <img src={image!} className="w-full h-full object-cover" alt="Scanned" />

@@ -1431,7 +1431,7 @@ Pour calculer ton "baseTrendScore", tu DOIS croiser ces 3 données pour faire un
 - Une pièce basique (t-shirt basique mais dont la coupe/couleur cartonne) en pleine saison peut avoir >90/100. Ne bride jamais tes notes juste parce que c'est "simple" ou "sport".
 
 Si l'image montre autre chose qu'un vêtement (sac à main, chaussures, accessoire, bijou, montre, ceinture, chapeau, meuble, nourriture, personne sans vêtement visible, etc.), tu DOIS retourner :
-{ "isClothingItem": false, "rejectionReason": "description courte de ce qui est visible" }
+{ "isClothingItem": false, "rejectionReason": "description courte de ce qui est visible (NE MENTIONNE JAMAIS que tu es une IA, ni Claude, ni GPT, sois direct)" }
 
 Si l'image contient bien un vêtement, réponds avec isClothingItem: true et la structure complète en FRANÇAIS UNIQUEMENT :
 {
