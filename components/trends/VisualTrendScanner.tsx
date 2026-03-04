@@ -442,7 +442,15 @@ export function VisualTrendScanner() {
                                         <button
                                             onClick={() => {
                                                 setImage(item.image);
-                                                setResult(item.analysis);
+                                                if (item.analysis) {
+                                                    setResult(item.analysis);
+                                                } else {
+                                                    toast({
+                                                        title: "Analyse introuvable",
+                                                        message: "L'analyse complète n'est pas disponible pour cette image.",
+                                                        type: "error"
+                                                    });
+                                                }
                                             }}
                                             className="w-full aspect-square rounded-[20px] md:rounded-[24px] overflow-hidden border border-black/5 bg-white shadow-sm hover:shadow-md hover:scale-[1.02] transition-all"
                                         >
@@ -461,7 +469,7 @@ export function VisualTrendScanner() {
                                             <X className="w-3 h-3" />
                                         </button>
                                         <div className="mt-2 px-1">
-                                            <p className="text-[9px] md:text-[10px] font-black uppercase truncate">{item.analysis.category}</p>
+                                            <p className="text-[9px] md:text-[10px] font-black uppercase truncate">{item.analysis?.category || 'Scan'}</p>
                                             <p className="text-[7px] md:text-[8px] font-bold text-gray-400 uppercase tracking-widest">{new Date(item.date).toLocaleDateString()}</p>
                                         </div>
                                     </div>
