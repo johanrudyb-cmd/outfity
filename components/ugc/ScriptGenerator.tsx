@@ -380,7 +380,7 @@ export function ScriptGenerator({ brandId, brandName, userPlan = 'free' }: Scrip
                   Scripts générés ({scripts.length})
                 </CardTitle>
                 <CardDescription className="font-medium">
-                  Structure : Problème → Solution → Preuve → CTA
+                  Structure : Hook viral → Problème/Curiosité → Solution → Preuve → CTA
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">

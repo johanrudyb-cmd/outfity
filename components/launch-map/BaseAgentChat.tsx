@@ -495,7 +495,7 @@ export function BaseAgentChat({
                                         }
                                     }}
                                     placeholder={`Parler à ${agentName}...`}
-                                    className="flex-1 bg-transparent max-h-[120px] min-h-[44px] px-4 py-3 text-[15px] sm:text-[16px] text-[#1D1D1F] placeholder:text-[#86868B] focus:outline-none resize-none leading-relaxed"
+                                    className="flex-1 bg-transparent max-h-[120px] min-h-[44px] px-4 py-3 text-[16px] text-[#1D1D1F] placeholder:text-[#86868B] focus:outline-none resize-none leading-relaxed"
                                     disabled={isTyping}
                                     rows={1}
                                 />

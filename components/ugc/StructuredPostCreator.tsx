@@ -394,10 +394,11 @@ export function StructuredPostCreator({ brandId, brandName, onSaved, initialImag
                     <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
                       {[
                         "POV : Tu viens de sortir la pièce ultime pour l'hiver",
-                        "Le secret que les grandes marques vous cachent...",
-                        "Comment j'ai designé cette pièce en 48h",
-                        "Arrêtez de porter du basique, regardez ça",
-                        "On me demande tous les jours d'où vient cette collab"
+                        "Arrête ton scroll : le secret que les grandes marques te cachent...",
+                        "Pourquoi tu ne devrais plus JAMAIS acheter de basique (regarde ça)",
+                        "Comment j'ai créé la pièce parfaite en 48h sans aucun compromis",
+                        "Cette pièce va être partout dans 2 mois (sois le premier)",
+                        "L'erreur fatale que tout le monde fait avec son style..."
                       ].map((hook, i) => (
                         <button
                           key={i}

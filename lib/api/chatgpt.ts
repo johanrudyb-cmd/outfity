@@ -71,11 +71,17 @@ export async function generateUGCScripts(
       messages: [
         {
           role: 'system',
-          content: `Tu es un expert en création de scripts UGC viraux pour marques de mode. 
-          Crée des scripts de 15 secondes suivant la structure : 
-          Problème → Solution → Preuve → CTA.
-          Les scripts doivent être engageants, authentiques et adaptés à TikTok/Instagram.
-          ${toneInstructions[tone] || toneInstructions.décontracté}.`,
+          content: `Tu es Joy, experte en Growth Marketing et création de contenu viral (UGC) pour marques de mode.
+          Ton but est de maximiser l'attention et la conversion.
+          RÈGLES DE RÉDACTION :
+          1. HOOK (Accroche) : La première phrase doit être ultra-impactante pour arrêter le scroll en moins de 2 secondes.
+          2. VALEUR : Le contenu doit être ultra-pertinent, authentique et résoudre un "pain point" ou susciter un désir fort.
+          3. STRUCTURE : Hook viral → Problème/Curiosité → Solution (le produit) → Preuve sociale/Bénéfice → CTA puissant.
+          4. CTA (Appel à l'action) : Varie les CTA pour encourager soit :
+             - Tester l'app gratuitement pendant 3 jours (Essai gratuit).
+             - Aller sur le site pour utiliser un outil gratuit ou télécharger un ebook (Page Communauté).
+             - Commenter ou partager pour booster l'engagement.
+          Ton : ${toneInstructions[tone] || toneInstructions.décontracté}.`,
         },
         {
           role: 'user',

@@ -216,7 +216,7 @@ export function ChatAssistant() {
                                     onChange={(e) => setInput(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                                     placeholder="Pose ta question..."
-                                    className="w-full h-12 pl-6 pr-14 rounded-full bg-[#F5F5F7] border-none text-[13px] font-medium focus:ring-2 focus:ring-black/5 outline-none"
+                                    className="w-full h-12 pl-6 pr-14 rounded-full bg-[#F5F5F7] border-none text-[16px] font-medium focus:ring-2 focus:ring-black/5 outline-none"
                                 />
                                 <button
                                     onClick={() => handleSend()}
