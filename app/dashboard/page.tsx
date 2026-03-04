@@ -207,7 +207,6 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 {isFree ? 'Plan Starter' : 'Plan Créateur'}
               </div>
               <DashboardNotifications />
-              <DashboardRefresh />
             </div>
           </div>
 
