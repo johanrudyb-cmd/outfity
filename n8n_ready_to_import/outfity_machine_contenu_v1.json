@@ -141,6 +141,28 @@
         },
         {
             "parameters": {
+                "promptType": "define",
+                "text": "Tu es le fondateur d'OUTFITY. Fais un post de type 'Vendeur educatif' (Donner, Donner, Demander). Pars d'une vraie problematique liee a la creation de marque (ex: L'erreur qui tue 90% des marques a leur lancement), apporte ENORMEMENT de valeur et de conseils concrets pour eduquer l'audience, puis termine par un Appel a l'Action vers ta ressource privee gratuite. Le texte du CTA : 'Si tu veux aller plus loin et eviter de perdre des mois, j'ai condense toute la methode dans ma ressource privee : Faire ses premiers 1 000€ avec sa marque de vetement. Commente OUTFITY pour la recevoir en DM.' Script facecam 45s maximum.\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[Titre : Conseil & Outils du Jour]\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Texte]\n(Corps) : [Texte]\n(CTA) : [Texte]\n\n📱 CAPTION RESEAUX : [3-4 lignes de valeur + 5 hashtags]",
+                "hasOutputParser": false,
+                "messages": {
+                    "messageValues": [
+                        {
+                            "message": "Tu es le fondateur d'OUTFITY, expert en creation de marques de vêtements. Tu refuses l'approche 'marchand de tapis'. Tu vends (ta ressource gratuite) en apportant une valeur ajoutee enorme et un hook psychologique fort."
+                        }
+                    ]
+                }
+            },
+            "id": "a1b2c3d4-0011-0011-0011-000000000011",
+            "name": "Claude - Conseil Vendeur",
+            "type": "@n8n/n8n-nodes-langchain.chainLlm",
+            "typeVersion": 1.4,
+            "position": [
+                660,
+                700
+            ]
+        },
+        {
+            "parameters": {
                 "mode": "append",
                 "options": {}
             },
@@ -215,6 +237,11 @@
                         "node": "Claude - Conseil Marketing",
                         "type": "main",
                         "index": 0
+                    },
+                    {
+                        "node": "Claude - Conseil Vendeur",
+                        "type": "main",
+                        "index": 0
                     }
                 ]
             ]
@@ -274,6 +301,17 @@
                 ]
             ]
         },
+        "Claude - Conseil Vendeur": {
+            "main": [
+                [
+                    {
+                        "node": "Merge All Scripts",
+                        "type": "main",
+                        "index": 3
+                    }
+                ]
+            ]
+        },
         "Merge All Scripts": {
             "main": [
                 [
@@ -309,6 +347,13 @@
                 [
                     {
                         "node": "Claude - Conseil Marketing",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Claude - Conseil Vendeur",
                         "type": "ai_languageModel",
                         "index": 0
                     }
