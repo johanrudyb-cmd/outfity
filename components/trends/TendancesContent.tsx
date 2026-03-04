@@ -142,7 +142,7 @@ export function TendancesContent({ initialData }: { initialData?: unknown }) {
                 </Link>
               </div>
               <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-black uppercase tracking-tighter leading-[0.9]">
-                QUEL STYLE SERA <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#007AFF] to-[#00C6FF]">VIRAL</span> ?
+                QUEL STYLE SERA <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#007AFF] to-[#00C6FF]">VIRAL</span>&nbsp;?
               </h1>
             </div>
             <div className="flex p-1.5 rounded-2xl w-full sm:w-fit transition-colors duration-700 bg-[#F5F5F7]">
