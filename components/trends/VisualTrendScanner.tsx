@@ -376,7 +376,7 @@ export function VisualTrendScanner() {
                                             </div>
                                         ) : (
                                             <div
-                                                className="aspect-video lg:aspect-[21/9] flex flex-col items-center justify-center cursor-pointer p-12 hover:bg-black/[0.01] transition-colors"
+                                                className="aspect-square sm:aspect-video lg:aspect-[21/9] flex flex-col items-center justify-center cursor-pointer p-6 sm:p-12 hover:bg-black/[0.01] transition-colors text-center"
                                                 onClick={() => fileInputRef.current?.click()}
                                             >
                                                 <div className="w-24 h-24 rounded-full bg-[#F5F5F7] flex items-center justify-center mb-8 relative group">
@@ -487,7 +487,7 @@ export function VisualTrendScanner() {
                                 <div className="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center group-hover:bg-gray-100 transition-colors">
                                     <ArrowRight className="w-4 h-4 rotate-180" />
                                 </div>
-                                <span>RETOUR SCAN</span>
+                                <span className="hidden sm:block">RETOUR SCAN</span>
                             </button>
                             <div className="hidden md:block h-10 w-px bg-black/5" />
                             <div className="flex items-center gap-3 md:gap-5">
@@ -495,7 +495,7 @@ export function VisualTrendScanner() {
                                     <img src={image!} className="w-full h-full object-cover" alt="Scanned" />
                                 </div>
                                 <div className="min-w-0">
-                                    <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tighter text-black truncate leading-none mb-1">{result.category}</h1>
+                                    <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tighter text-black line-clamp-2 leading-tight mb-1">{result.category}</h1>
                                     <div className="flex items-center gap-2">
                                         <div className="px-2 py-0.5 bg-blue-50 rounded-md">
                                             <span className="text-[9px] font-black text-[#007AFF] uppercase tracking-[0.2em]">{result.style}</span>
@@ -524,7 +524,7 @@ export function VisualTrendScanner() {
 
                             <div className="flex flex-col px-2 lg:px-4 lg:border-r lg:border-gray-100">
                                 <span className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Quand tu veux sortir ta collection ?</span>
-                                <div className="flex gap-2">
+                                <div className="flex flex-wrap gap-2">
                                     {[30, 60, 90].map(days => {
                                         const isDisabled = isFree && days > 30;
                                         return (
@@ -572,7 +572,7 @@ export function VisualTrendScanner() {
                             <div className="flex gap-4 md:gap-8 px-2 lg:px-4 sm:col-span-2 lg:col-span-1 relative overflow-hidden">
                                 <div className={cn("transition-all duration-500 flex-1 flex flex-col", isFree && "blur-[8px] opacity-40 select-none pointer-events-none")}>
                                     <span className="text-[8px] md:text-[9px] font-black text-[#007AFF] uppercase tracking-widest mb-1.5 whitespace-nowrap">COULEURS VIRALES PROJETÉES</span>
-                                    <div className="flex items-center gap-1.5 bg-blue-50/30 px-2.5 py-1.5 rounded-xl border border-blue-100/30">
+                                    <div className="flex flex-wrap items-center gap-1.5 bg-blue-50/30 px-2.5 py-1.5 rounded-xl border border-blue-100/30">
                                         {result.colors.map((c, idx) => {
                                             const cssMap: Record<string, string> = { 'noir': '#000000', 'blanc': '#ffffff', 'gris': '#808080', 'rouge': '#ff3b30', 'bleu': '#007aff', 'bleu marine': '#0d1b2a', 'bleu clair': '#add8e6', 'vert': '#34c759', 'jaune': '#ffcc00', 'orange': '#ff9500', 'rose': '#ff2d55', 'violet': '#af52de', 'marron': '#a52a2a', 'beige': '#f5f5dc', 'crème': '#fffdd0', 'kaki': '#8f9779', 'bordeaux': '#800000' };
 
@@ -771,14 +771,14 @@ export function VisualTrendScanner() {
 
                         {/* Extra Details Row */}
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-10">
-                            <Card className="bg-white rounded-[32px] p-8 shadow-apple border border-white">
+                            <Card className="bg-white rounded-[32px] p-6 md:p-8 shadow-apple border border-white">
                                 <div className="flex items-center gap-5">
                                     <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400">
                                         <Palette className="w-6 h-6" />
                                     </div>
                                     <div>
                                         <span className="text-[9px] font-black text-gray-400 uppercase block mb-2">Palette débloquée</span>
-                                        <div className="flex gap-2">
+                                        <div className="flex flex-wrap gap-2">
                                             {result.colors.map((c, idx) => {
                                                 const cssMap: Record<string, string> = { 'noir': '#000000', 'blanc': '#ffffff', 'gris': '#808080', 'rouge': '#ff3b30', 'bleu': '#007aff', 'bleu marine': '#0d1b2a', 'bleu clair': '#add8e6', 'vert': '#34c759', 'jaune': '#ffcc00', 'orange': '#ff9500', 'rose': '#ff2d55', 'violet': '#af52de', 'marron': '#a52a2a', 'beige': '#f5f5dc', 'crème': '#fffdd0', 'kaki': '#8f9779', 'bordeaux': '#800000' };
 
@@ -796,7 +796,7 @@ export function VisualTrendScanner() {
                                 </div>
                             </Card>
 
-                            <Card className="bg-white rounded-[32px] p-8 shadow-apple border border-white">
+                            <Card className="bg-white rounded-[32px] p-6 md:p-8 shadow-apple border border-white">
                                 <div className="flex items-center gap-5">
                                     <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400">
                                         <TrendingUp className="w-6 h-6" />
@@ -808,7 +808,7 @@ export function VisualTrendScanner() {
                                 </div>
                             </Card>
 
-                            <Card className="bg-white rounded-[32px] p-8 shadow-apple border border-white">
+                            <Card className="bg-white rounded-[32px] p-6 md:p-8 shadow-apple border border-white">
                                 <div className="flex items-center gap-5">
                                     <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400">
                                         <Activity className="w-6 h-6" />
@@ -820,7 +820,7 @@ export function VisualTrendScanner() {
                                 </div>
                             </Card>
 
-                            <Card className="bg-white rounded-[32px] p-8 shadow-apple border border-white">
+                            <Card className="bg-white rounded-[32px] p-6 md:p-8 shadow-apple border border-white">
                                 <div className="flex items-center gap-5">
                                     <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400">
                                         <DollarSign className="w-6 h-6" />
