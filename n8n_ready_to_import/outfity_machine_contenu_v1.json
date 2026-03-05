@@ -152,6 +152,76 @@
         },
         {
             "parameters": {
+                "jsCode": "const day = new Date().getDay();\nconst offset = 2;\nconst hooks = {\n  0: { type: 'CHIFFRE_CHOC', label: 'Chiffre Choc', instruction: \"Commence par un chiffre concret et surprenant. Ex: 'J ai lance ma premiere marque avec 300 euros. Voila exactement comment.' Le chiffre doit etre credible et inspirer.\" },\n  1: { type: 'PROMESSE_RAPIDE', label: 'Promesse Rapide', instruction: \"Fais une promesse de valeur immediate. Ex: 'En 45 secondes je vais te dire comment trouver ton fabricant sans intermediaire et sans perdre d argent.'.\" },\n  2: { type: 'CONTRE_INTUITIF', label: 'Contre-Intuitif', instruction: \"Commence par quelque chose d inattendu, mais sans provoquer. Ex: 'Ton logo et tes couleurs, tout le monde s en fout quand tu debutes. Voila ce qui compte vraiment.'.\" },\n  3: { type: 'IDENTIFICATION', label: 'Identification Directe', instruction: \"Commence par cibler directement la situation du spectateur. Ex: 'T as une idee de marque depuis des mois et t as encore rien fait ?'.\" },\n  4: { type: 'BOUCLE_OUVERTE', label: 'Boucle Ouverte', instruction: \"Ouvre une boucle que le cerveau DOIT fermer. Ex: 'Y a une erreur que font 90% des gens qui lancent leur marque et qui leur coute 6 mois.'.\" },\n  5: { type: 'CHIFFRE_CHOC', label: 'Chiffre Choc', instruction: \"Commence par un chiffre qui frappe. Ex: '8 marques sur 10 ne font pas un seul euro en ligne dans leurs 3 premiers mois. Voila pourquoi.'.\" },\n  6: { type: 'PROMESSE_RAPIDE', label: 'Promesse Rapide', instruction: \"Fais une promesse de valeur immediate. Ex: 'Je vais t expliquer en 3 etapes comment lancer ta marque sans 5000 euros.'.\" }\n};\nconst h = hooks[((day + offset) % 7)];\nreturn [{ json: { hookType: h.type, hookLabel: h.label, hookInstruction: h.instruction } }];"
+            },
+            "id": "a1b2c3d4-0014-0014-0014-000000000014",
+            "name": "Selecteur Hook 2",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                220,
+                -220
+            ]
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "=Ta mission : Cree un script de video facecam (TikTok, Reels, Shorts) de 45 secondes sur le theme de lancer sa marque de vetement.\n\nTYPE DE HOOK DU JOUR : {{ $json.hookLabel }}\nINSTRUCTION POUR LE HOOK : {{ $json.hookInstruction }}\n\nLA FORMULE VIRALE (ordre strict) :\n1. HOOK (0-3 sec) : Applique le type de hook indique.\n2. CORPS (4-25 sec) : Valeur pure, concrete, actionnable. Phrases de 8 mots max.\n3. MICRO-CTA (25 sec) : Replante l attention. Ex : 'Et si tu veux savoir exactement comment...' (coupe).\n4. CTA FINAL : 'Le lien est dans ma bio, essai gratuit 3 jours sans CB.'\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[EDUCATIF] - {{ $json.hookLabel }}\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Texte hook]\n(Corps) : [Valeur pure, phrases courtes]\n(Micro-CTA) : [Replante l attention a 25 sec]\n(CTA Final) : [Lien bio + essai gratuit]\n\n📱 CAPTION : [Reprise hook | 2-3 lignes valeur | Lien bio | 5 hashtags]",
+                "hasOutputParser": false,
+                "messages": {
+                    "messageValues": [
+                        {
+                            "message": "Tu es le fondateur d'OUTFITY. Tu t'adresses a des 18-24 ans qui veulent lancer leur marque de vetement. Ecris pour etre DIT a voix haute : 't as', 'c est', 'y a', 'genre', 'en vrai'. Phrases courtes, ton naturel."
+                        }
+                    ]
+                }
+            },
+            "id": "a1b2c3d4-0015-0015-0015-000000000015",
+            "name": "Claude - Script Educatif 2",
+            "type": "@n8n/n8n-nodes-langchain.chainLlm",
+            "typeVersion": 1.4,
+            "position": [
+                440,
+                -220
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "const day = new Date().getDay();\nconst offset = 4;\nconst hooks = {\n  0: { type: 'CONTRE_INTUITIF', label: 'Contre-Intuitif', instruction: \"Commence par quelque chose d inattendu. Ex: 'Poster tous les jours sur Instagram est peut etre ta pire erreur de debutant.'.\" },\n  1: { type: 'IDENTIFICATION', label: 'Identification Directe', instruction: \"Cible directement la situation du spectateur. Ex: 'T es du genre a tout planifier mais a ne jamais passer a l action pour ta marque ?'.\" },\n  2: { type: 'BOUCLE_OUVERTE', label: 'Boucle Ouverte', instruction: \"Ouvre une boucle que le cerveau DOIT fermer. Ex: 'Y a une chose que j aurais voulu savoir avant de lancer ma premiere marque.'.\" },\n  3: { type: 'CHIFFRE_CHOC', label: 'Chiffre Choc', instruction: \"Commence par un chiffre frappant. Ex: 'J ai genere mes 1000 premiers euros avec ma marque en 3 semaines. Voila la methode exacte.'.\" },\n  4: { type: 'PROMESSE_RAPIDE', label: 'Promesse Rapide', instruction: \"Promesse de valeur concrete. Ex: 'En 45 secondes je vais te montrer comment definir ton prix de vente sans perdre d argent.'.\" },\n  5: { type: 'CONTRE_INTUITIF', label: 'Contre-Intuitif', instruction: \"Ex: 'T as pas besoin d un logo pour commencer a vendre. Voila ce dont t as vraiment besoin.'.\" },\n  6: { type: 'BOUCLE_OUVERTE', label: 'Boucle Ouverte', instruction: \"Ex: 'Y a une raison pour laquelle certaines marques explosent en 3 mois et d autres galèrent pendant 2 ans.'.\" }\n};\nconst h = hooks[((day + offset) % 7)];\nreturn [{ json: { hookType: h.type, hookLabel: h.label, hookInstruction: h.instruction } }];"
+            },
+            "id": "a1b2c3d4-0016-0016-0016-000000000016",
+            "name": "Selecteur Hook 3",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                220,
+                -420
+            ]
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "=Ta mission : Cree un script de video facecam (TikTok, Reels, Shorts) de 45 secondes sur le theme de lancer sa marque de vetement.\n\nTYPE DE HOOK DU JOUR : {{ $json.hookLabel }}\nINSTRUCTION POUR LE HOOK : {{ $json.hookInstruction }}\n\nLA FORMULE VIRALE (ordre strict) :\n1. HOOK (0-3 sec) : Applique le type de hook indique.\n2. CORPS (4-25 sec) : Valeur pure, concrete, actionnable. Phrases de 8 mots max.\n3. MICRO-CTA (25 sec) : 'Commente VETEMENT et je t envoie ma ressource complete en DM.' (coupe).\n4. CTA FINAL : 'Commente VETEMENT maintenant, c est gratuit.'\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[EDUCATIF] - {{ $json.hookLabel }}\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Texte hook]\n(Corps) : [Valeur pure, phrases courtes]\n(Micro-CTA) : [Replante l attention a 25 sec]\n(CTA Final) : [Commente VETEMENT + DM]\n\n📱 CAPTION : [Reprise hook | 2-3 lignes valeur | Commente VETEMENT | 5 hashtags]",
+                "hasOutputParser": false,
+                "messages": {
+                    "messageValues": [
+                        {
+                            "message": "Tu es le fondateur d'OUTFITY. Tu t'adresses a des 18-24 ans qui veulent lancer leur marque de vetement. Ecris pour etre DIT a voix haute : 't as', 'c est', 'y a', 'genre', 'en vrai'. Phrases courtes, ton naturel."
+                        }
+                    ]
+                }
+            },
+            "id": "a1b2c3d4-0017-0017-0017-000000000017",
+            "name": "Claude - Script Educatif 3",
+            "type": "@n8n/n8n-nodes-langchain.chainLlm",
+            "typeVersion": 1.4,
+            "position": [
+                440,
+                -420
+            ]
+        },
+        {
+            "parameters": {
                 "operation": "append",
                 "documentId": {
                     "value": "REMPLACE_PAR_TON_GOOGLE_DOC_ID",
@@ -204,6 +274,16 @@
                         "index": 0
                     },
                     {
+                        "node": "Selecteur Hook 2",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Selecteur Hook 3",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
                         "node": "Claude - Conseil Business",
                         "type": "main",
                         "index": 0
@@ -232,6 +312,28 @@
                 ]
             ]
         },
+        "Selecteur Hook 2": {
+            "main": [
+                [
+                    {
+                        "node": "Claude - Script Educatif 2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Selecteur Hook 3": {
+            "main": [
+                [
+                    {
+                        "node": "Claude - Script Educatif 3",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
         "Claude - Script Educatif": {
             "main": [
                 [
@@ -239,6 +341,28 @@
                         "node": "Merge All Scripts",
                         "type": "main",
                         "index": 0
+                    }
+                ]
+            ]
+        },
+        "Claude - Script Educatif 2": {
+            "main": [
+                [
+                    {
+                        "node": "Merge All Scripts",
+                        "type": "main",
+                        "index": 4
+                    }
+                ]
+            ]
+        },
+        "Claude - Script Educatif 3": {
+            "main": [
+                [
+                    {
+                        "node": "Merge All Scripts",
+                        "type": "main",
+                        "index": 5
                     }
                 ]
             ]
