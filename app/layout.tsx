@@ -32,11 +32,11 @@ export const metadata: Metadata = {
     title: 'OUTFITY',
   },
   title: {
-    default: 'Créer sa marque de vêtement avec la Data des géants | OUTFITY',
+    default: 'CRÉE TA MARQUE DE VÊTEMENT DE A à Z | OUTFITY',
     template: '%s | OUTFITY',
   },
   description:
-    'La plateforme n°1 pour créer sa marque de vêtement. Accédez aux datas du marché, au sourcing d\'usines certifiées et à nos outils experts pour lancer une collection rentable.',
+    'La plateforme n°1 pour créer sa marque de vêtement sans faire d\'erreurs. De la recherche de tendance au sourcing usine, on t\'accompagne de A à Z.',
   keywords: [
     'OUTFITY',
     'créer sa marque de vêtement',
@@ -70,9 +70,9 @@ export const metadata: Metadata = {
     locale: 'fr_FR',
     url: siteUrl,
     siteName: 'OUTFITY',
-    title: 'La plateforme n°1 pour créer sa marque de vêtement | OUTFITY',
+    title: 'CRÉE TA MARQUE DE VÊTEMENT DE A à Z | OUTFITY',
     description:
-      'Ne lancez pas votre marque à l\'aveugle. Utilisez OUTFITY pour concevoir, sourcer et lancer une collection premium structurée pour la réussite.',
+      'Ne lance pas ta marque au hasard. OUTFITY t\'accompagne de A à Z : veilles marché, sourcing usines et outils experts pour réussir ton lancement.',
     images: [
       {
         url: '/apple-icon.png',
@@ -84,9 +84,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'La plateforme n°1 pour créer sa marque de vêtement | OUTFITY',
+    title: 'CRÉE TA MARQUE DE VÊTEMENT DE A à Z | OUTFITY',
     description:
-      'Bâtissez votre marque avec une vraie veille marché, des designs structurés et les meilleures usines mondiales.',
+      'Bâtis ta marque avec une vraie veille marché, des designs structurés et les meilleures usines mondiales. On t\'accompagne de A à Z.',
     images: ['/apple-icon.png'],
     creator: '@outfity',
   },
@@ -140,7 +140,7 @@ export default function RootLayout({
                 "price": "29",
                 "priceCurrency": "EUR"
               },
-              "description": "La plateforme n°1 pour créer sa marque de vêtement. Accédez aux datas du marché, au sourcing d'usines certifiées et à nos outils experts.",
+              "description": "La plateforme n°1 pour créer sa marque de vêtement de A à Z. Accédez aux datas du marché, au sourcing d'usines certifiées et à nos outils experts.",
               "url": "https://outfity.fr"
             }),
           }}
