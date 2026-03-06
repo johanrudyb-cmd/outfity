@@ -3,9 +3,6 @@ import path from 'path';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -13,10 +10,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false, // Supprimer l'en-tête X-Powered-By (micro perf + sécu)
   // Définir explicitement la racine du workspace pour éviter les avertissements sur les lockfiles multiples
   outputFileTracingRoot: path.resolve(process.cwd()),
-  // Ne pas bundler puppeteer / pdfkit (résolution depuis node_modules au runtime pour éviter ENOENT Helvetica.afm)
-  serverExternalPackages: ['puppeteer', 'puppeteer-extra', 'puppeteer-extra-plugin-stealth', 'pdfkit', 'nodemailer'],
-  // Désactiver le tracing des fichiers de sortie (évite le scan récursif de node_modules, très gourmand en RAM)
-  outputFileTracing: false,
+  // Ne pas bundler pdfkit au runtime pour éviter ENOENT Helvetica.afm
+  serverExternalPackages: ['pdfkit', 'nodemailer'],
   // Turbopack désactivé en dev (--webpack) pour éviter "Failed to write app endpoint" sur Windows
   // turbopack: { root: path.resolve(process.cwd()) },
   // Configuration stricte pour sécurité et performance cache

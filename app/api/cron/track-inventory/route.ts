@@ -9,8 +9,6 @@
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import puppeteer from 'puppeteer';
-
 export const runtime = 'nodejs';
 
 interface ProductInventory {
@@ -26,43 +24,25 @@ interface ProductInventory {
  * Scrape le fichier products.json d'une boutique Shopify
  */
 async function fetchProductsJson(shopifyUrl: string): Promise<ProductInventory> {
-  let browser = null;
-
   try {
     // Normaliser l'URL
     const url = new URL(shopifyUrl);
     const productsJsonUrl = `${url.origin}/products.json`;
 
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    const response = await fetch(productsJsonUrl, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      },
+      next: { revalidate: 0 } // Bypass Next.js cache
     });
 
-    const page = await browser.newPage();
-    await page.setUserAgent(
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-    );
-
-    // Aller sur products.json
-    const response = await page.goto(productsJsonUrl, {
-      waitUntil: 'networkidle2',
-      timeout: 30000,
-    });
-
-    if (!response || !response.ok()) {
-      throw new Error(`Impossible de récupérer products.json: ${response?.status()}`);
+    if (!response.ok) {
+      throw new Error(`Impossible de récupérer products.json: ${response.status}`);
     }
 
-    // Extraire le JSON
-    const jsonContent = await page.evaluate(() => {
-      return document.body.textContent;
-    });
-
-    if (!jsonContent) {
-      throw new Error('products.json est vide');
-    }
-
-    const productsData = JSON.parse(jsonContent);
+    const productsData = await response.json();
     const inventory: ProductInventory = {};
 
     // Transformer les données Shopify en format inventory
@@ -86,10 +66,6 @@ async function fetchProductsJson(shopifyUrl: string): Promise<ProductInventory> 
   } catch (error) {
     console.error(`[Track Inventory] Erreur lors du fetch de products.json pour ${shopifyUrl}:`, error);
     throw error;
-  } finally {
-    if (browser) {
-      await browser.close();
-    }
   }
 }
 
@@ -111,7 +87,7 @@ function calculateDiffs(
     if (current) {
       // Si le produit existe toujours, calculer la différence
       const quantityDiff = previous.quantity - current.quantity;
-      
+
       // Si la quantité a diminué, c'est une vente
       if (quantityDiff > 0) {
         salesDiff += quantityDiff;
@@ -134,7 +110,7 @@ export async function GET(request: Request) {
   try {
     // Vérifier le secret CRON
     const cronSecret = process.env.CRON_SECRET;
-    
+
     if (!cronSecret) {
       console.error('[CRON] CRON_SECRET non configuré');
       return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
@@ -144,7 +120,7 @@ export async function GET(request: Request) {
     // Format: "Bearer <secret>" ou juste le secret dans x-cron-secret
     const authHeader = request.headers.get('authorization');
     const providedSecret = authHeader?.replace('Bearer ', '') || request.headers.get('x-cron-secret');
-    
+
     if (providedSecret !== cronSecret) {
       console.warn('[CRON] Tentative d\'accès non autorisée');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

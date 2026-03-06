@@ -87,9 +87,6 @@
     "pg": "^8.17.2",
     "postcss": "^8.5.6",
     "prisma": "5.22.0",
-    "puppeteer": "^24.36.0",
-    "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-is": "^19.2.4",
@@ -112,7 +109,6 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/nodemailer": "^7.0.9",
     "@types/web-push": "^3.6.4",
-    "cross-env": "^10.1.0",
-    "n8n": "^2.7.4"
+    "cross-env": "^10.1.0"
   }
 }
