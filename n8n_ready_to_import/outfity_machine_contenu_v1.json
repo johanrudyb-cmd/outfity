@@ -247,8 +247,8 @@
                     "__rl": true,
                     "mode": "list"
                 },
-                "start": "={{ ($json.text.includes('[OFFRE]')) ? $today.plus({ days: 1, hours: 18 }).toISO() : $today.plus({ days: 1, hours: 11 }).plus({ minutes: $itemIndex * 90 }).toISO() }}",
-                "end": "={{ ($json.text.includes('[OFFRE]')) ? $today.plus({ days: 1, hours: 18, minutes: 30 }).toISO() : $today.plus({ days: 1, hours: 11, minutes: 30 }).plus({ minutes: $itemIndex * 90 }).toISO() }}",
+                "start": "={{ $json.text.includes('[OFFRE]') ? $today.plus({days:1, hours:19}).toISO() : $json.text.includes('[BUSINESS]') ? $today.plus({days:1, hours:17}).toISO() : $json.text.includes('[MARKETING]') ? $today.plus({days:1, hours:18}).toISO() : ($itemIndex % 3 === 0) ? $today.plus({days:1, hours:11}).toISO() : ($itemIndex % 3 === 1) ? $today.plus({days:1, hours:12}).toISO() : $today.plus({days:1, hours:13}).toISO() }}",
+                "end": "={{ $json.text.includes('[OFFRE]') ? $today.plus({days:1, hours:19, minutes:30}).toISO() : $json.text.includes('[BUSINESS]') ? $today.plus({days:1, hours:17, minutes:30}).toISO() : $json.text.includes('[MARKETING]') ? $today.plus({days:1, hours:18, minutes:30}).toISO() : ($itemIndex % 3 === 0) ? $today.plus({days:1, hours:11, minutes:30}).toISO() : ($itemIndex % 3 === 1) ? $today.plus({days:1, hours:12, minutes:30}).toISO() : $today.plus({days:1, hours:13, minutes:30}).toISO() }}",
                 "additionalFields": {
                     "summary": "=🎬 {{$json.text.match(/\\[(.*?)\\]/)?.[0] || '[CONTENU]'}} {{ $json.title || 'Strategie OUTFITY' }}",
                     "description": "={{ $json.text }}\n\n{{ $json.coverImage ? '🖼️ PHOTO DE L\\'ARTICLE :\n' + $json.coverImage : '' }}"
