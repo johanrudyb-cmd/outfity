@@ -131,65 +131,52 @@ export function AnimatedHeader() {
         </div>
       </div>
 
-      {/* Menu Mobile Plein Écran — visible en dessous de lg (1024px) */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, x: '-100%' }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: '-100%' }}
-            transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
-            className="fixed inset-0 z-50 bg-white flex flex-col lg:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            style={{ backgroundColor: '#ffffff', position: 'fixed', inset: 0, zIndex: 9999 }}
           >
-            {/* Header du menu mobile avec bouton fermer */}
-            <div className="flex items-center justify-between px-6 h-16 sm:h-20 border-b border-black/5">
+            {/* Bouton fermer */}
+            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-black/10">
               <Link href="/" onClick={() => setIsMenuOpen(false)} className="shrink-0">
-                <Image src="/icon.png" alt="Logo" width={80} height={80} className="h-14 w-14 sm:h-16 sm:w-16 object-contain" />
+                <Image src="/icon.png" alt="Logo" width={60} height={60} className="h-12 w-12 object-contain" />
               </Link>
               <button
                 onClick={() => setIsMenuOpen(false)}
-                className="p-3 bg-black text-white rounded-full shadow-xl"
+                style={{ backgroundColor: '#000', color: '#fff', borderRadius: '50%', width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 aria-label="Fermer le menu"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Liens du menu */}
-            <div className="flex flex-col items-center justify-center flex-1 gap-8 px-8">
-              {allLinks.map((link, i) => (
-                <motion.div
-                  key={link.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.06 }}
-                >
-                  <Link
-                    href={link.href}
-                    onClick={(e) => handleAnchorClick(e, link.href)}
-                    className="text-3xl sm:text-4xl font-black uppercase tracking-tighter text-black hover:text-[#007AFF] transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                </motion.div>
-              ))}
-
-              <div className="w-20 h-[1.5px] bg-black/10 my-2" />
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: allLinks.length * 0.06 }}
-                className="w-full max-w-xs"
-              >
+            {/* Liens */}
+            <div className="flex flex-col items-start px-8 pt-8 gap-6">
+              {allLinks.map((link) => (
                 <Link
-                  href={isLoggedIn ? '/dashboard' : '/auth/signin'}
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block w-full py-5 bg-black text-white rounded-2xl text-sm font-black uppercase tracking-widest text-center shadow-2xl hover:bg-[#007AFF] transition-all"
+                  key={link.name}
+                  href={link.href}
+                  onClick={(e) => handleAnchorClick(e, link.href)}
+                  style={{ fontSize: '2rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.04em', color: '#000', textDecoration: 'none' }}
                 >
-                  {isLoggedIn ? 'Mon Dashboard' : 'Connexion'}
+                  {link.name}
                 </Link>
-              </motion.div>
+              ))}
+            </div>
+
+            {/* CTA */}
+            <div className="absolute bottom-12 left-8 right-8">
+              <Link
+                href={isLoggedIn ? '/dashboard' : '/auth/signin'}
+                onClick={() => setIsMenuOpen(false)}
+                style={{ display: 'block', width: '100%', padding: '1.25rem', backgroundColor: '#007AFF', color: '#fff', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center', textDecoration: 'none' }}
+              >
+                {isLoggedIn ? 'Mon Dashboard' : 'Commencer'}
+              </Link>
             </div>
           </motion.div>
         )}
