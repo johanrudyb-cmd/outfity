@@ -58,7 +58,7 @@ export default function AgentsPresentation() {
     const [hoveredAgent, setHoveredAgent] = useState<string | null>(null);
 
     return (
-        <section className="py-24 sm:py-32 bg-white relative overflow-hidden">
+        <section id="features" className="py-24 sm:py-32 bg-white relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
                 <div className="mb-12 sm:mb-16 lg:mb-24">
                     <motion.div

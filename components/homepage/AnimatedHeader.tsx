@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { UserAccountNav } from '@/components/layout/UserAccountNav';
 import { NotificationsDropdown } from '@/components/notifications/NotificationsDropdown';
 import { LayoutDashboard } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export function AnimatedHeader() {
   const { data: session } = useSession();
@@ -36,11 +37,11 @@ export function AnimatedHeader() {
 
   const navLinks = [
     ...(isLoggedIn ? [{ name: 'Dashboard', href: '/dashboard' }] : []),
-    { name: 'Fonctionnalités', href: '#features' },
-    { name: 'Tarifs', href: '#pricing-section' },
-    { name: 'Témoignages', href: '#testimonials-section' },
+    { name: 'Fonctionnalités', href: '/#features' },
+    { name: 'Tarifs', href: '/#pricing-section' },
+    { name: 'Témoignages', href: '/#testimonials-section' },
     { name: 'Blog', href: '/blog' },
-    { name: 'FAQ', href: '#faq-section' },
+    { name: 'FAQ', href: '/#faq-section' },
     { name: 'Communauté', href: '/communaute' },
   ];
 
@@ -51,8 +52,13 @@ export function AnimatedHeader() {
           {/* Menu Mobile Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="xl:hidden p-2 text-[#1D1D1F] hover:bg-black/5 rounded-full transition-colors"
-            aria-label="Menu"
+            className={cn(
+              "xl:hidden p-3 rounded-full transition-all duration-300 z-[60]",
+              isMenuOpen
+                ? "bg-black text-white shadow-xl rotate-90"
+                : "bg-black/5 text-black hover:bg-black/10"
+            )}
+            aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
           >
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -68,6 +74,7 @@ export function AnimatedHeader() {
             <Link
               key={link.name}
               href={link.href}
+              scroll={true}
               className="text-sm font-medium text-[#6e6e73] hover:text-[#007AFF] transition-colors whitespace-nowrap"
             >
               {link.name}
@@ -110,35 +117,36 @@ export function AnimatedHeader() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-white/60 backdrop-blur-sm z-40 lg:hidden"
+              className="fixed inset-0 bg-white/80 backdrop-blur-md z-40 xl:hidden"
               onClick={() => setIsMenuOpen(false)}
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: -20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -20 }}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
-              className="absolute top-full left-0 w-full z-50 bg-white border-b border-black/5 overflow-hidden lg:hidden"
+              className="fixed inset-0 top-0 left-0 w-full h-full z-50 bg-white overflow-y-auto xl:hidden"
             >
-              <div className="px-8 py-12 space-y-8 flex flex-col items-center text-center">
+              <div className="flex flex-col items-center justify-center min-h-screen px-8 py-24 space-y-10">
                 {navLinks.map((link) => (
                   <Link
                     key={link.name}
                     href={link.href}
+                    scroll={true}
                     onClick={() => setIsMenuOpen(false)}
-                    className="text-2xl font-black uppercase tracking-tighter text-black hover:text-[#007AFF] transition-colors"
+                    className="text-3xl font-black uppercase tracking-tighter text-black hover:text-[#007AFF] transition-colors"
                   >
                     {link.name}
                   </Link>
                 ))}
-                <div className="w-full h-[1px] bg-black/5 my-4" />
-                <div className="w-full">
+                <div className="w-20 h-[1.5px] bg-black/10" />
+                <div className="w-full max-w-xs">
                   <Link
                     href={isLoggedIn ? "/dashboard" : "/auth/signin"}
                     onClick={() => setIsMenuOpen(false)}
-                    className="block w-full py-5 bg-[#007AFF] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest text-center shadow-2xl shadow-[#007AFF]/20"
+                    className="block w-full py-5 bg-black text-white rounded-2xl text-xs font-black uppercase tracking-widest text-center shadow-2xl hover:bg-[#007AFF] transition-all"
                   >
-                    {isLoggedIn ? "Accéder au Dashboard" : "Connexion"}
+                    {isLoggedIn ? "Mon Dashboard" : "Connexion"}
                   </Link>
                 </div>
               </div>
