@@ -42,9 +42,10 @@ export default async function Home() {
         <Suspense fallback={<SectionSkeleton />}><TrendsByMarket /></Suspense>
       </LazySection>
 
-      <LazySection id="features" fallback={<SectionSkeleton />}>
+      {/* Sections avec ancres — chargées immédiatement pour que le scroll fonctionne */}
+      <div id="features">
         <Suspense fallback={<SectionSkeleton />}><AgentsPresentation /></Suspense>
-      </LazySection>
+      </div>
 
       <LazySection fallback={<SectionSkeleton />}>
         <Suspense fallback={<SectionSkeleton />}><TechPackShowcase /></Suspense>
@@ -66,13 +67,13 @@ export default async function Home() {
         <Suspense fallback={<SectionSkeleton />}><MarginCalculator /></Suspense>
       </LazySection>
 
-      <LazySection id="testimonials-section" fallback={<SectionSkeleton />}>
+      <div id="testimonials-section">
         <Suspense fallback={<SectionSkeleton />}><TestimonialsSection /></Suspense>
-      </LazySection>
+      </div>
 
-      <LazySection id="pricing-section" fallback={<SectionSkeleton />}>
+      <div id="pricing-section">
         <Suspense fallback={<SectionSkeleton />}><SalesPricing /></Suspense>
-      </LazySection>
+      </div>
 
       <LazySection fallback={<SectionSkeleton />}>
         <Suspense fallback={<SectionSkeleton />}><CTASection /></Suspense>
@@ -82,9 +83,9 @@ export default async function Home() {
         <Suspense fallback={<SectionSkeleton />}><BlogGrid /></Suspense>
       </LazySection>
 
-      <LazySection id="faq-section" fallback={<SectionSkeleton />}>
+      <div id="faq-section">
         <Suspense fallback={<SectionSkeleton />}><FAQSection /></Suspense>
-      </LazySection>
+      </div>
 
       <LazySection fallback={null}>
         <Suspense fallback={null}><Footer /></Suspense>
