@@ -35,13 +35,18 @@ export function AnimatedHeader() {
     };
   }, [isMenuOpen]);
 
+  const getHref = (hashString: string) => {
+    if (pathname === '/') return hashString;
+    return `/${hashString}`;
+  };
+
   const navLinks = [
     ...(isLoggedIn ? [{ name: 'Dashboard', href: '/dashboard' }] : []),
-    { name: 'Fonctionnalités', href: '/#features' },
-    { name: 'Tarifs', href: '/#pricing-section' },
-    { name: 'Témoignages', href: '/#testimonials-section' },
+    { name: 'Fonctionnalités', href: getHref('#features') },
+    { name: 'Tarifs', href: getHref('#pricing-section') },
+    { name: 'Témoignages', href: getHref('#testimonials-section') },
     { name: 'Blog', href: '/blog' },
-    { name: 'FAQ', href: '/#faq-section' },
+    { name: 'FAQ', href: getHref('#faq-section') },
     { name: 'Communauté', href: '/communaute' },
   ];
 
@@ -53,7 +58,7 @@ export function AnimatedHeader() {
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className={cn(
-              "xl:hidden p-3 rounded-full transition-all duration-300 z-[60]",
+              "xl:hidden p-3 rounded-full transition-all duration-300 relative z-[60]",
               isMenuOpen
                 ? "bg-black text-white shadow-xl rotate-90"
                 : "bg-black/5 text-black hover:bg-black/10"
