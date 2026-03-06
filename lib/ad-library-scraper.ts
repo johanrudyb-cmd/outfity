@@ -4,7 +4,7 @@
  * GRATUIT - Scraping des pages publiques
  */
 
-import puppeteer, { Browser, Page } from 'puppeteer';
+// import puppeteer removed
 
 interface AdData {
   platform: 'facebook' | 'tiktok';

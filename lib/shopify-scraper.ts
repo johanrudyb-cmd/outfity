@@ -3,7 +3,7 @@
  * Extrait les données réelles : thème, design, apps, etc.
  */
 
-import puppeteer, { Browser, Page } from 'puppeteer';
+// import puppeteer removed
 
 interface ScrapedStoreData {
   storeName: string;

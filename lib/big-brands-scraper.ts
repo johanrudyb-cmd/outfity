@@ -5,7 +5,7 @@
  * pour détecter les tendances émergentes.
  */
 
-import puppeteer, { Browser, Page } from 'puppeteer';
+// import puppeteer removed
 
 export type BigBrand = 'Zara' | 'ASOS' | 'Zalando' | 'H&M' | 'Uniqlo' | 
   'Mango' | 'Massimo Dutti' | 'COS' | 'Arket' | 'Weekday' |

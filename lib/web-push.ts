@@ -5,11 +5,15 @@ const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
 const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '';
 
 if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
-    webpush.setVapidDetails(
-        'mailto:contact@outfity.art', // A changer selon l'admin
-        VAPID_PUBLIC_KEY,
-        VAPID_PRIVATE_KEY
-    );
+    try {
+        webpush.setVapidDetails(
+            'mailto:contact@outfity.art', // A changer selon l'admin
+            VAPID_PUBLIC_KEY,
+            VAPID_PRIVATE_KEY
+        );
+    } catch (error) {
+        console.warn('Erreur lors de l\'initialisation web-push (Vapid keys potentiellement invalides):', error);
+    }
 }
 
 export interface PushMessage {

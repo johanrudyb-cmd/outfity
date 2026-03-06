@@ -1,12 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 import 'dotenv/config';
 import { getSeasonalRecommendation } from './seasonal-recommendation';
-import puppeteer from 'puppeteer-extra';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+// import puppeteer removed
+// stealth removed
 const googleTrends = require('google-trends-api');
 
 // Configuration Puppeteer avec Stealth pour éviter les détections
-puppeteer.use(StealthPlugin());
+// puppeteer.use(StealthPlugin());
 
 const prisma = new PrismaClient();
 

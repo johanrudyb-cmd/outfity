@@ -7,15 +7,15 @@
 // Tech : Puppeteer Stealth + Attente explicite
 // ============================================================================
 
-import puppeteer from 'puppeteer-extra';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
-import { Browser, Page } from 'puppeteer';
+// import puppeteer removed
+// stealth removed
+type Browser = any; type Page = any;
 import type { HybridRadarSource } from './hybrid-radar-sources';
 
 import { isExcludedProduct } from './trend-filters';
 
-// Initialisation du mode furtif
-puppeteer.use(StealthPlugin());
+// Initialisation du mode furtif (désactivé)
+// puppeteer.use(StealthPlugin());
 
 export interface HybridScrapedItem {
     name: string;

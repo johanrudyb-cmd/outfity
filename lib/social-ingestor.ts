@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer';
+// import puppeteer removed
 
 export interface SocialSignal {
     platform: 'TikTok' | 'Pinterest';
