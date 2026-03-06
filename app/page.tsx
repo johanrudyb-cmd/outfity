@@ -42,7 +42,7 @@ export default async function Home() {
         <Suspense fallback={<SectionSkeleton />}><TrendsByMarket /></Suspense>
       </LazySection>
 
-      <LazySection fallback={<SectionSkeleton />}>
+      <LazySection id="features" fallback={<SectionSkeleton />}>
         <Suspense fallback={<SectionSkeleton />}><AgentsPresentation /></Suspense>
       </LazySection>
 
@@ -66,11 +66,11 @@ export default async function Home() {
         <Suspense fallback={<SectionSkeleton />}><MarginCalculator /></Suspense>
       </LazySection>
 
-      <LazySection fallback={<SectionSkeleton />}>
+      <LazySection id="testimonials-section" fallback={<SectionSkeleton />}>
         <Suspense fallback={<SectionSkeleton />}><TestimonialsSection /></Suspense>
       </LazySection>
 
-      <LazySection fallback={<SectionSkeleton />}>
+      <LazySection id="pricing-section" fallback={<SectionSkeleton />}>
         <Suspense fallback={<SectionSkeleton />}><SalesPricing /></Suspense>
       </LazySection>
 
@@ -82,7 +82,7 @@ export default async function Home() {
         <Suspense fallback={<SectionSkeleton />}><BlogGrid /></Suspense>
       </LazySection>
 
-      <LazySection fallback={<SectionSkeleton />}>
+      <LazySection id="faq-section" fallback={<SectionSkeleton />}>
         <Suspense fallback={<SectionSkeleton />}><FAQSection /></Suspense>
       </LazySection>
 

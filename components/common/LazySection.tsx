@@ -5,9 +5,10 @@ import { useState, useEffect, useRef } from 'react';
 interface LazySectionProps {
     children: React.ReactNode;
     fallback?: React.ReactNode;
+    id?: string;
 }
 
-export function LazySection({ children, fallback }: LazySectionProps) {
+export function LazySection({ children, fallback, id }: LazySectionProps) {
     const [isVisible, setIsVisible] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -32,8 +33,9 @@ export function LazySection({ children, fallback }: LazySectionProps) {
     }, []);
 
     return (
-        <div ref={containerRef}>
+        <div ref={containerRef} id={id}>
             {isVisible ? children : (fallback || <div className="h-[300px]" />)}
         </div>
     );
 }
+
