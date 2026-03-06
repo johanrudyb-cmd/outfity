@@ -36,10 +36,25 @@ export function MarketingGuideClient({ guideData }: { guideData: GuideData }) {
     const [readChapters, setReadChapters] = useState<number[]>([0]);
 
     useEffect(() => {
-        const stored = localStorage.getItem('unlocked_resources');
+        // Lire la clé actuelle (unlocked_resources_v2)
+        const stored = localStorage.getItem('unlocked_resources_v2');
         if (stored) {
             const unlockedItems = JSON.parse(stored);
             if (unlockedItems.includes('marketing')) {
+                setIsUnlocked(true);
+                return;
+            }
+        }
+        // Migration : ancienne clé (unlocked_resources) → si une session précédente avait déverrouillé
+        const oldStored = localStorage.getItem('unlocked_resources');
+        if (oldStored) {
+            const oldItems = JSON.parse(oldStored);
+            if (oldItems.includes('marketing')) {
+                // Migrer vers la nouvelle clé
+                const current = JSON.parse(localStorage.getItem('unlocked_resources_v2') || '[]');
+                if (!current.includes('marketing')) {
+                    localStorage.setItem('unlocked_resources_v2', JSON.stringify([...current, 'marketing']));
+                }
                 setIsUnlocked(true);
             }
         }
