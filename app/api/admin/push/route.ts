@@ -21,7 +21,7 @@ export async function POST(req: Request) {
             title,
             body,
             url: url || '/dashboard',
-            icon: icon || '/icon.png'
+            icon: icon || '/icon.webp'
         });
 
         return NextResponse.json({ success: true, result });

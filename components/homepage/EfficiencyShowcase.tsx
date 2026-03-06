@@ -110,16 +110,16 @@ export default function EfficiencyShowcase() {
                     <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
                         <div className="flex -space-x-3">
                             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white bg-gray-100 overflow-hidden relative">
-                                <Image src="/creator_avatar_1_1772154742456.png" alt="C1" width={32} height={32} className="w-full h-full object-cover" />
+                                <Image src="/creator_avatar_1_1772154742456.webp" alt="C1" width={32} height={32} className="w-full h-full object-cover" />
                             </div>
                             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white bg-gray-100 overflow-hidden relative">
-                                <Image src="/creator_avatar_2_1772154754566.png" alt="C2" width={32} height={32} className="w-full h-full object-cover" />
+                                <Image src="/creator_avatar_2_1772154754566.webp" alt="C2" width={32} height={32} className="w-full h-full object-cover" />
                             </div>
                             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white bg-gray-100 overflow-hidden relative">
-                                <Image src="/creator_avatar_3_1772154767575.png" alt="C3" width={32} height={32} className="w-full h-full object-cover" />
+                                <Image src="/creator_avatar_3_1772154767575.webp" alt="C3" width={32} height={32} className="w-full h-full object-cover" />
                             </div>
                             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white bg-gray-100 overflow-hidden relative">
-                                <Image src="/creator_avatar_4_1772154780040.png" alt="C4" width={32} height={32} className="w-full h-full object-cover" />
+                                <Image src="/creator_avatar_4_1772154780040.webp" alt="C4" width={32} height={32} className="w-full h-full object-cover" />
                             </div>
                         </div>
                         <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">+150 créateurs actifs</p>

@@ -181,11 +181,11 @@ export function PricingSection() {
                 {/* Agents Avatars */}
                 <div className="flex items-center gap-1.5 mb-6">
                   {[
-                    { name: 'Virgil', img: '/images/agents/virgil_final.png' },
-                    { name: 'Pharrell', img: '/images/agents/pharrell_final.png' },
-                    { name: 'Ada', img: '/images/agents/ada_final.png' },
-                    { name: 'Johan', img: '/images/agents/johan_final.png' },
-                    { name: 'Joy', img: '/images/agents/joy_final.png' }
+                    { name: 'Virgil', img: '/images/agents/virgil_final.webp' },
+                    { name: 'Pharrell', img: '/images/agents/pharrell_final.webp' },
+                    { name: 'Ada', img: '/images/agents/ada_final.webp' },
+                    { name: 'Johan', img: '/images/agents/johan_final.webp' },
+                    { name: 'Joy', img: '/images/agents/joy_final.webp' }
                   ].map((agent) => (
                     <div key={agent.name} className="relative group/agent">
                       <img

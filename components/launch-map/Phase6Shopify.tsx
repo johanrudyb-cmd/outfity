@@ -145,7 +145,7 @@ export function Phase6Shopify({ brandId, brand, shopifyShopDomain, onComplete, u
       userPlan={userPlan}
       agentName="Johan"
       agentRole="Lancement E-shop"
-      agentImage="/images/agents/johan_final.png"
+      agentImage="/images/agents/johan_final.webp"
       themeColor="bg-[#5E8E3E]"
       themeHoverColor="hover:bg-[#4A7231]"
       themeTextColor="text-[#5E8E3E]"

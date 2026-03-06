@@ -8,17 +8,17 @@ import { cn } from '@/lib/utils';
 import { useSession } from 'next-auth/react';
 
 const brands = [
-  { name: 'NIKE', logo: '/images/brand-logos/nike.png', scaleDesktop: 1.4, scaleMobile: 1.1 },
-  { name: 'ADIDAS', logo: '/images/brand-logos/Adidas.png', scaleDesktop: 2.2, scaleMobile: 1.5 },
+  { name: 'NIKE', logo: '/images/brand-logos/nike.webp', scaleDesktop: 1.4, scaleMobile: 1.1 },
+  { name: 'ADIDAS', logo: '/images/brand-logos/Adidas.webp', scaleDesktop: 2.2, scaleMobile: 1.5 },
   { name: 'ZARA', logo: '/images/brand-logos/zara.PNG', scaleDesktop: 2.2, scaleMobile: 1.5 },
-  { name: 'H&M', logo: '/images/brand-logos/H&M.png', scaleDesktop: 1.8, scaleMobile: 1.2 },
-  { name: 'UNIQLO', logo: '/images/brand-logos/uniqlo.png', scaleDesktop: 2.8, scaleMobile: 1.8 },
-  { name: 'MANGO', logo: '/images/brand-logos/mango.png', scaleDesktop: 1.1, scaleMobile: 0.9 },
-  { name: 'TRAPSTAR', logo: '/images/brand-logos/trapstar.png', scaleDesktop: 3.8, scaleMobile: 2.2 },
-  { name: 'STONE ISLAND', logo: '/images/brand-logos/Stone Island.png', scaleDesktop: 2.8, scaleMobile: 1.8 },
-  { name: 'CARHARTT', logo: '/images/brand-logos/Carhartt.png', scaleDesktop: 1.4, scaleMobile: 1.0 },
-  { name: 'JACQUEMUS', logo: '/images/brand-logos/jacquemus.png', scaleDesktop: 1.3, scaleMobile: 1.0 },
-  { name: 'MASSIMO DUTTI', logo: '/images/brand-logos/Massimo Dutti.png', scaleDesktop: 0.9, scaleMobile: 0.7 },
+  { name: 'H&M', logo: '/images/brand-logos/H&M.webp', scaleDesktop: 1.8, scaleMobile: 1.2 },
+  { name: 'UNIQLO', logo: '/images/brand-logos/uniqlo.webp', scaleDesktop: 2.8, scaleMobile: 1.8 },
+  { name: 'MANGO', logo: '/images/brand-logos/mango.webp', scaleDesktop: 1.1, scaleMobile: 0.9 },
+  { name: 'TRAPSTAR', logo: '/images/brand-logos/trapstar.webp', scaleDesktop: 3.8, scaleMobile: 2.2 },
+  { name: 'STONE ISLAND', logo: '/images/brand-logos/Stone Island.webp', scaleDesktop: 2.8, scaleMobile: 1.8 },
+  { name: 'CARHARTT', logo: '/images/brand-logos/Carhartt.webp', scaleDesktop: 1.4, scaleMobile: 1.0 },
+  { name: 'JACQUEMUS', logo: '/images/brand-logos/jacquemus.webp', scaleDesktop: 1.3, scaleMobile: 1.0 },
+  { name: 'MASSIMO DUTTI', logo: '/images/brand-logos/Massimo Dutti.webp', scaleDesktop: 0.9, scaleMobile: 0.7 },
 ];
 
 export function TrendsHero() {

@@ -28,7 +28,7 @@ export function AppleNav() {
           whileTap={{ scale: 0.95 }}
         >
           <Link href={isLoggedIn ? '/dashboard' : '/'} className="shrink-0 block">
-            <Image src="/icon.png" alt="Logo" width={96} height={96} className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 object-contain" priority />
+            <Image src="/icon.webp" alt="Logo" width={96} height={96} className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 object-contain" priority />
           </Link>
         </motion.div>
 

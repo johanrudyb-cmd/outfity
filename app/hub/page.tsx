@@ -108,7 +108,7 @@ export default function HubPage() {
             {/* Navbar Minimaliste */}
             <header className="h-16 px-6 flex items-center justify-between bg-white border-b border-gray-200">
                 <div className="flex items-center gap-2">
-                    <Image src="/icon.png" width={32} height={32} alt="Logo" className="rounded-lg" />
+                    <Image src="/icon.webp" width={32} height={32} alt="Logo" className="rounded-lg" />
                     <span className="font-bold text-lg tracking-tight">OUTFITY HUB</span>
                 </div>
                 <div className="flex items-center gap-4">

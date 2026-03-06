@@ -8,25 +8,25 @@ import { ArrowRight } from 'lucide-react';
 
 const fashionImages = [
   {
-    src: '/fashion/hf_20260131_195003_c7ee5196-eb3f-437e-8261-900b196185fb.png',
+    src: '/fashion/hf_20260131_195003_c7ee5196-eb3f-437e-8261-900b196185fb.webp',
     alt: 'Shooting mode 1',
     aspect: 'portrait' as const,
     fallback: '👔',
   },
   {
-    src: '/fashion/hf_20260202_064558_2c745b26-af10-4bd1-bc72-6c20c20cbae8.png',
+    src: '/fashion/hf_20260202_064558_2c745b26-af10-4bd1-bc72-6c20c20cbae8.webp',
     alt: 'Shooting mode 2',
     aspect: 'portrait' as const,
     fallback: '👗',
   },
   {
-    src: '/fashion/hf_20260206_221357_069cdbaa-9fae-417b-a95e-bb863d6fe412.png',
+    src: '/fashion/hf_20260206_221357_069cdbaa-9fae-417b-a95e-bb863d6fe412.webp',
     alt: 'Shooting mode 3',
     aspect: 'portrait' as const,
     fallback: '🧥',
   },
   {
-    src: '/fashion/hf_20260208_124626_4fe0953f-e187-4e25-beef-257400d22a65.png',
+    src: '/fashion/hf_20260208_124626_4fe0953f-e187-4e25-beef-257400d22a65.webp',
     alt: 'Shooting mode 4',
     aspect: 'landscape' as const,
     fallback: '👟',

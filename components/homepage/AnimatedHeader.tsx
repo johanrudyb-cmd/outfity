@@ -57,7 +57,7 @@ export function AnimatedHeader() {
             </button>
 
             <Link href="/" className="shrink-0">
-              <Image src="/icon.png" alt="Logo" width={140} height={140} className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 lg:h-28 lg:w-28 xl:h-32 xl:w-32 object-contain bg-transparent" unoptimized priority={true} />
+              <Image src="/icon.webp" alt="Logo" width={140} height={140} className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 lg:h-28 lg:w-28 xl:h-32 xl:w-32 object-contain bg-transparent" unoptimized priority={true} />
             </Link>
           </div>
 

@@ -46,7 +46,7 @@ export function IOSInstallPrompt() {
                 <div className="flex gap-4">
                     <div className="shrink-0">
                         <div className="w-14 h-14 rounded-2xl bg-black flex items-center justify-center shadow-lg overflow-hidden border border-black/10">
-                            <Image src="/apple-icon.png" alt="OUTFITY" width={56} height={56} className="object-cover" />
+                            <Image src="/apple-icon.webp" alt="OUTFITY" width={56} height={56} className="object-cover" />
                         </div>
                     </div>
 

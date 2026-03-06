@@ -76,7 +76,7 @@ function VerifyEmailContent() {
                     animate={{ opacity: 1, y: 0 }}
                 >
                     <Image
-                        src="/icon.png"
+                        src="/icon.webp"
                         alt="OUTFITY"
                         width={80}
                         height={80}

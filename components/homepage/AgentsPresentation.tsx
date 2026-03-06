@@ -11,7 +11,7 @@ const AGENTS = [
         name: 'Virgil',
         role: 'Stratégie & Vision',
         description: 'Il définit votre positionnement unique et analyse les stratégies des marques leaders pour vous donner un avantage compétitif.',
-        image: '/images/agents/virgil_final.png',
+        image: '/images/agents/virgil_final.webp',
         color: '#007AFF', // Blue
         icon: BarChart3,
         stats: ['Positionnement', 'ANALYSE MARCHÉ', 'BENCHMARKING']
@@ -20,7 +20,7 @@ const AGENTS = [
         name: 'Pharrell',
         role: 'Design & Accompagnement',
         description: 'Le mentor créatif. Il vous guide dans l\'élaboration de votre univers visuel et vous accompagne dans la création de vos collections.',
-        image: '/images/agents/pharrell_final.png',
+        image: '/images/agents/pharrell_final.webp',
         color: '#A032FF', // Purple
         icon: Palette,
         stats: ['CONSEIL STYLE', 'MOCKUPS', 'DIRECTION ARTISTIQUE']
@@ -29,7 +29,7 @@ const AGENTS = [
         name: 'Ada',
         role: 'Sourcing & Collection',
         description: 'Votre directrice de production. Elle identifie les meilleurs fournisseurs mondiaux et optimise vos coûts de fabrication.',
-        image: '/images/agents/ada_final.png',
+        image: '/images/agents/ada_final.webp',
         color: '#FF2A5F', // Pink
         icon: Factory,
         stats: ['SOURCING USINES', 'NÉCOCIATION', 'LOGISTIQUE']
@@ -38,7 +38,7 @@ const AGENTS = [
         name: 'Johan',
         role: 'E-shop & Ventes',
         description: 'L\'expert Shopify. Il construit votre boutique en ligne et déploie des stratégies de conversion pour maximiser vos ventes.',
-        image: '/images/agents/johan_final.png',
+        image: '/images/agents/johan_final.webp',
         color: '#FFAA00', // Orange
         icon: ShoppingCart,
         stats: ['SHOPIFY EXPERT', 'UX/UI DESIGN', 'CONVERSION RATE']
@@ -47,7 +47,7 @@ const AGENTS = [
         name: 'Joy',
         role: 'Social Media & DA',
         description: 'La reine de la viralité. Elle crée vos calendriers de contenu TikTok/Instagram et gère votre image de marque au quotidien.',
-        image: '/images/agents/joy_final.png',
+        image: '/images/agents/joy_final.webp',
         color: '#AF52DE', // Violet
         icon: Share2,
         stats: ['VIRALITÉ TIKTOK', 'COPYWRITING', 'UGC STRATEGY']

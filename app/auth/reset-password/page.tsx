@@ -102,7 +102,7 @@ function ResetPasswordContent() {
                 >
                     <Link href="/auth/signin" className="inline-block mb-8 hover:opacity-80 transition-opacity">
                         <Image
-                            src="/icon.png"
+                            src="/icon.webp"
                             alt="OUTFITY"
                             width={80}
                             height={80}

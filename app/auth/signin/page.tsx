@@ -72,7 +72,7 @@ function SignInContent() {
         >
           <Link href="/" className="inline-block mb-8 hover:opacity-80 transition-opacity">
             <Image
-              src="/icon.png"
+              src="/icon.webp"
               alt="OUTFITY Logo"
               width={80}
               height={80}

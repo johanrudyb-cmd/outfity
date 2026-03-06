@@ -236,7 +236,7 @@ export const AGENTS_TEAM: AgentProps[] = [
         id: 'virgil',
         name: 'Virgil',
         role: 'Stratégie',
-        image: '/images/agents/virgil_final.png',
+        image: '/images/agents/virgil_final.webp',
         color: '#007AFF', // OUTFITY Blue
         stats: [
             { label: 'Vision', value: 96 },
@@ -249,7 +249,7 @@ export const AGENTS_TEAM: AgentProps[] = [
         id: 'pharrell',
         name: 'Pharrell',
         role: 'Design & Accompagnement',
-        image: '/images/agents/pharrell_final.png',
+        image: '/images/agents/pharrell_final.webp',
         color: '#a032ff',
         stats: [
             { label: 'Créativité', value: 92 },
@@ -262,7 +262,7 @@ export const AGENTS_TEAM: AgentProps[] = [
         id: 'ada',
         name: 'Ada',
         role: 'Sourcing & Collection',
-        image: '/images/agents/ada_final.png',
+        image: '/images/agents/ada_final.webp',
         color: '#ff2a5f',
         stats: [
             { label: 'Analytique', value: 95 },
@@ -275,7 +275,7 @@ export const AGENTS_TEAM: AgentProps[] = [
         id: 'johan',
         name: 'Johan',
         role: 'E-shop & Ventes',
-        image: '/images/agents/johan_final.png',
+        image: '/images/agents/johan_final.webp',
         color: '#ffaa00',
         stats: [
             { label: 'Shopify', value: 86 },
@@ -288,7 +288,7 @@ export const AGENTS_TEAM: AgentProps[] = [
         id: 'joy',
         name: 'Joy',
         role: 'Social Media & DA',
-        image: '/images/agents/joy_final.png',
+        image: '/images/agents/joy_final.webp',
         color: '#AF52DE',
         stats: [
             { label: 'Créativité', value: 95 },

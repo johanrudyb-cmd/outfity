@@ -450,7 +450,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 <div className="relative z-10 space-y-4">
                   <div className="h-8 mb-1">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/shopify-logo.png" alt="Shopify" className="h-full object-contain" />
+                    <img src="/shopify-logo.webp" alt="Shopify" className="h-full object-contain" />
                   </div>
                   <div className="space-y-1.5">
                     <h3 className="font-bold text-lg text-white leading-tight">Lancez votre boutique</h3>

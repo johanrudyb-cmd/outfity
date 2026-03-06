@@ -742,7 +742,7 @@ export function VisualTrendScanner() {
                                 <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
                                     <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
                                         <div className="w-16 h-16 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/10 overflow-hidden">
-                                            <img src="/images/agents/pharrell_final.png" alt="Pharrell" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                            <img src="/images/agents/pharrell_final.webp" alt="Pharrell" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                         </div>
                                         <div>
                                             <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight mb-2">Passez à l'action</h3>

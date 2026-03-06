@@ -121,7 +121,7 @@ export default function TechPackShowcase() {
             style={{ transitionDelay: '200ms' }}
           >
             <Image
-              src="/tech-pack-preview.png"
+              src="/tech-pack-preview.webp"
               alt="Aperçu du tech pack professionnel"
               width={800}
               height={1000}

@@ -189,11 +189,11 @@ export function ChoosePlanClient({ userPlan }: { userPlan?: string }) {
 
                 <div className="flex items-center gap-1.5 mb-8">
                   {[
-                    { name: 'Virgil', img: '/images/agents/virgil_final.png' },
-                    { name: 'Pharrell', img: '/images/agents/pharrell_final.png' },
-                    { name: 'Ada', img: '/images/agents/ada_final.png' },
-                    { name: 'Johan', img: '/images/agents/johan_final.png', locked: plan.name === 'Starter' },
-                    { name: 'Joy', img: '/images/agents/joy_final.png', locked: plan.name === 'Starter' }
+                    { name: 'Virgil', img: '/images/agents/virgil_final.webp' },
+                    { name: 'Pharrell', img: '/images/agents/pharrell_final.webp' },
+                    { name: 'Ada', img: '/images/agents/ada_final.webp' },
+                    { name: 'Johan', img: '/images/agents/johan_final.webp', locked: plan.name === 'Starter' },
+                    { name: 'Joy', img: '/images/agents/joy_final.webp', locked: plan.name === 'Starter' }
                   ].map((agent) => (
                     <div key={agent.name} className="relative group/agent">
                       <img

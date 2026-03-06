@@ -345,7 +345,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                     className="relative z-10"
                                 >
                                     <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-[28px] overflow-hidden shadow-2xl border-4 border-white mx-auto mb-6 bg-slate-100">
-                                        <img src="/images/agents/virgil_final.png" alt="Virgil" className="w-full h-full object-cover" />
+                                        <img src="/images/agents/virgil_final.webp" alt="Virgil" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="absolute -bottom-2 right-1/2 translate-x-12 w-8 h-8 bg-[#007AFF] rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white">
                                         <Sparkles className="w-4 h-4" />

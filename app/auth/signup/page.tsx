@@ -97,7 +97,7 @@ function SignUpContent() {
           className="w-full max-w-[420px] text-center space-y-8"
         >
           <Image
-            src="/icon.png"
+            src="/icon.webp"
             alt="OUTFITY"
             width={80}
             height={80}
@@ -198,7 +198,7 @@ function SignUpContent() {
         >
           <Link href="/" className="inline-block mb-8 hover:opacity-80 transition-opacity">
             <Image
-              src="/icon.png"
+              src="/icon.webp"
               alt="OUTFITY Logo"
               width={80}
               height={80}

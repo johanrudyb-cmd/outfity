@@ -99,7 +99,7 @@ export function InstallAppBanner() {
                                 </button>
 
                                 <div className="w-20 h-20 rounded-3xl bg-black flex items-center justify-center mx-auto shadow-xl mb-4 border border-black/10">
-                                    <Image src="/apple-icon.png" alt="OUTFITY App" width={80} height={80} className="object-cover rounded-3xl" />
+                                    <Image src="/apple-icon.webp" alt="OUTFITY App" width={80} height={80} className="object-cover rounded-3xl" />
                                 </div>
                                 <h2 className="text-2xl font-black text-[#1D1D1F]">Installer OUTFITY</h2>
                                 <p className="text-sm text-[#86868B] mt-2 font-medium">

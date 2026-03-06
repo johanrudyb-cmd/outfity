@@ -21,7 +21,7 @@ export default function PartnerJoinPage() {
                         </Link>
                         <div className="h-4 w-px bg-white/10 mx-2 hidden sm:block"></div>
                         <div className="flex items-center gap-2">
-                            <Image src="/icon.png" width={32} height={32} alt="Logo" className="rounded-lg opacity-90" />
+                            <Image src="/icon.webp" width={32} height={32} alt="Logo" className="rounded-lg opacity-90" />
                             <span className="font-semibold text-lg tracking-tight text-white/90 hidden sm:block">Partners</span>
                         </div>
                     </div>
@@ -334,7 +334,7 @@ export default function PartnerJoinPage() {
             <footer className="border-t border-white/5 py-12 bg-black">
                 <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-gray-600">
                     <div className="flex items-center gap-2 opacity-60">
-                        <Image src="/icon.png" width={24} height={24} alt="Logo" className="rounded-md grayscale" />
+                        <Image src="/icon.webp" width={24} height={24} alt="Logo" className="rounded-md grayscale" />
                         <span>© 2026 OUTFITY Partners.</span>
                     </div>
                     <div className="flex gap-8">

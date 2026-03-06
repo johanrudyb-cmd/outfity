@@ -49,7 +49,7 @@ const nextConfig: NextConfig = {
     ],
   },
   async rewrites() {
-    return [{ source: '/favicon.ico', destination: '/apple-icon.png' }];
+    return [{ source: '/favicon.ico', destination: '/apple-icon.webp' }];
   },
   // Headers de sécurité
   async headers() {

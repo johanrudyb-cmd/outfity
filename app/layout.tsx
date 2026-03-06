@@ -58,11 +58,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/icon.png' },
-      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/icon.webp' },
+      { url: '/apple-icon.webp', sizes: '180x180', type: 'image/png' },
     ],
     apple: [
-      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/apple-icon.webp', sizes: '180x180', type: 'image/png' },
     ],
   },
   openGraph: {
@@ -75,7 +75,7 @@ export const metadata: Metadata = {
       'Ne lance pas ta marque au hasard. OUTFITY t\'accompagne de A à Z : veilles marché, sourcing usines et outils experts pour réussir ton lancement.',
     images: [
       {
-        url: '/apple-icon.png',
+        url: '/apple-icon.webp',
         width: 512,
         height: 512,
         alt: 'OUTFITY - Créer sa marque de vêtement',
@@ -87,7 +87,7 @@ export const metadata: Metadata = {
     title: 'CRÉE TA MARQUE DE VÊTEMENT DE A à Z | OUTFITY',
     description:
       'Bâtis ta marque avec une vraie veille marché, des designs structurés et les meilleures usines mondiales. On t\'accompagne de A à Z.',
-    images: ['/apple-icon.png'],
+    images: ['/apple-icon.webp'],
     creator: '@outfity',
   },
   robots: {
@@ -119,9 +119,9 @@ export default function RootLayout({
   return (
     <html lang="fr" className={inter.variable}>
       <head>
-        <link rel="icon" type="image/png" href="/icon.png" />
-        <link rel="shortcut icon" href="/icon.png" />
-        <link rel="apple-touch-icon" href="/apple-icon.png" />
+        <link rel="icon" type="image/png" href="/icon.webp" />
+        <link rel="shortcut icon" href="/icon.webp" />
+        <link rel="apple-touch-icon" href="/apple-icon.webp" />
       </head>
       <body className="font-sans antialiased min-h-screen safe-area-padding">
         <Script

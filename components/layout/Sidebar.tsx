@@ -49,7 +49,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
     <aside className="hidden md:flex lg:hidden fixed left-0 top-0 bottom-0 w-[68px] bg-white/95 backdrop-blur-xl border-r border-black/5 flex-col z-50 overflow-y-auto py-4 items-center gap-1 shrink-0 overscroll-contain">
       {/* Logo */}
       <Link href="/dashboard" className="flex items-center justify-center w-12 h-12 mb-3 shrink-0" title="Dashboard">
-        <Image src="/icon.png" alt="Logo" width={40} height={40} className="w-10 h-10 object-contain" />
+        <Image src="/icon.webp" alt="Logo" width={40} height={40} className="w-10 h-10 object-contain" />
       </Link>
 
       {/* Nav items */}
@@ -193,7 +193,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
         {/* Header */}
         <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-black/5 flex items-center justify-center relative min-h-[100px]">
           <Link href="/dashboard" className="block shrink-0" onClick={handleNav}>
-            <Image src="/icon.png" alt="Logo" width={96} height={96} className="h-20 w-20 shrink-0 object-contain bg-transparent" />
+            <Image src="/icon.webp" alt="Logo" width={96} height={96} className="h-20 w-20 shrink-0 object-contain bg-transparent" />
           </Link>
           <button
             type="button"
