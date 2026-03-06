@@ -95,6 +95,20 @@
   html {
     scroll-behavior: smooth;
     overflow-x: hidden;
+    /* Compense la hauteur du header sticky au scroll vers les ancres */
+    scroll-padding-top: 64px;
+  }
+
+  @media (min-width: 640px) {
+    html {
+      scroll-padding-top: 80px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    html {
+      scroll-padding-top: 96px;
+    }
   }
 
   * {
