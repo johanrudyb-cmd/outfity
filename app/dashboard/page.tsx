@@ -32,6 +32,7 @@ import {
   Rocket,
   Factory,
   Store,
+  Clock,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -98,12 +99,30 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   // Launch Map phases - Synchronized with Launch Map logic
   const phases = [
-    { id: 0, label: 'Identité', icon: LayoutDashboard, done: hasIdentity },
-    { id: 1, label: 'Stratégie', icon: Rocket, done: !!launchMap?.phase1 },
-    { id: 2, label: 'Mockup', icon: Shirt, done: !!launchMap?.phase2 },
-    { id: 3, label: 'Tech Pack', icon: FileText, done: !!launchMap?.phase3 },
-    { id: 4, label: 'Sourcing', icon: Factory, done: !!launchMap?.phase4 },
-    { id: 5, label: 'Boutique', icon: Store, done: !!launchMap?.phase5 },
+    {
+      id: 0, label: 'Identité', icon: LayoutDashboard, done: hasIdentity,
+      desc: 'Choisis les couleurs, la typo et le logo de ta marque. C\'est la base visuelle de tout.', time: '5 min', href: '/launch-map'
+    },
+    {
+      id: 1, label: 'Stratégie', icon: Rocket, done: !!launchMap?.phase1,
+      desc: 'Définis ta niche, ta cible et ton positionnement. Un produit pour tout le monde = zéro vente.', time: '10 min', href: '/launch-map'
+    },
+    {
+      id: 2, label: 'Mockup', icon: Shirt, done: !!launchMap?.phase2,
+      desc: 'Génère un visuel 3D de ton produit. Partage-le à ta communauté avant de payer l\'usine.', time: '8 min', href: '/design-studio/mockup'
+    },
+    {
+      id: 3, label: 'Tech Pack', icon: FileText, done: !!launchMap?.phase3,
+      desc: 'Crée le dossier technique complet à envoyer à l\'usine. Sans ça, la production est impossible.', time: '15 min', href: '/design-studio/tech-pack'
+    },
+    {
+      id: 4, label: 'Sourcing', icon: Factory, done: !!launchMap?.phase4,
+      desc: 'Trouve un fabricant qui correspond à ton budget et tes exigences de qualité.', time: '20 min', href: '/sourcing'
+    },
+    {
+      id: 5, label: 'Boutique', icon: Store, done: !!launchMap?.phase5,
+      desc: 'Lance ta boutique en ligne et ouvre les précommandes à ta communauté.', time: '30 min', href: '/launch-map'
+    },
   ];
   const completedCount = phases.filter(p => p.done).length;
   const progress = Math.round((completedCount / phases.length) * 100);
@@ -237,18 +256,23 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                     </div>
 
                     <div>
-                      <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight leading-tight">
-                        {nextPhase.label}
-                      </h2>
-                      <p className="text-[#86868B] mt-2 text-base leading-relaxed max-w-lg">
-                        Complétez cette phase pour faire avancer <strong className="text-[#1D1D1F]">{brand.name}</strong> vers son lancement.
+                      <div className="flex items-center gap-3 mb-2">
+                        <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight leading-tight">
+                          {nextPhase.label}
+                        </h2>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#007AFF]/8 text-[#007AFF] text-[10px] font-black uppercase tracking-widest border border-[#007AFF]/15">
+                          <Clock className="w-3 h-3" /> {'time' in nextPhase ? nextPhase.time : ''}
+                        </span>
+                      </div>
+                      <p className="text-[#86868B] mt-1 text-base leading-relaxed max-w-lg">
+                        {'desc' in nextPhase ? nextPhase.desc : `Complétez cette phase pour faire avancer ${brand.name} vers son lancement.`}
                       </p>
                     </div>
 
                     <div className="pt-2">
-                      <Link href="/launch-map" className="inline-block">
+                      <Link href={'href' in nextPhase ? nextPhase.href : '/launch-map'} className="inline-block">
                         <Button className="bg-[#007AFF] hover:bg-[#0056CC] text-white rounded-full px-7 h-12 font-bold text-sm shadow-lg shadow-blue-500/20 active:scale-[0.97] transition-all border-0">
-                          Continuer
+                          Commencer cette étape
                           <ArrowRight className="ml-2 w-4 h-4" />
                         </Button>
                       </Link>
@@ -414,13 +438,17 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 </div>
 
                 {weekEvents.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-6 text-center bg-[#F5F5F7] rounded-2xl">
-                    <CalendarIcon className="w-8 h-8 text-[#C7C7CC] mb-2" />
-                    <p className="text-sm font-semibold text-[#1D1D1F]">Aucun post prévu</p>
-                    <p className="text-[11px] text-[#86868B] mt-0.5 mb-3">Planifiez votre contenu de la semaine</p>
-                    <Link href="/content-creation">
-                      <button className="text-[11px] font-bold text-[#007AFF] hover:underline">
-                        + Ajouter un post
+                  <div className="flex flex-col items-start p-4 rounded-2xl bg-[#F5F5F7] gap-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">📲</span>
+                      <p className="text-sm font-bold text-[#1D1D1F]">C&apos;est le moment de créer ton premier post.</p>
+                    </div>
+                    <p className="text-[11px] text-[#86868B] leading-relaxed">
+                      Montre les coulisses de ta marque sur TikTok. Les créateurs qui documentent leur parcours convertissent 3x plus.
+                    </p>
+                    <Link href="/content-creation" className="w-full">
+                      <button className="w-full h-9 rounded-xl bg-[#007AFF] text-white text-[11px] font-black uppercase tracking-wider hover:bg-[#0056CC] transition-all active:scale-[0.97]">
+                        ✏️ Créer mon premier post
                       </button>
                     </Link>
                   </div>
