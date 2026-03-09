@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getCurrentUser } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
 
+
 export async function POST(req: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    const currentUser = await getCurrentUser();
+    if (!currentUser?.id) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+
 
     try {
         const { brandId, draft } = await req.json();
@@ -13,8 +14,9 @@ export async function POST(req: NextRequest) {
 
         // Vérifier que la marque appartient à l'utilisateur
         const brand = await prisma.brand.findFirst({
-            where: { id: brandId, userId: session.user.id }
+            where: { id: brandId, userId: currentUser.id }
         });
+
         if (!brand) return NextResponse.json({ error: 'Marque non trouvée' }, { status: 404 });
 
         await prisma.launchMap.upsert({
@@ -34,8 +36,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    const currentUser = await getCurrentUser();
+    if (!currentUser?.id) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+
 
     const brandId = req.nextUrl.searchParams.get('brandId');
     if (!brandId) return NextResponse.json({ error: 'brandId requis' }, { status: 400 });
