@@ -1319,3 +1319,52 @@ You must NOT just "clean up" the prompt.You must ARCHITECT it following this str
 
   return completion.choices[0]?.message?.content?.trim() || options.basePrompt;
 }
+
+/**
+ * Chat générique OpenAI (Joy, Johan, etc.)
+ * Par défaut utilise gpt-4o-mini pour un maximum d'économies.
+ */
+export async function generateChat(
+  system: string,
+  messages: { role: 'user' | 'assistant', content: string }[],
+  options: {
+    maxTokens?: number;
+    temperature?: number;
+    model?: 'gpt-4o' | 'gpt-4o-mini';
+    image?: { url: string } | { base64: string, mimeType: string };
+  } = {}
+): Promise<string> {
+  if (!openai) throw new Error('OpenAI non configuré');
+
+  const formattedMessages: any[] = [
+    { role: 'system', content: system },
+    ...messages.slice(0, -1).map(m => ({ role: m.role, content: m.content }))
+  ];
+
+  // Le dernier message peut contenir une image
+  const lastMsg = messages[messages.length - 1];
+  if (options.image) {
+    const imageUrl = 'url' in options.image
+      ? options.image.url
+      : `data:${options.image.mimeType};base64,${options.image.base64}`;
+
+    formattedMessages.push({
+      role: 'user',
+      content: [
+        { type: 'text', text: lastMsg.content },
+        { type: 'image_url', image_url: { url: imageUrl } }
+      ]
+    });
+  } else {
+    formattedMessages.push({ role: lastMsg.role, content: lastMsg.content });
+  }
+
+  const completion = await openai.chat.completions.create({
+    model: options.model || 'gpt-4o-mini',
+    max_tokens: options.maxTokens ?? 2000,
+    temperature: options.temperature ?? 0.7,
+    messages: formattedMessages,
+  });
+
+  return completion.choices[0]?.message?.content || '';
+}

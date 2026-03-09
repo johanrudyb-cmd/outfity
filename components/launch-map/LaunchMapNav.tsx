@@ -15,6 +15,9 @@ import {
   Truck,
   Store,
   LucideIcon,
+  Zap,
+  MessageSquare,
+  Users,
 } from 'lucide-react';
 import { LAUNCH_MAP_PHASES } from '@/lib/launch-map-constants';
 
@@ -22,9 +25,12 @@ const PHASE_ICONS: Record<number, LucideIcon> = {
   0: Palette,
   1: Target,
   2: PenTool,
-  3: FileText,
-  4: Truck,
-  5: Store,
+  3: Zap,
+  4: MessageSquare,
+  5: Users,
+  6: FileText,
+  7: Truck,
+  8: Store,
 };
 
 export interface LaunchMapNavProps {
@@ -37,6 +43,7 @@ export interface LaunchMapNavProps {
   phase5: boolean;
   phase6: boolean;
   phase7: boolean;
+  phase8: boolean;
 }
 
 export function LaunchMapNav({
@@ -49,13 +56,13 @@ export function LaunchMapNav({
   phase5,
   phase6,
   phase7,
+  phase8,
 }: LaunchMapNavProps) {
   const pathname = usePathname();
 
   if (
     pathname === '/launch-map/formation' ||
-    pathname.startsWith('/launch-map/formation/') ||
-    pathname.startsWith('/launch-map/phase/')
+    pathname.startsWith('/launch-map/formation/')
   ) {
     return null;
   }
@@ -69,19 +76,35 @@ export function LaunchMapNav({
     phase5,
     phase6,
     phase7,
+    phase8,
   };
 
   const isOverview = pathname === '/launch-map' || pathname === '/launch-map/';
+  const isTechPacks = pathname.startsWith('/launch-map/tech-packs');
+  const isSourcing = pathname.startsWith('/launch-map/sourcing');
+
   const phaseMatch = pathname.match(/^\/launch-map\/phase\/(\d+)$/);
-  const activePhaseIndex = phaseMatch ? parseInt(phaseMatch[1], 10) : -1;
+  let activePhaseIndex = phaseMatch ? parseInt(phaseMatch[1], 10) : -1;
+
+  if (isOverview && activePhaseIndex === -1 && pathname === '/launch-map') {
+    // Logic to determine if we are starting a phase but on the overview
+  }
+
+  // Custom active mapping
+  if (isTechPacks) activePhaseIndex = 6;
+  else if (isSourcing) activePhaseIndex = 7;
+  else if (pathname.includes('/launch-map/phase/8')) activePhaseIndex = 8;
+  else if (pathname.includes('/launch-map/phase/0')) activePhaseIndex = 0;
+  else if (pathname.includes('/launch-map/phase/1')) activePhaseIndex = 1;
+  else if (pathname.includes('/launch-map/phase/2')) activePhaseIndex = 2;
+  else if (pathname.includes('/launch-map/phase/3')) activePhaseIndex = 3;
+  else if (pathname.includes('/launch-map/phase/4')) activePhaseIndex = 4;
+  else if (pathname.includes('/launch-map/phase/5')) activePhaseIndex = 5;
 
   const isPhaseAccessible = () => true;
 
   return (
-    <nav className={cn(
-      "w-full border-b border-black/[0.05] bg-white relative z-20 shrink-0",
-      !isOverview && "hidden lg:block"
-    )}>
+    <nav className="w-full border-b border-black/[0.05] bg-white relative z-20 shrink-0 hidden lg:block">
       <div className="relative group overflow-hidden">
         <div className="flex overflow-x-auto no-scrollbar lg:flex-wrap lg:h-12 items-center gap-1 p-1 md:px-6 md:gap-2">
           <Link
@@ -114,21 +137,13 @@ export function LaunchMapNav({
             const completed = (progress as Record<string, boolean>)[`phase${p.id}` as keyof typeof progress];
             const accessible = isPhaseAccessible();
 
-            // Correction des liens pour correspondre aux IDs 0-5
-            const href = p.id === 3 ? '/launch-map/tech-packs' :
-              p.id === 4 ? '/launch-map/sourcing' :
-                `/launch-map/phase/${p.id}`;
+            const isActive = activePhaseIndex === p.id;
+            const label = p.title;
 
-            const isActive = (p.id === 3 && pathname === '/launch-map/tech-packs') ||
-              (p.id === 4 && pathname === '/launch-map/sourcing') ||
-              (activePhaseIndex === p.id);
-
-            const shortTitle = p.id === 0 ? 'Identité' :
-              p.id === 1 ? 'Stratégie' :
-                p.id === 2 ? 'Mockup' :
-                  p.id === 3 ? 'Tech Pack' :
-                    p.id === 4 ? 'Sourcing' :
-                      p.id === 5 ? 'Site' : p.title;
+            let href = `/launch-map/phase/${p.id}`;
+            if (p.id === 6) href = '/launch-map/tech-packs';
+            if (p.id === 7) href = '/launch-map/sourcing';
+            if (p.id === 8) href = '/launch-map/phase/8';
 
             return (
               <Link
@@ -149,7 +164,7 @@ export function LaunchMapNav({
                     </div>
                   )}
                 </div>
-                <span className="text-center xl:text-left leading-tight">{shortTitle}</span>
+                <span className="text-center xl:text-left leading-tight">{label}</span>
               </Link>
             );
           })}

@@ -15,15 +15,13 @@ import { isFreePlan, isPaidPlan } from '@/lib/plan-utils';
 // Types & constants
 // ─────────────────────────────────────────────────────────────
 
-type Step = 'welcome' | 'profiling' | 'universe' | 'strategy' | 'product' | 'identity' | 'pitch' | 'agents' | 'launch';
+type Step = 'welcome' | 'profiling' | 'universe_product' | 'identity_pitch' | 'agents' | 'launch';
 
 interface OnboardingData {
     howDidYouHear: string;
     reasonForComing: string;
-    existingTools: string;
     universe: string;
     universeId: string;
-    strategy?: string;
     productType: string;
     brandName: string;
     pitch: string;
@@ -104,17 +102,13 @@ const PRODUCTS = [
     { id: 'ensemble', label: 'Ensemble', emoji: '🎽', trend: 94, desc: 'Niche premium rentable' },
 ];
 
-const STEP_ORDER_STARTER: Step[] = ['welcome', 'profiling', 'universe', 'product', 'identity', 'pitch', 'agents', 'launch'];
-const STEP_ORDER_CREATOR: Step[] = ['welcome', 'profiling', 'universe', 'strategy', 'product', 'identity', 'pitch', 'agents', 'launch'];
+const STEP_ORDER: Step[] = ['welcome', 'profiling', 'universe_product', 'identity_pitch', 'agents', 'launch'];
 
 const STEP_LABELS: Record<Step, string> = {
     welcome: 'Bienvenue',
     profiling: 'Profil',
-    universe: 'Univers',
-    strategy: 'Stratégie',
-    product: 'Produit',
-    identity: 'Identité',
-    pitch: 'Mission',
+    universe_product: 'Concept',
+    identity_pitch: 'Identité',
     agents: 'Équipe IA',
     launch: 'Lancement'
 };
@@ -134,9 +128,6 @@ const PROFILING_OPTIONS = {
         { id: 'creative', label: 'Besoin d\'outils créatifs IA', icon: '🎨' },
         { id: 'sourcing', label: 'Trouver des usines', icon: '🏭' },
         { id: 'trends', label: 'Suivre les tendances', icon: '🔥' },
-    ],
-    existingTools: [
-        { id: 'none', label: 'Aucun outil particulier', icon: '⭕' },
     ]
 };
 
@@ -160,7 +151,6 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
     const [data, setData] = useState<OnboardingData>({
         howDidYouHear: '',
         reasonForComing: '',
-        existingTools: '',
         universe: '',
         universeId: '',
         productType: '',
@@ -169,7 +159,6 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
     });
 
     const isCreator = isPaidPlan(plan);
-    const STEP_ORDER = isCreator ? STEP_ORDER_CREATOR : STEP_ORDER_STARTER;
     const stepIndex = STEP_ORDER.indexOf(step);
 
     const BRAND_SUGGESTIONS: Record<string, string[]> = {
@@ -205,7 +194,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
     const goNext = useCallback(() => {
         const nextIdx = stepIndex + 1;
         if (nextIdx < STEP_ORDER.length) {
-            if (step === 'pitch') {
+            if (step === 'identity_pitch') {
                 setIsThinking(true);
                 setTimeout(() => {
                     setIsThinking(false);
@@ -447,46 +436,6 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                         ))}
                                     </div>
                                 </div>
-
-                                {/* Outils existants */}
-                                <div className="space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#86868B] px-1">Utilises-tu déjà des outils ?</p>
-                                    <div className="space-y-2">
-                                        <button
-                                            onClick={() => setData(d => ({ ...d, existingTools: 'none' }))}
-                                            className={cn(
-                                                "w-full p-4 rounded-2xl border-2 transition-all flex items-center gap-3",
-                                                data.existingTools === 'none'
-                                                    ? "border-[#007AFF] bg-blue-50/50 shadow-sm"
-                                                    : "border-[#E5E5EA] bg-white hover:border-[#C7C7CC]"
-                                            )}
-                                        >
-                                            <span className="text-xl">⭕</span>
-                                            <span className="text-sm font-bold">Aucun outil particulier</span>
-                                            {data.existingTools === 'none' && <Check className="w-4 h-4 text-[#007AFF] ml-auto" />}
-                                        </button>
-
-                                        <div className="relative">
-                                            <input
-                                                type="text"
-                                                placeholder="Ou cite tes outils (ex: Photoshop, Canva...)"
-                                                value={data.existingTools === 'none' ? '' : data.existingTools}
-                                                onChange={(e) => setData(d => ({ ...d, existingTools: e.target.value }))}
-                                                className={cn(
-                                                    "w-full h-14 px-5 rounded-2xl border-2 bg-white transition-all outline-none text-sm font-medium",
-                                                    data.existingTools !== '' && data.existingTools !== 'none'
-                                                        ? "border-[#007AFF] ring-4 ring-blue-500/10"
-                                                        : "border-[#E5E5EA] focus:border-[#007AFF]/50"
-                                                )}
-                                            />
-                                            {data.existingTools !== '' && data.existingTools !== 'none' && (
-                                                <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                                                    <Check className="w-4 h-4 text-[#007AFF]" />
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
 
                             <div className="flex gap-3 pt-6 sm:pt-4 bg-gradient-to-t from-[#F5F5F7] via-[#F5F5F7] to-transparent sticky bottom-0 z-10 w-full mt-auto">
@@ -497,7 +446,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                     Retour
                                 </button>
                                 <button
-                                    disabled={!data.howDidYouHear || !data.reasonForComing || !data.existingTools}
+                                    disabled={!data.howDidYouHear || !data.reasonForComing}
                                     onClick={goNext}
                                     className="flex-[2] h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-lg hover:bg-[#0056CC] active:scale-[0.98] transition-all disabled:opacity-50 shadow-lg shadow-blue-500/20"
                                 >
@@ -506,50 +455,84 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                             </div>
                         </motion.div>
                     )}
-                    {step === 'universe' && (
-                        <motion.div key="universe"
+                    {/* ── UNIVERSE & PRODUCT ── */}
+                    {step === 'universe_product' && (
+                        <motion.div key="universe_product"
                             initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
                             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                            className="max-w-2xl w-full space-y-6"
+                            className="max-w-4xl w-full space-y-8"
                         >
-                            <div className="space-y-1">
-                                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Quel est ton univers ?</h2>
-                                <p className="text-[#86868B]">Choisir un univers donne une direction claire à ta marque dès le départ.</p>
+                            <div className="space-y-1 text-center sm:text-left">
+                                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Le concept de ta marque</h2>
+                                <p className="text-[#86868B]">Choisis l'univers et le premier produit que tu vas lancer.</p>
                             </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                {UNIVERSES.map(u => (
-                                    <button
-                                        key={u.id}
-                                        onClick={() => setData(d => ({ ...d, universe: u.name, universeId: u.id }))}
-                                        className={cn(
-                                            'group text-left p-4 rounded-2xl border-2 bg-white transition-all duration-200',
-                                            data.universeId === u.id
-                                                ? `${u.border} ${u.bg} shadow-md`
-                                                : 'border-[#E5E5EA] hover:border-[#C7C7CC] hover:shadow-sm'
-                                        )}
-                                    >
-                                        <div className="flex items-start justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <span className="text-2xl">{u.emoji}</span>
-                                                <div>
-                                                    <p className="font-semibold text-[#1D1D1F] text-sm">{u.name}</p>
-                                                    <p className="text-[#86868B] text-xs mt-0.5">{u.description}</p>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {/* Colonne Univers */}
+                                <div className="space-y-4">
+                                    <h3 className="text-sm font-bold text-[#1D1D1F] uppercase tracking-widest">1. L'univers</h3>
+                                    <div className="grid grid-cols-1 gap-3">
+                                        {UNIVERSES.map(u => (
+                                            <button
+                                                key={u.id}
+                                                onClick={() => setData(d => ({ ...d, universe: u.name, universeId: u.id }))}
+                                                className={cn(
+                                                    'group text-left p-4 rounded-2xl border-2 bg-white transition-all duration-200',
+                                                    data.universeId === u.id
+                                                        ? `${u.border} ${u.bg} shadow-md`
+                                                        : 'border-[#E5E5EA] hover:border-[#C7C7CC] hover:shadow-sm'
+                                                )}
+                                            >
+                                                <div className="flex items-start justify-between">
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-2xl">{u.emoji}</span>
+                                                        <div>
+                                                            <p className="font-semibold text-[#1D1D1F] text-sm">{u.name}</p>
+                                                            <p className="text-[#86868B] text-xs mt-0.5">{u.description}</p>
+                                                        </div>
+                                                    </div>
+                                                    {data.universeId === u.id && (
+                                                        <div className="w-5 h-5 rounded-full bg-[#007AFF] flex items-center justify-center shrink-0">
+                                                            <Check className="w-3 h-3 text-white" />
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            </div>
-                                            {data.universeId === u.id && (
-                                                <div className="w-5 h-5 rounded-full bg-[#007AFF] flex items-center justify-center shrink-0">
-                                                    <Check className="w-3 h-3 text-white" />
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Colonne Produit */}
+                                <div className="space-y-4">
+                                    <h3 className="text-sm font-bold text-[#1D1D1F] uppercase tracking-widest">2. Produit Star</h3>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {PRODUCTS.map(p => (
+                                            <button
+                                                key={p.id}
+                                                onClick={() => setData(d => ({ ...d, productType: p.label }))}
+                                                className={cn(
+                                                    'relative p-4 rounded-2xl border-2 bg-white transition-all duration-200 text-left flex flex-col group',
+                                                    data.productType === p.label
+                                                        ? 'border-[#007AFF] bg-blue-50/20 shadow-md'
+                                                        : 'border-[#E5E5EA] hover:border-[#C7C7CC] hover:bg-slate-50'
+                                                )}
+                                            >
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="text-2xl group-hover:scale-110 transition-transform">{p.emoji}</span>
                                                 </div>
-                                            )}
-                                        </div>
-                                        <div className="flex flex-wrap gap-1.5 mt-3">
-                                            {u.keywords.map(k => (
-                                                <span key={k} className={cn('text-[10px] font-semibold px-2 py-0.5 rounded-full', u.pill)}>{k}</span>
-                                            ))}
-                                        </div>
-                                    </button>
-                                ))}
+                                                <p className="font-bold text-sm text-[#1D1D1F]">{p.label}</p>
+                                                <p className="text-[#86868B] text-[10px] mt-1 leading-snug">{p.desc}</p>
+                                                {data.productType === p.label && (
+                                                    <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#007AFF] flex items-center justify-center shrink-0">
+                                                        <Check className="w-3 h-3 text-white" />
+                                                    </div>
+                                                )}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
+
                             <div className="flex gap-3">
                                 <button
                                     onClick={goBack}
@@ -558,7 +541,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                     Retour
                                 </button>
                                 <button
-                                    disabled={!data.universeId}
+                                    disabled={!data.universeId || !data.productType}
                                     onClick={goNext}
                                     className="flex-[2] h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 shadow-lg shadow-blue-500/20"
                                 >
@@ -568,150 +551,22 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                         </motion.div>
                     )}
 
-                    {/* ── STRATEGY (Creator Only) ── */}
-                    {step === 'strategy' && (
-                        <motion.div key="strategy"
+                    {/* ── IDENTITY & PITCH ── */}
+                    {step === 'identity_pitch' && (
+                        <motion.div key="identity_pitch"
                             initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
                             transition={{ duration: 0.35 }}
                             className="max-w-2xl w-full space-y-8"
                         >
                             <div className="space-y-2">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-[#007AFF] text-[10px] font-black uppercase tracking-widest border border-blue-100 mb-2">
-                                    <Crown className="w-3 h-3" /> Plan Créateur
-                                </div>
-                                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Définissons ton positionnement.</h2>
-                                <p className="text-[#86868B]">C'est ce qui rendra ta marque unique sur le marché.</p>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                {['Streetwear Luxury', 'Quiet Luxury', 'Gorpcore / Techwear', 'Parisian Minimalist', 'Néo-Vintage Sport', 'Eco-Basics'].map(opt => (
-                                    <button
-                                        key={opt}
-                                        onClick={() => setData(d => ({ ...d, strategy: opt }))}
-                                        className={cn(
-                                            "p-6 rounded-[24px] border-2 bg-white transition-all text-left group",
-                                            data.strategy === opt
-                                                ? "border-[#007AFF] bg-blue-50/20"
-                                                : "border-[#E5E5EA] hover:border-[#007AFF]/20"
-                                        )}
-                                    >
-                                        <p className="font-bold text-[#1D1D1F]">{opt}</p>
-                                        <div className="mt-4 flex items-center justify-between">
-                                            <span className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest">Style validé</span>
-                                            {data.strategy === opt && (
-                                                <div className="w-6 h-6 rounded-full bg-[#007AFF] flex items-center justify-center text-white">
-                                                    <Check className="w-4 h-4" />
-                                                </div>
-                                            )}
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={goBack}
-                                    className="flex-1 h-14 rounded-2xl border-2 border-[#E5E5EA] text-[#86868B] font-semibold text-lg hover:bg-white active:scale-[0.98] transition-all"
-                                >
-                                    Retour
-                                </button>
-                                <button
-                                    disabled={!data.strategy}
-                                    onClick={goNext}
-                                    className="flex-[2] h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-lg hover:bg-[#0056CC] active:scale-[0.98] transition-all disabled:opacity-50 shadow-lg shadow-blue-500/20"
-                                >
-                                    Continuer <ArrowRight className="w-4 h-4" />
-                                </button>
-                            </div>
-                        </motion.div>
-                    )}
-
-                    {/* ── PRODUCT ── */}
-                    {step === 'product' && (
-                        <motion.div key="product"
-                            initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
-                            transition={{ duration: 0.35 }}
-                            className="max-w-3xl w-full space-y-8"
-                        >
-                            <div className="space-y-2">
-                                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">C'est le moment de choisir ton premier produit.</h2>
-                                <p className="text-[#86868B]">On commencera par construire tout l&apos;univers autour de ce produit spécifique.</p>
-                            </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                {PRODUCTS.map(p => (
-                                    <button
-                                        key={p.id}
-                                        onClick={() => setData(d => ({ ...d, productType: p.label }))}
-                                        className={cn(
-                                            'relative p-6 rounded-[28px] border-2 bg-white transition-all duration-300 text-left flex flex-col group overflow-hidden',
-                                            data.productType === p.label
-                                                ? 'border-[#007AFF] bg-blue-50/20 shadow-xl shadow-blue-500/10'
-                                                : 'border-[#E5E5EA] hover:border-[#C7C7CC] hover:bg-slate-50'
-                                        )}
-                                    >
-                                        <div className="flex items-center justify-between mb-4">
-                                            <span className="text-4xl group-hover:scale-110 transition-transform">{p.emoji}</span>
-                                            {p.trend > 90 && (
-                                                <div className="px-2 py-0.5 rounded-full bg-red-100 text-red-600 text-[9px] font-black uppercase tracking-tighter">
-                                                    Hot 🔥
-                                                </div>
-                                            )}
-                                        </div>
-                                        <p className="font-bold text-lg text-[#1D1D1F]">{p.label}</p>
-                                        <p className="text-[#86868B] text-xs mt-1 leading-snug">{p.desc}</p>
-
-                                        <div className="mt-4 flex items-center gap-1.5 pt-4 border-t border-black/5">
-                                            <div className="flex-1 h-1.5 bg-black/5 rounded-full overflow-hidden">
-                                                <motion.div
-                                                    initial={{ width: 0 }}
-                                                    animate={{ width: `${p.trend}%` }}
-                                                    className="h-full bg-[#34C759]"
-                                                />
-                                            </div>
-                                            <span className="text-[10px] font-bold text-[#34C759] uppercase tracking-wider">{p.trend}%</span>
-                                        </div>
-
-                                        {data.productType === p.label && (
-                                            <motion.div
-                                                layoutId="active-product"
-                                                className="absolute inset-0 border-2 border-[#007AFF] rounded-[28px] pointer-events-none"
-                                            />
-                                        )}
-                                    </button>
-                                ))}
-                            </div>
-                            <div className="flex gap-4 pt-4">
-                                <button
-                                    onClick={goBack}
-                                    className="flex-1 h-16 rounded-2xl border-2 border-[#E5E5EA] text-[#86868B] font-semibold text-lg hover:bg-white active:scale-[0.98] transition-all"
-                                >
-                                    Retour
-                                </button>
-                                <button
-                                    disabled={!data.productType}
-                                    onClick={goNext}
-                                    className="flex-[2] h-16 rounded-2xl bg-[#007AFF] text-white font-bold text-xl flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all disabled:opacity-50 shadow-xl shadow-blue-500/20"
-                                >
-                                    Valider le produit <ArrowRight className="w-5 h-5" />
-                                </button>
-                            </div>
-                        </motion.div>
-                    )}
-
-                    {/* ── IDENTITY ── */}
-                    {step === 'identity' && (
-                        <motion.div key="identity"
-                            initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
-                            transition={{ duration: 0.35 }}
-                            className="max-w-xl w-full space-y-8"
-                        >
-                            <div className="space-y-2">
-                                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Le nom de ta marque</h2>
-                                <p className="text-[#86868B]">C'est l'identité qui te suivra partout. Pas d'inquiétude, tu pourras le modifier.</p>
+                                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Donne vie à ton idée</h2>
+                                <p className="text-[#86868B]">Définit le nom et la mission de ta marque pour guider tes agents IA.</p>
                             </div>
 
                             <div className="space-y-6">
-                                <div className="space-y-2">
+                                {/* Nom de marque */}
+                                <div className="space-y-3">
+                                    <h3 className="text-sm font-bold text-[#1D1D1F] uppercase tracking-widest">1. Nom de marque</h3>
                                     <input
                                         autoFocus
                                         type="text"
@@ -720,80 +575,62 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                         onChange={(e) => setData(d => ({ ...d, brandName: e.target.value }))}
                                         className="w-full h-14 px-6 rounded-2xl bg-white border-2 border-[#E5E5EA] focus:border-[#007AFF] focus:ring-4 focus:ring-[#007AFF]/10 transition-all text-lg font-semibold"
                                     />
-                                </div>
-
-                                {isCreator && data.universeId && (
-                                    <div className="p-6 rounded-[24px] bg-white shadow-apple border border-black/5 space-y-4">
-                                        <div className="flex items-center gap-2 text-[#007AFF] font-bold text-xs uppercase tracking-widest">
-                                            <Sparkles className="w-4 h-4" /> Suggestions de Virgil ({data.universe})
-                                        </div>
-                                        <div className="flex flex-wrap gap-2">
-                                            {(BRAND_SUGGESTIONS[data.universeId] || BRAND_SUGGESTIONS.streetwear).map(name => (
+                                    {isCreator && data.universeId && (
+                                        <div className="flex flex-wrap gap-2 pt-1">
+                                            <span className="text-xs text-[#007AFF] font-bold self-center mr-2"><Sparkles className="inline w-3 h-3 mr-1" /> Suggestions:</span>
+                                            {(BRAND_SUGGESTIONS[data.universeId] || BRAND_SUGGESTIONS.streetwear).slice(0, 3).map(name => (
                                                 <button
                                                     key={name}
                                                     onClick={() => setData(d => ({ ...d, brandName: name }))}
                                                     className={cn(
-                                                        "px-4 py-2 bg-[#F5F5F7] rounded-xl border-2 transition-all text-sm font-bold",
+                                                        "px-3 py-1.5 rounded-lg border transition-all text-[11px] font-bold",
                                                         data.brandName === name
                                                             ? "border-[#007AFF] text-[#007AFF] bg-blue-50"
-                                                            : "border-transparent text-[#86868B] hover:bg-white hover:border-[#007AFF]/20"
+                                                            : "border-[#E5E5EA] text-[#86868B] hover:bg-white hover:border-[#007AFF]/30"
                                                     )}
                                                 >
                                                     {name}
                                                 </button>
                                             ))}
                                         </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={goBack}
-                                    className="flex-1 h-14 rounded-2xl border-2 border-[#E5E5EA] text-[#86868B] font-semibold text-lg flex items-center justify-center gap-2 hover:bg-white active:scale-[0.98] transition-all"
-                                >
-                                    Retour
-                                </button>
-                                <button
-                                    disabled={!data.brandName}
-                                    onClick={goNext}
-                                    className="flex-[2] h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 shadow-lg shadow-blue-500/20"
-                                >
-                                    Continuer <ArrowRight className="w-4 h-4" />
-                                </button>
-                            </div>
-                        </motion.div>
-                    )}
-
-                    {/* ── PITCH ── */}
-                    {step === 'pitch' && (
-                        <motion.div key="pitch"
-                            initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
-                            transition={{ duration: 0.35 }}
-                            className="max-w-xl w-full space-y-8"
-                        >
-                            <div className="space-y-2">
-                                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Ta mission en une phrase</h2>
-                                <p className="text-[#86868B]">Quel message veux-tu porter avec {data.brandName} ?</p>
-                            </div>
-
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.98 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="bg-white rounded-3xl p-6 shadow-apple border border-[#E5E5EA] space-y-4"
-                            >
-                                <textarea
-                                    autoFocus
-                                    placeholder="Ex: Créer des basiques premium éco-responsables pour les urbains exigeants."
-                                    value={data.pitch}
-                                    onChange={(e) => setData(d => ({ ...d, pitch: e.target.value }))}
-                                    className="w-full min-h-[160px] p-4 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-[#007AFF] transition-all resize-none text-base font-medium"
-                                />
-
-                                <div className="flex items-center gap-2 text-[10px] text-[#86868B] font-medium px-1">
-                                    <ShieldCheck className="w-3.5 h-3.5" /> Ton pitch sert de base à ton équipe IA pour tes futurs contenus.
+                                    )}
                                 </div>
-                            </motion.div>
+
+                                {/* Mission (Pitch) avec Mad Libs */}
+                                <div className="space-y-3">
+                                    <h3 className="text-sm font-bold text-[#1D1D1F] uppercase tracking-widest">2. Ta Mission (Pitch)</h3>
+                                    <div className="flex flex-col gap-2 mb-3">
+                                        <p className="text-xs text-[#86868B] font-medium">Panne d'inspi ? Choisis un modèle :</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {[
+                                                "Créer des basiques premium éco-responsables pour les urbains exigeants.",
+                                                "Une marque streetwear audacieuse qui mixe culture skate et luxe accessible.",
+                                                "Des vêtements techniques et fonctionnels conçus pour l'aventure quotidienne."
+                                            ].map((pitchEx, i) => (
+                                                <button
+                                                    key={i}
+                                                    onClick={() => setData(d => ({ ...d, pitch: pitchEx }))}
+                                                    className="px-3 py-1.5 bg-white border border-[#E5E5EA] hover:border-[#007AFF]/50 hover:bg-blue-50/30 rounded-xl text-[11px] text-[#1D1D1F] font-medium text-left transition-colors whitespace-nowrap"
+                                                >
+                                                    "{pitchEx.substring(0, 25)}..."
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <motion.div className="bg-white rounded-2xl shadow-sm border border-[#E5E5EA] p-2 relative">
+                                        <textarea
+                                            placeholder="Rédige ta mission ici..."
+                                            value={data.pitch}
+                                            onChange={(e) => setData(d => ({ ...d, pitch: e.target.value }))}
+                                            className="w-full min-h-[120px] p-4 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-[#007AFF] transition-all resize-none text-sm font-medium outline-none"
+                                        />
+                                        <div className="absolute bottom-4 right-4 text-[10px] text-[#86868B] flex items-center gap-1">
+                                            <ShieldCheck className="w-3 h-3" /> Base pour tes IA
+                                        </div>
+                                    </motion.div>
+                                </div>
+                            </div>
 
                             <div className="flex gap-3">
                                 <button
@@ -803,20 +640,13 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                     Retour
                                 </button>
                                 <button
-                                    disabled={!data.pitch || isSubmitting}
+                                    disabled={!data.brandName || !data.pitch || isSubmitting}
                                     onClick={goNext}
                                     className="flex-[2] h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-lg flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all disabled:opacity-50 shadow-lg"
                                 >
                                     Continuer <ArrowRight className="w-4 h-4" />
                                 </button>
                             </div>
-
-                            <button
-                                onClick={() => { setData(d => ({ ...d, pitch: 'À compléter' })); goNext(); }}
-                                className="w-full text-[#86868B] text-sm hover:text-[#1D1D1F] transition-colors py-2"
-                            >
-                                Passer cette étape →
-                            </button>
                         </motion.div>
                     )}
 
@@ -897,12 +727,12 @@ function LaunchStep({ plan, brandName }: { plan: string; brandName: string }) {
     const [stepIndex, setStepIndex] = useState(0);
 
     const STEPS = [
-        { label: 'Initialisation du studio...', duration: 1000 },
-        { label: 'Connexion aux agents IA...', duration: 1200 },
-        { label: 'Analyse des tendances 2026...', duration: 1000 },
-        { label: 'Initialisation de ton ADN...', duration: 1500 },
-        { label: 'Finalisation du dashboard...', duration: 800 },
-        { label: 'Bienvenue dans OUTFITY !', duration: 1000 },
+        { label: 'Initialisation du studio...', duration: 250 },
+        { label: 'Connexion aux agents IA...', duration: 300 },
+        { label: 'Analyse des tendances 2026...', duration: 250 },
+        { label: 'Initialisation de ton ADN...', duration: 300 },
+        { label: 'Finalisation du dashboard...', duration: 200 },
+        { label: 'Bienvenue dans OUTFITY !', duration: 250 },
     ];
 
     useEffect(() => {

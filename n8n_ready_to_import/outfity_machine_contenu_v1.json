@@ -23,48 +23,86 @@
         },
         {
             "parameters": {
-                "jsCode": "// Rotation des 5 types de hooks selon le jour de la semaine\nconst day = new Date().getDay(); // 0=dim, 1=lun, 2=mar, 3=mer, 4=jeu, 5=ven, 6=sam\n\nconst hooks = {\n  0: { type: 'IDENTIFICATION', label: 'Identification Directe', instruction: \"Commence par cibler directement la situation du spectateur. Ex: 'T as une idée de marque dans la tête depuis des mois et t as encore rien fait ?' ou 'T es du genre à vouloir lancer ta marque mais tu sais pas par ou commencer ?'. Le spectateur doit se dire : il parle de moi.\" },\n  1: { type: 'BOUCLE_OUVERTE', label: 'Boucle Ouverte', instruction: \"Ouvre une boucle que le cerveau DOIT fermer. Ex: 'Y a une erreur que font 90% des gens qui lancent leur marque et qui leur coute 6 mois de retard.' Le spectateur doit AVOIR BESOIN de rester jusqu a la fin pour connaitre la reponse.\" },\n  2: { type: 'CHIFFRE_CHOC', label: 'Chiffre Choc', instruction: \"Commence par un chiffre concret et surprenant. Ex: 'J ai lance ma premiere marque avec 300 euros. Voila exactement comment.' ou '73% des marques de fringues closure avant 1 an. Voila pourquoi et comment eviter ca.'. Le chiffre doit etre credible et frapper.\" },\n  3: { type: 'PROMESSE_RAPIDE', label: 'Promesse Rapide', instruction: \"Fais une promesse de valeur immediate. Ex: 'En 45 secondes je vais te dire comment trouver ton fabricant sans intermediaire.' ou 'Je vais t expliquer en 3 etapes comment lancer ta marque sans 5000 euros.'. Le spectateur reste pour recevoir ce qui lui a ete promis.\" },\n  4: { type: 'CONTRE_INTUITIF', label: 'Contre-Intuitif', instruction: \"Commence par quelque chose d inattendu, mais sans provoquer. Ex: 'Ton logo et tes couleurs, tout le monde s en fout quand tu debutes. Voila ce qui compte vraiment.' ou 'Poster tous les jours sur Instagram est peut etre ta pire erreur.'. Surprend sans agresser.\" },\n  5: { type: 'BOUCLE_OUVERTE', label: 'Boucle Ouverte', instruction: \"Ouvre une boucle que le cerveau DOIT fermer. Ex: 'Y a une chose que j aurais voulu savoir avant de lancer ma premiere marque.' Le spectateur doit AVOIR BESOIN de rester jusqu a la fin pour connaitre la reponse.\" },\n  6: { type: 'IDENTIFICATION', label: 'Identification Directe', instruction: \"Commence par cibler directement la situation du spectateur. La personne doit se reconnaitre immediatement dans ta description de situation.\" }\n};\n\nconst hook = hooks[day];\nreturn [{ json: { hookType: hook.type, hookLabel: hook.label, hookInstruction: hook.instruction, dayIndex: day } }];"
+                "method": "GET",
+                "url": "https://outfity.fr/api/webhooks/n8n/daily-articles",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "x-n8n-secret",
+                            "value": "bmad_n8n_secret_2024_ultra_secure"
+                        }
+                    ]
+                },
+                "options": {}
             },
-            "id": "a1b2c3d4-0013-0013-0013-000000000013",
-            "name": "Selecteur Type de Hook",
+            "id": "a1b2c3d4-0002-0002-0002-000000000002",
+            "name": "Fetch OUTFITY Articles",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                220,
+                100
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// On récupère le texte de Claude\nlet t = $json.text || '';\n\n// On nettoie les balises ```json et ```\nt = t.replace(/^```json\\s*/i, '').replace(/\\s*```$/i, '').trim();\n\ntry {\n  const d = JSON.parse(t);\n  return d.item || [];\n} catch (e) {\n  throw new Error('Erreur JSON: ' + e.message);\n}"
+            },
+            "id": "a1b2c3d4-0012-0012-0012-000000000012",
+            "name": "Nettoyeur & Split News",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                220,
+                420,
+                0
+            ]
+        },
+        {
+            "parameters": {
+                "fieldToSplitOut": "selected",
+                "options": {}
+            },
+            "id": "a1b2c3d4-0003-0003-0003-000000000003",
+            "name": "Split Articles",
+            "type": "n8n-nodes-base.itemLists",
+            "typeVersion": 3.1,
+            "position": [
+                600,
                 0
             ]
         },
         {
             "parameters": {
                 "promptType": "define",
-                "text": "=Ta mission : Cree un script de video facecam (TikTok, Reels, Shorts) de 45 secondes sur le theme de lancer sa marque de vetement.\n\nTYPE DE HOOK DU JOUR : {{ $json.hookLabel }}\nINSTRUCTION POUR LE HOOK : {{ $json.hookInstruction }}\n\nLA FORMULE VIRALE (ordre strict) :\n1. HOOK (0-3 sec) : Applique le type de hook du jour indique ci-dessus.\n2. CORPS (4-25 sec) : Donne une valeur pure, concrete et actionnable. Phrases de 8 mots max. Info si utile que les gens la sauvegardent.\n3. MICRO-CTA (25 sec) : Replante l attention. Ex : 'Et si tu veux savoir exactement comment...' (coupe la phrase, ne termine pas).\n4. CTA FINAL (36-45 sec) : 'Commente VETEMENT et je t envoie ma ressource complete en DM. C est gratuit, c est maintenant.'\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[EDUCATIF] - {{ $json.hookLabel }}\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Texte du hook selon le type du jour]\n(Corps) : [Valeur pure, phrases courtes, sauvegardable]\n(Micro-CTA) : [Phrase qui replante l attention a 25 sec]\n(CTA Final) : [Commente VETEMENT + promesse DM]\n\n📱 CAPTION RESEAUX : [1ere ligne = reprise du hook | 2-3 lignes de valeur | Commente VETEMENT | 5 hashtags niche mode creatif]",
+                "text": "=Voici une news publiee sur mon site OUTFITY :\n\nTitre : {{ $json.title }}\nResume : {{ $json.excerpt }}\n\nTa mission : Transforme cet article en un script de video facecam (TikTok, Reels, Shorts) ultra-dynamique. \n\nTON ET STYLE : NO BULLSHIT. Parle comme un Growth Founder presse. Phrases courtes, cash. Pas de mots de remplissage, zero 'Bonjour a tous'. Uniquement du concret. Focus resultats et acquisition.\n\nREGLES STRICTES :\n\nHOOK (0 a 3 sec) : Accroche brutale. Entre direct avec une verite dure ou un chiffre dingue.\nDEVELOPPEMENT (4 a 35 sec) : Resume la news en 1 phrase, puis donne ton analyse business/marketing tranchante. En quoi ca aide a faire de l'argent ou convertir ?\nCALL TO ACTION (36 a 45 sec) : Transition cash vers l'outil. Ex : 'C'est pour ca que j'ai cree OUTFITY, le lien est dans la bio, va voir.'\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[ACTU] - {{ $json.title }}\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Texte tranchant]\n(Corps) : [Texte brut, phrases courtes]\n(CTA) : [Texte actionnable]\n\n📱 CAPTION RESEAUX : [3-4 lignes incisives, pas de bla-bla + 5 hashtags]",
                 "hasOutputParser": false,
                 "messages": {
                     "messageValues": [
                         {
-                            "message": "Tu es le fondateur d'OUTFITY. Tu t'adresses a des 18-24 ans qui veulent lancer leur marque de vetement mais qui n ont pas encore franchi le pas. Ils ont peur de se planter, peur du cout, peur de ne pas savoir par ou commencer. Ton contenu doit lever leurs peurs et leur montrer que c est possible.\n\nREGLE ABSOLUE DE STYLE : Tu ecris pour etre DIT a voix haute, pas pour etre lu. Utilise les mots de l oral : 't as', 'c est', 'y a', 'genre', 'en vrai', 'franchement'. Phrases courtes. Ecris comme tu parles a un pote."
+                            "message": "Tu es le fondateur d'OUTFITY, SaaS pour creer des marques. Tu as un profil Growth Founder : communication directe, pragmatique, axee sur les resultats. No bullshit. Tu penses conversion et psychologie humaine. L'esthetique compte mais l'execution prime. Ton urgence organique est constante. Tu t'adresses d'egal a egal."
                         }
                     ]
                 }
             },
             "id": "a1b2c3d4-0004-0004-0004-000000000004",
-            "name": "Claude - Script Educatif",
+            "name": "Claude - Script News",
             "type": "@n8n/n8n-nodes-langchain.chainLlm",
             "typeVersion": 1.4,
             "position": [
-                440,
+                820,
                 0
             ]
         },
         {
             "parameters": {
                 "promptType": "define",
-                "text": "Tu es le fondateur d'OUTFITY. Trouve un conseil BRUTAL sur la RENTABILITE, la PRODUCTION ou la LOGISTIQUE d'une marque independante que personne ne dit. Le genre qui fait economiser 3000 euros ou evite une erreur fatale.\n\nLA FORMULE VIRALE OBLIGATOIRE :\n\n1. HOOK (0-3 sec) : Boucle ouverte sur une erreur chiffrée ou un secret de production. Ex: '73% des marques independantes perdent de l argent sur leur premiere commande, et voila pourquoi.'\n\n2. CORPS (4-25 sec) : Le conseil operationnel brut. Aucun mot de remplissage. Chaque phrase = une info actee. Format : 'La realite c est que... / Ce que personne te dit c est... / La vraie question c est...' Les gens doivent sauvegarder parce que c est trop bon pour oublier.\n\n3. MICRO-CTA (vers 25 sec) : 'Si tu veux le template exact que j utilise pour...' (ne termine pas, coupe sur le CTA final).\n\n4. CTA FINAL (36-45 sec) : 'Commente VETEMENT et je t envoie ma ressource complete en DM. Gratuit, maintenant.'\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[BUSINESS] - Conseil Business\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Stat ou secret de prod - boucle ouverte]\n(Corps) : [Conseil operationnel pur, phrases courtes, sauvegardable]\n(Micro-CTA) : [Promesse d outil ou template a 25 sec]\n(CTA Final) : [Commente VETEMENT + promesse DM]\n\n📱 CAPTION RESEAUX : [Reprise du hook | Conseil en 2 lignes | Commente VETEMENT | 5 hashtags]",
+                "text": "Tu es le fondateur d'OUTFITY. Ignore les articles. Trouve un conseil BRUTAL et cash sur la RENTABILITE, la PRODUCTION ou la LOGISTIQUE d'une marque independante. Le genre de detail qui tue et fait economiser des milliers d'euros. \n\nTON ET STYLE : NO BULLSHIT. Pragmatisme absolu. Phrases tres courtes, pas de formes inutiles, va droit au but. Parle avec l'urgence d'un fondateur qui connait la realite du marche.\n\nMISE EN FORME (renvoie UNIQUEMENT ceci sans markdown autour) :\n\n[BUSINESS] - Conseil Business\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Phrase choc et tres courte]\n(Corps) : [Explication technique mais tres vulgarisee et cash]\n(CTA) : [Dire de s'abonner ou check le lien sans detourner]\n\n📱 CAPTION RESEAUX : [2 lignes max, tres rentre-dedans + 5 hashtags]",
                 "hasOutputParser": false,
                 "messages": {
                     "messageValues": [
                         {
-                            "message": "Tu es le fondateur d'OUTFITY. Tu t'adresses a des gens qui veulent lancer leur marque de vetement mais qui bloquent sur les couts, la production, la logistique. Ils ont peur de perdre de l'argent. Ton conseil doit lever ces peurs.\n\nREGLE ABSOLUE DE STYLE : Tu ecris pour etre DIT a voix haute, pas pour etre lu. Chaque phrase doit sonner naturel si je la lis devant une camera. Utilise les mots de l'oral : 't'as', 'c'est', 'y'a', 'genre', 'en vrai', 'franchement', 'ca'. Pas de jargon, pas de formules ecrites. Ecris comme tu parles a un pote."
+                            "message": "Tu es le fondateur d'OUTFITY. D'un pragmatisme absolu, ton style est direct, tranche et no-bullshit. Tu n'es pas la pour plaire mais pour faire avancer les gens et eviter qu'ils ne perdent de l'argent. Tu as l'esprit d'un serial entrepreneur qui a tout vu."
                         }
                     ]
                 }
@@ -81,12 +119,12 @@
         {
             "parameters": {
                 "promptType": "define",
-                "text": "Tu es le fondateur d'OUTFITY. Trouve un HACK MARKETING ou une strategie de VIRALITE (psychologie du prix, TikTok organique, biais cognitifs, conversion) pour faire exploser une marque de vetements. Quelque chose de contre-intuitif que les agences ne disent pas.\n\nLA FORMULE VIRALE OBLIGATOIRE :\n\n1. HOOK (0-3 sec) : Contre-intuition maximale. Ce qui marche est souvent l'inverse de ce que les gens pensent. Ex: 'Arrête de faire des pubs. Voila pourquoi tes ventes stagnent.' OU une stat qui choque : 'Les marques qui postent le moins ont 3x plus d engagement. Voila pourquoi.'\n\n2. CORPS (4-25 sec) : Explique le hack en 3 etapes max, aucune theorie. Que du concret, acteable aujourd hui. Utilise les biais cognitifs dans le texte lui-meme (rareté, preuve sociale, reciprocite). Les gens doivent partager parce que c est trop contre-intuitif pour ne pas le partager.\n\n3. MICRO-CTA (vers 25 sec) : 'Et le truc que je n ai dit a personne encore...' (coupe, cree la frustration, replante l attention).\n\n4. CTA FINAL (36-45 sec) : 'Commente VETEMENT, j envoie le guide complet en DM. Zero email, zero pub. Maintenant.'\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[MARKETING] - Strategie Marketing\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Contre-intuition forte - boucle ouverte]\n(Corps) : [Hack en 3 etapes max, ultra-concret, shareable]\n(Micro-CTA) : [Teaser frustrant qui replante l attention]\n(CTA Final) : [Commente VETEMENT + promesse DM]\n\n📱 CAPTION RESEAUX : [Reprise contre-intuition | 2 lignes hack | Commente VETEMENT | 5 hashtags]",
+                "text": "Tu es le fondateur d'OUTFITY. Trouve un HACK MARKETING ou une strategie de VIRALITE (psychologie du prix, TikTok organique, conversion) pour faire exploser une marque de vetements. \n\nTON ET STYLE : NO BULLSHIT. Tres axe Growth/Acquisition. Parle comme un Growth Founder. Refuse le jargon theoreme, sois tres pragmatique. Phrases punchy et rythmees.\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[MARKETING] - Strategie Marketing\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Accroche hyper visuelle ou provocante]\n(Corps) : [Le hack explique en 2-3 phrases simples et cash]\n(CTA) : [Action precise, ex: va choper ma ressource en bio]\n\n📱 CAPTION RESEAUX : [Ligne incisive sur le hack + 5 hashtags]",
                 "hasOutputParser": false,
                 "messages": {
                     "messageValues": [
                         {
-                            "message": "Tu es le fondateur d'OUTFITY. Tu t'adresses a des gens qui veulent lancer leur marque mais qui ne savent pas comment se faire connaitre sans budget pub. Donne-leur les vraies cles du marketing organique avec 0 euros de pub.\n\nREGLE ABSOLUE DE STYLE : Tu ecris pour etre DIT a voix haute, pas pour etre lu. Chaque phrase doit sonner naturel si je la lis devant une camera. Utilise les mots de l'oral : 't'as', 'c'est', 'y'a', 'genre', 'en vrai', 'franchement'. Pas de formules ecrites. Ecris comme tu parles a un pote entrepreneur."
+                            "message": "Tu es le fondateur d'OUTFITY. Style de com : cash, direct, axe sur la conversion, l'UX et les biais cognitifs. No bullshit, impact immediat. Tu as horreur du contenu plat. Tu veux des resultats bruts."
                         }
                     ]
                 }
@@ -117,12 +155,12 @@
         {
             "parameters": {
                 "promptType": "define",
-                "text": "Tu es le fondateur d'OUTFITY. Fais un script 'Vendeur Educatif' (Donner, Donner, Demander) qui PERCE L'ALGO. Pars d'une vraie erreur fatale liee a la creation de marque. Donne enormement de valeur brute, puis propose la ressource comme la suite logique et naturelle.\n\nLA FORMULE VIRALE OBLIGATOIRE :\n\n1. HOOK (0-3 sec) : Electrochoc psychologique. Une boucle ouverte sur une erreur specifique et chiffree que 90% des gens font. Ex: 'L erreur que font 9 marques sur 10 a leur lancement et qui leur coute 6 mois de retard.'\n\n2. CORPS (4-25 sec) : Methode Donner Donner. Donne 2 conseils ultra-concrets, actionnables aujourd hui. Des phrases courtes. Le genre de valeur que les gens sauvegardent et envoient a leurs amis entrepreneurs. Ne retiens rien.\n\n3. MICRO-CTA (vers 25 sec) : 'J ai condense tout le reste dans quelque chose que je distribue gratuitement...' (pause, coupe, replante l attention avant le CTA final).\n\n4. CTA FINAL (36-45 sec) : 'Commente VETEMENT et je t envoie ma ressource privee en DM : Faire ses premiers 1 000 euros avec sa marque. C est gratuit, c est maintenant.'\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[OFFRE] - Formation 1000€\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Electrochoc - erreur fatale chiffree]\n(Corps) : [2 conseils ultra-actionnables, sauvegardables]\n(Micro-CTA) : [Teaser de la ressource a 25 sec]\n(CTA Final) : [Commente VETEMENT + promesse ressource DM]\n\n📱 CAPTION RESEAUX : [Reprise hook | 2 conseils en format liste | Commente VETEMENT pour la ressource | 5 hashtags]",
+                "text": "Tu es le fondateur d'OUTFITY. Fais un post 'Vendeur educatif' (Donner, Donner, Demander). Pars d'une vraie problematique liee a la creation de marque (ex: L'erreur fatale qui tue 90% des marques). Apporte ENORMEMENT de valeur en etant tres direct, avec un biais cognitif fort, puis termine par l'Appel a l'Action vers ta ressource gratuite. \n\nLe CTA exact : 'Pour arreter de perdre des mois dans le vide, j'ai condense ma methode dans une ressource a usage unique : Faire ses premiers 1 000€ avec sa marque. Commente OUTFITY et je te l'envoie en DM.'\n\nTON ET STYLE : No Bullshit, Founder. Pas de formules toutes faites. Une urgence organique. Des phrases qui coupent. Le cote 'no bullshit' justifie qu'on ait envie d'aller chercher la ressource.\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[OFFRE] - Formation 1000€\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Hook direct, qui cree un electrochoc psychologique]\n(Corps) : [Valeur pure, rapide, phrase courte prete pour montage nerveux]\n(CTA) : [Le texte du CTA exact demande plus haut]\n\n📱 CAPTION RESEAUX : [Appel brutal a commenter + 5 hashtags]",
                 "hasOutputParser": false,
                 "messages": {
                     "messageValues": [
                         {
-                            "message": "Tu es le fondateur d'OUTFITY. Tu t'adresses a des gens qui ont un reve : lancer leur propre marque. Ils ont peur de l'echec, de perdre de l'argent, de ne pas etre legitimes. Montre-leur que faire ses premiers 1000 euros avec une marque est accessible.\n\nREGLE ABSOLUE DE STYLE : Tu ecris pour etre DIT a voix haute, pas pour etre lu. Chaque phrase doit sonner naturel si je la lis devant une camera. Utilise les mots de l'oral : 't'as', 'c'est', 'y'a', 'genre', 'en vrai', 'franchement', 'ca', 'kiffer'. Pas de formules ecrites, pas de jargon. Ecris comme si tu parlais a un pote autour d'un cafe. Tu vends par l'education, jamais par la pub."
+                            "message": "Tu es le fondateur d'OUTFITY. Communication : rapide, no bullshit, vision business tres aiguisee. Tu utilises l'approche Donner, Donner, Demander brillamment. Pas de pub de marchand de tapis, tout passe par de l'education brute et le fait de devoiler la realite du marche sans filtre."
                         }
                     ]
                 }
@@ -152,76 +190,6 @@
         },
         {
             "parameters": {
-                "jsCode": "const day = new Date().getDay();\nconst offset = 2;\nconst hooks = {\n  0: { type: 'CHIFFRE_CHOC', label: 'Chiffre Choc', instruction: \"Commence par un chiffre concret et surprenant. Ex: 'J ai lance ma premiere marque avec 300 euros. Voila exactement comment.' Le chiffre doit etre credible et inspirer.\" },\n  1: { type: 'PROMESSE_RAPIDE', label: 'Promesse Rapide', instruction: \"Fais une promesse de valeur immediate. Ex: 'En 45 secondes je vais te dire comment trouver ton fabricant sans intermediaire et sans perdre d argent.'.\" },\n  2: { type: 'CONTRE_INTUITIF', label: 'Contre-Intuitif', instruction: \"Commence par quelque chose d inattendu, mais sans provoquer. Ex: 'Ton logo et tes couleurs, tout le monde s en fout quand tu debutes. Voila ce qui compte vraiment.'.\" },\n  3: { type: 'IDENTIFICATION', label: 'Identification Directe', instruction: \"Commence par cibler directement la situation du spectateur. Ex: 'T as une idee de marque depuis des mois et t as encore rien fait ?'.\" },\n  4: { type: 'BOUCLE_OUVERTE', label: 'Boucle Ouverte', instruction: \"Ouvre une boucle que le cerveau DOIT fermer. Ex: 'Y a une erreur que font 90% des gens qui lancent leur marque et qui leur coute 6 mois.'.\" },\n  5: { type: 'CHIFFRE_CHOC', label: 'Chiffre Choc', instruction: \"Commence par un chiffre qui frappe. Ex: '8 marques sur 10 ne font pas un seul euro en ligne dans leurs 3 premiers mois. Voila pourquoi.'.\" },\n  6: { type: 'PROMESSE_RAPIDE', label: 'Promesse Rapide', instruction: \"Fais une promesse de valeur immediate. Ex: 'Je vais t expliquer en 3 etapes comment lancer ta marque sans 5000 euros.'.\" }\n};\nconst h = hooks[((day + offset) % 7)];\nreturn [{ json: { hookType: h.type, hookLabel: h.label, hookInstruction: h.instruction } }];"
-            },
-            "id": "a1b2c3d4-0014-0014-0014-000000000014",
-            "name": "Selecteur Hook 2",
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                220,
-                -220
-            ]
-        },
-        {
-            "parameters": {
-                "promptType": "define",
-                "text": "=Ta mission : Cree un script de video facecam (TikTok, Reels, Shorts) de 45 secondes sur le theme de lancer sa marque de vetement.\n\nTYPE DE HOOK DU JOUR : {{ $json.hookLabel }}\nINSTRUCTION POUR LE HOOK : {{ $json.hookInstruction }}\n\nLA FORMULE VIRALE (ordre strict) :\n1. HOOK (0-3 sec) : Applique le type de hook indique.\n2. CORPS (4-25 sec) : Valeur pure, concrete, actionnable. Phrases de 8 mots max.\n3. MICRO-CTA (25 sec) : Replante l attention. Ex : 'Et si tu veux savoir exactement comment...' (coupe).\n4. CTA FINAL : 'Le lien est dans ma bio, essai gratuit 3 jours sans CB.'\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[EDUCATIF] - {{ $json.hookLabel }}\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Texte hook]\n(Corps) : [Valeur pure, phrases courtes]\n(Micro-CTA) : [Replante l attention a 25 sec]\n(CTA Final) : [Lien bio + essai gratuit]\n\n📱 CAPTION : [Reprise hook | 2-3 lignes valeur | Lien bio | 5 hashtags]",
-                "hasOutputParser": false,
-                "messages": {
-                    "messageValues": [
-                        {
-                            "message": "Tu es le fondateur d'OUTFITY. Tu t'adresses a des 18-24 ans qui veulent lancer leur marque de vetement. Ecris pour etre DIT a voix haute : 't as', 'c est', 'y a', 'genre', 'en vrai'. Phrases courtes, ton naturel."
-                        }
-                    ]
-                }
-            },
-            "id": "a1b2c3d4-0015-0015-0015-000000000015",
-            "name": "Claude - Script Educatif 2",
-            "type": "@n8n/n8n-nodes-langchain.chainLlm",
-            "typeVersion": 1.4,
-            "position": [
-                440,
-                -220
-            ]
-        },
-        {
-            "parameters": {
-                "jsCode": "const day = new Date().getDay();\nconst offset = 4;\nconst hooks = {\n  0: { type: 'CONTRE_INTUITIF', label: 'Contre-Intuitif', instruction: \"Commence par quelque chose d inattendu. Ex: 'Poster tous les jours sur Instagram est peut etre ta pire erreur de debutant.'.\" },\n  1: { type: 'IDENTIFICATION', label: 'Identification Directe', instruction: \"Cible directement la situation du spectateur. Ex: 'T es du genre a tout planifier mais a ne jamais passer a l action pour ta marque ?'.\" },\n  2: { type: 'BOUCLE_OUVERTE', label: 'Boucle Ouverte', instruction: \"Ouvre une boucle que le cerveau DOIT fermer. Ex: 'Y a une chose que j aurais voulu savoir avant de lancer ma premiere marque.'.\" },\n  3: { type: 'CHIFFRE_CHOC', label: 'Chiffre Choc', instruction: \"Commence par un chiffre frappant. Ex: 'J ai genere mes 1000 premiers euros avec ma marque en 3 semaines. Voila la methode exacte.'.\" },\n  4: { type: 'PROMESSE_RAPIDE', label: 'Promesse Rapide', instruction: \"Promesse de valeur concrete. Ex: 'En 45 secondes je vais te montrer comment definir ton prix de vente sans perdre d argent.'.\" },\n  5: { type: 'CONTRE_INTUITIF', label: 'Contre-Intuitif', instruction: \"Ex: 'T as pas besoin d un logo pour commencer a vendre. Voila ce dont t as vraiment besoin.'.\" },\n  6: { type: 'BOUCLE_OUVERTE', label: 'Boucle Ouverte', instruction: \"Ex: 'Y a une raison pour laquelle certaines marques explosent en 3 mois et d autres galèrent pendant 2 ans.'.\" }\n};\nconst h = hooks[((day + offset) % 7)];\nreturn [{ json: { hookType: h.type, hookLabel: h.label, hookInstruction: h.instruction } }];"
-            },
-            "id": "a1b2c3d4-0016-0016-0016-000000000016",
-            "name": "Selecteur Hook 3",
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                220,
-                -420
-            ]
-        },
-        {
-            "parameters": {
-                "promptType": "define",
-                "text": "=Ta mission : Cree un script de video facecam (TikTok, Reels, Shorts) de 45 secondes sur le theme de lancer sa marque de vetement.\n\nTYPE DE HOOK DU JOUR : {{ $json.hookLabel }}\nINSTRUCTION POUR LE HOOK : {{ $json.hookInstruction }}\n\nLA FORMULE VIRALE (ordre strict) :\n1. HOOK (0-3 sec) : Applique le type de hook indique.\n2. CORPS (4-25 sec) : Valeur pure, concrete, actionnable. Phrases de 8 mots max.\n3. MICRO-CTA (25 sec) : 'Commente VETEMENT et je t envoie ma ressource complete en DM.' (coupe).\n4. CTA FINAL : 'Commente VETEMENT maintenant, c est gratuit.'\n\nMISE EN FORME (renvoie UNIQUEMENT ceci) :\n\n[EDUCATIF] - {{ $json.hookLabel }}\n\n🎬 SCRIPT FACECAM :\n(Hook) : [Texte hook]\n(Corps) : [Valeur pure, phrases courtes]\n(Micro-CTA) : [Replante l attention a 25 sec]\n(CTA Final) : [Commente VETEMENT + DM]\n\n📱 CAPTION : [Reprise hook | 2-3 lignes valeur | Commente VETEMENT | 5 hashtags]",
-                "hasOutputParser": false,
-                "messages": {
-                    "messageValues": [
-                        {
-                            "message": "Tu es le fondateur d'OUTFITY. Tu t'adresses a des 18-24 ans qui veulent lancer leur marque de vetement. Ecris pour etre DIT a voix haute : 't as', 'c est', 'y a', 'genre', 'en vrai'. Phrases courtes, ton naturel."
-                        }
-                    ]
-                }
-            },
-            "id": "a1b2c3d4-0017-0017-0017-000000000017",
-            "name": "Claude - Script Educatif 3",
-            "type": "@n8n/n8n-nodes-langchain.chainLlm",
-            "typeVersion": 1.4,
-            "position": [
-                440,
-                -420
-            ]
-        },
-        {
-            "parameters": {
                 "operation": "append",
                 "documentId": {
                     "value": "REMPLACE_PAR_TON_GOOGLE_DOC_ID",
@@ -247,8 +215,8 @@
                     "__rl": true,
                     "mode": "list"
                 },
-                "start": "={{ $json.text.includes('[OFFRE]') ? $today.plus({days:1, hours:19}).toISO() : $json.text.includes('[BUSINESS]') ? $today.plus({days:1, hours:17}).toISO() : $json.text.includes('[MARKETING]') ? $today.plus({days:1, hours:18}).toISO() : ($itemIndex % 3 === 0) ? $today.plus({days:1, hours:11}).toISO() : ($itemIndex % 3 === 1) ? $today.plus({days:1, hours:12}).toISO() : $today.plus({days:1, hours:13}).toISO() }}",
-                "end": "={{ $json.text.includes('[OFFRE]') ? $today.plus({days:1, hours:19, minutes:30}).toISO() : $json.text.includes('[BUSINESS]') ? $today.plus({days:1, hours:17, minutes:30}).toISO() : $json.text.includes('[MARKETING]') ? $today.plus({days:1, hours:18, minutes:30}).toISO() : ($itemIndex % 3 === 0) ? $today.plus({days:1, hours:11, minutes:30}).toISO() : ($itemIndex % 3 === 1) ? $today.plus({days:1, hours:12, minutes:30}).toISO() : $today.plus({days:1, hours:13, minutes:30}).toISO() }}",
+                "start": "={{ ($json.text.includes('[OFFRE]')) ? $today.plus({ days: 1, hours: 18 }).toISO() : $today.plus({ days: 1, hours: 11 }).plus({ minutes: $itemIndex * 90 }).toISO() }}",
+                "end": "={{ ($json.text.includes('[OFFRE]')) ? $today.plus({ days: 1, hours: 18, minutes: 30 }).toISO() : $today.plus({ days: 1, hours: 11, minutes: 30 }).plus({ minutes: $itemIndex * 90 }).toISO() }}",
                 "additionalFields": {
                     "summary": "=🎬 {{$json.text.match(/\\[(.*?)\\]/)?.[0] || '[CONTENU]'}} {{ $json.title || 'Strategie OUTFITY' }}",
                     "description": "={{ $json.text }}\n\n{{ $json.coverImage ? '🖼️ PHOTO DE L\\'ARTICLE :\n' + $json.coverImage : '' }}"
@@ -269,17 +237,7 @@
             "main": [
                 [
                     {
-                        "node": "Selecteur Type de Hook",
-                        "type": "main",
-                        "index": 0
-                    },
-                    {
-                        "node": "Selecteur Hook 2",
-                        "type": "main",
-                        "index": 0
-                    },
-                    {
-                        "node": "Selecteur Hook 3",
+                        "node": "Fetch OUTFITY Articles",
                         "type": "main",
                         "index": 0
                     },
@@ -301,68 +259,46 @@
                 ]
             ]
         },
-        "Selecteur Type de Hook": {
+        "Fetch OUTFITY Articles": {
             "main": [
                 [
                     {
-                        "node": "Claude - Script Educatif",
+                        "node": "Claude - Selectionneur de News",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         },
-        "Selecteur Hook 2": {
+        "Claude - Selectionneur de News": {
             "main": [
                 [
                     {
-                        "node": "Claude - Script Educatif 2",
+                        "node": "Split Articles",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         },
-        "Selecteur Hook 3": {
+        "Split Articles": {
             "main": [
                 [
                     {
-                        "node": "Claude - Script Educatif 3",
+                        "node": "Claude - Script News",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         },
-        "Claude - Script Educatif": {
+        "Claude - Script News": {
             "main": [
                 [
                     {
                         "node": "Merge All Scripts",
                         "type": "main",
                         "index": 0
-                    }
-                ]
-            ]
-        },
-        "Claude - Script Educatif 2": {
-            "main": [
-                [
-                    {
-                        "node": "Merge All Scripts",
-                        "type": "main",
-                        "index": 4
-                    }
-                ]
-            ]
-        },
-        "Claude - Script Educatif 3": {
-            "main": [
-                [
-                    {
-                        "node": "Merge All Scripts",
-                        "type": "main",
-                        "index": 5
                     }
                 ]
             ]
@@ -420,7 +356,12 @@
             "ai_languageModel": [
                 [
                     {
-                        "node": "Claude - Script Educatif",
+                        "node": "Claude - Script News",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    },
+                    {
+                        "node": "Claude - Selectionneur de News",
                         "type": "ai_languageModel",
                         "index": 0
                     }

@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Truck, Users, Loader2 } from 'lucide-react';
+import { Truck, Users } from 'lucide-react';
 
 interface SupplierItem {
   id: string;
@@ -16,10 +15,13 @@ interface SupplierItem {
 
 interface Phase3SourcingProps {
   brandId: string;
+  brand?: any;
   onComplete: () => void;
+  canComplete?: boolean;
+  userPlan?: string;
 }
 
-export function Phase3Sourcing({ brandId, onComplete }: Phase3SourcingProps) {
+export function Phase3Sourcing({ brandId, onComplete, canComplete = true, userPlan = 'starter' }: Phase3SourcingProps) {
   const [suppliers, setSuppliers] = useState<SupplierItem[]>([]);
   const [favoriteSuppliers, setFavoriteSuppliers] = useState<SupplierItem[]>([]);
   const [quoteCount, setQuoteCount] = useState(0);
@@ -136,7 +138,7 @@ export function Phase3Sourcing({ brandId, onComplete }: Phase3SourcingProps) {
     };
 
     load();
-    const interval = setInterval(load, 5000); // Rafraîchir plus souvent pour voir les changements
+    const interval = setInterval(load, 30000); // Rafraîchir toutes les 30 secondes
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [brandId]);
@@ -169,51 +171,79 @@ export function Phase3Sourcing({ brandId, onComplete }: Phase3SourcingProps) {
   return (
     <div className="space-y-6">
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-12 gap-3 text-muted-foreground">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          <p className="text-sm font-medium">Récupération des usines certifiées...</p>
+        <div className="space-y-3">
+          {[1, 2].map((i) => (
+            <div key={i} className="h-16 rounded-2xl bg-[#F5F5F7] animate-pulse" />
+          ))}
         </div>
       ) : (
         <>
-          {suppliers.length > 0 && (
-            <div className="rounded-xl border border-border bg-card p-4">
-              {renderList(suppliers, 'Fournisseurs avec qui vous travaillez', <Truck className="w-4 h-4 text-primary" />)}
+          {suppliers.length > 0 ? (
+            <div className="space-y-3">
+              {suppliers.map((s) => (
+                <div key={s.id} className="flex items-center gap-3 p-4 rounded-2xl bg-white border border-black/[0.06] shadow-sm">
+                  <div className="w-10 h-10 rounded-xl bg-[#F5F5F7] flex items-center justify-center shrink-0">
+                    <Truck className="w-5 h-5 text-[#86868B]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm text-[#1D1D1F] truncate">{s.name}</p>
+                    <p className="text-[11px] text-[#86868B]">
+                      {s.country}
+                      {s.moq != null && ` · MOQ ${s.moq}`}
+                      {s.leadTime != null && ` · ${s.leadTime}j`}
+                    </p>
+                  </div>
+                  {(s.quoteCount ?? 0) > 0 && (
+                    <span className="px-2.5 py-1 rounded-full bg-[#007AFF]/10 text-[#007AFF] text-[11px] font-bold shrink-0">
+                      {s.quoteCount} devis
+                    </span>
+                  )}
+                </div>
+              ))}
             </div>
-          )}
-
-          {suppliers.length === 0 && (
-            <p className="text-sm text-muted-foreground">
-              Aucun fournisseur pour l&apos;instant. Cliquez sur « Travailler avec des fournisseurs » pour choisir des usines et les mettre en favori (étoile).
-            </p>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 px-4 text-center rounded-2xl bg-[#F5F5F7]/60 border border-black/5">
+              <div className="w-16 h-16 rounded-[20px] bg-white flex items-center justify-center mb-4 shadow-sm border border-black/5">
+                <Truck className="w-8 h-8 text-[#C7C7CC]" />
+              </div>
+              <h3 className="text-base font-bold text-[#1D1D1F] mb-1">Aucun fournisseur</h3>
+              <p className="text-sm text-[#86868B] max-w-[260px] leading-relaxed">
+                Accédez au hub pour trouver des usines vérifiées, les mettre en favori et leur envoyer votre tech pack.
+              </p>
+            </div>
           )}
         </>
       )}
 
       {quoteCount > 0 && quoteCount < 2 && (
-        <div className="p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
-          <div className="text-sm text-amber-800 dark:text-amber-200 font-medium">
-            {quoteCount} devis envoyé{quoteCount > 1 ? 's' : ''} sur 2 requis pour valider la phase
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+            <Users className="w-4 h-4 text-amber-600" />
           </div>
+          <p className="text-sm text-amber-800 font-medium">
+            {quoteCount} devis envoyé sur 2 requis pour valider la phase
+          </p>
         </div>
       )}
 
       {quoteCount >= 2 && !isCompleted && (
-        <div className="p-4 bg-success/10 border border-success/30 rounded-lg">
-          <div className="text-sm text-success font-medium mb-2">
-            ✓ Phase complétée ! Vous avez envoyé {quoteCount} devis.
+        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-600 font-bold text-sm">✓</div>
+          <div className="flex-1">
+            <p className="text-sm text-emerald-800 font-bold mb-1">Phase complétée ! {quoteCount} devis envoyés.</p>
+            <button onClick={() => { setIsCompleted(true); onComplete(); }} className="text-[12px] font-bold text-emerald-700 hover:text-emerald-900 underline underline-offset-2">
+              Valider et continuer →
+            </button>
           </div>
-          <Button onClick={() => { setIsCompleted(true); onComplete(); }} variant="default" size="sm">
-            Valider et passer à la phase suivante
-          </Button>
         </div>
       )}
 
-      <div className="mt-8">
+      <div className="mt-2">
         <Link href="/launch-map/sourcing">
-          <Button className="bg-stone-900 hover:bg-stone-800 text-white font-medium tracking-wide uppercase text-xs py-3 px-6 gap-2">
+          <button className="flex items-center justify-center gap-2 w-full h-12 rounded-2xl bg-[#1D1D1F] hover:bg-[#3a3a3c] text-white font-bold text-sm transition-all active:scale-[0.97] shadow-sm">
             <Users className="w-4 h-4" />
-            Travailler avec des fournisseurs
-          </Button>
+            Accéder au Hub Sourcing
+          </button>
         </Link>
       </div>
     </div>

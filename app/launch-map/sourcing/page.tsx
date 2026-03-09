@@ -1,5 +1,4 @@
-﻿export const dynamic = 'force-dynamic';
-import { getCurrentUser } from '@/lib/auth-helpers';
+﻿import { getCurrentUser } from '@/lib/auth-helpers';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { Phase3SourcingChat } from '@/components/launch-map/Phase3SourcingChat';
@@ -40,4 +39,3 @@ export default async function LaunchMapSourcingPage() {
     </div>
   );
 }
-

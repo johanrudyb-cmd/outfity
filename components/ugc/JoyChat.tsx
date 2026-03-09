@@ -1,6 +1,6 @@
 'use client';
 
-import { Sparkles, MessageCircle, Calendar as CalendarIcon, Bot, User, LayoutList, ArrowRight } from 'lucide-react';
+import { Bot, LayoutList, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
@@ -16,24 +16,32 @@ interface JoyChatProps {
 
 export function JoyChat({ brandId, brandName, initialImageUrl, userPlan = 'free', onBack }: JoyChatProps) {
     const renderMessageContent = (content: string, isUser: boolean) => {
-        const parts = content.split(/(\[.*?\]\(.*?\))/g);
         return (
-            <div className="leading-relaxed text-[15px]">
-                {parts.map((part, i) => {
-                    const match = part.match(/^\[(.*?)\]\((.*?)\)$/);
-                    if (match) {
-                        const [, label, url] = match;
-                        return (
-                            <Link key={i} href={url}
-                                className={cn("inline-flex items-center gap-2 mt-3 mb-1 font-bold text-[13px] px-5 py-2.5 rounded-2xl transition-all no-underline shadow-sm",
+            <div className="leading-relaxed text-[15px] prose prose-sm max-w-none">
+                <ReactMarkdown
+                    components={{
+                        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                        strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+                        em: ({ children }) => <em className="italic">{children}</em>,
+                        ul: ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>,
+                        ol: ({ children }) => <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>,
+                        li: ({ children }) => <li className="text-[14px]">{children}</li>,
+                        a: ({ href, children }) => (
+                            <Link
+                                href={href || '#'}
+                                className={cn(
+                                    "inline-flex items-center gap-2 mt-2 mb-1 font-bold text-[13px] px-4 py-2 rounded-2xl transition-all no-underline shadow-sm",
                                     isUser ? "bg-white text-[#AF52DE]" : "bg-[#AF52DE] text-white hover:bg-[#AF52DE]/90"
-                                )}>
-                                {label}<ArrowRight className="w-4 h-4" />
+                                )}
+                            >
+                                {children}<ArrowRight className="w-3.5 h-3.5" />
                             </Link>
-                        );
-                    }
-                    return <span key={i} style={{ whiteSpace: 'pre-wrap' }}>{part}</span>;
-                })}
+                        ),
+                        code: ({ children }) => <code className="bg-black/5 rounded px-1 py-0.5 text-[13px] font-mono">{children}</code>,
+                    }}
+                >
+                    {content}
+                </ReactMarkdown>
             </div>
         );
     };

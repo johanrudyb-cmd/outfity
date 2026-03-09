@@ -89,8 +89,8 @@ export default function TrendsByMarket() {
                             <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF]">Radar de Tendances // Analyse TikTok</span>
                         </motion.div>
                         <h2 className="text-3xl sm:text-5xl lg:text-7xl font-black tracking-tighter text-black uppercase leading-[0.9] sm:leading-[0.85]">
-                            Analyse des <br className="hidden sm:block" />
-                            <span className="text-[#007AFF]">Tendances TikTok.</span>
+                            Tu commandes quand<br className="hidden sm:block" />
+                            <span className="text-[#007AFF]">les autres regardent encore.</span>
                         </h2>
                     </div>
 
@@ -100,7 +100,7 @@ export default function TrendsByMarket() {
                             <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-black">Mise à jour dans :</span>
                         </div>
                         <div className="text-3xl sm:text-4xl font-mono font-black tracking-tighter text-black flex items-center">
-                            <span className="text-[#007AFF] mr-1">-</span>{countdown}
+                            {countdown}
                         </div>
                         <p className="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase tracking-widest text-left lg:text-right max-w-[180px] sm:max-w-[200px]">
                             Notre IA transforme les données virales en courbes de prédiction sur 90 jours.
@@ -158,7 +158,7 @@ export default function TrendsByMarket() {
                 <div className="mt-10 sm:mt-20 flex flex-col items-center gap-6">
                     <div className="max-w-xl text-center">
                         <p className="text-[9px] sm:text-xs lg:text-sm text-gray-500/80 font-medium leading-relaxed italic px-4">
-                            "Nous ne nous contentons pas de copier la mode actuelle. Notre infrastructure traite des gigaoctets de données de vente, d'intentions de recherche et de clusters comportementaux pour prédire ce que vos clients voudront acheter dans 3 mois."
+                            "Le radar analyse les tendances TikTok avant qu'elles explosent. Tu sais 90 jours a l'avance ce qui va cartonner. Tes concurrents verront la tendance quand tu auras deja vendu."
                         </p>
                     </div>
                 </div>

@@ -25,7 +25,7 @@ import Link from 'next/link';
 const resources = [
     {
         id: "marketing",
-        title: "Faire ses premiers 1\xA0000€ avec sa marque de vêtement",
+        title: "Faire ses premiers 1 000€ avec sa marque de vêtement",
         description: "Les meilleures stratégies de positionnement, TikTok organique et conversions pour ta marque.",
         icon: Globe,
         category: "FORMATION PRIVÉE",
@@ -88,10 +88,14 @@ export default function CommunityPage() {
     const handleActionClick = (resource: any) => {
         // If it's unlocked or not locked, just go to link or download
         if (!resource.locked || unlockedItems.includes(resource.id)) {
-            if (resource.link !== '#') {
-                window.location.href = resource.link;
+            if (resource.isDownload) {
+                // Créer un lien dynamique pour forcer le téléchargement
+                const a = document.createElement('a');
+                a.href = resource.link;
+                a.download = resource.link.split('/').pop() || 'download';
+                a.click();
             } else {
-                alert("Téléchargement de la ressource déverrouillée en cours... (À lier au vrai fichier)");
+                window.location.href = resource.link;
             }
             return;
         }

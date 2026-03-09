@@ -86,58 +86,104 @@ export function Phase6Shopify({ brandId, brand, shopifyShopDomain, onComplete, u
 
   const headerActions = undefined;
 
-  const customViews = showConnect ? (
-    <div className="self-center w-full max-w-sm my-4 animate-in fade-in zoom-in-95 duration-500">
-      <div className="bg-white rounded-[28px] border border-black/[0.08] shadow-apple-lg p-6 sm:p-8 space-y-6">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#95BF47]/10 flex items-center justify-center">
-            <ShoppingBag className="w-6 h-6 text-[#5E8E3E]" />
-          </div>
-          <div>
-            <h4 className="font-bold text-[#1D1D1F]">Connecter Shopify</h4>
-            <p className="text-xs text-[#86868B]">Reliez votre boutique existante</p>
+  const customViews = (
+    <div className="flex flex-col gap-6">
+      {showConnect && (
+        <div className="self-center w-full max-w-sm my-4 animate-in fade-in zoom-in-95 duration-500">
+          <div className="bg-white rounded-[28px] border border-black/[0.08] shadow-apple-lg p-6 sm:p-8 space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-[#95BF47]/10 flex items-center justify-center">
+                <ShoppingBag className="w-6 h-6 text-[#5E8E3E]" />
+              </div>
+              <div>
+                <h4 className="font-bold text-[#1D1D1F]">Connecter Shopify</h4>
+                <p className="text-xs text-[#86868B]">Reliez votre boutique existante</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-black uppercase tracking-widest ml-1 text-black/30">Domaine .myshopify.com</Label>
+                <Input
+                  placeholder="ma-boutique.myshopify.com"
+                  value={domain}
+                  onChange={e => setDomain(e.target.value)}
+                  className="h-12 rounded-xl border-black/[0.08] focus:ring-[#95BF47]/10 focus:border-[#95BF47]/40 font-medium"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-black uppercase tracking-widest ml-1 text-black/30">Access Token (Admin API)</Label>
+                <Input
+                  type="password"
+                  placeholder="shpat_xxxxxxxxxxxxxxxx"
+                  value={accessToken}
+                  onChange={e => setAccessToken(e.target.value)}
+                  className="h-12 rounded-xl border-black/[0.08] focus:ring-[#95BF47]/10 focus:border-[#95BF47]/40 font-medium"
+                />
+              </div>
+              {connectError && <p className="text-xs font-bold text-rose-500 px-1 italic">! {connectError}</p>}
+              <Button
+                onClick={handleConnect}
+                disabled={connecting || !domain || !accessToken}
+                className="w-full h-12 rounded-xl bg-[#5E8E3E] hover:bg-[#4A7231] text-white font-bold shadow-sm transition-apple"
+              >
+                {connecting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Lancer la synchronisation'}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setShowConnect(false)}
+                className="w-full h-10 rounded-xl text-xs font-bold text-[#86868B] hover:text-[#1D1D1F]"
+              >
+                Plus tard
+              </Button>
+            </div>
           </div>
         </div>
+      )}
 
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <Label className="text-[10px] font-black uppercase tracking-widest ml-1 text-black/30">Domaine .myshopify.com</Label>
-            <Input
-              placeholder="ma-boutique.myshopify.com"
-              value={domain}
-              onChange={e => setDomain(e.target.value)}
-              className="h-12 rounded-xl border-black/[0.08] focus:ring-[#95BF47]/10 focus:border-[#95BF47]/40 font-medium"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-[10px] font-black uppercase tracking-widest ml-1 text-black/30">Access Token (Admin API)</Label>
-            <Input
-              type="password"
-              placeholder="shpat_xxxxxxxxxxxxxxxx"
-              value={accessToken}
-              onChange={e => setAccessToken(e.target.value)}
-              className="h-12 rounded-xl border-black/[0.08] focus:ring-[#95BF47]/10 focus:border-[#95BF47]/40 font-medium"
-            />
-          </div>
-          {connectError && <p className="text-xs font-bold text-rose-500 px-1 italic">! {connectError}</p>}
-          <Button
-            onClick={handleConnect}
-            disabled={connecting || !domain || !accessToken}
-            className="w-full h-12 rounded-xl bg-[#5E8E3E] hover:bg-[#4A7231] text-white font-bold shadow-sm transition-apple"
-          >
-            {connecting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Lancer la synchronisation'}
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={() => setShowConnect(false)}
-            className="w-full h-10 rounded-xl text-xs font-bold text-[#86868B] hover:text-[#1D1D1F]"
-          >
-            Plus tard
-          </Button>
+      {/* Quick Actions Guide */}
+      <div className="px-6 pb-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30 mb-4 ml-1">Actions d&apos;Expert</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {[
+            {
+              label: '🎨 Choix du Thème',
+              icon: Store,
+              prompt: "Johan, quel thème Shopify me conseilles-tu pour une marque de vêtement minimaliste et haut de gamme ?"
+            },
+            {
+              label: '🔌 Apps Essentielles',
+              icon: ShoppingBag,
+              prompt: "Quelles sont les meilleures applications Shopify pour gérer les stocks et les avis clients dans la mode ?"
+            },
+            {
+              label: '📈 Checklist Lancement',
+              icon: ArrowRight,
+              prompt: "Donne-moi une checklist complète des réglages à vérifier avant d'ouvrir officiellement ma boutique."
+            }
+          ].map((action) => (
+            <Button
+              key={action.label}
+              variant="outline"
+              onClick={() => {
+                const event = new CustomEvent('agent-chat-input', { detail: action.prompt });
+                window.dispatchEvent(event);
+              }}
+              className="h-auto py-5 px-4 rounded-[24px] border-black/[0.06] hover:border-[#5E8E3E]/40 hover:bg-[#5E8E3E]/5 flex flex-col items-center text-center gap-3 group transition-all shadow-sm bg-white/50 backdrop-blur-sm"
+            >
+              <div className="w-10 h-10 rounded-2xl bg-[#5E8E3E]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <action.icon className="w-5 h-5 text-[#5E8E3E]" />
+              </div>
+              <div className="space-y-1">
+                <span className="text-sm font-bold text-[#1D1D1F] block">{action.label}</span>
+                <span className="text-[10px] text-[#86868B] font-medium leading-tight block opacity-60">Demander conseil</span>
+              </div>
+            </Button>
+          ))}
         </div>
       </div>
     </div>
-  ) : null;
+  );
 
   return (
     <BaseAgentChat
@@ -172,6 +218,7 @@ export function Phase6Shopify({ brandId, brand, shopifyShopDomain, onComplete, u
       hideChatWhenCustomView={true}
       onComplete={onComplete}
       upgradeLinkText="Débloquer E-shop Builder"
+      backHref="/launch-map"
     />
   );
 }

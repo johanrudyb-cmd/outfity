@@ -1,13 +1,14 @@
-﻿export const dynamic = 'force-dynamic';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
+﻿import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { SourcingHub } from '@/components/sourcing/SourcingHub';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import { isFreePlan } from '@/lib/plan-utils';
 import { ShoppingBag } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { Suspense } from 'react';
 
-export default async function SourcingPage({
+async function SourcingContent({
   searchParams,
 }: {
   searchParams: Promise<{ trend?: string; productType?: string; material?: string; autoFilter?: string }>;
@@ -15,6 +16,11 @@ export default async function SourcingPage({
   const user = await getCurrentUser();
   if (!user) {
     redirect('/auth/signin');
+  }
+
+  // Ada (Sourcing) = Plan Créateur uniquement
+  if (isFreePlan(user.plan)) {
+    redirect('/auth/choose-plan');
   }
 
   const params = await searchParams;
@@ -80,6 +86,24 @@ export default async function SourcingPage({
   }
 
   return (
+    <SourcingHub
+      brandId={brand.id}
+      sentQuotes={quotes}
+      favoriteFactoryIds={favoriteFactoryIds}
+      preferences={preferences}
+      trendEmailData={trendData}
+      autoFilterData={autoFilterData}
+      userPlan={user.plan}
+    />
+  );
+}
+
+export default function SourcingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ trend?: string; productType?: string; material?: string; autoFilter?: string }>;
+}) {
+  return (
     <DashboardLayout>
       <div className="p-8 max-w-7xl mx-auto space-y-8">
         <PageHeader
@@ -87,16 +111,9 @@ export default async function SourcingPage({
           description="Trouvez les meilleures usines pour produire vos créations"
           icon={ShoppingBag}
         />
-
-        <SourcingHub
-          brandId={brand.id}
-          sentQuotes={quotes}
-          favoriteFactoryIds={favoriteFactoryIds}
-          preferences={preferences}
-          trendEmailData={trendData}
-          autoFilterData={autoFilterData}
-          userPlan={user.plan}
-        />
+        <Suspense fallback={<div className="h-64 flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+          <SourcingContent searchParams={searchParams} />
+        </Suspense>
       </div>
     </DashboardLayout>
   );

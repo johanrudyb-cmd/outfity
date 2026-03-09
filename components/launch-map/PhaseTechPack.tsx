@@ -20,6 +20,10 @@ import {
   FileText,
   Trash2,
   TrendingUp,
+  ArrowLeft,
+  Fullscreen,
+  Eye,
+  X,
 } from 'lucide-react';
 import type { BrandIdentity } from './LaunchMapStepper';
 import {
@@ -85,6 +89,14 @@ const CATEGORY_OPTIONS = [
   { value: 'AUTRE', label: 'Autre' },
 ];
 
+const SMART_SUGGESTIONS: Record<string, { fabric: string; care: string }> = {
+  'hoodie': { fabric: '100% Cotton Fleece, 400gsm', care: 'Lavage à 30°C, pas de sèche-linge, repassage à l\'envers.' },
+  'tshirt': { fabric: '100% Single Jersey Cotton, 240gsm', care: 'Lavage à 30°C, ne pas javelliser, repassage doux.' },
+  'sweat': { fabric: '100% French Terry Cotton, 350gsm', care: 'Lavage à 30°C, pas de sèche-linge.' },
+  'pantalon': { fabric: 'Heavy Cotton Twill, 280gsm', care: 'Lavage à froid, séchage air libre.' },
+  'accessoires': { fabric: '100% Acrylic or Wool blend', care: 'Lavage à la main recommandé.' },
+};
+
 interface PhaseTechPackProps {
   brandId: string;
   brand?: BrandIdentity | null;
@@ -103,6 +115,8 @@ const DEFAULT_CARE =
 const MOCKUP_TYPES = Object.keys(PLACEMENTS_BY_MOCKUP_TYPE).sort((a, b) => a.localeCompare(b));
 
 export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseTechPackProps) {
+  const [showFullPreview, setShowFullPreview] = useState(false);
+  const [activeStep, setActiveStep] = useState(1);
   const [step, setStep] = useState(1);
   const [mockupType, setMockupType] = useState<string>('T-shirt');
   const productTypeKey = getDimensionKeyForMockupType(mockupType);
@@ -111,6 +125,8 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
   const [uploadedBackUrl, setUploadedBackUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isAddingDesign, setIsAddingDesign] = useState(false);
+  const [designs, setDesigns] = useState<any[]>([]);
+  const [designsLoading, setDesignsLoading] = useState(true);
   const fileInputMockupRef = useRef<HTMLInputElement>(null);
 
   const [season, setSeason] = useState('');
@@ -163,8 +179,8 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
   };
 
   const [selectedDesignId, setSelectedDesignIdState] = useState<string | null>(null);
-
   const [designLoaded, setDesignLoaded] = useState(false);
+  const [draftLoaded, setDraftLoaded] = useState(false);
 
   const searchParams = useSearchParams();
   const editIdFromUrl = searchParams.get('edit');
@@ -197,18 +213,15 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
 
         setUploadedMockupUrl(design.productImageUrl || null);
         setUploadedBackUrl(design.flatSketchUrl || null);
-        setSeason((mockupSpec.season as string) || '');
-        setColorMain((mockupSpec.colorMain as string) || '');
-        setDesignName((sd.designName as string) || design.type || '');
-        setCategory((sd.category as string) || 'TOP');
-        setFabric((sd.fabric as string) || design.material || '');
+        const pk = ((sd.productTypeKey as ProductTypeKey) || 'tshirt');
+        setFabric((sd.fabric as string) || design.material || SMART_SUGGESTIONS[pk]?.fabric || '');
         setPrintType((sd.printType as string) || '');
         setIssueNo((sd.issueNo as string) || '');
         setOutDate((sd.outDate as string) || new Date().toISOString().slice(0, 10));
         setSizes(Array.isArray(sd.sizes) ? sd.sizes as string[] : ['S', 'M', 'L', 'XL']);
         setDesignerName((tp.designerName as string) || (sd.designerName as string) || '');
         setManufacturer((tp.manufacturer as string) || (sd.manufacturer as string) || '');
-        setCareInstructions((tp.labeling as string) || DEFAULT_CARE);
+        setCareInstructions((tp.labeling as string) || SMART_SUGGESTIONS[pk]?.care || DEFAULT_CARE);
         setMadeIn((tp.compliance as string) || '');
         const printSpec = (tp.printSpec || {}) as Record<string, unknown>;
         setPrintWidth(printSpec.width != null ? String(printSpec.width) : '');
@@ -218,7 +231,6 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
         setDesignerLogoUrl((sd.designerLogoUrl as string) || null);
         if (sd.frontDesignWidthIn != null) setFrontDesignWidthIn(String(sd.frontDesignWidthIn));
         if (sd.frontDesignHeightIn != null) setFrontDesignHeightIn(String(sd.frontDesignHeightIn));
-        const pk = ((sd.productTypeKey as ProductTypeKey) || 'tshirt');
         const storedMockupType = sd.mockupType as string | undefined;
         const mt = storedMockupType && MOCKUP_TYPES.includes(storedMockupType)
           ? storedMockupType
@@ -281,6 +293,17 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
   const [dimensionsClassiquesOpen, setDimensionsClassiquesOpen] = useState(false);
 
   useEffect(() => {
+    if (!brandId) return;
+    fetch(`/api/designs?brandId=${brandId}`)
+      .then(res => res.json())
+      .then(data => {
+        setDesigns((data.designs || []).filter((d: any) => d.productImageUrl));
+        setDesignsLoading(false);
+      })
+      .catch(() => setDesignsLoading(false));
+  }, [brandId]);
+
+  useEffect(() => {
     const key = productTypeKey;
     setDesignProductTypeKey(key);
     if (modifyDimensions === true && !(selectedDesignId && designLoaded)) {
@@ -322,6 +345,140 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
     else if (step === 5 && modifyDimensions !== null) setStep(6);
     else if (step === 6) void handleSaveAndComplete();
   };
+
+  // Load draft from localStorage (only for NEW designs)
+  useEffect(() => {
+    if (editIdFromUrl || draftLoaded) return;
+    const saved = localStorage.getItem(`techpack-draft-${brandId}`);
+    if (saved) {
+      try {
+        const d = JSON.parse(saved);
+        if (d.season) setSeason(d.season);
+        if (d.designName) setDesignName(d.designName);
+        if (d.fabric) setFabric(d.fabric);
+        if (d.fabricOther) setFabricOther(d.fabricOther);
+        if (d.printType) setPrintType(d.printType);
+        if (d.careInstructions) setCareInstructions(d.careInstructions);
+        if (d.madeIn) setMadeIn(d.madeIn);
+        if (d.designerName) setDesignerName(d.designerName);
+        if (d.manufacturer) setManufacturer(d.manufacturer);
+        if (d.sizes) setSizes(d.sizes);
+        if (d.labels) setLabels(d.labels);
+        if (d.colorSwatches) setColorSwatches(d.colorSwatches);
+        if (d.uploadedMockupUrl) setUploadedMockupUrl(d.uploadedMockupUrl);
+        if (d.uploadedBackUrl) setUploadedBackUrl(d.uploadedBackUrl);
+        if (d.dimensionsBySize) setDimensionsBySize(d.dimensionsBySize);
+        if (d.mockupType) setMockupType(d.mockupType);
+        if (d.category) setCategory(d.category);
+        if (d.issueNo) setIssueNo(d.issueNo);
+        if (d.outDate) setOutDate(d.outDate);
+      } catch (e) { console.warn("Failed to load techpack draft", e); }
+    }
+    setDraftLoaded(true);
+  }, [brandId, editIdFromUrl, draftLoaded]);
+
+  // Save draft to localStorage (autosave)
+  useEffect(() => {
+    if (editIdFromUrl || justCompleted) return;
+    const timer = setTimeout(() => {
+      const draft = {
+        season, designName, fabric, fabricOther, printType,
+        careInstructions, madeIn, designerName, manufacturer,
+        sizes, labels, colorSwatches, uploadedMockupUrl,
+        uploadedBackUrl, dimensionsBySize, mockupType, category,
+        issueNo, outDate
+      };
+      localStorage.setItem(`techpack-draft-${brandId}`, JSON.stringify(draft));
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [
+    brandId, editIdFromUrl, justCompleted, season, designName, fabric, fabricOther,
+    printType, careInstructions, madeIn, designerName, manufacturer,
+    sizes, labels, colorSwatches, uploadedMockupUrl,
+    uploadedBackUrl, dimensionsBySize, mockupType, category, issueNo, outDate
+  ]);
+
+  // Cleanup draft on success
+  useEffect(() => {
+    if (justCompleted && !editIdFromUrl) {
+      localStorage.removeItem(`techpack-draft-${brandId}`);
+    }
+  }, [justCompleted, editIdFromUrl, brandId]);
+
+  // 1. Load draft from DB (only for NEW designs)
+  useEffect(() => {
+    if (editIdFromUrl || draftLoaded) return;
+
+    (async () => {
+      try {
+        const res = await fetch(`/api/launch-map/draft?brandId=${brandId}`);
+        if (res.ok) {
+          const { draft } = await res.json();
+          if (draft) {
+            if (draft.season) setSeason(draft.season);
+            if (draft.designName) setDesignName(draft.designName);
+            if (draft.fabric) setFabric(draft.fabric);
+            if (draft.fabricOther) setFabricOther(draft.fabricOther);
+            if (draft.printType) setPrintType(draft.printType);
+            if (draft.careInstructions) setCareInstructions(draft.careInstructions);
+            if (draft.madeIn) setMadeIn(draft.madeIn);
+            if (draft.designerName) setDesignerName(draft.designerName);
+            if (draft.manufacturer) setManufacturer(draft.manufacturer);
+            if (draft.sizes) setSizes(draft.sizes);
+            if (draft.labels) setLabels(draft.labels);
+            if (draft.colorSwatches) setColorSwatches(draft.colorSwatches);
+            if (draft.uploadedMockupUrl) setUploadedMockupUrl(draft.uploadedMockupUrl);
+            if (draft.uploadedBackUrl) setUploadedBackUrl(draft.uploadedBackUrl);
+            if (draft.dimensionsBySize) setDimensionsBySize(draft.dimensionsBySize);
+            if (draft.mockupType) setMockupType(draft.mockupType);
+            if (draft.category) setCategory(draft.category);
+            if (draft.issueNo) setIssueNo(draft.issueNo);
+            if (draft.outDate) setOutDate(draft.outDate);
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to load techpack draft from DB", e);
+      } finally {
+        setDraftLoaded(true);
+      }
+    })();
+  }, [brandId, editIdFromUrl, draftLoaded]);
+
+  // 2. Save draft to DB (autosave with debounce)
+  useEffect(() => {
+    if (editIdFromUrl || justCompleted || !draftLoaded) return;
+    const timer = setTimeout(() => {
+      const draft = {
+        season, designName, fabric, fabricOther, printType,
+        careInstructions, madeIn, designerName, manufacturer,
+        sizes, labels, colorSwatches, uploadedMockupUrl,
+        uploadedBackUrl, dimensionsBySize, mockupType, category,
+        issueNo, outDate
+      };
+      fetch('/api/launch-map/draft', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brandId, draft })
+      }).catch(e => console.warn("Failed to save draft to DB", e));
+    }, 3000); // 3 seconds debounce for DB
+    return () => clearTimeout(timer);
+  }, [
+    brandId, editIdFromUrl, justCompleted, draftLoaded, season, designName, fabric,
+    fabricOther, printType, careInstructions, madeIn, designerName, manufacturer,
+    sizes, labels, colorSwatches, uploadedMockupUrl,
+    uploadedBackUrl, dimensionsBySize, mockupType, category, issueNo, outDate
+  ]);
+
+  // 3. Cleanup draft on success
+  useEffect(() => {
+    if (justCompleted && !editIdFromUrl) {
+      fetch('/api/launch-map/draft', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brandId, draft: null })
+      }).catch(() => { });
+    }
+  }, [justCompleted, editIdFromUrl, brandId]);
 
   const ensureDesignFromUpload = async (): Promise<{ designId: string | null; error?: string }> => {
     if (selectedDesignId) return { designId: selectedDesignId };
@@ -565,12 +722,12 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
                 </Link>
               )}
               {!isEditMode && (
-                <Link
-                  href="/launch-map/phase/5"
-                  className="inline-flex items-center justify-center h-10 px-5 text-sm font-semibold rounded-lg border-2 border-border hover:bg-muted hover:border-primary/50 transition-all"
+                <Button
+                  onClick={onComplete}
+                  className="inline-flex items-center justify-center h-10 px-5 text-sm font-semibold rounded-lg bg-[#007AFF] text-white hover:bg-[#0056CC]"
                 >
                   Continuer vers le Sourcing
-                </Link>
+                </Button>
               )}
             </div>
           </CardContent>
@@ -580,29 +737,36 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
   }
 
   return (
-    <div className="w-full min-h-[400px] lg:h-[calc(100vh-140px)] lg:flex lg:flex-col lg:overflow-hidden relative bg-white border border-black/5 rounded-[32px] shadow-sm overflow-hidden">
-      {/* Mobile Tab Switcher */}
-      <div className="lg:hidden sticky top-0 z-50 bg-background border-b flex p-1 gap-1">
-        <button
-          onClick={() => setMobileTab('form')}
-          className={cn(
-            "flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold transition-all",
-            mobileTab === 'form' ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:bg-muted"
-          )}
-        >
-          <FileText className="w-4 h-4" />
-          Éditer
-        </button>
-        <button
-          onClick={() => setMobileTab('preview')}
-          className={cn(
-            "flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold transition-all",
-            mobileTab === 'preview' ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:bg-muted"
-          )}
-        >
-          <TrendingUp className="w-4 h-4" />
-          Aperçu
-        </button>
+    <div className="w-full min-h-[400px] lg:h-[calc(100vh-140px)] lg:flex lg:flex-col lg:overflow-hidden relative bg-white border border-black/[0.06] rounded-[28px] sm:rounded-[32px] shadow-apple overflow-hidden">
+      {/* Mobile Tab Switcher — pill style */}
+      <div className="lg:hidden sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-black/[0.06] px-4 py-3 flex items-center justify-between gap-3">
+        <p className="text-[11px] font-black text-[#86868B] uppercase tracking-widest">Tech Pack</p>
+        <div className="flex p-1 gap-1 bg-[#F5F5F7] rounded-xl">
+          <button
+            onClick={() => setMobileTab('form')}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-bold transition-all",
+              mobileTab === 'form'
+                ? "bg-white text-[#1D1D1F] shadow-sm"
+                : "text-[#86868B] hover:text-[#1D1D1F]"
+            )}
+          >
+            <FileText className="w-3.5 h-3.5" />
+            Formulaire
+          </button>
+          <button
+            onClick={() => setMobileTab('preview')}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-bold transition-all",
+              mobileTab === 'preview'
+                ? "bg-white text-[#1D1D1F] shadow-sm"
+                : "text-[#86868B] hover:text-[#1D1D1F]"
+            )}
+          >
+            <TrendingUp className="w-3.5 h-3.5" />
+            Aperçu
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(420px,560px)_1fr] gap-0 xl:flex-1 xl:min-h-0 xl:overflow-hidden">
@@ -610,6 +774,17 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
           "border-b xl:border-b-0 xl:border-r border-border overflow-y-auto p-4 xl:p-8 space-y-8 bg-white xl:min-h-0",
           mobileTab !== 'form' && "hidden xl:block"
         )}>
+          {!standalone && (
+            <div className="flex items-center gap-4 mb-4">
+              <Link
+                href="/launch-map"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-[#86868B] hover:text-[#1D1D1F] transition-colors group"
+              >
+                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                Retour
+              </Link>
+            </div>
+          )}
           {!standalone && (
             <div>
               <h2 className="text-xl font-black text-[#1D1D1F] tracking-tight mb-1">{isEditMode ? 'Modifier le tech pack' : 'Remplir le tech pack'}</h2>
@@ -702,8 +877,43 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
               <ChevronDown className={cn("w-5 h-5 transition-transform", !collapsedSections.import && "rotate-180")} />
             </button>
             {!collapsedSections.import && (
-              <CardContent className="pt-0 space-y-4">
-                <CardDescription>Importez un document devant + dos (PNG/JPG).</CardDescription>
+              <CardContent className="pt-0 space-y-6">
+                <CardDescription>Sélectionnez un design Pharrell ou importez votre propre mockup.</CardDescription>
+
+                {/* Design Picker */}
+                {designs.length > 0 && (
+                  <div className="space-y-3">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-[#86868B] ml-1">Tes Designs Récents</Label>
+                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
+                      {designs.map((d) => (
+                        <button
+                          key={d.id}
+                          onClick={() => {
+                            setSelectedDesignId(d.id);
+                            setDesignLoaded(false); // Trigger reload
+                          }}
+                          className={cn(
+                            "aspect-square rounded-xl border-2 transition-all p-2 bg-muted/30 group relative",
+                            selectedDesignId === d.id ? "border-primary bg-primary/5 ring-4 ring-primary/10" : "border-transparent opacity-60 hover:opacity-100"
+                          )}
+                        >
+                          <img src={d.productImageUrl} className="w-full h-full object-contain mix-blend-multiply" />
+                          {selectedDesignId === d.id && (
+                            <div className="absolute -top-1 -right-1 bg-primary text-white rounded-full p-0.5 shadow-sm">
+                              <Check className="w-3 h-3" />
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-black/5" /></div>
+                  <div className="relative flex justify-center text-[10px] uppercase font-black text-black/20"><span className="bg-white px-4">OU</span></div>
+                </div>
+
                 <input ref={fileInputMockupRef} type="file" accept="image/*" className="hidden" onChange={handleMockupFileChange} />
                 <div
                   className="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors"
@@ -988,6 +1198,14 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
                 </Link>
               )}
               <Button
+                variant="outline"
+                onClick={() => setShowFullPreview(true)}
+                className="gap-2 sm:w-auto w-full"
+              >
+                <Eye className="w-4 h-4" />
+                Aperçu de la fiche
+              </Button>
+              <Button
                 onClick={() => void handleSaveAndComplete()}
                 disabled={saving || !hasImagesForSave}
                 className={`gap-2 ${isEditMode ? 'flex-1' : 'w-full'}`}
@@ -1053,6 +1271,69 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
           </div>
         </div>
       </div>
+      {/* Full Preview Modal */}
+      {showFullPreview && (
+        <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center p-4 sm:p-10 animate-in fade-in duration-300">
+          <div className="w-full max-w-5xl bg-white rounded-xl shadow-2xl relative overflow-hidden flex flex-col h-full">
+            <div className="h-14 border-b px-6 flex items-center justify-between shrink-0 bg-[#1D1D1F] text-white">
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                <span className="font-bold text-sm tracking-tight uppercase">Aperçu du Tech Pack</span>
+              </div>
+              <Button
+                variant="ghost"
+                onClick={() => setShowFullPreview(false)}
+                className="text-white hover:bg-white/10 rounded-full w-10 h-10 p-0"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-auto p-4 sm:p-8 bg-[#F5F5F7] stylish-scrollbar">
+              <div className="max-w-4xl mx-auto shadow-2xl bg-white">
+                <TechPackSheet
+                  design={{
+                    id: selectedDesignId || 'preview',
+                    type: designName || mockupType,
+                    cut: null,
+                    material: fabric,
+                    productImageUrl: uploadedMockupUrl,
+                    flatSketchUrl: uploadedBackUrl,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    techPack: {
+                      speedDemon: {
+                        designName,
+                        fabric: fabric === 'Autre' ? fabricOther : fabric,
+                        category,
+                        issueNo: issueNo || (selectedDesignId ? selectedDesignId.slice(-6).toUpperCase() : '—'),
+                        inDate: todayStr(),
+                        outDate,
+                        sizes,
+                        dimensionsBySize: (modifyDimensions === true && Object.keys(dimensionsBySize).length > 0 ? dimensionsBySize : BASE_DIMENSIONS_BY_PRODUCT[designProductTypeKey]) || {},
+                        productTypeKey: designProductTypeKey,
+                        mockupType: mockupType,
+                        printType: printType || undefined,
+                        labels: labels.map((l) => ({ letter: l.letter, imageUrl: l.imageUrl || undefined, widthIn: l.widthIn, heightIn: l.heightIn, placement: l.placement, type: l.type, isNeckTag: l.isNeckTag })),
+                        designerLogoUrl: designerLogoUrl || undefined,
+                        designerName: designerName || undefined,
+                        manufacturer: manufacturer || undefined,
+                        colorSwatches: colorSwatches.filter((s) => s.hex?.trim()),
+                      },
+                    },
+                    mockupSpec: { season },
+                    brand: { name: brand?.name ?? null, logo: brand?.logo ?? null },
+                  }}
+                  designerName={designerName}
+                  manufacturer={manufacturer}
+                />
+              </div>
+            </div>
+            <div className="h-16 border-t px-6 flex items-center justify-end shrink-0 bg-white">
+              <Button onClick={() => setShowFullPreview(false)} className="rounded-full px-8 bg-[#1D1D1F] text-white">Fermer</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

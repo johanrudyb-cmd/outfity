@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -293,6 +294,13 @@ export function Phase0Identity({ brandId, brand, brandName, onComplete, hideName
       {/* Premium Navigation Bridge */}
       <div className="w-full max-w-7xl px-6 sm:px-8 pt-8 sm:pt-12 z-20 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div className="space-y-1">
+          <Link
+            href="/launch-map"
+            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#86868B] hover:text-[#007AFF] transition-colors group mb-2"
+          >
+            <ArrowLeft className="w-3 h-3 group-hover:-translate-x-1 transition-transform" />
+            Retour au Plan
+          </Link>
           <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#007AFF]">Identité de Marque</p>
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Atelier <span className="text-[#007AFF]">Digital</span></h2>
         </div>

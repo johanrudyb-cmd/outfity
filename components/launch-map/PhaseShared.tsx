@@ -6,6 +6,10 @@ import {
     Truck,
     Store,
     LucideIcon,
+    Zap,
+    MessageSquare,
+    Users,
+    FileSearch,
 } from 'lucide-react';
 import type { LaunchMapData } from './LaunchMapStepper';
 import type { BrandIdentity } from './LaunchMapStepper';
@@ -23,9 +27,12 @@ export const PHASE_ICONS: Record<number, LucideIcon> = {
     0: Palette,
     1: Target,
     2: PenTool,
-    3: FileText,
-    4: Truck,
-    5: Store,
+    3: Zap,           // Nouveau: Scanner/Radar
+    4: MessageSquare, // Nouveau: Joy/Scripts
+    5: Users,         // Nouveau: Waitlist
+    6: FileSearch,    // Nouveau: Tech Pack
+    7: Truck,         // Sourcing
+    8: Store,         // Boutique
 };
 
 export const PHASE_PRESENTATIONS: Record<number, { intro: string; objectives: string[] }> = {
@@ -54,22 +61,46 @@ export const PHASE_PRESENTATIONS: Record<number, { intro: string; objectives: st
         ],
     },
     3: {
-        intro: 'Transformez votre mockup en fiche technique fournisseur.',
+        intro: 'Valider le potentiel viral de votre design avant de lancer la production.',
         objectives: [
-            'Sélectionner le mockup',
-            'Définir les dimensions (tech pack)',
-            'Enregistrer pour le fournisseur',
+            'Importer le design cible',
+            'Passer le scanner IA',
+            'Obtenir le feu vert anti-crash',
         ],
     },
     4: {
-        intro: 'Contactez des usines qualifiées depuis le Sourcing Hub et obtenez des devis.',
+        intro: 'Préparez votre communication virale pour TikTok et Reels avec Joy.',
         objectives: [
-            'Explorer le Sourcing Hub',
-            'Envoyer au moins 2 demandes de devis',
-            'Comparer les partenaires usines',
+            'Définir le concept viral',
+            'Obtenir les scripts exacts',
+            'Appliquer la Directive Anti-Crash',
         ],
     },
     5: {
+        intro: 'Générez votre Waitlist optimisée pour l\'acquisition.',
+        objectives: [
+            'Lancer la Landing Page',
+            'Récolter les 100 premiers emails',
+            'Valider la preuve de marché',
+        ],
+    },
+    6: {
+        intro: 'Transformez votre mockup validé en fiche technique usine.',
+        objectives: [
+            'Sélectionner le mockup',
+            'Définir les dimensions',
+            'Enregistrer pour les partenaires',
+        ],
+    },
+    7: {
+        intro: 'Contactez des usines qualifiées depuis le Sourcing Hub et obtenez des devis.',
+        objectives: [
+            'Explorer le Sourcing Hub',
+            'Envoyer 2 demandes de devis',
+            'Comparer les partenaires',
+        ],
+    },
+    8: {
         intro: 'Connectez votre boutique Shopify pour lancer votre marque.',
         objectives: [
             'Saisir votre domaine Shopify',
@@ -173,16 +204,43 @@ export function PhaseRecap({
     if (phaseId === 3) {
         return (
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {item('Statut Tech Pack', launchMap?.phase3 ? 'Généré et validé' : 'En attente')}
+                {item('Score de Viralité', '82/100')}
+                {item('Statut Radar', 'Validé')}
             </dl>
         );
     }
 
     if (phaseId === 4) {
         return (
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {item('Scripts générés', 'Prêts pour TikTok')}
+            </dl>
+        );
+    }
+
+    if (phaseId === 5) {
+        const goal = 100;
+        return (
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {item('Emails récoltés', '100+')}
+                {item('Preuve de marché', 'Validée')}
+            </dl>
+        );
+    }
+
+    if (phaseId === 6) {
+        return (
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {item('Fiche Technique', launchMap?.phase6 ? 'Générée et disponible' : 'En attente')}
+            </dl>
+        );
+    }
+
+    if (phaseId === 7) {
+        return (
             <div className="space-y-4">
                 <div>
-                    <dt className="text-[#86868B] text-[11px] font-bold uppercase tracking-widest">Devis envoyés</dt>
+                    <dt className="text-[#86868B] text-[11px] font-bold uppercase tracking-widest">Usines contactées</dt>
                     <dd className="text-[#1D1D1F] font-semibold text-[15px] mt-1">{quoteCount}</dd>
                 </div>
                 {suppliers && suppliers.length > 0 && (
@@ -198,13 +256,13 @@ export function PhaseRecap({
         );
     }
 
-    if (phaseId === 5) {
+    if (phaseId === 8) {
         return (
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {item('Boutique connectée', launchMap?.shopifyShopDomain || 'Boutique Shopify')}
+                {item('Boutique Shopify', launchMap?.shopifyShopDomain || 'En cours de configuration')}
             </dl>
         );
     }
 
-    return <p className="text-[13px] text-[#86868B] italic">Aucun récapitulatif détaillé pour cette phase.</p>;
+    return <p className="text-[13px] text-[#86868B] italic">Phase complétée avec succès.</p>;
 }

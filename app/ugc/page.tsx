@@ -1,12 +1,12 @@
-﻿export const dynamic = 'force-dynamic';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
+﻿import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { UGCLab } from '@/components/ugc/UGCLab';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { Sparkles } from 'lucide-react';
+import { Suspense } from 'react';
 
-export default async function UGCPage() {
+async function UGCCore() {
   const user = await getCurrentUser();
   if (!user) {
     redirect('/auth/signin');
@@ -58,14 +58,22 @@ export default async function UGCPage() {
   });
 
   return (
+    <UGCLab
+      brandId={brand.id}
+      brandName={brand.name}
+      designs={designs}
+      brand={brandWithIdentity || undefined}
+      userPlan={user.plan}
+    />
+  );
+}
+
+export default function UGCPage() {
+  return (
     <DashboardLayout>
-      <UGCLab
-        brandId={brand.id}
-        brandName={brand.name}
-        designs={designs}
-        brand={brandWithIdentity || undefined}
-        userPlan={user.plan}
-      />
+      <Suspense fallback={<div className="h-64 flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+        <UGCCore />
+      </Suspense>
     </DashboardLayout>
   );
 }

@@ -21,51 +21,57 @@ import { isFreePlan } from '@/lib/plan-utils';
 import type { BrandIdentity, LaunchMapData } from './LaunchMapStepper';
 import { PHASE_ICONS } from './PhaseShared';
 
+import useSWR from 'swr';
+
 export interface LaunchMapOverviewProps {
-  brand: { id: string; name: string; logo?: string | null };
-  launchMap: LaunchMapData | null;
-  brandFull: BrandIdentity;
-  hasIdentity: boolean;
-  designCount: number;
-  quoteCount: number;
-  ugcCount: number;
-  progressPercentage: number;
-  suppliers: { id: string; name: string; country: string; moq?: number; leadTime?: number; quoteCount: number }[];
-  weekEvents: { id: string; title: string; type: string }[];
-  userPlan?: string;
+  _unused?: never;
 }
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const PHASE_HREF: Record<number, string> = {
   0: '/launch-map/phase/0',
   1: '/launch-map/phase/1',
   2: '/launch-map/phase/2',
-  3: '/launch-map/tech-packs',
-  4: '/launch-map/sourcing',
+  3: '/launch-map/phase/3',
+  4: '/launch-map/phase/4',
   5: '/launch-map/phase/5',
+  6: '/launch-map/tech-packs',
+  7: '/launch-map/sourcing',
+  8: '/launch-map/phase/8',
 };
 
 const PHASE_COLOR: Record<number, { bg: string; text: string; border: string }> = {
   0: { bg: 'bg-violet-50', text: 'text-violet-500', border: 'border-violet-200' },
-  1: { bg: 'bg-blue-50', text: 'text-blue-500', border: 'border-blue-200' },
+  1: { bg: 'bg-indigo-50', text: 'text-indigo-500', border: 'border-indigo-200' },
   2: { bg: 'bg-orange-50', text: 'text-orange-500', border: 'border-orange-200' },
-  3: { bg: 'bg-emerald-50', text: 'text-emerald-500', border: 'border-emerald-200' },
-  4: { bg: 'bg-amber-50', text: 'text-amber-500', border: 'border-amber-200' },
-  5: { bg: 'bg-[#95BF47]/10', text: 'text-[#5E8E3E]', border: 'border-[#95BF47]/30' },
+  3: { bg: 'bg-cyan-50', text: 'text-cyan-600', border: 'border-cyan-200' },
+  4: { bg: 'bg-[#ff327e]/10', text: 'text-[#ff327e]', border: 'border-[#ff327e]/20' },
+  5: { bg: 'bg-blue-50', text: 'text-blue-500', border: 'border-blue-200' },
+  6: { bg: 'bg-emerald-50', text: 'text-emerald-500', border: 'border-emerald-200' },
+  7: { bg: 'bg-amber-50', text: 'text-amber-500', border: 'border-amber-200' },
+  8: { bg: 'bg-[#95BF47]/10', text: 'text-[#5E8E3E]', border: 'border-[#95BF47]/30' },
 };
 
 import { FeatureTourModal } from '@/components/ui/feature-tour-modal';
 
-export function LaunchMapOverview({
-  brand,
-  launchMap,
-  brandFull,
-  hasIdentity,
-  designCount,
-  quoteCount,
-  suppliers = [],
-  progressPercentage,
-  userPlan = 'starter',
-}: LaunchMapOverviewProps) {
+export function LaunchMapOverview() {
+  const { data, isLoading } = useSWR('/api/launch-map/summary', fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    dedupingInterval: 30000,
+  });
+
+  const brand = data?.brand ?? { id: '', name: 'Chargement...', logo: null };
+  const launchMap = data?.launchMap ?? null;
+  const brandFull = data?.brandFull ?? null;
+  const hasIdentity = data?.hasIdentity ?? false;
+  const designCount: number = data?.designCount ?? 0;
+  const quoteCount: number = data?.quoteCount ?? 0;
+  const suppliers: { id: string; name: string; country: string; moq?: number; leadTime?: number; quoteCount: number }[] = data?.suppliers ?? [];
+  const progressPercentage: number = data?.progressPercentage ?? 0;
+  const waitlistLeadCount: number = data?.waitlistLeadCount ?? 0;
+  const userPlan = data?.userPlan ?? 'starter';
   const phaseProgress: Record<string, boolean> = {
     phase0: hasIdentity,
     phase1: launchMap?.phase1 ?? false,
@@ -73,11 +79,27 @@ export function LaunchMapOverview({
     phase3: launchMap?.phase3 ?? false,
     phase4: launchMap?.phase4 ?? false,
     phase5: launchMap?.phase5 ?? false,
+    phase6: launchMap?.phase6 ?? false,
+    phase7: launchMap?.phase7 ?? false,
+    phase8: launchMap?.phase8 ?? false,
   };
 
   const completedCount = Object.values(phaseProgress).filter(Boolean).length;
   const total = LAUNCH_MAP_PHASES.length;
-  const isLocked = (phaseId: number) => isFreePlan(userPlan) && ![0, 1, 2, 4].includes(phaseId);
+
+  const isLocked = (phaseId: number) => {
+    // Plan lock
+    if (isFreePlan(userPlan) && ![0, 1].includes(phaseId)) return true;
+
+    // Market lock (Prerequisite)
+    const waitlistGoal = 100;
+    const waitlistMet = waitlistLeadCount >= waitlistGoal || phaseProgress.phase5;
+
+    if ([6, 7, 8].includes(phaseId) && !waitlistMet) return true;
+
+    return false;
+  };
+
   const nextPhase = LAUNCH_MAP_PHASES.find(p => !phaseProgress[`phase${p.id}`]);
 
   // Brand color palette
@@ -197,53 +219,6 @@ export function LaunchMapOverview({
           {/* ── LEFT — Phases Grid ── */}
           <div className="md:col-span-2 space-y-6">
 
-            {/* Next step focus */}
-            {nextPhase && (
-              <div className="relative overflow-hidden bg-white rounded-[28px] border border-black/[0.06] shadow-apple p-6">
-                <div className="absolute -top-12 -right-12 w-48 h-48 bg-[#007AFF]/5 rounded-full blur-[60px] pointer-events-none" />
-
-                {isLocked(nextPhase.id) && (
-                  <div className="absolute inset-0 z-20 bg-white/60 backdrop-blur-[2px] flex items-center justify-center">
-                    <div className="bg-white/90 shadow-xl border border-black/5 rounded-2xl p-5 flex flex-col items-center max-w-[280px] text-center transform hover:scale-105 transition-transform duration-300">
-                      <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mb-3">
-                        <Lock className="w-6 h-6 text-amber-600" />
-                      </div>
-                      <h3 className="font-bold text-[#1D1D1F] text-sm mb-1">Phase Premium</h3>
-                      <p className="text-[11px] text-[#86868B] mb-4">Cette étape nécessite le plan Créateur pour être débloquée.</p>
-                      <Link
-                        href="/auth/choose-plan"
-                        className="w-full bg-[#1D1D1F] hover:bg-black text-white font-bold text-xs rounded-full py-2.5 transition-all"
-                      >
-                        Débloquer
-                      </Link>
-                    </div>
-                  </div>
-                )}
-
-                <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
-                  <div className="flex items-center gap-4">
-                    <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0", PHASE_COLOR[nextPhase.id]?.bg)}>
-                      {(() => { const Icon = PHASE_ICONS[nextPhase.id] ?? Palette; return <Icon className={cn("w-6 h-6", PHASE_COLOR[nextPhase.id]?.text)} />; })()}
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-[#007AFF] uppercase tracking-widest mb-0.5">Prochaine étape</p>
-                      <h2 className="text-lg font-bold text-[#1D1D1F]">{nextPhase.title}</h2>
-                      <p className="text-sm text-[#86868B] truncate max-w-[300px] sm:max-w-md">{nextPhase.subtitle}</p>
-                    </div>
-                  </div>
-
-                  {!isLocked(nextPhase.id) && (
-                    <Link
-                      href={PHASE_HREF[nextPhase.id]}
-                      className="w-full sm:w-auto shrink-0 flex items-center justify-center gap-2 bg-[#007AFF] hover:bg-[#0056CC] text-white font-bold text-sm rounded-full px-5 h-10 transition-all active:scale-[0.97] shadow-lg shadow-blue-500/20"
-                    >
-                      Commencer
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  )}
-                </div>
-              </div>
-            )}
 
             {/* All phases */}
             <div>
@@ -253,6 +228,7 @@ export function LaunchMapOverview({
                   const Icon = PHASE_ICONS[p.id] ?? Palette;
                   const done = phaseProgress[`phase${p.id}`];
                   const locked = isLocked(p.id);
+                  const isNext = nextPhase?.id === p.id;
                   const color = PHASE_COLOR[p.id];
                   const href = locked ? '/auth/choose-plan' : PHASE_HREF[p.id];
 
@@ -261,43 +237,73 @@ export function LaunchMapOverview({
                       key={p.id}
                       href={href}
                       className={cn(
-                        "group flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-[20px] sm:rounded-[24px] border transition-all duration-200 hover:shadow-apple active:scale-[0.98]",
+                        "group relative flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-[20px] sm:rounded-[24px] border transition-all duration-200 hover:shadow-apple active:scale-[0.98] overflow-hidden",
                         done
                           ? "bg-white border-[#007AFF]/10 hover:border-[#007AFF]/20 shadow-sm"
-                          : locked
-                            ? "bg-white border-black/5 opacity-50"
-                            : "bg-white border-black/[0.06] hover:border-black/[0.12]"
+                          : isNext
+                            ? "bg-gradient-to-br from-[#007AFF]/[0.06] to-[#007AFF]/[0.02] border-[#007AFF]/20 shadow-md shadow-blue-500/10 ring-1 ring-[#007AFF]/10"
+                            : locked
+                              ? "bg-white border-black/5 opacity-50"
+                              : "bg-white border-black/[0.06] hover:border-black/[0.12]"
                       )}
                     >
+                      {/* Pulsing ring for next phase */}
+                      {isNext && (
+                        <span className="absolute top-3 right-3">
+                          <span className="relative flex h-2.5 w-2.5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#007AFF] opacity-50" />
+                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#007AFF]" />
+                          </span>
+                        </span>
+                      )}
+
                       {/* Phase icon */}
                       <div className={cn(
                         "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110",
-                        done ? "bg-[#007AFF]/10" : color?.bg
+                        done ? "bg-[#007AFF]/10" : isNext ? "bg-[#007AFF]/10" : color?.bg
                       )}>
                         {done
                           ? <CheckCircle2 className="w-5 h-5 text-[#007AFF]" />
-                          : <Icon className={cn("w-5 h-5", color?.text)} />
+                          : <Icon className={cn("w-5 h-5", isNext ? "text-[#007AFF]" : color?.text)} />
                         }
                       </div>
 
                       {/* Phase info */}
                       <div className="flex-1 min-w-0">
-                        <p className="text-[9px] font-black text-[#86868B] uppercase tracking-widest mb-0.5">Étape {index + 1}</p>
+                        <p className="text-[9px] font-black text-[#86868B] uppercase tracking-widest mb-0.5">
+                          {isNext ? (
+                            <span className="text-[#007AFF]">→ À faire maintenant</span>
+                          ) : (
+                            `Étape ${index + 1}`
+                          )}
+                        </p>
                         <p className={cn(
                           "font-bold text-sm leading-tight flex items-center gap-2",
-                          done ? "text-[#007AFF]" : "text-[#1D1D1F]"
+                          done ? "text-[#007AFF]" : isNext ? "text-[#1D1D1F]" : "text-[#1D1D1F]"
                         )}>
                           {p.title}
-                          {locked && <Lock className="w-3.5 h-3.5 text-amber-500" />}
+                          {locked && (
+                            <div className="flex items-center gap-1">
+                              <Lock className="w-3 h-3 text-amber-500" />
+                              {([6, 7, 8].includes(p.id) && waitlistLeadCount < 100) && (
+                                <span className="text-[8px] font-black text-amber-600 uppercase tracking-tighter">Market Lock</span>
+                              )}
+                            </div>
+                          )}
                         </p>
                         <p className="text-[11px] text-[#86868B] truncate mt-0.5">{p.subtitle}</p>
                       </div>
 
-                      {/* Status */}
+                      {/* Status / CTA */}
                       <div className="shrink-0 flex items-center justify-center">
                         {done ? (
                           <div className="flex items-center gap-1 text-[9px] font-black text-[#007AFF] uppercase tracking-widest bg-[#007AFF]/5 px-2 py-1 rounded-full border border-[#007AFF]/10">
                             Fait
+                          </div>
+                        ) : isNext && !locked ? (
+                          <div className="flex items-center gap-1.5 text-[11px] font-bold text-white bg-[#007AFF] px-3 py-1.5 rounded-full shadow-sm shadow-blue-500/30 whitespace-nowrap">
+                            Commencer
+                            <ArrowRight className="w-3 h-3" />
                           </div>
                         ) : (
                           <ChevronRight className="w-4 h-4 text-[#C7C7CC] group-hover:text-[#86868B]" />
@@ -324,19 +330,19 @@ export function LaunchMapOverview({
                 </div>
 
                 {/* Colors */}
-                <div className="space-y-2">
-                  <p className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest">Palette</p>
-                  <div className="flex gap-2">
+                <div className="space-y-3">
+                  <p className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest">Couleurs</p>
+                  <div className="flex flex-wrap items-center gap-2">
                     {(['primary', 'secondary', 'accent'] as const).map(key => {
                       const c = colorPalette[key];
                       if (!c) return null;
                       return (
-                        <div key={key} className="flex-1">
+                        <div key={key} className="flex items-center gap-2 px-2.5 py-1.5 rounded-full border border-black/5 bg-[#F5F5F7]">
                           <div
-                            className="h-10 rounded-xl border border-black/5 shadow-inner mb-1"
+                            className="w-4 h-4 rounded-full shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] border border-black/10"
                             style={{ backgroundColor: c }}
                           />
-                          <p className="text-[9px] text-center text-[#86868B] font-mono">{c}</p>
+                          <span className="text-[10px] font-medium text-[#1D1D1F] font-mono uppercase">{c}</span>
                         </div>
                       );
                     })}
@@ -345,19 +351,21 @@ export function LaunchMapOverview({
 
                 {/* Typography */}
                 {typography && (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <p className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest">Typographie</p>
-                    <div className="space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
                       {typography.heading && (
-                        <div className="flex items-center justify-between p-3 bg-[#F5F5F7] rounded-xl">
-                          <span className="text-[10px] font-bold text-[#86868B] uppercase">Titres</span>
-                          <span className="text-sm font-semibold text-[#1D1D1F]">{typography.heading}</span>
+                        <div className="p-3 bg-[#F5F5F7] rounded-2xl border border-black/5">
+                          <p className="text-[9px] font-bold text-[#86868B] uppercase tracking-widest mb-1.5">Titres</p>
+                          <p className="text-xl font-bold text-[#1D1D1F] leading-none" style={{ fontFamily: typography.heading }}>Aa</p>
+                          <p className="text-[10px] font-medium text-[#1D1D1F] mt-1">{typography.heading}</p>
                         </div>
                       )}
                       {typography.body && (
-                        <div className="flex items-center justify-between p-3 bg-[#F5F5F7] rounded-xl">
-                          <span className="text-[10px] font-bold text-[#86868B] uppercase">Corps</span>
-                          <span className="text-sm font-semibold text-[#1D1D1F]">{typography.body}</span>
+                        <div className="p-3 bg-[#F5F5F7] rounded-2xl border border-black/5">
+                          <p className="text-[9px] font-bold text-[#86868B] uppercase tracking-widest mb-1.5">Corps</p>
+                          <p className="text-xl text-[#1D1D1F] leading-none" style={{ fontFamily: typography.body }}>Aa</p>
+                          <p className="text-[10px] font-medium text-[#86868B] mt-1 truncate">{typography.body}</p>
                         </div>
                       )}
                     </div>
@@ -394,20 +402,33 @@ export function LaunchMapOverview({
               </div>
             )}
 
-            {/* Upsell for free plan */}
+            {/* Upsell for free plan — Agent-centric */}
             {isFreePlan(userPlan) && (
               <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#1D1D1F] to-[#3a3a3c] p-6 text-white">
                 <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-[#007AFF]/20 rounded-full blur-[50px]" />
-                <div className="relative z-10 space-y-3">
-                  <div className="w-9 h-9 rounded-xl bg-[#007AFF] flex items-center justify-center">
-                    <Sparkles className="w-4 h-4 text-white" />
+                <div className="relative z-10 space-y-4">
+                  <p className="font-bold text-sm text-white">Débloque toute ton équipe</p>
+                  <div className="flex items-center gap-2">
+                    {[
+                      { name: 'Pharrell', img: '/images/agents/pharrell_final.webp' },
+                      { name: 'Ada', img: '/images/agents/ada_final.webp' },
+                      { name: 'Joy', img: '/images/agents/joy_final.webp' },
+                      { name: 'Johan', img: '/images/agents/johan_final.webp' },
+                    ].map(a => (
+                      <div key={a.name} className="relative group/a">
+                        <img src={a.img} alt={a.name} className="w-9 h-9 rounded-full object-cover border-2 border-white/20 grayscale opacity-60" />
+                        <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-white text-black text-[9px] font-bold px-2 py-0.5 rounded opacity-0 group-hover/a:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+                          {a.name}
+                        </div>
+                      </div>
+                    ))}
+                    <span className="text-[10px] text-white/40 font-bold ml-1">Verrouillés</span>
                   </div>
-                  <p className="font-bold text-sm text-white">Déverrouillez tout le parcours</p>
-                  <p className="text-white/60 text-xs leading-relaxed">
-                    Accédez aux phases Tech Pack, Sourcing et Boutique Shopify.
+                  <p className="text-white/50 text-xs leading-relaxed">
+                    Pharrell conçoit tes vêtements. Ada trouve tes usines. Joy écrit tes scripts TikTok. Débloque-les maintenant.
                   </p>
-                  <Link href="/auth/choose-plan" className="flex items-center justify-center gap-2 w-full bg-[#007AFF] hover:bg-[#0056CC] text-white font-bold rounded-full h-10 text-sm shadow-lg shadow-blue-900/30 mt-1 transition-all">
-                    Passer au Plan Créateur
+                  <Link href="/auth/choose-plan" className="flex items-center justify-center gap-2 w-full bg-[#007AFF] hover:bg-[#0056CC] text-white font-bold rounded-full h-10 text-sm shadow-lg shadow-blue-900/30 transition-all">
+                    Essai gratuit 3 jours
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>

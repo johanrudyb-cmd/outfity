@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect, useCallback, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
-import { Send, Sparkles, Loader2, ArrowRight, ArrowLeft, MessageCircle, Palette, Shirt } from 'lucide-react';
+import { Send, Sparkles, Loader2, ArrowRight, ArrowLeft, MessageCircle, Palette, Shirt, Copy, Check } from 'lucide-react';
+import { useToast } from '@/components/ui/toast';
 import { cn } from '@/lib/utils';
 import type { BrandIdentity } from './LaunchMapStepper';
 import { LogoGenerator } from '@/components/ugc/LogoGenerator';
@@ -14,6 +15,7 @@ interface PhaseMockupCreationProps {
   brandId: string;
   brand?: BrandIdentity | null;
   onComplete: () => void;
+  canComplete?: boolean;
   userPlan?: string;
 }
 
@@ -26,6 +28,17 @@ interface Message {
 
 // Renders markdown-like content. Handles __SHOW_MOCKUP_SELECTOR__ & __SHOW_LOGO_GENERATOR__ magic strings
 export function MessageContent({ content, isUser, brandId, brandName, userPlan }: { content: string, isUser: boolean, brandId: string, brandName?: string, userPlan?: string }) {
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
+
+  const copyToClipboard = () => {
+    // Strip magic strings and suggestions for clean copy
+    const cleanContent = content.replace(/\[\[.*?\]\]/g, '').replace(/__SHOW_.*?__/g, '').trim();
+    navigator.clipboard.writeText(cleanContent);
+    setCopied(true);
+    toast({ title: "Copié !", message: "Le contenu a été copié dans votre presse-papier." });
+    setTimeout(() => setCopied(false), 2000);
+  };
   // Hide suggestions [[...]] and magic selectors from the text bubble
   let displayContent = content.replace(/\[\[.*?\]\]/g, '').trim();
 
@@ -87,7 +100,20 @@ export function MessageContent({ content, isUser, brandId, brandName, userPlan }
     );
   });
 
-  return <div className="leading-relaxed text-[15px]">{elements}</div>;
+  return (
+    <div className="group relative">
+      <div className="leading-relaxed text-[15px]">{elements}</div>
+      {!isUser && content.length > 50 && (
+        <button
+          onClick={copyToClipboard}
+          className="absolute -right-2 -bottom-2 p-1.5 bg-white border border-black/5 rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/5"
+          title="Copier le texte"
+        >
+          {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5 text-[#86868B]" />}
+        </button>
+      )}
+    </div>
+  );
 }
 
 const QUICK_REPLIES = [
@@ -97,7 +123,7 @@ const QUICK_REPLIES = [
   "Je veux mon pack mockup",
 ];
 
-export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan = 'free' }: PhaseMockupCreationProps) {
+export function PhaseMockupCreation({ brandId, brand, onComplete, canComplete = true, userPlan = 'free' }: PhaseMockupCreationProps) {
   const renderMessageContent = (content: string, isUser: boolean) => {
     return <MessageContent content={content} isUser={isUser} brandId={brandId} brandName={brand?.name} userPlan={userPlan} />;
   };
@@ -138,7 +164,9 @@ export function PhaseMockupCreation({ brandId, brand, onComplete, userPlan = 'fr
       }
       renderMessageContent={renderMessageContent}
       onComplete={onComplete}
+      canComplete={canComplete}
       upgradeLinkText="Débloquer Mockup Hub"
+      backHref="/launch-map"
     />
   );
 }

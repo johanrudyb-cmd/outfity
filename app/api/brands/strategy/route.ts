@@ -7,6 +7,7 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { sanitizeErrorMessage } from '@/lib/utils';
+import { prisma } from '@/lib/prisma';
 import { generateBrandStrategyForCreator, isClaudeConfigured } from '@/lib/api/claude';
 import { withAIUsageLimit } from '@/lib/ai-usage';
 
@@ -66,6 +67,33 @@ export async function POST(request: Request) {
         }),
       { templateBrandName, creatorBrandName }
     );
+
+    // Persist to database if brandId is provided
+    const brandId = (body.brandId || '').trim();
+    if (brandId && strategy) {
+      await prisma.launchMap.upsert({
+        where: { brandId },
+        update: {
+          phase1: true,
+          phase1Data: {
+            strategy,
+            templateBrandName,
+            positioning,
+            targetAudience
+          }
+        },
+        create: {
+          brandId,
+          phase1: true,
+          phase1Data: {
+            strategy,
+            templateBrandName,
+            positioning,
+            targetAudience
+          }
+        }
+      });
+    }
 
     return NextResponse.json({
       templateBrandName,

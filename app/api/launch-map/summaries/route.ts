@@ -20,6 +20,7 @@ export async function PATCH(request: Request) {
     const body = await request.json().catch(() => ({}));
     const brandId = typeof body.brandId === 'string' ? body.brandId.trim() : '';
     const phaseSummaries = body.phaseSummaries;
+    const completedPhase = typeof body.completedPhase === 'number' ? body.completedPhase : null;
 
     if (!brandId) {
       return NextResponse.json({ error: 'brandId requis' }, { status: 400 });
@@ -39,16 +40,25 @@ export async function PATCH(request: Request) {
         ? (phaseSummaries as Record<string, string>)
         : undefined;
 
+    const updateData: any = {};
+    if (summaries !== undefined) updateData.phaseSummaries = summaries;
+    if (completedPhase !== null && completedPhase >= 1 && completedPhase <= 8) {
+      updateData[`phase${completedPhase}`] = true;
+    }
+
     const launchMap = await prisma.launchMap.upsert({
       where: { brandId },
-      update: summaries !== undefined ? { phaseSummaries: summaries } : {},
+      update: updateData,
       create: {
         brandId,
-        phase1: false,
-        phase2: false,
-        phase3: false,
-        phase4: false,
-        phase5: false,
+        phase1: completedPhase === 1,
+        phase2: completedPhase === 2,
+        phase3: completedPhase === 3,
+        phase4: completedPhase === 4,
+        phase5: completedPhase === 5,
+        phase6: completedPhase === 6,
+        phase7: completedPhase === 7,
+        phase8: completedPhase === 8,
         phaseSummaries: summaries ?? undefined,
       },
       include: { brand: true },

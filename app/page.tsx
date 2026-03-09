@@ -2,93 +2,112 @@ import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import { AnimatedHeader } from '@/components/homepage/AnimatedHeader';
 import { TrendsHero } from '@/components/homepage/TrendsHero';
-import { getFeaturedTrends } from '@/lib/trends-data';
 
-// Lazy load — sections below the fold (don't block initial render)
+// Lazy load — sections below the fold
+const HowItWorks = dynamic(() => import('@/components/homepage/HowItWorks'));
+const BeforeAfter = dynamic(() => import('@/components/homepage/BeforeAfter'));
 const TrendsByMarket = dynamic(() => import('@/components/homepage/TrendsByMarket'));
 const AgentsPresentation = dynamic(() => import('@/components/homepage/AgentsPresentation'));
 const TechPackShowcase = dynamic(() => import('@/components/homepage/TechPackShowcase'));
-const EfficiencyShowcase = dynamic(() => import('@/components/homepage/EfficiencyShowcase'));
-const StatsSection = dynamic(() => import('@/components/homepage/StatsSection'));
-const FashionGallery = dynamic(() => import('@/components/homepage/FashionGallery'));
 const MarginCalculator = dynamic(() => import('@/components/homepage/MarginCalculator'));
 const TestimonialsSection = dynamic(() => import('@/components/homepage/TestimonialsSection'));
 const SalesPricing = dynamic(() => import('@/components/homepage/SalesPricing'));
 const CTASection = dynamic(() => import('@/components/homepage/CTASection'));
-const BlogGrid = dynamic(() => import('@/components/homepage/BlogGrid'));
 const FAQSection = dynamic(() => import('@/components/homepage/FAQSection'));
 const Footer = dynamic(() => import('@/components/homepage/Footer'));
 
 import { LazySection } from '@/components/common/LazySection';
 
-// Minimal skeleton placeholder for lazy sections
 function SectionSkeleton() {
   return <div className="w-full h-[300px] bg-[#F5F5F7]" aria-hidden />;
 }
 
-export const revalidate = 3600; // Revalider toutes les heures (au lieu de toutes les minutes)
+export const revalidate = 3600;
 
 export default async function Home() {
-  const initialTrends = await getFeaturedTrends();
-
   return (
-    <main className="min-h-screen bg-[#F5F5F7]">
-      {/* ── ABOVE THE FOLD — chargé immédiatement ── */}
+    <main className="min-h-screen bg-white">
+      {/* ── ABOVE THE FOLD ── */}
       <AnimatedHeader />
       <TrendsHero />
 
-      {/* ── BELOW THE FOLD — chargé en lazy au scroll ── */}
+      {/* ── BELOW THE FOLD ── */}
+
+      {/* Comment ça marche — 3 étapes */}
       <LazySection fallback={<SectionSkeleton />}>
-        <Suspense fallback={<SectionSkeleton />}><TrendsByMarket /></Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <HowItWorks />
+        </Suspense>
       </LazySection>
 
-      {/* Sections avec ancres — chargées immédiatement pour que le scroll fonctionne */}
+      {/* Avant / Après */}
+      <LazySection fallback={<SectionSkeleton />}>
+        <Suspense fallback={<SectionSkeleton />}>
+          <BeforeAfter />
+        </Suspense>
+      </LazySection>
+
+      {/* Radar de tendances */}
+      <LazySection fallback={<SectionSkeleton />}>
+        <Suspense fallback={<SectionSkeleton />}>
+          <TrendsByMarket />
+        </Suspense>
+      </LazySection>
+
+      {/* Agents IA */}
       <div id="features">
-        <Suspense fallback={<SectionSkeleton />}><AgentsPresentation /></Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <AgentsPresentation />
+        </Suspense>
       </div>
 
+      {/* Tech Pack */}
       <LazySection fallback={<SectionSkeleton />}>
-        <Suspense fallback={<SectionSkeleton />}><TechPackShowcase /></Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <TechPackShowcase />
+        </Suspense>
       </LazySection>
 
+      {/* Simulateur ROI */}
       <LazySection fallback={<SectionSkeleton />}>
-        <Suspense fallback={<SectionSkeleton />}><EfficiencyShowcase /></Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <MarginCalculator />
+        </Suspense>
       </LazySection>
 
-      <LazySection fallback={<SectionSkeleton />}>
-        <Suspense fallback={<SectionSkeleton />}><StatsSection /></Suspense>
-      </LazySection>
-
-      <LazySection fallback={<SectionSkeleton />}>
-        <Suspense fallback={<SectionSkeleton />}><FashionGallery /></Suspense>
-      </LazySection>
-
-      <LazySection fallback={<SectionSkeleton />}>
-        <Suspense fallback={<SectionSkeleton />}><MarginCalculator /></Suspense>
-      </LazySection>
-
+      {/* Témoignages */}
       <div id="testimonials-section">
-        <Suspense fallback={<SectionSkeleton />}><TestimonialsSection /></Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <TestimonialsSection />
+        </Suspense>
       </div>
 
+      {/* Pricing */}
       <div id="pricing-section">
-        <Suspense fallback={<SectionSkeleton />}><SalesPricing /></Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <SalesPricing />
+        </Suspense>
       </div>
 
+      {/* CTA Final */}
       <LazySection fallback={<SectionSkeleton />}>
-        <Suspense fallback={<SectionSkeleton />}><CTASection /></Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <CTASection />
+        </Suspense>
       </LazySection>
 
-      <LazySection fallback={<SectionSkeleton />}>
-        <Suspense fallback={<SectionSkeleton />}><BlogGrid /></Suspense>
-      </LazySection>
-
+      {/* FAQ */}
       <div id="faq-section">
-        <Suspense fallback={<SectionSkeleton />}><FAQSection /></Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <FAQSection />
+        </Suspense>
       </div>
 
+      {/* Footer */}
       <LazySection fallback={null}>
-        <Suspense fallback={null}><Footer /></Suspense>
+        <Suspense fallback={null}>
+          <Footer />
+        </Suspense>
       </LazySection>
     </main>
   );

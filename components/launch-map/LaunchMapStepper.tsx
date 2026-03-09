@@ -22,8 +22,12 @@ import { Phase1Strategy } from './Phase1Strategy';
 import { PhaseMockupCreation } from './PhaseMockupCreation';
 
 import { PhaseTechPack } from './PhaseTechPack';
-import { Phase3SourcingChat } from './Phase3SourcingChat';
+import { Phase3Sourcing } from './Phase3Sourcing';
 import { Phase6Shopify } from './Phase6Shopify';
+import { PhaseScanner } from './PhaseScanner';
+import { PhaseCommunication } from './PhaseCommunication';
+import { PhaseWaitlist } from './PhaseWaitlist';
+import { PhaseCompletionCelebration } from './PhaseCompletionCelebration';
 import { LAUNCH_MAP_PHASES } from '@/lib/launch-map-constants';
 
 export { LAUNCH_MAP_PHASES };
@@ -37,6 +41,7 @@ export interface LaunchMapData {
   phase5: boolean;
   phase6?: boolean;
   phase7?: boolean;
+  phase8?: boolean;
   shopifyShopDomain?: string | null;
   phase1Data: Record<string, unknown> | null;
   baseMockupByProductType?: Record<string, string> | null;
@@ -79,6 +84,10 @@ interface LaunchMapStepperProps {
   focusedPhase?: number | null;
   userPlan?: string;
   strategyText?: string | null;
+  designCount?: number;
+  quoteCount?: number;
+  onPhaseComplete?: (phaseId: number) => void;
+  onExitFocus?: () => void;
 }
 
 export function LaunchMapStepper({
@@ -89,6 +98,10 @@ export function LaunchMapStepper({
   focusedPhase = null,
   userPlan = 'free',
   strategyText,
+  designCount = 0,
+  quoteCount = 0,
+  onPhaseComplete,
+  onExitFocus,
 }: LaunchMapStepperProps) {
   const { toast } = useToast();
 
@@ -99,9 +112,12 @@ export function LaunchMapStepper({
     return !hasIdentity ? 0 :
       !launchMap?.phase1 ? 1 :
         !launchMap?.phase2 ? 2 :  // Mockup
-          !launchMap?.phase3 ? 3 :  // Tech Pack
-            !launchMap?.phase4 ? 4 :  // Sourcing
-              5;  // Création du site
+          !launchMap?.phase3 ? 3 :  // Scanner
+            !launchMap?.phase4 ? 4 :  // Communication
+              !launchMap?.phase5 ? 5 :  // Waitlist
+                !launchMap?.phase6 ? 6 :  // Tech Pack
+                  !launchMap?.phase7 ? 7 :  // Sourcing
+                    8;  // Création du site
   }, [focusedPhase, hasIdentity, launchMap]);
 
   const [currentPhase, setCurrentPhase] = useState(initialPhase);
@@ -123,6 +139,7 @@ export function LaunchMapStepper({
     phase5: launchMap?.phase5 ?? false,
     phase6: launchMap?.phase6 ?? false,
     phase7: launchMap?.phase7 ?? false,
+    phase8: launchMap?.phase8 ?? false,
   });
 
   const [summaries, setSummaries] = useState<Record<string, string>>(() => {
@@ -133,6 +150,7 @@ export function LaunchMapStepper({
   const [savingSummary, setSavingSummary] = useState<string | null>(null);
   const phaseContentRef = useRef<HTMLDivElement>(null);
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
+  const [celebration, setCelebration] = useState<{ phaseId: number; phaseName: string; nextId?: number } | null>(null);
 
   useEffect(() => {
     const s = launchMap?.phaseSummaries;
@@ -152,6 +170,7 @@ export function LaunchMapStepper({
           body: JSON.stringify({
             brandId,
             phaseSummaries: { ...summaries, [key]: summaries[key] ?? '' },
+            completedPhase: phaseId
           }),
         });
         if (!res.ok) throw new Error('Erreur sauvegarde');
@@ -172,42 +191,59 @@ export function LaunchMapStepper({
     const nextPhase = !progress.phase0 ? 0 :
       !progress.phase1 ? 1 :
         !progress.phase2 ? 2 :  // Mockup
-          !progress.phase3 ? 3 :  // Tech Pack
-            !progress.phase4 ? 4 :  // Sourcing
-              5;  // Création du site
+          !progress.phase3 ? 3 :  // Scanner
+            !progress.phase4 ? 4 :  // Communication
+              !progress.phase5 ? 5 :  // Waitlist
+                !progress.phase6 ? 6 :  // Tech Pack
+                  !progress.phase7 ? 7 :  // Sourcing
+                    8;  // Création du site
     setCurrentPhase(nextPhase);
   }, [progress, focusedPhase]);
 
   const handlePhaseComplete = (phase: number) => {
     setProgress((prev) => ({ ...prev, [`phase${phase}`]: true }));
-    toast({
-      title: `Étape ${phase} validée ! 🎉`,
-      message: `Vous avez complété la phase : ${LAUNCH_MAP_PHASES.find(p => p.id === phase)?.title}.`,
-      type: 'success',
-    });
 
-    if (typeof focusedPhase === 'number') return;
+    // Show celebration overlay
+    const phaseDef = LAUNCH_MAP_PHASES.find(p => p.id === phase);
+    const nextDef = LAUNCH_MAP_PHASES.find(p => p.id === phase + 1);
+    setCelebration({ phaseId: phase, phaseName: phaseDef?.title ?? `Phase ${phase}`, nextId: nextDef?.id });
 
-    let nextPhase: number = phase < 5 ? phase + 1 : phase;
+    setTimeout(() => saveSummaryLocally(phase), 500);
+  };
 
-    if (nextPhase !== phase) {
+  const handleCelebrationDone = () => {
+    // Capture phase info BEFORE resolving state to null
+    const completedPhaseId = celebration?.phaseId;
+    setCelebration(null);
+
+    if (typeof completedPhaseId !== 'number') return;
+
+    // Trigger completion in parent/store
+    onPhaseComplete?.(completedPhaseId);
+
+    // If there is a next phase, transition to it
+    if (completedPhaseId < 8) {
+      const nextPhase = completedPhaseId + 1;
       setIsTransitioning(true);
       setTimeout(() => {
+        // Update both local and focus if necessary
         setCurrentPhase(nextPhase);
+        // If the user was in focus mode, we might want to update the URL or parent state
+        // via onSelectPhase if available, but for now we update currentPhase locally.
         setIsTransitioning(false);
         phaseContentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 300);
+    } else {
+      // Completed the whole map!
+      onExitFocus?.();
     }
-
-    setTimeout(() => saveSummaryLocally(phase), 500);
-    setTimeout(() => phaseContentRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
   };
 
   const completedPhases = Object.values(progress).filter(Boolean).length;
   const progressPercentage = (completedPhases / LAUNCH_MAP_PHASES.length) * 100;
 
   const onlyPhaseContent = typeof focusedPhase === 'number';
-  const isAtelierPhase = [0, 1, 2, 4].includes(currentPhase);
+  const isAtelierPhase = [0, 1, 2, 3, 4, 5, 6, 7, 8].includes(currentPhase);
   const isFullPage = onlyPhaseContent || isAtelierPhase;
 
   return (
@@ -292,6 +328,7 @@ export function LaunchMapStepper({
                 onComplete={() => handlePhaseComplete(1)}
                 userPlan={userPlan}
                 strategyText={strategyText}
+                canComplete={Boolean(strategyText && strategyText.length > 50)}
               />
             </div>
           )}
@@ -301,19 +338,19 @@ export function LaunchMapStepper({
               brand={brand}
               onComplete={() => handlePhaseComplete(2)}
               userPlan={userPlan}
+              canComplete={designCount > 0}
             />
           )}
           {!isTransitioning && phaseToRender === 3 && (
-            <Suspense fallback={<div className="min-h-[400px] flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Chargement...</div></div>}>
-              <PhaseTechPack
-                brandId={brandId}
-                brand={brand}
-                onComplete={() => handlePhaseComplete(3)}
-              />
-            </Suspense>
+            <PhaseScanner
+              brandId={brandId}
+              brand={brand}
+              onComplete={() => handlePhaseComplete(3)}
+              userPlan={userPlan}
+            />
           )}
           {!isTransitioning && phaseToRender === 4 && (
-            <Phase3SourcingChat
+            <PhaseCommunication
               brandId={brandId}
               brand={brand}
               onComplete={() => handlePhaseComplete(4)}
@@ -321,17 +358,67 @@ export function LaunchMapStepper({
             />
           )}
           {!isTransitioning && phaseToRender === 5 && (
+            <PhaseWaitlist
+              brandId={brandId}
+              brand={brand}
+              onComplete={() => handlePhaseComplete(5)}
+              userPlan={userPlan}
+            />
+          )}
+          {!isTransitioning && phaseToRender === 6 && (
+            <Suspense fallback={
+              <div className="flex-1 flex flex-col gap-4 p-6 sm:p-8">
+                <div className="h-8 w-48 rounded-2xl bg-[#F5F5F7] animate-pulse" />
+                <div className="h-4 w-72 rounded-xl bg-[#F5F5F7] animate-pulse" />
+                <div className="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-4 mt-4">
+                  <div className="rounded-2xl bg-[#F5F5F7] animate-pulse h-full min-h-[300px]" />
+                  <div className="rounded-2xl bg-[#F5F5F7] animate-pulse h-full min-h-[300px]" />
+                </div>
+              </div>
+            }>
+              <PhaseTechPack
+                brandId={brandId}
+                brand={brand}
+                onComplete={() => handlePhaseComplete(6)}
+              />
+            </Suspense>
+          )}
+          {!isTransitioning && phaseToRender === 7 && (
+            <Phase3Sourcing
+              brandId={brandId}
+              brand={brand}
+              onComplete={() => handlePhaseComplete(7)}
+              userPlan={userPlan}
+              canComplete={quoteCount > 0}
+            />
+          )}
+          {!isTransitioning && phaseToRender === 8 && (
             <Phase6Shopify
               brandId={brandId}
               brand={brand ? { id: brand.id, name: brand.name } : null}
               shopifyShopDomain={launchMap?.shopifyShopDomain ?? null}
               siteCreationTodo={(launchMap?.siteCreationTodo as { steps: { id: string; label: string; done: boolean }[] } | null | undefined) ?? null}
-              onComplete={() => handlePhaseComplete(5)}
+              onComplete={() => handlePhaseComplete(8)}
               userPlan={userPlan}
             />
           )}
         </Card>
       </div>
+
+      {/* Phase completion celebration */}
+      {celebration && (
+        <PhaseCompletionCelebration
+          phaseId={celebration.phaseId}
+          phaseName={celebration.phaseName}
+          nextPhaseName={celebration.nextId !== undefined ? LAUNCH_MAP_PHASES.find(p => p.id === celebration.nextId)?.title : undefined}
+          nextPhaseHref={celebration.nextId !== undefined ? (
+            celebration.nextId === 6 ? '/launch-map/tech-packs' :
+              celebration.nextId === 7 ? '/launch-map/sourcing' :
+                `/launch-map/phase/${celebration.nextId}`
+          ) : undefined}
+          onContinue={handleCelebrationDone}
+        />
+      )}
     </div>
   );
 }

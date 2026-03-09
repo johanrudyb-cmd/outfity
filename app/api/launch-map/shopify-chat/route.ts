@@ -1,28 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
 import { rateLimitByUser } from '@/lib/rate-limit';
 import { withAIUsageLimit } from '@/lib/ai-usage';
-import { isFreePlan } from '@/lib/plan-utils';
+import { generateChat } from '@/lib/api/chatgpt';
 
-const anthropic = process.env.ANTHROPIC_API_KEY
-    ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-    : null;
-
-// Placeholder — replace with affiliate URL once obtained
-// Fallback Shopify link
-const SHOPIFY_AFFILIATE_URL = (() => {
-    const raw = process.env.NEXT_PUBLIC_SHOPIFY_AFFILIATE_URL || 'https://www.shopify.com/fr/essai-gratuit';
-    return raw.startsWith('http') ? raw : `https://${raw}`;
-})();
+const SHOPIFY_AFFILIATE_URL = process.env.NEXT_PUBLIC_SHOPIFY_AFFILIATE_URL || 'https://www.shopify.com/fr/essai-gratuit';
 
 export async function POST(req: NextRequest) {
     try {
-        if (!anthropic) {
-            return NextResponse.json({ error: 'IA non configurée.' }, { status: 503 });
-        }
-
         const currentUser = await getCurrentUser();
         if (!currentUser) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
@@ -44,7 +30,6 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Paramètres manquants.' }, { status: 400 });
         }
 
-        // Fetch brand context
         const brand = await prisma.brand.findFirst({
             where: { id: brandId, userId: currentUser.id },
             include: { launchMap: true },
@@ -52,79 +37,66 @@ export async function POST(req: NextRequest) {
 
         if (!brand) return NextResponse.json({ error: 'Marque introuvable.' }, { status: 404 });
 
-        // VÉRIFICATION STRATÉGIE (FONDATION)
         const latestStrategy = await prisma.strategyGeneration.findFirst({
             where: { brandId },
             orderBy: { createdAt: 'desc' },
-            select: { strategyText: true },
+            select: { strategyText: true, positioning: true },
         });
 
         if (!latestStrategy?.strategyText) {
             return NextResponse.json({
-                reply: "Salut, c'est Johan. J'adore ton enthousiasme pour Shopify, mais Virgil doit d'abord forger ta stratégie. On ne peut pas monter une boutique sans fondations solides. File voir Virgil. [Définir ma stratégie avec Virgil](/launch-map/phase/1)"
+                reply: "C'est Johan. Avant de construire la boutique, il faut savoir ce qu'on vend et à qui. Virgil doit d'abord définir la stratégie — ça déterminera les couleurs, le ton et l'architecture du site. [Définir ma stratégie avec Virgil](/launch-map/phase/1)"
             });
         }
 
-        const sg = brand.styleGuide as Record<string, unknown> | null;
         const colorPalette = brand.colorPalette as Record<string, string> | null;
-        const typography = brand.typography as Record<string, string> | null;
+        const isPro = ['creator', 'pro', 'enterprise', 'admin'].includes(currentUser.plan || '');
+        const shopDomain = brand.launchMap?.shopifyShopDomain;
 
         const brandContext = [
-            `Nom de la marque : ${brand.name}`,
-            `Plan utilisateur : ${currentUser.plan}`,
-            sg?.productType ? `Type de produit : ${sg.productType}` : null,
-            sg?.universe ? `Univers / style : ${sg.universe}` : null,
-            colorPalette?.primary ? `Couleur principale : ${colorPalette.primary}` : null,
-            typography?.heading ? `Police des titres : ${typography.heading}` : null,
-            brand.templateBrandSlug ? `Marque d'inspiration : ${brand.templateBrandSlug}` : null,
-            brand.launchMap?.shopifyShopDomain ? `Boutique Shopify déjà créée : ${brand.launchMap.shopifyShopDomain}` : 'Boutique Shopify : pas encore créée',
-        ].filter(Boolean).join('\n');
+            `Marque : ${brand.name}`,
+            `Positionnement : ${latestStrategy.positioning || 'À préciser'}`,
+            `Couleur principale : ${colorPalette?.primary || 'Non définie'}`,
+            `Boutique Shopify : ${shopDomain || 'Pas encore créée'}`
+        ].join('\n');
 
-        const SYSTEM_PROMPT = `Tu es Johan, le Web designer personnel de l'utilisateur sur la plateforme OUTFITY.
-Tu les aides à créer et configurer leur boutique Shopify de A à Z avec un oeil d'expert en design.
-Tu es chaleureux, motivant, concis et expert. Tu tutoies l'utilisateur.
-Tu t'appelles Johan et tu as une vraie personnalité : enthousiaste, mentor bienveillant, pas robotique.
-Tu réponds UNIQUEMENT sur les sujets liés à Shopify, la boutique en ligne, et la vente de mode.
+        const SYSTEM_PROMPT = `Tu es Johan, Expert E-commerce et intégration Shopify chez OUTFITY. Tu aides ${brand.name} à construire une boutique qui convertit vraiment.
 
-CONTEXTE DE LA MARQUE :
+Ton style de communication :
+Tu parles comme quelqu'un qui a configuré des dizaines de boutiques Shopify et qui sait exactement quels paramètres font la différence entre une boutique qui vend et une qui stagne. Tu tutoies. Tu es pragmatique et orienté résultats. Tu n'utilises pas d'emojis juste pour paraître dynamique. Tu vas dans le détail quand c'est nécessaire — si quelqu'un te demande comment configurer sa page produit, tu lui dis exactement quoi écrire dans quel champ, pas des généralités.
+
+Contexte :
 ${brandContext}
 
-RÈGLES DE GESTION DES PLANS (RÈGLES ABSOLUES) :
-- SI PLAN 'free' ou 'starter' : Tu es bridé en mode "Accompagnement". Tu ne dois JAMAIS configurer la boutique à la place de l'utilisateur. Ton rôle est UNIQUEMENT de l'aiguiller sur les bonnes pratiques. Tu DOIS lui dire explicitement que pour débloquer ton expertise de Web Designer complète (guidelines précises, sections optimisées, configuration avancée), il doit passer au plan Creator.
-- SI PLAN 'creator' ou + : Tu es en mode "Web Designer". Tu es son bras droit technique. Tu peux lui donner des conseils de configuration très précis, lui expliquer exactement où cliquer dans l'interface Shopify, et même lui suggérer des sections de landing page optimisées pour la conversion.
+Règles :
+1. Tu te concentres sur ce qui génère des ventes : la confiance (preuves sociales, garanties), la vitesse (chargement, mobile), et la clarté (CTA évidents, description qui répond aux vraies questions de l'acheteur).
+2. Tu connais l'interface Shopify dans le détail. Quand tu donnes une instruction, tu précises le chemin exact : "Dans Shopify Admin > Boutique en ligne > Thème > Personnaliser > Section Héros...".
+3. Plan ${isPro ? 'Creator' : 'Gratuit'} : ${isPro ? 'Tu donnes des configurations complètes, des structures de page précises et des conseils avancés sur les apps Shopify.' : 'Tu donnes les bases et les bonnes pratiques. Pour les configurations techniques avancées et les structures de page complètes, c\'est le plan Creator.'}
+4. Si la boutique n'est pas encore créée : [Créer ma boutique Shopify](${SHOPIFY_AFFILIATE_URL})
+5. Une seule question par message.
+6. Termine toujours par : [[Option A|Option B|Option C]]
 
-RÈGLES IMPORTANTES (RESPECT OBLIGATOIRE - TOLÉRANCE ZÉRO) :
-- TON HUMAIN : Tu parles comme un humain formateur, expert e-commerce, complice et motivant. PAS d'IA, PAS d'assistant virtuel. Évite les phrases bateau type "En tant qu'IA" ou "Voici comment je peux t'aider".
-- ZÉRO EMOJI : Il est STRICTEMENT INTERDIT d'utiliser des émojis dans tes réponses. Aucun émoji, jamais.
-- FORMATAGE : N'utilise JAMAIS d'astérisques (*), JAMAIS de texte en gras ou en italique. Texte brut uniquement. Exception : boutons [Texte](${SHOPIFY_AFFILIATE_URL}).
-- PAS DE LISTES ROBOTIQUES : Évite les structures "Etape 1, 2, 3" ou "Option 1, 2" trop rigides. Parle en paragraphes fluides.
-- Sois concis : 2-4 phrases max par réponse, sauf si on te demande un guide complet.
-- RÈGLE D'OR : UNE ET UNE SEULE QUESTION PAR MESSAGE. Interdiction absolue de poser deux questions ou plus.
-- SUGGESTIONS DYNAMIQUES : À la toute fin de CHAQUE réponse, propose TOUJOURS exactement 2 ou 3 suggestions de réponses courtes et pertinentes pour que l'utilisateur puisse cliquer et avancer. Formate-les exactement comme ceci : [[Suggestion 1|Suggestion 2|Suggestion 3]].
+Ouverture (si message est "__INIT__") :
+${shopDomain
+                ? `Dis : "C'est Johan. Ta boutique est déjà en ligne sur ${shopDomain}. Qu'est-ce qu'on améliore aujourd'hui — la page d'accueil, les fiches produits ou le tunnel de commande ?"`
+                : `Dis : "C'est Johan. On va construire la boutique de ${brand.name}. Tu as déjà un compte Shopify ou on part de zéro ?"`}`;
 
-DÉBUT DE CONVERSATION :
-Si c'est le premier message (ou texte __INIT__), présente-toi : "Je m'appelle Johan, expert e-commerce. Je vais t'accompagner pour faire de ton site une machine de guerre qui convertit, mais on ne monte rien à l'aveugle ici." Demande où en est l'utilisateur avec la création de sa boutique Shopify. (UNE SEULE question). [[Je n'ai rien commencé|J'ai déjà un compte|Je cherche un thème]]`;
+        const filteredMessages = messages.map(m => ({
+            role: m.role,
+            content: m.content === '__INIT__' ? 'Hello Johan !' : m.content,
+        }));
 
         const reply = await withAIUsageLimit(
             currentUser.id,
             currentUser.plan,
             'assistant_chat_qa',
-            async () => {
-                const response = await anthropic.messages.create({
-                    model: 'claude-3-haiku-20240307',
-                    max_tokens: 600,
-                    system: SYSTEM_PROMPT,
-                    messages: messages.map(m => ({ role: m.role, content: m.content === '__INIT__' ? 'Hello' : m.content })),
-                });
-                return response.content[0].type === 'text' ? response.content[0].text : '';
-            },
+            () => generateChat(SYSTEM_PROMPT, filteredMessages, { model: 'gpt-4o-mini', maxTokens: 1200, temperature: 0.75 }),
             { brandId, agent: 'johan' }
         );
 
-        // Save conversation
         try {
             const lastUserMessage = messages[messages.length - 1];
-            if (lastUserMessage && lastUserMessage.role === 'user') {
+            if (lastUserMessage?.role === 'user') {
                 await prisma.agentMessage.createMany({
                     data: [
                         { brandId, agentKey: 'johan', role: 'user', content: lastUserMessage.content === '__INIT__' ? 'Initialisation' : lastUserMessage.content },
@@ -133,17 +105,12 @@ Si c'est le premier message (ou texte __INIT__), présente-toi : "Je m'appelle J
                 });
             }
         } catch (e) {
-            console.warn('[Johan Chat] Failed to save messages:', e);
+            console.warn('[Johan] Save error:', e);
         }
 
         return NextResponse.json({ reply });
     } catch (error: any) {
-        console.error('[shopify-chat] Error payload:', error);
-        const message = error.message || '';
-        const isQuota = message.includes('Quota') || message.includes('Limite') || message.includes('épuisé');
-        if (isQuota) return NextResponse.json({ error: message }, { status: 403 });
-        return NextResponse.json({
-            error: 'Johan rencontre un petit souci technique. Réessaie dans un instant.'
-        }, { status: 500 });
+        console.error('[shopify-chat] Error:', error);
+        return NextResponse.json({ error: 'Johan est indisponible.' }, { status: 500 });
     }
 }

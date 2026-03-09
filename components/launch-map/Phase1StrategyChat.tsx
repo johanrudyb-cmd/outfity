@@ -4,6 +4,7 @@ import { ArrowRight, Pencil, Target, PenTool, RefreshCw, CheckCircle2, FileText 
 import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import ReactMarkdown from 'react-markdown';
 import { Button } from '@/components/ui/button';
 import type { BrandIdentity } from './LaunchMapStepper';
 import { BaseAgentChat } from './BaseAgentChat';
@@ -14,6 +15,7 @@ interface Phase1StrategyChatProps {
     brandId: string;
     brand?: BrandIdentity | null;
     onComplete: () => void;
+    canComplete?: boolean;
     userPlan?: string;
     onShowClassic?: () => void;
     onShowManifeste?: () => void;
@@ -22,40 +24,46 @@ interface Phase1StrategyChatProps {
     changesRemaining?: number;             // combien de changements restants ce mois
 }
 
-export function Phase1StrategyChat({ brandId, brand, onComplete, userPlan = 'free', onShowClassic, onShowManifeste, inspirationBrandName, inspirationBrandSlug, changesRemaining = 3 }: Phase1StrategyChatProps) {
+export function Phase1StrategyChat({ brandId, brand, onComplete, canComplete = true, userPlan = 'free', onShowClassic, onShowManifeste, inspirationBrandName, inspirationBrandSlug, changesRemaining = 3 }: Phase1StrategyChatProps) {
     const renderMessageContent = (content: string, isUser: boolean) => {
-        const parts = content.split(/(\[.*?\]\(.*?\))/g);
         return (
-            <div className="leading-relaxed text-[15px]">
-                {parts.map((part, i) => {
-                    const match = part.match(/^\[(.*?)\]\((.*?)\)$/);
-                    if (match) {
-                        const [, label, url] = match;
-                        if (url === '/launch-map/phase/1') {
+            <div className="leading-relaxed text-[15px] prose prose-sm max-w-none">
+                <ReactMarkdown
+                    components={{
+                        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                        strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+                        em: ({ children }) => <em className="italic">{children}</em>,
+                        ul: ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>,
+                        ol: ({ children }) => <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>,
+                        li: ({ children }) => <li className="text-[14px]">{children}</li>,
+                        a: ({ href, children }) => {
+                            if (href === '/launch-map/phase/1') {
+                                return (
+                                    <button
+                                        onClick={onShowClassic}
+                                        className={cn(
+                                            "inline-flex items-center gap-2 mt-2 mb-1 font-bold text-[13px] px-4 py-2 rounded-2xl transition-all shadow-sm",
+                                            isUser ? "bg-white text-[#007AFF]" : "bg-[#007AFF] text-white hover:bg-[#0056CC]"
+                                        )}
+                                    >
+                                        {children}<ArrowRight className="w-3.5 h-3.5" />
+                                    </button>
+                                );
+                            }
                             return (
-                                <button
-                                    key={i}
-                                    onClick={onShowClassic}
-                                    className={cn(
-                                        "inline-flex items-center gap-2 mt-3 mb-1 font-bold text-[13px] px-5 py-2.5 rounded-2xl transition-all shadow-sm",
+                                <Link href={href || '#'}
+                                    className={cn("inline-flex items-center gap-2 mt-2 mb-1 font-bold text-[13px] px-4 py-2 rounded-2xl transition-all no-underline shadow-sm",
                                         isUser ? "bg-white text-[#007AFF]" : "bg-[#007AFF] text-white hover:bg-[#0056CC]"
-                                    )}
-                                >
-                                    {label}<ArrowRight className="w-4 h-4" />
-                                </button>
+                                    )}>
+                                    {children}<ArrowRight className="w-3.5 h-3.5" />
+                                </Link>
                             );
-                        }
-                        return (
-                            <Link key={i} href={url}
-                                className={cn("inline-flex items-center gap-2 mt-3 mb-1 font-bold text-[13px] px-5 py-2.5 rounded-2xl transition-all no-underline shadow-sm",
-                                    isUser ? "bg-white text-[#007AFF]" : "bg-[#007AFF] text-white hover:bg-[#0056CC]"
-                                )}>
-                                {label}<ArrowRight className="w-4 h-4" />
-                            </Link>
-                        );
-                    }
-                    return <span key={i} style={{ whiteSpace: 'pre-wrap' }}>{part}</span>;
-                })}
+                        },
+                        code: ({ children }) => <code className="bg-black/5 rounded px-1 py-0.5 text-[13px] font-mono">{children}</code>,
+                    }}
+                >
+                    {content}
+                </ReactMarkdown>
             </div>
         );
     };
@@ -135,8 +143,10 @@ export function Phase1StrategyChat({ brandId, brand, onComplete, userPlan = 'fre
             renderMessageContent={renderMessageContent}
             headerActions={headerActions}
             onComplete={onComplete}
+            canComplete={canComplete}
             upgradeLinkText="Débloquer Mon Atelier"
             customViews={inspirationBanner}
+            backHref="/launch-map"
             processBotReply={(rawContent) => {
                 const suggestMatch = rawContent.match(/\[\[(.*?)\]\]/);
                 const newSuggestions = suggestMatch ? suggestMatch[1].split('|') : [];

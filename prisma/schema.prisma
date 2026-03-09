@@ -113,6 +113,7 @@ model Brand {
   mockShopifyProducts     MockShopifyProduct[]
   strategyGenerations     StrategyGeneration[]
   ugcContents             UGCContent[]
+  waitlistLeads           WaitlistLead[]
 
   @@index([userId])
 }
@@ -149,6 +150,7 @@ model Design {
   updatedAt          DateTime    @updatedAt
   brand              Brand       @relation(fields: [brandId], references: [id], onDelete: Cascade)
   collection         Collection? @relation(fields: [collectionId], references: [id])
+  waitlistLeads      WaitlistLead[]
 
   @@index([brandId])
   @@index([collectionId])
@@ -196,6 +198,7 @@ model LaunchMap {
   phase5                  Boolean   @default(false)
   phase6                  Boolean   @default(false)
   phase7                  Boolean   @default(false)
+  phase8                  Boolean   @default(false)
   shopifyShopDomain       String?
   phase1Data              Json?
   baseMockupByProductType Json?
@@ -203,7 +206,9 @@ model LaunchMap {
   recommendationsCache    Json?
   recommendationsCachedAt DateTime?
   contentCalendar         Json?
-  siteCreationTodo        Json?
+  techPackDraft          Json?
+  siteCreationTodo       Json?
+  waitlistSettings       Json?
   createdAt               DateTime  @default(now())
   updatedAt               DateTime  @updatedAt
   shopifyAccessToken      String?
@@ -254,6 +259,21 @@ model Mannequin {
   brand       Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
 
   @@index([brandId])
+}
+
+model WaitlistLead {
+  id        String   @id @default(cuid())
+  brandId   String
+  designId  String?
+  email     String
+  source    String?  @default("waitlist")
+  createdAt DateTime @default(now())
+  brand     Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  design    Design?  @relation(fields: [designId], references: [id], onDelete: SetNull)
+
+  @@unique([designId, email])
+  @@index([brandId])
+  @@index([designId])
 }
 
 model StrategyGeneration {

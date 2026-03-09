@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   CheckCircle2,
@@ -28,7 +29,7 @@ import { isFreePlan } from '@/lib/plan-utils';
 
 export interface PhasePageViewProps {
   phaseId: number;
-  brand: { id: string; name: string; logo?: string | null };
+  brand?: { id: string; name: string; logo?: string | null };
   launchMap: LaunchMapData | null;
   brandFull: BrandIdentity;
   hasIdentity: boolean;
@@ -51,6 +52,7 @@ export function PhasePageView({
   suppliers = [],
   userPlan = 'starter',
 }: PhasePageViewProps) {
+  const router = useRouter();
   const [isShowingDetail, setShowingDetail] = useState(false);
   const [strategyText, setStrategyText] = useState<string | null>(null);
   const [strategyLoading, setStrategyLoading] = useState(false);
@@ -58,9 +60,9 @@ export function PhasePageView({
   const detailSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (phaseId === 1 && brand.id) {
+    if (phaseId === 1 && brand?.id) {
       setStrategyLoading(true);
-      fetch(`/api/brands/strategy/history?brandId=${encodeURIComponent(brand.id)}`)
+      fetch(`/api/brands/strategy/history?brandId=${encodeURIComponent(brand?.id || '')}`)
         .then((r) => r.json())
         .then((data) => {
           const latest = data?.strategies?.[0];
@@ -68,7 +70,7 @@ export function PhasePageView({
         })
         .finally(() => setStrategyLoading(false));
     }
-  }, [phaseId, brand.id]);
+  }, [phaseId, brand?.id]);
 
   const phase = LAUNCH_MAP_PHASES.find(p => p.id === phaseId);
   const presentation = PHASE_PRESENTATIONS[phaseId];
@@ -80,7 +82,9 @@ export function PhasePageView({
     phase3: launchMap?.phase3 ?? false,
     phase4: launchMap?.phase4 ?? false,
     phase5: launchMap?.phase5 ?? false,
+    phase6: launchMap?.phase6 ?? false,
     phase7: launchMap?.phase7 ?? false,
+    phase8: launchMap?.phase8 ?? false,
   };
 
   useEffect(() => {
@@ -89,7 +93,7 @@ export function PhasePageView({
     }
   }, [isShowingDetail]);
 
-  const isLocked = isFreePlan(userPlan) && ![0, 1, 2, 4].includes(phaseId);
+  const isLocked = isFreePlan(userPlan) && ![0, 1, 2, 7].includes(phaseId);
 
   if (!phase || !presentation) {
     return (
@@ -110,9 +114,12 @@ export function PhasePageView({
     0: { bg: 'bg-violet-50', text: 'text-violet-500' },
     1: { bg: 'bg-blue-50', text: 'text-blue-500' },
     2: { bg: 'bg-orange-50', text: 'text-orange-500' },
-    3: { bg: 'bg-emerald-50', text: 'text-emerald-500' },
-    4: { bg: 'bg-amber-50', text: 'text-amber-500' },
-    5: { bg: 'bg-[#95BF47]/10', text: 'text-[#5E8E3E]' },
+    3: { bg: 'bg-green-50', text: 'text-green-500' }, // Scanner
+    4: { bg: 'bg-[#ff327e]/10', text: 'text-[#ff327e]' }, // Joy
+    5: { bg: 'bg-blue-50', text: 'text-blue-500' }, // Waitlist
+    6: { bg: 'bg-emerald-50', text: 'text-emerald-500' }, // Tech Pack
+    7: { bg: 'bg-amber-50', text: 'text-amber-500' }, // Sourcing
+    8: { bg: 'bg-[#95BF47]/10', text: 'text-[#5E8E3E]' }, // Web
   };
 
   const currentColor = PHASE_COLOR[phaseId] || { bg: 'bg-[#007AFF]/10', text: 'text-[#007AFF]' };
@@ -122,13 +129,16 @@ export function PhasePageView({
     (phaseId === 2 && launchMap?.phase2) ||
     (phaseId === 3 && launchMap?.phase3) ||
     (phaseId === 4 && launchMap?.phase4) ||
-    (phaseId === 5 && launchMap?.phase5);
+    (phaseId === 5 && launchMap?.phase5) ||
+    (phaseId === 6 && launchMap?.phase6) ||
+    (phaseId === 7 && launchMap?.phase7) ||
+    (phaseId === 8 && launchMap?.phase8);
 
-  // Mode messagerie/immersif full width (Atelier phases 0,1,2 + Sourcing Ada 4 + Shopify 5)
-  if ([0, 1, 2, 4, 5].includes(phaseId) && !isLocked) {
+  // Mode messagerie/immersif full width (Atelier phases 0, 1, 2, 3, 4, 7, 8)
+  if ([0, 1, 2, 3, 4, 5, 7, 8].includes(phaseId) && !isLocked) {
 
-    // Si la phase est complétée et qu'on n'est pas en mode édition, on affiche le RECAP (Sauf pour la phase 2 et 1 qui sont vécus via le chat)
-    if (isCompleted && !isEditing && phaseId !== 2 && phaseId !== 1) {
+    // Si la phase est complétée et qu'on n'est pas en mode édition, on affiche le RECAP (Sauf pour les phases immersives)
+    if (isCompleted && !isEditing && ![1, 2, 3, 4, 5].includes(phaseId)) {
       return (
         <div className="flex-1 w-full bg-[#F5F5F7] relative">
           <div className="absolute inset-0 flex flex-col overflow-hidden">
@@ -182,7 +192,7 @@ export function PhasePageView({
                           </div>
                           <div>
                             <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-black/30">Identité</p>
-                            <p className="text-base sm:text-xl font-bold text-[#1D1D1F] truncate max-w-[140px] sm:max-w-none">{brand.name}</p>
+                            <p className="text-base sm:text-xl font-bold text-[#1D1D1F] truncate max-w-[140px] sm:max-w-none">{brand?.name}</p>
                           </div>
                         </div>
                       )}
@@ -216,7 +226,31 @@ export function PhasePageView({
     return (
       <div className="flex-1 w-full bg-[#F5F5F7] relative">
         <div className="absolute inset-0 flex flex-col overflow-hidden">
-          <LaunchMapStepper brandId={brand.id} launchMap={launchMap} brand={brandFull} hasIdentity={hasIdentity} focusedPhase={phaseId} userPlan={userPlan} strategyText={strategyText} />
+          <LaunchMapStepper
+            brandId={brand?.id || ''}
+            launchMap={launchMap}
+            brand={brandFull}
+            hasIdentity={hasIdentity}
+            focusedPhase={phaseId}
+            userPlan={userPlan}
+            strategyText={strategyText}
+            designCount={designCount}
+            quoteCount={quoteCount}
+            onExitFocus={() => router.push('/launch-map')}
+            onPhaseComplete={(id) => {
+              if (id === phaseId) {
+                const nextId = id + 1;
+                if (nextId <= 8) {
+                  const nextHref = nextId === 6 ? '/launch-map/tech-packs' :
+                    nextId === 7 ? '/launch-map/sourcing' :
+                      `/launch-map/phase/${nextId}`;
+                  router.push(nextHref);
+                } else {
+                  router.push('/launch-map');
+                }
+              }
+            }}
+          />
         </div>
       </div>
     );
@@ -256,7 +290,7 @@ export function PhasePageView({
 
           {!isLocked ? (
             <div className="bg-white">
-              {isCompleted && !isEditing && phaseId !== 2 && phaseId !== 1 ? (
+              {isCompleted && !isEditing && ![1, 2, 3, 4, 5].includes(phaseId) ? (
                 <div className="p-8 sm:p-16 flex flex-col items-center space-y-6 sm:space-y-10">
                   <div className="text-center space-y-3 sm:space-y-4">
                     <div className={cn("w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] sm:rounded-[22px] mx-auto flex items-center justify-center shadow-lg", currentColor.bg, currentColor.text)}>
@@ -290,7 +324,31 @@ export function PhasePageView({
                 </div>
               ) : (
                 <div ref={detailSectionRef} className="p-4 sm:p-8">
-                  <LaunchMapStepper brandId={brand.id} launchMap={launchMap} brand={brandFull} hasIdentity={hasIdentity} focusedPhase={phaseId} userPlan={userPlan} />
+                  <LaunchMapStepper
+                    brandId={brand?.id || ''}
+                    launchMap={launchMap}
+                    brand={brandFull}
+                    hasIdentity={hasIdentity}
+                    focusedPhase={phaseId}
+                    userPlan={userPlan}
+                    strategyText={strategyText}
+                    designCount={designCount}
+                    quoteCount={quoteCount}
+                    onExitFocus={() => router.push('/launch-map')}
+                    onPhaseComplete={(id) => {
+                      if (id === phaseId) {
+                        const nextId = id + 1;
+                        if (nextId <= 8) {
+                          const nextHref = nextId === 6 ? '/launch-map/tech-packs' :
+                            nextId === 7 ? '/launch-map/sourcing' :
+                              `/launch-map/phase/${nextId}`;
+                          router.push(nextHref);
+                        } else {
+                          router.push('/launch-map');
+                        }
+                      }
+                    }}
+                  />
                 </div>
               )}
             </div>

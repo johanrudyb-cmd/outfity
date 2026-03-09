@@ -1,5 +1,4 @@
-﻿export const dynamic = 'force-dynamic';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
+﻿import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { TrendsPageLayout } from '@/components/trends/TrendsPageLayout';
 import MarketTicker from '@/components/trends/MarketTicker';
 import { getCurrentUser } from '@/lib/auth-helpers';
@@ -8,13 +7,14 @@ import { getHybridRadarTrends } from '@/lib/trends-data';
 
 import { FeatureTourModal } from '@/components/ui/feature-tour-modal';
 import { Rocket } from 'lucide-react';
+import { Suspense } from 'react';
 
 export const metadata = {
   title: 'Elite Radar — Analyse de Styles IA',
   description: 'Analyse prédictive des tendances mode en temps réel via Outfity Intelligence.',
 };
 
-export default async function TrendsPage() {
+async function TrendsContent() {
   const user = await getCurrentUser();
   // if (!user) {
   //   redirect('/auth/signin');
@@ -28,6 +28,10 @@ export default async function TrendsPage() {
     limit: 60
   });
 
+  return <TrendsPageLayout initialData={initialData} />;
+}
+
+export default function TrendsPage() {
   return (
     <DashboardLayout>
       <div className="w-full relative">
@@ -57,7 +61,9 @@ export default async function TrendsPage() {
         <MarketTicker />
 
         {/* Nouvelle Vue Catalogue Intelligent */}
-        <TrendsPageLayout initialData={initialData} />
+        <Suspense fallback={<div className="h-64 flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+          <TrendsContent />
+        </Suspense>
       </div>
     </DashboardLayout>
   );

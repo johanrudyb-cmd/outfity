@@ -139,6 +139,7 @@ export function Phase3SourcingChat({ brandId, brand, onComplete, userPlan = 'fre
             onComplete={onComplete}
             allowImageUpload={true}
             upgradeLinkText="Débloquer Sourcing Pro"
+            backHref="/launch-map"
         />
     );
 }

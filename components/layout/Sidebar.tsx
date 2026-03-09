@@ -15,14 +15,14 @@ const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 const navigation = [
   { name: 'Dashboard', short: 'Accueil', href: '/dashboard', tourId: 'tour-dashboard', icon: LayoutDashboard, badge: undefined as string | undefined },
-  { name: 'Viral sur Tiktok', short: 'Viral', href: '/trends', tourId: 'tour-trends', icon: TrendingUp, badge: undefined as string | undefined },
-  { name: 'Détecter une tendance', short: 'Scanner', href: '/trends/visual', tourId: 'tour-spy', icon: Camera, badge: undefined as string | undefined },
+  { name: 'Mon Lancement', short: 'Lancement', href: '/launch-map', tourId: 'tour-launch-map', icon: Sparkles, featured: true, badge: undefined as string | undefined },
 ];
 
 const tools = [
-  { name: 'Gérer ma marque', short: 'Marque', href: '/launch-map', tourId: 'tour-launch-map', icon: Sparkles, featured: true, disabled: false },
+  { name: 'Agent Joy (Contenus)', short: 'Contenu', href: '/content-creation', tourId: 'tour-content-creation', icon: PenSquare, disabled: false },
+  { name: 'Viral sur Tiktok', short: 'Viral', href: '/trends', tourId: 'tour-trends', icon: TrendingUp, disabled: false },
+  { name: 'Détecter une tendance', short: 'Scanner', href: '/trends/visual', tourId: 'tour-spy', icon: Camera, disabled: false },
   { name: 'Calculateur de marge', short: 'Calcul', href: '/calculator', tourId: 'tour-calculator', icon: Calculator, disabled: false },
-  { name: 'Création de contenu', short: 'Contenu', href: '/content-creation', tourId: 'tour-content-creation', icon: PenSquare, disabled: false },
 ];
 
 interface SidebarProps {

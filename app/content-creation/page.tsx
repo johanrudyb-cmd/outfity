@@ -1,22 +1,24 @@
-﻿export const dynamic = 'force-dynamic';
-import { redirect } from 'next/navigation';
+﻿import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
+import { isFreePlan } from '@/lib/plan-utils';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Phase4Marketing } from '@/components/launch-map/Phase4Marketing';
 import Link from 'next/link';
 import { ArrowLeft, Sparkles, Zap, Camera, PenTool, LayoutList, Image as ImageIcon } from 'lucide-react';
+import { Suspense } from 'react';
 
 export const metadata = {
     title: 'Studio de Création | Biangory',
     description: 'Générez vos visuels produits, shootings IA et scripts marketing en quelques clics.',
 };
 
-export default async function ContentCreationPage() {
+async function ContentCreationCore() {
     const user = await getCurrentUser();
     if (!user) redirect('/auth/signin');
 
-
+    // Joy = Plan Créateur
+    if (isFreePlan(user.plan)) redirect('/auth/choose-plan');
 
     const brand = await prisma.brand.findFirst({
         where: { userId: user.id },
@@ -36,11 +38,22 @@ export default async function ContentCreationPage() {
     };
 
     return (
+        <Phase4Marketing
+            brandId={brand.id}
+            brandName={brand.name}
+            brand={brandData}
+            isCompleted={brand.launchMap?.phase6 ?? false}
+            userPlan={user.plan}
+        />
+    );
+}
+
+export default function ContentCreationPage() {
+    return (
         <DashboardLayout>
             <div className="min-h-screen bg-[#F5F5F7]">
                 {/* ── Hero Header ── */}
                 <div className="relative overflow-hidden bg-[#1D1D1F] pb-0">
-                    {/* Gradient orbs */}
                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
                         <div className="absolute -top-20 -left-20 w-96 h-96 rounded-full bg-[#007AFF]/20 blur-3xl" />
                         <div className="absolute -top-10 right-0 w-80 h-80 rounded-full bg-[#AF52DE]/15 blur-3xl" />
@@ -73,13 +86,9 @@ export default async function ContentCreationPage() {
 
                 {/* ── Content ── */}
                 <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-8 pb-8">
-                    <Phase4Marketing
-                        brandId={brand.id}
-                        brandName={brand.name}
-                        brand={brandData}
-                        isCompleted={brand.launchMap?.phase6 ?? false}
-                        userPlan={user.plan}
-                    />
+                    <Suspense fallback={<div className="h-64 flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+                        <ContentCreationCore />
+                    </Suspense>
                 </div>
             </div>
         </DashboardLayout>

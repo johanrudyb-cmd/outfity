@@ -49,6 +49,7 @@ export interface BaseAgentChatProps {
     customViews?: ReactNode; // e.g., Shopify connect view
     hideChatWhenCustomView?: boolean;
     onComplete?: () => void;
+    canComplete?: boolean;
     allowImageUpload?: boolean;
 
     processBotReply?: (rawContent: string) => { cleanedContent: string; newSuggestions: string[] };
@@ -81,6 +82,7 @@ export function BaseAgentChat({
     customViews,
     hideChatWhenCustomView,
     onComplete,
+    canComplete = true,
     allowImageUpload,
     processBotReply,
     containerClassName,
@@ -182,6 +184,9 @@ export function BaseAgentChat({
                     body: JSON.stringify({
                         brandId,
                         messages: updatedMessages.map(m => ({ role: m.role, content: m.content })),
+                        context: {
+                            brandName: storageKey === 'virgil' ? undefined : undefined, // On pourra injecter plus tard
+                        }
                     }),
                 });
             }
@@ -283,8 +288,16 @@ export function BaseAgentChat({
                 <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                     {headerActions}
                     {onComplete && (
-                        <Button onClick={onComplete} className={cn("h-8 sm:h-9 text-[10px] sm:text-xs font-bold rounded-xl gap-1.5 px-3 sm:px-4 text-white shadow-sm transition-apple shrink-0", themeColor, themeHoverColor)}>
-                            <span>Terminer</span>
+                        <Button
+                            onClick={onComplete}
+                            disabled={!canComplete}
+                            className={cn(
+                                "h-8 sm:h-9 text-[10px] sm:text-xs font-bold rounded-xl gap-1.5 px-3 sm:px-4 text-white shadow-sm transition-apple shrink-0 disabled:opacity-50 disabled:grayscale-[0.5]",
+                                themeColor,
+                                themeHoverColor
+                            )}
+                        >
+                            <span>{canComplete ? 'Terminer' : 'En attente...'}</span>
                             <CheckCircle2 className="w-3.5 h-3.5" />
                         </Button>
                     )}
@@ -301,39 +314,78 @@ export function BaseAgentChat({
             {/* ── Messages Chat UI ── */}
             {(!customViews || !hideChatWhenCustomView) && (
                 userMessagesCount === 0 && !isTyping && !pendingImage ? (
-                    <div className="flex-1 flex flex-col items-center justify-start sm:justify-center p-5 sm:p-12 animate-in fade-in zoom-in-95 duration-500 overflow-y-auto stylish-scrollbar pt-12 sm:pt-12">
-                        <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-3xl relative mb-4 sm:mb-6 shadow-2xl border-4 border-white shrink-0">
-                            <Image src={agentImage} width={112} height={112} className="w-full h-full object-cover rounded-[20px]" alt={agentName} />
-                            <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full border-4 border-[#F5F5F7] flex items-center justify-center">
-                                {/* <Sparkles className="w-4 h-4 text-white" /> */}
-                            </div>
-                        </div>
+                    <div className="flex-1 flex flex-col items-center justify-start overflow-y-auto stylish-scrollbar relative">
+                        {/* Ambient background glow */}
+                        <div
+                            className="absolute inset-0 pointer-events-none"
+                            style={{
+                                background: `radial-gradient(ellipse 60% 40% at 50% 0%, var(--agent-glow, rgba(0,122,255,0.08)) 0%, transparent 70%)`,
+                            }}
+                        />
 
-                        <h2 className="text-xl sm:text-3xl font-black text-[#1D1D1F] text-center tracking-tight mb-2 px-4">
-                            {welcomeTitle}
-                        </h2>
-                        <p className="text-center text-[#86868B] text-[13px] sm:text-base max-w-xs mx-auto leading-relaxed mb-4 px-6">
-                            {welcomeDescription}
-                        </p>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 w-full max-w-2xl mx-auto mb-8 px-4">
-                            {welcomePrompts.map((prompt, i) => (
-                                <button
-                                    key={i}
-                                    onClick={() => sendMessage(prompt.replace(/ 🧐$/, ''))}
-                                    className={cn("p-3.5 sm:p-4 rounded-2xl bg-white border border-black/5 hover:shadow-md text-left transition-all group flex items-start gap-3 active:scale-95", `hover:border-opacity-30`)}
-                                >
-                                    <div className={cn("w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 transition-colors bg-opacity-10", themeTextColor, `group-hover:${themeColor}`)}>
-                                        {/* <MessageCircle className={cn("w-4 h-4 transition-colors", themeTextColor, "group-hover:text-white")} /> */}
-                                    </div>
-                                    <span className={cn("text-[12px] sm:text-[14px] text-[#1D1D1F] font-medium leading-snug transition-colors mt-0.5", `group-hover:${themeTextColor}`)}>
-                                        {prompt}
+                        <div className="relative z-10 flex flex-col items-center w-full px-5 pt-10 pb-6 max-w-2xl mx-auto">
+                            {/* Large avatar hero */}
+                            <div className="relative mb-6">
+                                <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-[32px] sm:rounded-[40px] overflow-hidden shadow-2xl ring-4 ring-white relative">
+                                    <Image
+                                        src={agentImage}
+                                        width={144}
+                                        height={144}
+                                        className="w-full h-full object-cover"
+                                        alt={agentName}
+                                    />
+                                    {/* Shimmer overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none rounded-[inherit]" />
+                                </div>
+                                {/* Online badge */}
+                                <div className="absolute -bottom-1 -right-1 flex items-center gap-1.5 bg-white rounded-full px-2.5 py-1 shadow-lg border border-black/5">
+                                    <span className="relative flex h-2 w-2">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                                     </span>
-                                </button>
-                            ))}
-                        </div>
+                                    <span className="text-[10px] font-bold text-[#1D1D1F] whitespace-nowrap">En ligne</span>
+                                </div>
+                            </div>
 
-                        {welcomeIcons}
+                            {/* Agent role tag */}
+                            <div className={cn(
+                                "flex items-center gap-1.5 px-3 py-1 rounded-full text-white text-[10px] font-black uppercase tracking-widest mb-3 shadow-sm",
+                                themeColor
+                            )}>
+                                {agentName}
+                            </div>
+
+                            {/* Welcome title */}
+                            <h2 className="text-2xl sm:text-3xl font-black text-[#1D1D1F] text-center tracking-tight mb-2 px-2 leading-tight">
+                                {welcomeTitle}
+                            </h2>
+                            <p className="text-center text-[#86868B] text-[13px] sm:text-[15px] max-w-xs mx-auto leading-relaxed mb-8 px-4">
+                                {welcomeDescription}
+                            </p>
+
+                            {/* Prompt suggestions */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full mb-6">
+                                {welcomePrompts.map((prompt, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => sendMessage(prompt.replace(/ 🧐$/, ''))}
+                                        className="group relative text-left p-4 rounded-2xl bg-white border border-black/[0.06] hover:border-black/[0.12] hover:shadow-apple transition-all duration-200 active:scale-[0.97] overflow-hidden"
+                                    >
+                                        {/* Hover accent */}
+                                        <div className={cn(
+                                            "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl",
+                                            `bg-gradient-to-br from-current/[0.03] to-transparent`
+                                        )} />
+                                        <span className="relative text-[13px] sm:text-[14px] text-[#1D1D1F] font-medium leading-snug">{prompt}</span>
+                                        <span className={cn("absolute bottom-3 right-3 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity", themeTextColor)}>
+                                            → Envoyer
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
+
+                            {welcomeIcons}
+                        </div>
                     </div>
                 ) : (
                     <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 pb-6 stylish-scrollbar relative z-0 flex flex-col gap-3.5 sm:gap-4 min-h-0">

@@ -325,14 +325,23 @@ function MesTechPacksContentInner({ brandId, brandName, brand }: MesTechPacksCon
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="rounded-2xl bg-[#F5F5F7] animate-pulse h-28" />
+              ))}
             </div>
           ) : designs.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <FileText className="w-10 h-10 mx-auto mb-3 opacity-50" />
-              <p className="text-sm">Aucun tech pack enregistré pour l&apos;instant.</p>
-              <p className="text-xs mt-1">Utilisez le formulaire ci-dessus pour en créer un.</p>
+            <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+              <div className="w-20 h-20 rounded-[28px] bg-[#F5F5F7] flex items-center justify-center mb-5 shadow-sm">
+                <FileText className="w-9 h-9 text-[#C7C7CC]" />
+              </div>
+              <h3 className="text-lg font-bold text-[#1D1D1F] mb-1">Aucun tech pack</h3>
+              <p className="text-sm text-[#86868B] max-w-[280px] leading-relaxed mb-6">
+                Utilisez le formulaire ci-dessus pour créer votre première fiche technique et l&apos;envoyer aux usines.
+              </p>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#007AFF]/10 text-[#007AFF] text-[12px] font-bold">
+                ↑ Commencez par le formulaire ci-dessus
+              </div>
             </div>
           ) : (
             <div className="space-y-6">

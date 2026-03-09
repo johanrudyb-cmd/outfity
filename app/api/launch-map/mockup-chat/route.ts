@@ -1,21 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
 import { withAIUsageLimit } from '@/lib/ai-usage';
-import { isFreePlan } from '@/lib/plan-utils';
+import { generateChat } from '@/lib/api/chatgpt';
 import { getTrendsWithRecommendation } from '@/lib/trend-detector';
-
-const anthropic = process.env.ANTHROPIC_API_KEY
-    ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-    : null;
 
 export async function POST(req: NextRequest) {
     try {
-        if (!anthropic) {
-            return NextResponse.json({ error: 'IA non configurée.' }, { status: 503 });
-        }
-
         const currentUser = await getCurrentUser();
         if (!currentUser) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
@@ -23,6 +14,7 @@ export async function POST(req: NextRequest) {
         const { brandId, messages } = body as {
             brandId: string;
             messages: { role: 'user' | 'assistant'; content: string }[];
+            context?: { brandName?: string; productType?: string };
         };
 
         if (!brandId || !messages?.length) {
@@ -31,142 +23,98 @@ export async function POST(req: NextRequest) {
 
         const brand = await prisma.brand.findFirst({
             where: { id: brandId, userId: currentUser.id },
-            include: { launchMap: true }
+            include: {
+                launchMap: true,
+                designs: { where: { productImageUrl: { not: null } }, take: 5, orderBy: { createdAt: 'desc' } }
+            }
         });
 
         if (!brand) return NextResponse.json({ error: 'Marque introuvable.' }, { status: 404 });
 
-        // VÉRIFICATION STRATÉGIE (FONDATION)
         const latestStrategy = await prisma.strategyGeneration.findFirst({
             where: { brandId },
             orderBy: { createdAt: 'desc' },
-            select: { strategyText: true },
+            select: { strategyText: true, positioning: true },
         });
 
         if (!latestStrategy?.strategyText) {
             return NextResponse.json({
-                reply: "Salut, c'est Pharell. Ton projet a l'air top, mais on ne peut pas dessiner dans le noir. Virgil doit d'abord forger ta stratégie pour qu'on sache exactement où on va. C'est la base de tout. [Faire ma stratégie avec Virgil](/launch-map/phase/1)"
+                reply: "C'est Pharell. On ne peut pas travailler sur les designs sans savoir où on va. Virgil doit définir la stratégie en premier — c'est lui qui donne la direction artistique globale. [Définir ma stratégie](/launch-map/phase/1)"
             });
         }
 
-        const sg = brand.styleGuide as Record<string, unknown> | null;
-
-        // Extrait de la stratégie LaunchMap Phase 1 si existante
-        const strategyData = brand.launchMap?.phase1Data ? JSON.stringify(brand.launchMap.phase1Data) : '';
-        const summariesData = brand.launchMap?.phaseSummaries ? JSON.stringify(brand.launchMap.phaseSummaries) : '';
-
-        // Fetch Trends (Radar)
         const trends = await getTrendsWithRecommendation(5);
         const radarEvents = trends
             .filter(t => t.recommendation === 'recommended')
-            .map(t => `- ${t.productName} (${t.cut || 'coupe standard'}) : confirmé par ${t.confirmationScore} leaders mode.`)
+            .map(t => `- ${t.productName} (${t.cut || 'coupe standard'}) : tendance confirmée.`)
             .join('\n');
 
+        const isPro = ['creator', 'pro', 'enterprise', 'admin'].includes(currentUser.plan || '');
+        const designCount = brand.designs.length;
+        const userStage = designCount === 0 ? 'zero_design' : 'en_creation';
+
         const brandContext = [
-            `Nom de la marque : ${brand.name}`,
-            `Plan utilisateur : ${currentUser.plan}`,
-            sg?.productType ? `Type de produit : ${sg.productType}` : null,
-            sg?.universe ? `Univers / style : ${sg.universe}` : null,
-            sg?.productSignature ? `Signature visuelle : ${sg.productSignature}` : null,
-            sg?.productWeight ? `Grammage : ${sg.productWeight}` : null,
-            strategyData ? `Stratégie de la Marque (Phase 1) : ${strategyData}` : null,
-            summariesData ? `Résumé Global : ${summariesData}` : null,
-            `PRÉDICTIONS VIRAL SUR TIKTOK (À ANTICIPER) :\n${radarEvents || 'Analyse des signaux faibles en cours...'}`
-        ].filter(Boolean).join('\n');
+            `Marque : ${brand.name}`,
+            `Positionnement : ${latestStrategy.positioning || 'À préciser'}`,
+            `Nombre de designs : ${designCount}`,
+            radarEvents ? `Tendances radar actuelles :\n${radarEvents}` : 'Radar : analyse en cours.'
+        ].join('\n');
 
-        const SYSTEM_PROMPT = `Tu es Pharell, Directeur Artistique chez OUTFITY.
-Ton rôle est de piloter la vision créative de l'utilisateur pour sa collection. Ne te contente pas de donner des fichiers : accompagne-le sur la direction artistique (choix du vêtement, couleurs, placements). Tu as accès à sa STRATÉGIE (ci-dessous) : utilise-la pour l'orienter au mieux et faire des suggestions alignées sur sa vision.
-Tu es chaleureux, motivant et expert. Tu tutoies l'utilisateur.
+        const SYSTEM_PROMPT = `Tu es Pharell, Directeur Artistique chez OUTFITY. Tu aides à transformer la vision de ${brand.name} en designs concrets et cohérents.
 
-CONTEXTE DE LA MARQUE :
+Ton style de communication :
+Tu parles comme un DA senior — quelqu'un qui a travaillé en studio, qui connaît la couleur, la matière, la typographie et ce qui rend un visuel mémorable. Tu tutoies. Tu es passionné mais pas enjoué pour rien. Tes conseils sont précis et actionnables : tu ne dis pas "essaie quelque chose de moderne", tu dis "prends le #1A1A2E en fond, et une typo Helvetica Neue Bold en blanc cassé". Tu n'abuses pas des emojis ni du gras — tu les réserves à ce qui compte vraiment. Tes réponses sont longues quand la situation le demande, parce qu'un vrai brief créatif ne tient pas en deux phrases.
+
+Contexte :
 ${brandContext}
 
-RÈGLES DE GESTION DES PLANS (RÈGLES ABSOLUES) :
-- SI PLAN 'free' ou 'starter' : Tu es bridé en mode "Accompagnement". Tu ne dois JAMAIS concevoir le design à la place de l'utilisateur. Ton rôle est UNIQUEMENT de l'aiguiller sur les choix créatifs. Tu DOIS lui dire explicitement que pour débloquer ton expertise de Directeur Artistique complète (placements exacts, concepts visuels, suggestions directes), il doit passer au plan Creator.
-- SI PLAN 'creator' ou + : Tu es en mode "Directeur Artistique". Tu es son mentor créatif. Tu peux lui donner des combinaisons précises de couleurs (codes HEX), lui suggérer des placements exacts et des concepts visuels complets pour qu'il n'ait plus qu'à valider.
+Stade :
+${userStage === 'zero_design'
+                ? `L'utilisateur n'a pas encore créé de design. Ton rôle est de l'aider à définir sa première pièce signature : le produit, la coupe, les matières, et les codes visuels de la marque. Sois concret et guide étape par étape.`
+                : `L'utilisateur a déjà ${designCount} design(s). Aide-le à maintenir une cohérence de collection et à explorer de nouveaux territoires créatifs.`}
 
-RÈGLES IMPORTANTES (RESPECT OBLIGATOIRE - TOLÉRANCE ZÉRO) :
-- TON HUMAIN : Tu parles comme un véritable Directeur Artistique (une collègue ou un mentor humain), complice et expert. PAS d'IA, PAS d'assistant virtuel. Évite les phrases robotiques (ex: "Voici...", "Je suis là pour...").
-- ZÉRO EMOJI : Il est STRICTEMENT INTERDIT d'utiliser des émojis dans tes réponses. Aucun émoji, pas d'exception. C'est un ordre absolu.
-- FORMATAGE : N'utilise JAMAIS d'astérisques (*), JAMAIS de texte en gras ou en italique. Texte brut uniquement (exception: boutons [Texte](/lien)).
-- PAS DE LISTES ROBOTIQUES : Évite de structurer tes réponses avec des listes numérotées trop formelles. Préfère des paragraphes fluides et conversationnels.
-- Sois TRÈS concis : 2-4 phrases max par réponse.
-- RÈGLE D'OR : UNE ET UNE SEULE QUESTION PAR MESSAGE. Interdiction absolue de poser deux questions ou plus.
-- RGPD : Ne demande jamais de données personnelles (nom de famille, adresse, etc.) ou confidentielles.
-- COLLABORATION IA : Ton domaine, c'est le design visuel. Ne réponds pas précisément aux questions de stratégie globale (prix, marketing, cible) ou de sourcing (trouver une usine).
-  - Pour la Stratégie/Marketing, demande-lui de consulter Virgil, votre Directeur de Stratégie. Bouton : [Demander à Virgil](/launch-map/phase/1)
-  - Pour le Sourcing/Production, redirige-le vers Ada, l'Expert Sourcing. Bouton : [Demander à Ada](/launch-map/sourcing)
-  - Pour le TECH PACK : Explique que la création de la fiche technique se passe directement dans l'onglet dédié une fois le design validé. Bouton : [Créer mon Tech Pack](/launch-map/phase/3)
-- DÉCOUVERTE DU BESOIN (STRICT) : Tu ne dois JAMAIS proposer de mockup avant d'avoir qualifié le projet. Pose une seule question à la fois parmi ces étapes :
-    1. LA PIÈCE : Quel type de vêtement (t-shirt, sweat, etc.) et pour quel segment (homme, femme, unisexe) ?
-    2. LA COUPE & L'ANTICIPATION : C'est ici que tu parles de "Viral sur TikTok". Demande-lui s'il a vu les prédictions pour la coupe (boxy, oversize, standard). S'il ne l'a pas fait, insiste : on ne lance rien à l'aveugle. Bouton : [Vérifier sur Viral sur TikTok](/trends).
-    3. LA MATIÈRE : Quel grammage ou quel rendu textile (coton lourd, technique, vintage) ?
-    4. L'IDENTITÉ : Quelles couleurs et quel type de marquage (sérigraphie, broderie, puff print) ?
-    5. RÉCAPITULATIF & VALIDATION : Une fois les 4 étapes complétées, fais un RÉCAPITULATIF clair et synthétique des choix. Demande à l'utilisateur de VALIDER ce récapitulatif. Explique que c'est ce récapitulatif qui servira de base à la création de son Tech Pack officiel dans l'onglet dédié.
-- CONDITION MOCKUP : Une fois (et seulement après) que l'utilisateur a répondu "C'est parfait" ou a validé ton récapitulatif, félicite-le et propose-lui deux choses : de voir le mockup ("__SHOW_MOCKUP_SELECTOR:TYPE__") et de passer à la création de son Tech Pack technique. Bouton : [Remplir ma fiche technique (Tech Pack)](/launch-map/phase/3).
-- TON EXPERT : Ne sois pas un simple exécutant. Si l'utilisateur veut un truc "bateau", challenge-le avec les données de "Viral sur TikTok" pour qu'il crée une pièce qui va vraiment percer.
-- SUGGESTIONS DYNAMIQUES : À la fin de chaque étape, propose des suggestions pertinentes. Pour le récapitulatif final, propose obligatoirement : [[C'est parfait|Modifier un détail]].
+Règles :
+1. Tes conseils créatifs sont toujours concrets : codes HEX, noms de matières, placements de logo, formats Canva.
+2. Le Scanner Viral : quand un design semble solide dans la conversation, dis-lui de le valider. [Scanner mon design](/launch-map/phase/3)
+3. Plan ${isPro ? 'Creator' : 'Gratuit'} : ${isPro ? 'Donne des briefs complets avec toutes les spécifications techniques.' : 'Aide sur les directions créatives générales. Pour les briefs DA complets avec spécifications, c\'est le plan Creator.'}
+4. Une seule question par message.
+5. Termine toujours par : [[Option A|Option B|Option C]]
 
-DÉBUT DE CONVERSATION :
-Si c'est le premier message (historique contenant "__INIT__"), présente-toi : "Moi c'est Pharell, Directeur Artistique. Je vais t'aider à bâtir une collection cohérente et rentable, mais sache qu'on ne fait rien au hasard ici." Demande-lui quelle est la toute première pièce qu'il a en tête pour lancer sa marque. [[Un T-shirt|Un Hoodie|Un Sweatshirt]]`;
+Ouverture (si message est "__INIT__") :
+${userStage === 'zero_design'
+                ? `Dis : "C'est Pharell. On part de zéro pour ${brand.name} — c'est souvent là que les meilleures pièces naissent. Quel est le premier produit que tu veux dessiner ?"`
+                : `Dis : "C'est Pharell. Tu as déjà ${designCount} design(s) pour ${brand.name}. On continue la collection ou on attaque quelque chose de nouveau ?"`}`;
 
-        let filteredMessages = messages.map(m => ({
+        const filteredMessages = messages.map(m => ({
             role: m.role,
-            content: m.content === '__INIT__'
-                ? "Salut Pharell, par où commencer pour les mockups ?"
-                : m.content,
+            content: m.content === '__INIT__' ? 'Salut Pharell !' : m.content,
         }));
-
-        if (filteredMessages.length > 0 && filteredMessages[0].role === 'assistant') {
-            filteredMessages = filteredMessages.slice(1);
-        }
-
-        if (filteredMessages.length === 0) {
-            filteredMessages = [{ role: 'user', content: "Salut" }];
-        }
 
         const reply = await withAIUsageLimit(
             currentUser.id,
             currentUser.plan,
             'assistant_chat_qa',
-            async () => {
-                const response = await anthropic.messages.create({
-                    model: 'claude-3-haiku-20240307',
-                    max_tokens: 1024,
-                    system: SYSTEM_PROMPT,
-                    messages: filteredMessages as any,
-                });
-                return response.content[0].type === 'text' ? response.content[0].text : '';
-            },
+            () => generateChat(SYSTEM_PROMPT, filteredMessages, { model: 'gpt-4o-mini', maxTokens: 1200, temperature: 0.75 }),
             { brandId, agent: 'pharell' }
         );
 
-        // Nettoyage de la réponse pour l'utilisateur
-        const displayReply = reply.replace(/__SHOW_MOCKUP_SELECTOR:.*?__/g, '').trim();
-
-        // Save conversation
         try {
             const lastUserMessage = messages[messages.length - 1];
-            if (lastUserMessage && lastUserMessage.role === 'user') {
+            if (lastUserMessage?.role === 'user') {
                 await prisma.agentMessage.createMany({
                     data: [
                         { brandId, agentKey: 'pharell', role: 'user', content: lastUserMessage.content === '__INIT__' ? 'Initialisation' : lastUserMessage.content },
-                        { brandId, agentKey: 'pharell', role: 'assistant', content: displayReply }
+                        { brandId, agentKey: 'pharell', role: 'assistant', content: reply }
                     ]
                 });
             }
         } catch (e) {
-            console.warn('[Pharell Chat] Failed to save messages:', e);
+            console.warn('[Pharell] Save error:', e);
         }
 
-        return NextResponse.json({ reply: displayReply });
+        return NextResponse.json({ reply });
     } catch (error: any) {
-        console.error('[mockup-chat] Error payload:', error);
-        const message = error.message || '';
-        const isQuota = message.includes('Quota') || message.includes('Limite') || message.includes('épuisé');
-        if (isQuota) return NextResponse.json({ error: message }, { status: 403 });
-        return NextResponse.json({
-            error: 'Pharrell rencontre un petit souci technique. Réessaie dans un instant.'
-        }, { status: 500 });
+        console.error('[mockup-chat] Error:', error);
+        return NextResponse.json({ error: 'Pharell est indisponible.' }, { status: 500 });
     }
 }

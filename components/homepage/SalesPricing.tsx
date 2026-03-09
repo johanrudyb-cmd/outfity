@@ -39,7 +39,7 @@ function CountdownTimer() {
   return (
     <div className="flex items-center justify-center gap-2 text-[#FF3B30] font-bold text-[10px] sm:text-xs mb-4 bg-red-50 py-1.5 px-3 rounded-full border border-red-100">
       <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-      <span>SÉANCE PROMO : {timeLeft.days}j {String(timeLeft.hours).padStart(2, '0')}h {String(timeLeft.minutes).padStart(2, '0')}m {String(timeLeft.seconds).padStart(2, '0')}s</span>
+      <span>PRIX LANCEMENT : encore {timeLeft.days}j {String(timeLeft.hours).padStart(2, '0')}h {String(timeLeft.minutes).padStart(2, '0')}m</span>
     </div>
   );
 }
@@ -49,12 +49,12 @@ const plans = [
     name: 'Starter',
     price: 0,
     period: 'Starter',
-    description: 'Ton équipe d\'experts IA (Virgil, Pharrell, Ada) t\'accompagne.',
+    description: 'Pour tester la plateforme et voir si c\'est fait pour toi.',
     features: [
-      'Accès à 3 Agents IA (Limité)',
-      'Analyses de style détaillées (Limité)',
-      '1 Scan Intelligence Visuelle / mois',
-      'Calculateur de Rentabilité',
+      'Accès aux agents Virgil et Pharrell',
+      '1 scan de tendances par mois',
+      'Calculateur de rentabilité',
+      'Accès au Launch Map de base',
     ],
     cta: 'Commencer gratuitement',
     ctaStyle: 'border',
@@ -65,17 +65,16 @@ const plans = [
     price: 29,
     oldPrice: 39,
     period: '/mois*',
-    description: 'Offre limitée : 29€/mois à vie (au lieu de 39€).',
+    description: 'Tout ce qu\'il te faut pour lancer ta première collection de A à Z.',
     features: [
       '3 JOURS D\'ESSAI GRATUIT',
-      'Les 5 agents IA inclus',
-      'Stratégie marketing complète',
-      'Analyses de style détaillées',
-      'Shooting Virtuel & Mannequin IA',
-      'Mockups & Tech Packs',
-      'Création de Boutique Shopify',
-      'Accès complet au Radar de tendances',
-      'Fournisseurs de confiance',
+      'Les 5 agents IA débloqués',
+      'Scans de tendances illimités',
+      'Mockups et direction artistique',
+      'Tech Pack PDF pour ton fournisseur',
+      'Boutique Shopify configurée par Johan',
+      'Waitlist et scripts TikTok avec Joy',
+      'Accès aux fournisseurs vérifiés d\'Ada',
     ],
     cta: 'Démarrer l\'essai gratuit',
     ctaStyle: 'solid',
@@ -152,7 +151,7 @@ export default function SalesPricing() {
               </div>
 
               <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed">
-                Explorez les bases de l'IA avec Virgil et Pharrell. Parfait pour tester vos premières idées de marques.
+                Pour tester la plateforme et voir si c'est fait pour toi.
               </p>
 
               <ul className="space-y-3 sm:space-y-4">
@@ -203,7 +202,7 @@ export default function SalesPricing() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                   <p className="text-gray-400 text-xs sm:text-sm font-medium leading-relaxed">
-                    Accès illimité à toute l'infrastructure OUTFITY. Votre empire vestimentaire commence ici.
+                    {plans[1].description}
                   </p>
                   <div className="flex -space-x-2 sm:-space-x-3">
                     {['virgil', 'pharrell', 'ada', 'johan', 'joy'].map(a => (
@@ -234,7 +233,7 @@ export default function SalesPricing() {
 
         <div className="mt-16 text-center border-t border-black/[0.05] pt-8">
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest max-w-2xl mx-auto">
-            *OFFRE LIMITÉE : 29€/MOIS À VIE SI VOUS SOUSCRIVEZ AUJOURD'HUI. INFRASTRUCTURE SÉCURISÉE. SANS ENGAGEMENT.
+            *OFFRE LANCEMENT : 29€/MOIS À VIE SI TU T'INSCRIS AVANT LE 1ER AVRIL. SANS ENGAGEMENT, SANS CARTE REQUISE POUR L'ESSAI.
           </p>
         </div>
       </div>

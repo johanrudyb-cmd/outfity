@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Check, ArrowRight, Sparkles, Clock } from 'lucide-react';
+import { Check, ArrowRight, Sparkles, Clock, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 function CountdownTimer() {
@@ -55,14 +55,15 @@ const plans = [
     name: 'Starter',
     price: 0,
     period: '/ mois',
-    description: 'Ton équipe d\'experts IA (Virgil, Pharrell, Ada) t\'accompagne.',
-    features: [
-      'Accès à 3 Agents IA (Limité)',
-      'Analyses de style détaillées (Limité)',
-      'Radar de Tendances (Limité)',
-      'Calculateur de Rentabilité',
+    description: 'Virgil t\'aide à poser les bases de ta stratégie.',
+    agents: [
+      { name: 'Virgil', img: '/images/agents/virgil_final.webp', role: "Je définis ta stratégie", isUnlocked: true },
+      { name: 'Pharrell', img: '/images/agents/pharrell_final.webp', role: "Je conçois ton produit", isUnlocked: false },
+      { name: 'Ada', img: '/images/agents/ada_final.webp', role: "Je trouve ton usine", isUnlocked: false },
+      { name: 'Joy', img: '/images/agents/joy_final.webp', role: "J'écris tes scripts", isUnlocked: false },
+      { name: 'Johan', img: '/images/agents/johan_final.webp', role: "Je crée ta boutique", isUnlocked: false },
     ],
-    cta: 'Continuer gratuitement',
+    cta: 'Démarrer avec Virgil',
     ctaStyle: 'border',
     popular: false,
     isFree: true,
@@ -73,16 +74,12 @@ const plans = [
     oldPrice: 39,
     period: '/mois*',
     description: 'Offre limitée : 29€/mois à vie (au lieu de 39€).',
-    features: [
-      '3 JOURS D\'ESSAI GRATUIT',
-      'Les 5 agents IA inclus',
-      'Stratégie marketing complète',
-      'Analyses de style détaillées',
-      'Shooting Virtuel & Mannequin IA',
-      'Mockups & Tech Packs',
-      'Création de Boutique Shopify',
-      'Accès complet au Radar de tendances',
-      'Fournisseurs de confiance',
+    agents: [
+      { name: 'Virgil', img: '/images/agents/virgil_final.webp', role: "Je définis ta stratégie", isUnlocked: true },
+      { name: 'Pharrell', img: '/images/agents/pharrell_final.webp', role: "Je conçois ton produit", isUnlocked: true },
+      { name: 'Ada', img: '/images/agents/ada_final.webp', role: "Je trouve ton usine", isUnlocked: true },
+      { name: 'Joy', img: '/images/agents/joy_final.webp', role: "J'écris tes scripts", isUnlocked: true },
+      { name: 'Johan', img: '/images/agents/johan_final.webp', role: "Je crée ta boutique", isUnlocked: true },
     ],
     cta: 'Démarrer l\'essai gratuit',
     ctaStyle: 'solid',
@@ -187,54 +184,63 @@ export function ChoosePlanClient({ userPlan }: { userPlan?: string }) {
                   {plan.description}
                 </p>
 
-                <div className="flex items-center gap-1.5 mb-8">
-                  {[
-                    { name: 'Virgil', img: '/images/agents/virgil_final.webp' },
-                    { name: 'Pharrell', img: '/images/agents/pharrell_final.webp' },
-                    { name: 'Ada', img: '/images/agents/ada_final.webp' },
-                    { name: 'Johan', img: '/images/agents/johan_final.webp', locked: plan.name === 'Starter' },
-                    { name: 'Joy', img: '/images/agents/joy_final.webp', locked: plan.name === 'Starter' }
-                  ].map((agent) => (
-                    <div key={agent.name} className="relative group/agent">
-                      <img
-                        src={agent.img}
-                        alt={agent.name}
-                        className={cn(
-                          "w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white shadow-sm object-cover bg-slate-100",
-                          agent.locked && "opacity-40 grayscale"
+                <div className="space-y-4 mb-8">
+                  {plan.agents.map((agent) => (
+                    <div key={agent.name} className="flex items-center gap-3">
+                      <div className="relative">
+                        <img
+                          src={agent.img}
+                          alt={agent.name}
+                          className={cn(
+                            "w-10 h-10 rounded-full border border-black/10 object-cover",
+                            !agent.isUnlocked && "grayscale opacity-40"
+                          )}
+                        />
+                        {!agent.isUnlocked && (
+                          <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm border border-black/10">
+                            <Lock className="w-3 h-3 text-amber-500" />
+                          </div>
                         )}
-                      />
-                      {agent.locked && (
-                        <div className="absolute inset-0 flex items-center justify-center -translate-y-0.5">
-                          <span className="text-[10px]">🔒</span>
-                        </div>
-                      )}
-                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover/agent:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
-                        {agent.name} {agent.locked && "(Plan Créateur)"}
+                        {agent.isUnlocked && (
+                          <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm border border-black/10">
+                            <Check className="w-3 h-3 text-[#007AFF]" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <p className={cn(
+                          "text-sm font-bold",
+                          agent.isUnlocked ? "text-[#1D1D1F]" : "text-[#86868B]"
+                        )}>
+                          {agent.name}
+                        </p>
+                        <p className={cn(
+                          "text-xs mt-0.5",
+                          agent.isUnlocked ? "text-[#6e6e73]" : "text-[#86868B] italic"
+                        )}>
+                          &quot;{agent.role}&quot;
+                        </p>
                       </div>
                     </div>
                   ))}
-                  <span className="text-[10px] font-bold text-[#007AFF] ml-1 uppercase tracking-wider">L'équipe IA</span>
-                </div>
 
-                <ul className="space-y-4">
-                  {plan.features.map((feature, featureIndex) => (
-                    <li
-                      key={featureIndex}
-                      className="flex items-start gap-3"
-                    >
-                      <div className="w-5 h-5 rounded-full bg-[#007AFF]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check className="w-3 h-3 text-[#007AFF]" />
+                  {!plan.isFree && (
+                    <div className="pt-4 mt-4 border-t border-black/5">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Sparkles className="w-4 h-4 text-[#007AFF]" />
+                        <span className="text-sm font-bold text-[#1D1D1F]">Plus tous les avantages Pros :</span>
                       </div>
-                      <span className={cn(
-                        "text-sm font-normal",
-                        feature === "3 JOURS D'ESSAI GRATUIT" ? "text-blue-600 font-bold" : "text-[#6e6e73]"
-                      )}>
-                        {feature}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                      <ul className="space-y-2 mt-2">
+                        {['3 JOURS D\'ESSAI GRATUIT', 'Analyses de tendances illimitées', 'Création de Tech Packs PDF', 'Mails pro pour fournisseurs'].map((benefit, idx) => (
+                          <li key={idx} className="flex items-start gap-2 text-xs text-[#6e6e73]">
+                            <Check className="w-3.5 h-3.5 text-[#007AFF] mt-0.5 shrink-0" />
+                            <span className={idx === 0 ? "text-[#007AFF] font-bold" : ""}>{benefit}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Warnings and CTA buttons at the bottom */}

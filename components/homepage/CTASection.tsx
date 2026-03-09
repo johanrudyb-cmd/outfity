@@ -62,11 +62,11 @@ export default function CTASection() {
           </div>
 
           <h2 className="text-4xl sm:text-7xl lg:text-8xl font-black tracking-tighter text-white uppercase leading-[0.9] sm:leading-[0.85]">
-            Reprenez le <br className="hidden sm:block" />
-            <span className="text-[#007AFF]">Contrôle.</span>
+            Ta collection,<br className="hidden sm:block" />
+            <span className="text-[#007AFF]">dans 30 jours.</span>
           </h2>
           <p className="text-sm sm:text-xl text-gray-400 font-medium max-w-2xl mx-auto leading-relaxed">
-            Rejoignez l'élite des créateurs. Lancez votre empire avec l'infrastructure OUTFITY.
+            La plupart des createurs attendent d'avoir "tout" avant de commencer. Ceux qui reussissent commencent maintenant, avec ce qu'ils ont.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6 sm:pt-4">

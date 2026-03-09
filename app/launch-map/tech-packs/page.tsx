@@ -1,6 +1,6 @@
-﻿export const dynamic = 'force-dynamic';
-import { MesTechPacksContent } from '@/components/launch-map/MesTechPacksContent';
+﻿import { MesTechPacksContent } from '@/components/launch-map/MesTechPacksContent';
 import { getCurrentUser } from '@/lib/auth-helpers';
+import { isFreePlan } from '@/lib/plan-utils';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { ArrowLeft } from 'lucide-react';
@@ -10,14 +10,14 @@ export default async function MesTechPacksPage() {
   const user = await getCurrentUser();
   if (!user) redirect('/auth/signin');
 
+  if (isFreePlan(user.plan)) redirect('/auth/choose-plan');
+
   const brand = await prisma.brand.findFirst({
     where: { userId: user.id },
     orderBy: { createdAt: 'desc' },
   });
 
-  if (!brand) {
-    redirect('/launch-map');
-  }
+  if (!brand) redirect('/launch-map');
 
   const brandForTechPack = {
     id: brand.id,
@@ -47,4 +47,3 @@ export default async function MesTechPacksPage() {
     </div>
   );
 }
-

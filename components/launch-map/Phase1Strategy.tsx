@@ -35,6 +35,7 @@ interface Phase1StrategyProps {
   demoMode?: boolean;
   userPlan?: string;
   strategyText?: string | null;
+  canComplete?: boolean;
 }
 
 function styleGuideField(sg: Record<string, unknown> | null | undefined, key: string): string {
@@ -43,7 +44,16 @@ function styleGuideField(sg: Record<string, unknown> | null | undefined, key: st
   return typeof v === 'string' ? v : '';
 }
 
-export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode = false, userPlan = 'free', strategyText }: Phase1StrategyProps) {
+export function Phase1Strategy({
+  brandId,
+  brand,
+  brandName,
+  onComplete,
+  demoMode = false,
+  userPlan = 'free',
+  strategyText,
+  canComplete = true
+}: Phase1StrategyProps) {
   const router = useRouter();
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -263,6 +273,7 @@ export function Phase1Strategy({ brandId, brand, brandName, onComplete, demoMode
         brandId={brandId}
         brand={brand}
         onComplete={onComplete}
+        canComplete={canComplete}
         userPlan={userPlan}
         onShowClassic={() => setViewMode('classic')}
         onShowManifeste={() => setStrategyModalOpen(true)}

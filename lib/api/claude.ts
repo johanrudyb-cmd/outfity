@@ -43,6 +43,7 @@ export interface TrendsAnalysisInput {
 }
 
 const CLAUDE_MODEL = 'claude-3-haiku-20240307';
+const CLAUDE_SONNET_MODEL = 'claude-3-5-sonnet-20240620';
 
 const anthropic = process.env.ANTHROPIC_API_KEY
   ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -65,10 +66,10 @@ async function generateText(system: string, user: string, options: { maxTokens?:
   return (text && 'text' in text ? text.text : '').trim();
 }
 
-export async function generateChat(system: string, messages: { role: 'user' | 'assistant', content: string }[], options: { maxTokens?: number; temperature?: number } = {}): Promise<string> {
+export async function generateChat(system: string, messages: { role: 'user' | 'assistant', content: string }[], options: { maxTokens?: number; temperature?: number; model?: 'haiku' | 'sonnet' } = {}): Promise<string> {
   if (!anthropic) throw new Error('ANTHROPIC_API_KEY non configurée');
   const response = await anthropic.messages.create({
-    model: CLAUDE_MODEL,
+    model: options.model === 'sonnet' ? CLAUDE_SONNET_MODEL : CLAUDE_MODEL,
     max_tokens: options.maxTokens ?? 2000,
     temperature: options.temperature ?? 0.7,
     system,

@@ -70,8 +70,8 @@ export const AI_FEATURE_COSTS: Record<AIFeatureKey, number> = {
   ugc_generate_mannequin: 0.12,
   ugc_virtual_tryon: 2.5,
   factories_match: 0.02,
-  assistant_chat_qa: 0.01,
-  assistant_chat_analysis: 0.05,
+  assistant_chat_qa: 0.002,
+  assistant_chat_analysis: 0.01,
   other: 0.04,
 };
 
@@ -79,18 +79,12 @@ export const AI_FEATURE_COSTS: Record<AIFeatureKey, number> = {
 export const AI_BUDGET_BY_PLAN: Record<string, number> = {
   starter: 5,
   creator: 34,
-  growth: 75,
-  pro: 150,
-  enterprise: -1,
 };
 
 /** Virtual try-on : max utilisations par mois par plan */
 export const MAX_VIRTUAL_TRYON_BY_PLAN: Record<string, number> = {
   starter: 1,
   creator: 5,
-  growth: 15,
-  pro: 50,
-  enterprise: -1,
 };
 
 /**
@@ -112,42 +106,17 @@ export const MAX_PER_MONTH_BY_PLAN: Record<string, Partial<Record<AIFeatureKey, 
     ugc_shooting_photo: 10,
     ugc_shooting_product: 5,
   },
-  growth: {
-    brand_strategy: 15,
-    trends_hybrid_scan: 30,
-    ugc_scripts: -1,
-    brand_logo: 10,
-    ugc_shooting_photo: 25,
-    ugc_shooting_product: 15,
-  },
-  pro: {
-    brand_strategy: 50,
-    trends_hybrid_scan: 100,
-    ugc_scripts: -1,
-    brand_logo: 25,
-    ugc_shooting_photo: 50,
-    ugc_shooting_product: 30,
-  },
-  enterprise: {},
 };
 
 /** Limites journalières (Assistant) */
 export const MAX_PER_DAY_BY_PLAN: Record<string, Partial<Record<AIFeatureKey, number>>> = {
   starter: {
-    assistant_chat_qa: 5,
-    assistant_chat_analysis: 1,
+    assistant_chat_qa: 20,
+    assistant_chat_analysis: 2,
   },
   creator: {
-    assistant_chat_qa: 40, // 40 par jour demandé
-    assistant_chat_analysis: 10,
-  },
-  growth: {
-    assistant_chat_qa: 100,
-    assistant_chat_analysis: 25,
-  },
-  pro: {
-    assistant_chat_qa: -1,
-    assistant_chat_analysis: -1,
+    assistant_chat_qa: 200,
+    assistant_chat_analysis: 30,
   },
 };
 
