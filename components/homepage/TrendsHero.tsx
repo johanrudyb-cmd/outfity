@@ -82,7 +82,7 @@ export function TrendsHero() {
           </h1>
 
           <p className="text-sm sm:text-base lg:text-lg text-[#86868B] font-medium max-w-sm sm:max-w-xl mx-auto leading-relaxed mb-7 sm:mb-8 px-2">
-            Radar de tendances TikTok, 5 agents IA experts, tech pack et sourcing. Tout en un.
+            Tu n&apos;es plus seul. Virgil lit le marché, Pharrell dessine tes pièces, Ada trouve l&apos;usine, Johan monte ta boutique, Joy remplit ta waitlist.
           </p>
 
           {/* CTA */}

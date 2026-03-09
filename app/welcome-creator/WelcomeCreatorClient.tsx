@@ -237,7 +237,7 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo, brandId }
                                     <span className="bg-gradient-to-r from-[#ffaa00] to-[#AF52DE] bg-clip-text text-transparent">rejoignent l&apos;équipe.</span>
                                 </h2>
                                 <p className="text-white/50 text-sm sm:text-base max-w-lg mx-auto leading-relaxed px-4">
-                                    Tes experts Ventes et Création de contenu. Ils optimisent ta boutique Shopify et gèrent tes réseaux sociaux.
+                                    Johan configure ta boutique Shopify étape par étape. Joy t'écrit tes scripts TikTok et ta stratégie de contenu.
                                 </p>
                             </div>
 
@@ -409,10 +409,10 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo, brandId }
 
                                     ]
                                     : [
-                                        { num: '01', title: 'Stratégie de Marque', href: '/launch-map/phase/1', color: '#34C759', desc: 'Virgil t\'a aidé à définir ton ADN.', locked: false, completed: true },
-                                        { num: '02', title: 'Identité Visuelle (Logo)', href: '/launch-map/phase/1', color: hasLogo ? '#34C759' : '#007AFF', desc: hasLogo ? 'Terminé ! Ton logo est enregistré.' : 'Recommandé. Crée ton logo avec Pharrell au Studio.', locked: false, completed: hasLogo },
-                                        { num: '03', title: 'Collection & Création', href: '/launch-map/phase/2', color: '#a032ff', desc: 'Pharrell te guide de l\'idée à la conception.', locked: false },
-                                        { num: '04', title: 'Tech Packs (Fiches Usine)', href: '/launch-map/phase/4', color: '#ff2a5f', desc: 'Remplis tes fiches techniques avec Ada.', locked: false },
+                                        { num: '01', title: 'Stratégie (Virgil)', href: '/launch-map/phase/1', color: '#34C759', desc: 'Ton ADN de marque est défini.', locked: false, completed: true },
+                                        { num: '02', title: 'Design (Pharrell & Ada)', href: '/launch-map/phase/2', color: '#a032ff', desc: 'Dessine ta collection et prépare la prod.', locked: false },
+                                        { num: '03', title: 'Ventes (Johan)', href: '/launch-map/phase/3', color: '#ffaa00', desc: 'Configure ton Shopify étape par étape.', locked: false },
+                                        { num: '04', title: 'Lancement (Joy)', href: '/launch-map/phase/4', color: '#AF52DE', desc: 'Crée tes vidéos virales pour annoncer le drop.', locked: false },
                                     ]
                                 ).map((item, i) => (
                                     <motion.a
@@ -469,7 +469,7 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo, brandId }
                                 transition={{ delay: 1 }}
                                 className="text-white/30 text-xs"
                             >
-                                ✨ 3 jours d&apos;essai gratuit confirmés · Annulable à tout moment
+                                ✨ Essai 3 jours activé · Prix lancement 29€/mois jusqu&apos;au 1er avril
                             </motion.p>
                         </motion.div>
                     )}

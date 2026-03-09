@@ -78,9 +78,15 @@ export function AnimatedHeader() {
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <Link
               href="/auth/signin"
-              className="px-4 py-2 sm:px-6 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold bg-[#007AFF] text-white hover:bg-[#0056CC] transition-colors shadow-sm whitespace-nowrap"
+              className="hidden sm:inline-flex px-5 py-2 rounded-full text-xs sm:text-sm font-bold text-[#6e6e73] hover:text-[#1D1D1F] transition-colors whitespace-nowrap"
             >
               Connexion
+            </Link>
+            <Link
+              href="/auth/signup"
+              className="px-4 py-2 sm:px-6 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold bg-[#007AFF] text-white hover:bg-[#0056CC] transition-colors shadow-sm whitespace-nowrap"
+            >
+              Essai gratuit
             </Link>
           </div>
         </div>
