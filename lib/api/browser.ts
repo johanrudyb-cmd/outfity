@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 
 /**
  * Centraize the connection to Browserless on VPS or local fallback
