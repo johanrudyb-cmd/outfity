@@ -118,7 +118,7 @@ ${hasStrategy
             { brandId, agent: 'virgil' }
         );
 
-        const displayReply = reply.replace(/__UPDATE_STRATEGY:.*?__/gs, '').trim();
+        const displayReply = reply.replace(/__UPDATE_STRATEGY:[\s\S]*?__/g, '').trim();
 
         try {
             const lastUserMessage = messages[messages.length - 1];
@@ -131,7 +131,7 @@ ${hasStrategy
                 });
             }
 
-            const updateMatch = reply.match(/__UPDATE_STRATEGY:(.*?)__/s);
+            const updateMatch = reply.match(/__UPDATE_STRATEGY:([\s\S]*?)__/);
             if (updateMatch) {
                 try {
                     const updateData = JSON.parse(updateMatch[1]);
@@ -153,6 +153,6 @@ ${hasStrategy
         console.error('[strategy-chat] Error:', error);
         const isQuota = (error.message || '').includes('Quota') || (error.message || '').includes('Limite');
         if (isQuota) return NextResponse.json({ error: error.message }, { status: 403 });
-        return NextResponse.json({ error: 'Virgil rencontre un petit souci. Réessaie dans quelques secondes.' }, { status: 500 });
+        return NextResponse.json({ error: `Virgil rencontre un petit souci. Réessaie dans quelques secondes. Détails: ${error.message}` }, { status: 500 });
     }
 }
