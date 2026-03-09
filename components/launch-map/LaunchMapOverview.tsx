@@ -60,6 +60,7 @@ export function LaunchMapOverview() {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     dedupingInterval: 30000,
+    keepPreviousData: true,
   });
 
   const brand = data?.brand ?? { id: '', name: 'Chargement...', logo: null };
@@ -236,6 +237,7 @@ export function LaunchMapOverview() {
                     <Link
                       key={p.id}
                       href={href}
+                      prefetch={true}
                       className={cn(
                         "group relative flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-[20px] sm:rounded-[24px] border transition-all duration-200 hover:shadow-apple active:scale-[0.98] overflow-hidden",
                         done

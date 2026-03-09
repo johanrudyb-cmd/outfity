@@ -33,7 +33,7 @@ interface SidebarProps {
 export function Sidebar({ open = false, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const { data: userPlanData } = useSWR('/api/user/plan', fetcher);
+  const { data: userPlanData } = useSWR('/api/user/plan', fetcher, { keepPreviousData: true });
 
   const isAdmin = session?.user?.email && (
     ['contact@outfity.fr', 'johanrudyb@gmail.com'].includes(session.user.email) ||
@@ -60,6 +60,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
           <motion.div key={item.href} whileTap={{ scale: 0.9 }}>
             <Link
               href={item.href}
+              prefetch={true}
               title={item.name}
               className={cn(
                 'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200',
@@ -98,6 +99,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
           <motion.div key={item.href} whileTap={{ scale: 0.9 }}>
             <Link
               href={item.href}
+              prefetch={true}
               title={item.name}
               className={cn(
                 'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200',
@@ -118,6 +120,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
           <motion.div whileTap={{ scale: 0.9 }}>
             <Link
               href="/partners"
+              prefetch={true}
               title="Mes commissions"
               className={cn(
                 'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200',
@@ -138,6 +141,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
           <motion.div whileTap={{ scale: 0.9 }}>
             <Link
               href="/admin/partners"
+              prefetch={true}
               title="Administration"
               className={cn(
                 'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200',
@@ -218,6 +222,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                   <motion.div key={item.name} whileHover={{ x: 2 }} whileTap={{ scale: 0.98 }}>
                     <Link
                       href={item.href}
+                      prefetch={true}
                       data-tour={item.tourId}
                       onClick={handleNav}
                       className={cn(
@@ -270,6 +275,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                   <motion.div key={item.name} whileHover={{ x: 2 }} whileTap={{ scale: 0.98 }}>
                     <Link
                       href={item.href}
+                      prefetch={true}
                       data-tour={item.tourId}
                       onClick={handleNav}
                       className={cn(
@@ -296,6 +302,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
               <div className="space-y-0.5">
                 <Link
                   href="/partners"
+                  prefetch={true}
                   onClick={handleNav}
                   className={cn(
                     'flex items-center gap-3 min-h-[44px] px-4 py-2.5 rounded-2xl text-[15px] font-medium transition-all duration-200 active:scale-[0.98]',
@@ -318,6 +325,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
               <div className="space-y-0.5">
                 <Link
                   href="/admin/partners"
+                  prefetch={true}
                   onClick={handleNav}
                   className={cn(
                     'flex items-center gap-3 min-h-[44px] px-4 py-2.5 rounded-2xl text-[15px] font-medium transition-all duration-200 active:scale-[0.98]',

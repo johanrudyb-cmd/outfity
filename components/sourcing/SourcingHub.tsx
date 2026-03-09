@@ -64,13 +64,14 @@ export function SourcingHub({ brandId, sentQuotes, favoriteFactoryIds = [], pref
   const [filteredFactories, setFilteredFactories] = useState<Factory[]>([]);
   const [detailFactory, setDetailFactory] = useState<Factory | null>(null);
 
-  const { data: factoriesData, isLoading } = useSWR('/api/factories', fetcher);
+  const { data: factoriesData, isLoading } = useSWR('/api/factories', fetcher, { keepPreviousData: true });
   const factories: Factory[] = factoriesData?.factories || [];
   const loading = isLoading;
 
   const { data: favData, mutate: mutateFav } = useSWR(
     favoriteIds.length > 0 ? `/api/brands/${brandId}/favorite-factories` : null,
-    fetcher
+    fetcher,
+    { keepPreviousData: true }
   );
   const favoriteFactories: Factory[] = favData?.factories || [];
 
