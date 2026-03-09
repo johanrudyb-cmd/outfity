@@ -99,7 +99,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
         }
     }, [isFree, leadTime]);
 
-    const { data: trendsData, isLoading: loading, mutate } = useSWR(`/api/trends/hybrid-radar?segment=${segment}&limit=150`, fetcher);
+    const { data: trendsData, isLoading: loading, mutate } = useSWR(`/api/trends/hybrid-radar?segment=${segment}&limit=150`, fetcher, { keepPreviousData: true });
 
     useEffect(() => {
         if (!trendsData?.trends) return;
@@ -467,7 +467,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
             {/* Header Responsive */}
             <div className="bg-white border-b border-gray-100 px-4 md:px-8 py-4 md:py-6 sticky top-0 z-20 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
                 <div className="flex items-center gap-4 md:gap-8">
-                    <Link href="/trends" className="flex items-center gap-2 text-[10px] md:text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest shrink-0">
+                    <Link href="/trends" prefetch={true} className="flex items-center gap-2 text-[10px] md:text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest shrink-0">
                         <ArrowLeft className="w-3.5 h-3.5 md:w-4 md:h-4" />
                         <span className="hidden xs:inline">Retour Analyse</span>
                         <span className="xs:hidden">Retour</span>

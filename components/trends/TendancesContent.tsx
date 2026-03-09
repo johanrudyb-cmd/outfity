@@ -97,7 +97,8 @@ export function TendancesContent({ initialData }: { initialData?: unknown }) {
   const { data: previews } = useSWR('/style-previews.json', fetcher);
   const { data: trendsData, isLoading: loadingStats } = useSWR(
     `/api/trends/hybrid-radar?segment=${segment}&limit=120`,
-    fetcher
+    fetcher,
+    { keepPreviousData: true }
   );
 
   const realStats = useMemo(() => {
@@ -174,7 +175,7 @@ export function TendancesContent({ initialData }: { initialData?: unknown }) {
             const desc = typeof cat.desc === 'string' ? cat.desc : cat.desc[segment as 'homme' | 'femme'];
 
             return (
-              <Link key={cat.id} href={`/trends/category/${cat.id}?segment=${segment}`}>
+              <Link key={cat.id} href={`/trends/category/${cat.id}?segment=${segment}`} prefetch={true}>
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
