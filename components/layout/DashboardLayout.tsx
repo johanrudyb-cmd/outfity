@@ -50,6 +50,15 @@ export function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
 
+  // Préchargement fantôme (Silent Prefetch) pour SWR
+  useEffect(() => {
+    import('swr').then(({ preload }) => {
+      preload('/api/user/plan', fetcher);
+      preload('/api/launch-map/progress', fetcher);
+      preload('/api/brands/current', fetcher);
+    });
+  }, []);
+
   // Fermer la sidebar sur changement de route (mobile)
   useEffect(() => {
     setSidebarOpen(false);
