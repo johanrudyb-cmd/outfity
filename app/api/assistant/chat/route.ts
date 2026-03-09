@@ -166,7 +166,7 @@ FORMAT DE RÉPONSE (JSON STRICT) :
         }
 
         return NextResponse.json({
-            error: 'Virgil rencontre un petit souci technique. Réessaie dans quelques secondes.'
+            error: `Virgil rencontre un petit souci technique. Réessaie dans quelques secondes. Détails: ${error.message}`
         }, { status: 500 });
     }
 }
