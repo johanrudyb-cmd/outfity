@@ -42,7 +42,29 @@ export async function scrapeFashionNewsInput(): Promise<ScrapedArticle[]> {
             console.error('❌ Erreur Hypebeast Scrape:', e);
         }
 
-        // On peut rajouter d'autres sites ici plus tard (Highsnobiety, Vogue Business...)
+        // 2. Scrape Fashion United
+        console.log('🌐 [Blog Scraper] Scraping Fashion United...');
+        try {
+            await page.goto('https://fashionunited.fr/actualite', { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+            const fuArticles = await page.evaluate(() => {
+                const links = Array.from(document.querySelectorAll('a'));
+                const validLinks = links.filter(a => a.href && a.href.includes('/actualite/') && a.innerText.trim().length > 30);
+
+                // Déduplication locale par URL
+                const unique = Array.from(new Map(validLinks.map(a => [a.href, a])).values());
+
+                return unique.slice(0, 3).map(a => ({
+                    title: a.innerText.trim(),
+                    link: a.href,
+                    source: 'Fashion United',
+                }));
+            });
+
+            articles.push(...fuArticles);
+        } catch (e) {
+            console.error('❌ Erreur Fashion United Scrape:', e);
+        }
 
     } finally {
         await browser.close();
