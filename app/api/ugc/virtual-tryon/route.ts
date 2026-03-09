@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sanitizeErrorMessage } from '@/lib/utils';
 import { getCurrentUser } from '@/lib/auth-helpers';
-import { generateVirtualTryOn } from '@/lib/api/higgsfield';
+import { generateVirtualTryOn, isHiggsfieldConfigured } from '@/lib/api/higgsfield';
 import { prisma } from '@/lib/prisma';
 import { NotificationHelpers } from '@/lib/notifications';
 import { withAIUsageLimit } from '@/lib/ai-usage';
@@ -28,9 +28,7 @@ export async function POST(request: Request) {
     }
 
     // Vérifier que Higgsfield est configuré
-    const higgsfieldApiKey = process.env.HIGGSFIELD_API_KEY;
-    const higgsfieldApiSecret = process.env.HIGGSFIELD_API_SECRET;
-    if (!higgsfieldApiKey || !higgsfieldApiSecret) {
+    if (!isHiggsfieldConfigured()) {
       return NextResponse.json(
         {
           error: 'Clés API Higgsfield non configurées. Veuillez configurer HIGGSFIELD_API_KEY et HIGGSFIELD_API_SECRET dans les variables d\'environnement.'

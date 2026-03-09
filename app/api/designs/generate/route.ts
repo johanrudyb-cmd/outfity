@@ -3,8 +3,8 @@ import { getCurrentUser } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
 import { isFreePlan } from '@/lib/plan-utils';
 import { rateLimitByUser } from '@/lib/rate-limit';
-import { enhancePrompt, generateTechPack } from '@/lib/api/chatgpt';
-import { generateFlatSketch } from '@/lib/api/ideogram';
+import { enhancePrompt, generateTechPack, isChatGptConfigured } from '@/lib/api/chatgpt';
+import { generateFlatSketch, isIdeogramConfigured } from '@/lib/api/ideogram';
 import { NotificationHelpers } from '@/lib/notifications';
 
 export const runtime = 'nodejs';
@@ -96,8 +96,7 @@ export async function POST(request: Request) {
         : `${basePrompt}${detailsList ? ', ' + detailsList : ''}`;
 
       // Vérifier que OpenAI est configuré
-      const openaiApiKey = process.env.CHATGPT_API_KEY || process.env.OPENAI_API_KEY;
-      if (!openaiApiKey) {
+      if (!isChatGptConfigured()) {
         await prisma.design.update({
           where: { id: design.id },
           data: { status: 'failed' },
@@ -118,15 +117,14 @@ export async function POST(request: Request) {
       });
 
       // Vérifier que Ideogram est configuré (pour flat sketch)
-      const ideogramApiKey = process.env.IDEogram_API_KEY;
-      if (!ideogramApiKey) {
+      if (!isIdeogramConfigured()) {
         await prisma.design.update({
           where: { id: design.id },
           data: { status: 'failed' },
         });
         return NextResponse.json(
           {
-            error: 'Clé API Ideogram non configurée. Veuillez configurer IDEogram_API_KEY dans les variables d\'environnement.',
+            error: 'Clé API Ideogram non configurée. Veuillez configurer IDEOGRAM_API_KEY dans les variables d\'environnement.',
             designId: design.id
           },
           { status: 503 }

@@ -1,18 +1,21 @@
 import OpenAI from 'openai';
 
-/** OpenAI / GPT : CHATGPT_API_KEY prioritaire, sinon fallback sur OPENAI_API_KEY */
-const openaiApiKey = process.env.CHATGPT_API_KEY || process.env.OPENAI_API_KEY;
+let _openai: OpenAI | null = null;
 
-if (!openaiApiKey) {
-  console.warn('CHATGPT_API_KEY ou OPENAI_API_KEY non configurée. ChatGPT features will be disabled.');
+function getOpenAIClient(): OpenAI {
+  const apiKey = process.env.CHATGPT_API_KEY || process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('CHATGPT_API_KEY ou OPENAI_API_KEY non configurée');
+  }
+  if (!_openai) {
+    _openai = new OpenAI({ apiKey });
+  }
+  return _openai;
 }
 
-const openai = openaiApiKey
-  ? new OpenAI({
-    apiKey: openaiApiKey,
-  })
-  : null;
-
+export function isChatGptConfigured(): boolean {
+  return !!(process.env.CHATGPT_API_KEY || process.env.OPENAI_API_KEY);
+}
 export async function generateUGCScripts(
   brandName: string,
   productDescription: string,
@@ -28,7 +31,7 @@ export async function generateUGCScripts(
     const { generateUGCScripts: claudeUGC } = await import('./claude');
     return claudeUGC(brandName, productDescription, count, tone, brandIdentity);
   }
-  if (!openai) {
+  if (!getOpenAIClient()) {
     throw new Error('ChatGPT API key not configured');
   }
 
@@ -66,7 +69,7 @@ export async function generateUGCScripts(
   };
 
   for (let i = 0; i < count; i++) {
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAIClient().chat.completions.create({
       model: 'gpt-4',
       messages: [
         {
@@ -114,11 +117,11 @@ export async function generateTechPack(designData: {
     const { generateTechPack: claudeTech } = await import('./claude');
     return claudeTech(designData);
   }
-  if (!openai) {
+  if (!getOpenAIClient()) {
     throw new Error('ChatGPT API key not configured');
   }
 
-  const completion = await openai.chat.completions.create({
+  const completion = await getOpenAIClient().chat.completions.create({
     model: 'gpt-4',
     messages: [
       {
@@ -169,7 +172,7 @@ export async function generateTechPackVisual(input: {
     const { generateTechPackVisual: claudeTechPackVisual } = await import('./claude');
     return claudeTechPackVisual(input);
   }
-  if (!openai) {
+  if (!getOpenAIClient()) {
     throw new Error('ChatGPT API key not configured');
   }
 
@@ -181,7 +184,7 @@ export async function generateTechPackVisual(input: {
     questionnaire ? `Détails questionnaire: ${JSON.stringify(questionnaire)}` : '',
   ].filter(Boolean).join('\n');
 
-  const completion = await openai.chat.completions.create({
+  const completion = await getOpenAIClient().chat.completions.create({
     model: 'gpt-4',
     messages: [
       {
@@ -220,11 +223,11 @@ export async function enhancePrompt(
     const { enhancePrompt: claudeEnhance } = await import('./claude');
     return claudeEnhance(userInput, context);
   }
-  if (!openai) {
+  if (!getOpenAIClient()) {
     throw new Error('ChatGPT API key not configured');
   }
 
-  const completion = await openai.chat.completions.create({
+  const completion = await getOpenAIClient().chat.completions.create({
     model: 'gpt-4',
     messages: [
       {
@@ -261,7 +264,7 @@ export async function generateTrendsAnalysis(data: TrendsAnalysisInput): Promise
     const { generateTrendsAnalysis: claudeTrends } = await import('./claude');
     return claudeTrends(data);
   }
-  if (!openai) {
+  if (!getOpenAIClient()) {
     throw new Error('ChatGPT API key not configured');
   }
 
@@ -275,7 +278,7 @@ export async function generateTrendsAnalysis(data: TrendsAnalysisInput): Promise
     ? 'Tendances principales: ' + data.topTrends.slice(0, 15).map((t) => `${t.productName} (${t.productType}${t.style ? `, ${t.style}` : ''}${t.country ? `, ${t.country}` : ''}, score ${t.confirmationScore})`).join(' ; ')
     : '';
 
-  const completion = await openai.chat.completions.create({
+  const completion = await getOpenAIClient().chat.completions.create({
     model: 'gpt-4',
     messages: [
       {
@@ -319,7 +322,7 @@ export async function generateProductTrendAnalysis(product: ProductTrendInput): 
     const { generateProductTrendAnalysis: claudeProduct } = await import('./claude');
     return claudeProduct(product);
   }
-  if (!openai) {
+  if (!getOpenAIClient()) {
     throw new Error('ChatGPT API key not configured');
   }
 
@@ -338,7 +341,7 @@ export async function generateProductTrendAnalysis(product: ProductTrendInput): 
     .filter(Boolean)
     .join('\n');
 
-  const completion = await openai.chat.completions.create({
+  const completion = await getOpenAIClient().chat.completions.create({
     model: 'gpt-4',
     messages: [
       {
@@ -372,7 +375,7 @@ export async function generateProductImagePrompt(product: {
     const { generateProductImagePrompt: claudePrompt } = await import('./claude');
     return claudePrompt(product);
   }
-  if (!openai) {
+  if (!getOpenAIClient()) {
     throw new Error('ChatGPT API key not configured');
   }
 
@@ -387,7 +390,7 @@ export async function generateProductImagePrompt(product: {
     .filter(Boolean)
     .join(', ');
 
-  const completion = await openai.chat.completions.create({
+  const completion = await getOpenAIClient().chat.completions.create({
     model: 'gpt-4',
     messages: [
       {
@@ -444,7 +447,7 @@ export async function generateTrendAdviceAndImagePrompt(
     const { generateTrendAdviceAndImagePrompt: claudeAdvice } = await import('./claude');
     return claudeAdvice(product);
   }
-  if (!openai) {
+  if (!getOpenAIClient()) {
     throw new Error('ChatGPT API key not configured');
   }
 
@@ -462,7 +465,7 @@ export async function generateTrendAdviceAndImagePrompt(
     .filter(Boolean)
     .join('\n');
 
-  const completion = await openai.chat.completions.create({
+  const completion = await getOpenAIClient().chat.completions.create({
     model: 'gpt-4',
     messages: [
       {
@@ -533,11 +536,11 @@ export async function analyzeProductImage(
     const { analyzeProductImage: claudeAnalyze } = await import('./claude');
     return claudeAnalyze(imageUrl, title);
   }
-  if (!openai) {
+  if (!getOpenAIClient()) {
     throw new Error('CHATGPT_API_KEY ou ANTHROPIC_API_KEY requise pour l\'analyse visuelle.');
   }
 
-  const completion = await openai.chat.completions.create({
+  const completion = await getOpenAIClient().chat.completions.create({
     model: 'gpt-4o',
     messages: [
       {
@@ -615,7 +618,7 @@ export async function generateBusinessAnalysisForZones(
     const { generateBusinessAnalysisForZones: claudeBiz } = await import('./claude');
     return claudeBiz(productName, zones, trendScoresByZone);
   }
-  if (!openai) {
+  if (!getOpenAIClient()) {
     throw new Error('ChatGPT API key not configured');
   }
 
@@ -624,7 +627,7 @@ export async function generateBusinessAnalysisForZones(
     .map(([z, s]) => `${z}: ${s}/100`)
     .join(' ; ');
 
-  const completion = await openai.chat.completions.create({
+  const completion = await getOpenAIClient().chat.completions.create({
     model: 'gpt-4',
     messages: [
       {
@@ -731,7 +734,7 @@ export async function enrichProductDetails(
     const raw = await claudeEnrich(product);
     return normalizeEnrichedFields(raw as Record<string, unknown>);
   }
-  if (!openai) {
+  if (!getOpenAIClient()) {
     throw new Error('ChatGPT API key not configured');
   }
 
@@ -796,7 +799,7 @@ IMPORTANT: Ton analyse doit être "bold" (audacieuse) et experte. Ne répète ja
     } as OpenAI.ChatCompletionMessageParam;
   }
 
-  const completion = await openai.chat.completions.create({
+  const completion = await getOpenAIClient().chat.completions.create({
     model: 'gpt-4o',
     messages,
     max_tokens: 500,
@@ -838,7 +841,7 @@ export async function generateBrandAnalysis(
     const { generateBrandAnalysis: claudeBrand } = await import('./claude');
     return claudeBrand(brandName, context);
   }
-  if (!openai) {
+  if (!getOpenAIClient()) {
     throw new Error('ChatGPT API key not configured');
   }
 
@@ -857,7 +860,7 @@ export async function generateBrandAnalysis(
     }
   }
 
-  const completion = await openai.chat.completions.create({
+  const completion = await getOpenAIClient().chat.completions.create({
     model: 'gpt-4',
     messages: [
       {
@@ -925,7 +928,7 @@ export async function generateProductDescriptionFromBrand(context: ProductDescri
     const { generateProductDescriptionFromBrand: claudeGen } = await import('./claude');
     return claudeGen(context);
   }
-  if (!openai) {
+  if (!getOpenAIClient()) {
     throw new Error('ChatGPT API key not configured');
   }
 
@@ -947,7 +950,7 @@ export async function generateProductDescriptionFromBrand(context: ProductDescri
 
   const userContent = `Contexte marque et produit :\n${parts.join('\n')}\n\nRédige une description produit e-commerce en français (2 à 4 phrases), vendeuse et alignée avec l'identité de la marque. Si une histoire ou raison d'être de la marque est fournie, donne du sens et de l'âme à la description pour que les gens s'y retrouvent. Mets en valeur le produit (${context.designType}), les matières/coupe si connus, et le positionnement. Pas de titre, uniquement le paragraphe de description.`;
 
-  const completion = await openai.chat.completions.create({
+  const completion = await getOpenAIClient().chat.completions.create({
     model: 'gpt-4',
     messages: [
       {
@@ -965,22 +968,18 @@ export async function generateProductDescriptionFromBrand(context: ProductDescri
   return text;
 }
 
-export function isChatGptConfigured(): boolean {
-  return !!process.env.CHATGPT_API_KEY;
-}
-
 /** Vrai si au moins une IA est configurée pour l'analyse visuelle (GPT-4o ou Claude vision). */
 export function isVisualAnalysisConfigured(): boolean {
-  return !!process.env.CHATGPT_API_KEY || !!process.env.OPENAI_API_KEY || !!process.env.ANTHROPIC_API_KEY;
+  return isChatGptConfigured() || !!process.env.OPENAI_API_KEY || !!process.env.ANTHROPIC_API_KEY;
 }
 
 /** Teste que la clé API GPT répond (appel minimal). */
 export async function testGptConnection(): Promise<{ ok: true } | { ok: false; error: string }> {
-  if (!openai) {
+  if (!getOpenAIClient()) {
     return { ok: false, error: 'CHATGPT_API_KEY non configurée' };
   }
   try {
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAIClient().chat.completions.create({
       model: 'gpt-4',
       messages: [
         { role: 'user', content: 'Réponds uniquement par : OK' },
@@ -1004,10 +1003,10 @@ export async function isProductValidClothing(
   imageUrl: string,
   title: string
 ): Promise<{ valid: boolean; reason: string }> {
-  if (!openai) return { valid: true, reason: 'AI disabled' };
+  if (!getOpenAIClient()) return { valid: true, reason: 'AI disabled' };
 
   try {
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAIClient().chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
         {
@@ -1072,12 +1071,12 @@ export async function generateMonthlyTrendingBrands(): Promise<Array<{
   indicativePrice: string;
   websiteUrl: string;
 }>> {
-  if (!openai) throw new Error('AI not configured');
+  if (!getOpenAIClient()) throw new Error('AI not configured');
 
   const now = new Date();
   const monthStr = now.toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
 
-  const completion = await openai.chat.completions.create({
+  const completion = await getOpenAIClient().chat.completions.create({
     model: 'gpt-4o',
     messages: [
       {
@@ -1150,12 +1149,12 @@ export async function analyzeVisualTrend(base64Image: string): Promise<{
     const { analyzeVisualTrend: claudeVisualTrend } = await import('./claude');
     return claudeVisualTrend(base64Image);
   }
-  if (!openai) throw new Error('AI not configured');
+  if (!getOpenAIClient()) throw new Error('AI not configured');
 
   // Nettoyer le préfixe base64 si présent
   const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, '');
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAIClient().chat.completions.create({
     model: "gpt-4o",
     messages: [
       {
@@ -1235,9 +1234,9 @@ export async function getBrandQuickMetadata(brandName: string): Promise<{
   launchPotential: string;
   indicativePrice: string;
 }> {
-  if (!openai) throw new Error('AI not configured');
+  if (!getOpenAIClient()) throw new Error('AI not configured');
 
-  const completion = await openai.chat.completions.create({
+  const completion = await getOpenAIClient().chat.completions.create({
     model: 'gpt-4o',
     messages: [
       {
@@ -1273,9 +1272,9 @@ export async function enhanceShootingPrompt(options: {
   brandStyle?: string;
   extraContext?: string;
 }): Promise<string> {
-  if (!openai) throw new Error('AI not configured');
+  if (!getOpenAIClient()) throw new Error('AI not configured');
 
-  const completion = await openai.chat.completions.create({
+  const completion = await getOpenAIClient().chat.completions.create({
     model: 'gpt-4o',
     messages: [
       {
@@ -1334,7 +1333,7 @@ export async function generateChat(
     image?: { url: string } | { base64: string, mimeType: string };
   } = {}
 ): Promise<string> {
-  if (!openai) throw new Error('OpenAI non configuré');
+  if (!getOpenAIClient()) throw new Error('OpenAI non configuré');
 
   const formattedMessages: any[] = [
     { role: 'system', content: system },
@@ -1359,7 +1358,7 @@ export async function generateChat(
     formattedMessages.push({ role: lastMsg.role, content: lastMsg.content });
   }
 
-  const completion = await openai.chat.completions.create({
+  const completion = await getOpenAIClient().chat.completions.create({
     model: options.model || 'gpt-4o-mini',
     max_tokens: options.maxTokens ?? 2000,
     temperature: options.temperature ?? 0.7,

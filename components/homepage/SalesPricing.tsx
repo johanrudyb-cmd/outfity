@@ -206,7 +206,7 @@ export default function SalesPricing() {
                   </p>
                   <div className="flex -space-x-2 sm:-space-x-3">
                     {['virgil', 'pharrell', 'ada', 'johan', 'joy'].map(a => (
-                      <img key={a} src={`/images/agents/${a}_final.png`} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-black bg-gray-800" alt={a} />
+                      <img key={a} src={`/images/agents/${a}_final.webp`} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-black bg-gray-800" alt={a} />
                     ))}
                   </div>
                 </div>

@@ -45,17 +45,26 @@ export interface TrendsAnalysisInput {
 const CLAUDE_MODEL = 'claude-3-haiku-20240307';
 const CLAUDE_SONNET_MODEL = 'claude-3-5-sonnet-20240620';
 
-const anthropic = process.env.ANTHROPIC_API_KEY
-  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-  : null;
+let _anthropic: Anthropic | null = null;
+
+function getAnthropicClient(): Anthropic {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    throw new Error('ANTHROPIC_API_KEY non configurée');
+  }
+  if (!_anthropic) {
+    _anthropic = new Anthropic({ apiKey });
+  }
+  return _anthropic;
+}
 
 export function isClaudeConfigured(): boolean {
   return !!process.env.ANTHROPIC_API_KEY;
 }
 
 async function generateText(system: string, user: string, options: { maxTokens?: number; temperature?: number } = {}): Promise<string> {
-  if (!anthropic) throw new Error('ANTHROPIC_API_KEY non configurée');
-  const response = await anthropic.messages.create({
+  if (!getAnthropicClient()) throw new Error('ANTHROPIC_API_KEY non configurée');
+  const response = await getAnthropicClient().messages.create({
     model: CLAUDE_MODEL,
     max_tokens: options.maxTokens ?? 1024,
     temperature: options.temperature ?? 0.6,
@@ -67,8 +76,8 @@ async function generateText(system: string, user: string, options: { maxTokens?:
 }
 
 export async function generateChat(system: string, messages: { role: 'user' | 'assistant', content: string }[], options: { maxTokens?: number; temperature?: number; model?: 'haiku' | 'sonnet' } = {}): Promise<string> {
-  if (!anthropic) throw new Error('ANTHROPIC_API_KEY non configurée');
-  const response = await anthropic.messages.create({
+  if (!getAnthropicClient()) throw new Error('ANTHROPIC_API_KEY non configurée');
+  const response = await getAnthropicClient().messages.create({
     model: options.model === 'sonnet' ? CLAUDE_SONNET_MODEL : CLAUDE_MODEL,
     max_tokens: options.maxTokens ?? 2000,
     temperature: options.temperature ?? 0.7,
@@ -96,7 +105,7 @@ export async function analyzeProductImage(
   imageUrl: string,
   title: string
 ): Promise<VisualTaggingResult> {
-  if (!anthropic) throw new Error('ANTHROPIC_API_KEY non configurée');
+  if (!getAnthropicClient()) throw new Error('ANTHROPIC_API_KEY non configurée');
   const system = `Tu es un expert mode. Analyse l'image produit (e-commerce) et le titre fourni.
 Réponds en JSON strict avec exactement ces champs:
 - "cut": la coupe (ex: Boxy, Slim, Oversized, Regular, Wide Leg). Une seule valeur.
@@ -156,7 +165,7 @@ async function generateTextWithOptionalImage(
   userText: string,
   options: { imageUrl?: string; maxTokens?: number; temperature?: number } = {}
 ): Promise<string> {
-  if (!anthropic) throw new Error('ANTHROPIC_API_KEY non configurée');
+  if (!getAnthropicClient()) throw new Error('ANTHROPIC_API_KEY non configurée');
   let content: string | Anthropic.MessageParam['content'] = userText;
   if (options.imageUrl) {
     const img = await fetchImageAsBase64(options.imageUrl);
@@ -167,7 +176,7 @@ async function generateTextWithOptionalImage(
       ];
     }
   }
-  const response = await anthropic.messages.create({
+  const response = await getAnthropicClient().messages.create({
     model: CLAUDE_MODEL,
     max_tokens: options.maxTokens ?? 1024,
     temperature: options.temperature ?? 0.6,
@@ -1416,7 +1425,7 @@ export async function analyzeVisualTrend(base64Image: string): Promise<{
   cyclePhase: 'emergent' | 'croissance' | 'pic' | 'declin';
   marketAdvice: string;
 }> {
-  if (!anthropic) throw new Error('Claude AI not configured');
+  if (!getAnthropicClient()) throw new Error('Claude AI not configured');
 
   const system = `Tu es un expert en analyse de tendances mode (Fashion Trend Analyst) spécialisé UNIQUEMENT dans les vêtements.
 

@@ -1,19 +1,15 @@
 import { NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
-
-const anthropic = process.env.ANTHROPIC_API_KEY
-    ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-    : null;
+import { isClaudeConfigured, generateChat } from '@/lib/api/claude';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-    try {
-        if (!anthropic) {
-            return NextResponse.json({ error: 'Non configuré' }, { status: 500 });
-        }
+  try {
+    if (!isClaudeConfigured()) {
+      return NextResponse.json({ error: 'Non configuré' }, { status: 500 });
+    }
 
-        const prompt = `Tu es un expert en marketing de marques de vêtements (streetwear, marques indépendantes, créateurs). 
+    const prompt = `Tu es un expert en marketing de marques de vêtements (streetwear, marques indépendantes, créateurs). 
 Tu vas rédiger un guide de marketing complet, détaillé et très pratique pour des entrepreneurs débutants qui veulent lancer leur première marque de vêtements et atteindre leurs premiers 1 000€ de chiffre d'affaires.
 
 RÈGLES IMPORTANTES :
@@ -57,29 +53,24 @@ Les 5 chapitres doivent couvrir :
 
 Chaque chapitre doit avoir 2-3 sections. Sois ultra-concret, direct, avec des exemples du type "Imagine que tu lances un hoodie 500gsm..." Le guide ne doit PAS donner envie d'aller chercher des outils externes, mais de RÉFLÉCHIR et de STRUCTURER sa stratégie.`;
 
-        const response = await anthropic.messages.create({
-            model: 'claude-3-5-sonnet-20241022',
-            max_tokens: 8000,
-            temperature: 0.7,
-            system: "Tu es une API JSON. Tu réponds UNIQUEMENT via un JSON strict et valide. Jamais de texte en dehors du JSON.",
-            messages: [{ role: 'user', content: prompt }]
-        });
+    const jsonText = await generateChat(
+      "Tu es une API JSON. Tu réponds UNIQUEMENT via un JSON strict et valide. Jamais de texte en dehors du JSON.",
+      [{ role: 'user', content: prompt }],
+      { model: 'sonnet', maxTokens: 8000, temperature: 0.7 }
+    );
 
-        const textBlock = response.content.find((b) => b.type === 'text');
-        let jsonText = textBlock && 'text' in textBlock ? textBlock.text : '';
+    // Nettoyage au cas où Claude ajoute du Markdown
+    const cleanedJson = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
 
-        // Nettoyage au cas où Claude ajoute du Markdown
-        jsonText = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
-
-        const data = JSON.parse(jsonText);
-        return NextResponse.json(data, {
-            headers: {
-                // Cache pendant 24h (même contenu pour tout le monde, renouvelé quotidiennement)
-                'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=3600'
-            }
-        });
-    } catch (error: any) {
-        console.error('Marketing guide generation error:', error);
-        return NextResponse.json({ error: 'Erreur de génération du contenu.' }, { status: 500 });
-    }
+    const data = JSON.parse(cleanedJson);
+    return NextResponse.json(data, {
+      headers: {
+        // Cache pendant 24h (même contenu pour tout le monde, renouvelé quotidiennement)
+        'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=3600'
+      }
+    });
+  } catch (error: any) {
+    console.error('Marketing guide generation error:', error);
+    return NextResponse.json({ error: 'Erreur de génération du contenu.' }, { status: 500 });
+  }
 }

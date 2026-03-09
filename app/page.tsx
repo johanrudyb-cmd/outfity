@@ -6,7 +6,6 @@ import { TrendsHero } from '@/components/homepage/TrendsHero';
 // Lazy load — sections below the fold
 const HowItWorks = dynamic(() => import('@/components/homepage/HowItWorks'));
 const BeforeAfter = dynamic(() => import('@/components/homepage/BeforeAfter'));
-const TrendsByMarket = dynamic(() => import('@/components/homepage/TrendsByMarket'));
 const AgentsPresentation = dynamic(() => import('@/components/homepage/AgentsPresentation'));
 const TechPackShowcase = dynamic(() => import('@/components/homepage/TechPackShowcase'));
 const MarginCalculator = dynamic(() => import('@/components/homepage/MarginCalculator'));
@@ -44,13 +43,6 @@ export default async function Home() {
       <LazySection fallback={<SectionSkeleton />}>
         <Suspense fallback={<SectionSkeleton />}>
           <BeforeAfter />
-        </Suspense>
-      </LazySection>
-
-      {/* Radar de tendances */}
-      <LazySection fallback={<SectionSkeleton />}>
-        <Suspense fallback={<SectionSkeleton />}>
-          <TrendsByMarket />
         </Suspense>
       </LazySection>
 

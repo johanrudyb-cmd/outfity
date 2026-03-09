@@ -7,7 +7,7 @@
 import { NextResponse } from 'next/server';
 import { sanitizeErrorMessage } from '@/lib/utils';
 import { getCurrentUser } from '@/lib/auth-helpers';
-import { generateBrandAnalysis, getBrandQuickMetadata } from '@/lib/api/chatgpt';
+import { generateBrandAnalysis, getBrandQuickMetadata, isChatGptConfigured } from '@/lib/api/chatgpt';
 import { generateBrandStrategyTemplate, generateVisualIdentityFromBrand, isClaudeConfigured } from '@/lib/api/claude';
 import { prisma } from '@/lib/prisma';
 import { CURATED_TOP_BRANDS } from '@/lib/curated-brands';
@@ -15,10 +15,7 @@ import { withAIUsageLimit } from '@/lib/ai-usage';
 import { fetchLogoForBrand } from '@/lib/brand-logo-fetch';
 
 function isAnalyzeConfigured(): boolean {
-  return !!(
-    process.env.ANTHROPIC_API_KEY ||
-    process.env.CHATGPT_API_KEY
-  );
+  return isChatGptConfigured() || isClaudeConfigured();
 }
 
 export const runtime = 'nodejs';

@@ -5,10 +5,9 @@
  */
 
 const IDEogram_API_BASE = 'https://api.ideogram.ai';
-const IDEogram_API_KEY = process.env.IDEogram_API_KEY;
 
 export function isIdeogramConfigured(): boolean {
-  return !!IDEogram_API_KEY;
+  return !!process.env.IDEOGRAM_API_KEY;
 }
 
 /** Réponse génération Ideogram 3.0 */
@@ -39,8 +38,8 @@ export async function generateDesignImage(
   prompt: string,
   options?: { aspect_ratio?: string; transparent?: boolean; seed?: number; negative_prompt?: string }
 ): Promise<string> {
-  if (!IDEogram_API_KEY) {
-    throw new Error('IDEogram_API_KEY non configurée');
+  if (!process.env.IDEOGRAM_API_KEY) {
+    throw new Error('IDEOGRAM_API_KEY non configurée');
   }
 
   const aspectRatio = toIdeogramAspectRatio(options?.aspect_ratio ?? '1:1');
@@ -64,7 +63,7 @@ export async function generateDesignImage(
   const res = await fetch(url, {
     method: 'POST',
     headers: {
-      'Api-Key': IDEogram_API_KEY,
+      'Api-Key': process.env.IDEOGRAM_API_KEY as string,
     },
     body: form,
   });
@@ -113,8 +112,8 @@ export async function remixImage(
     seed?: number;
   }
 ): Promise<string> {
-  if (!IDEogram_API_KEY) {
-    throw new Error('IDEogram_API_KEY non configurée');
+  if (!process.env.IDEOGRAM_API_KEY) {
+    throw new Error('IDEOGRAM_API_KEY non configurée');
   }
 
   const aspectRatio = toIdeogramAspectRatio(options?.aspect_ratio ?? '1:1');
@@ -135,7 +134,7 @@ export async function remixImage(
   const res = await fetch(url, {
     method: 'POST',
     headers: {
-      'Api-Key': IDEogram_API_KEY,
+      'Api-Key': process.env.IDEOGRAM_API_KEY as string,
     },
     body: form,
   });

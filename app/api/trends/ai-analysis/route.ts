@@ -1,15 +1,10 @@
 
 import { NextResponse } from 'next/server';
-import OpenAI from 'openai';
-
-const openaiApiKey = process.env.CHATGPT_API_KEY || process.env.OPENAI_API_KEY;
-const openai = openaiApiKey ? new OpenAI({
-    apiKey: openaiApiKey,
-}) : null;
+import { isChatGptConfigured, generateChat } from '@/lib/api/chatgpt';
 
 export async function POST(request: Request) {
     try {
-        if (!openai) {
+        if (!isChatGptConfigured()) {
             return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 });
         }
         const { segment, category, subFilter, currentScore, futureScore, leadTime, isOffSeason, styles } = await request.json();
@@ -46,16 +41,13 @@ export async function POST(request: Request) {
       }
     `;
 
-        const response = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: [
-                { role: "system", content: "Tu es un expert data-analyst mode de luxe." },
-                { role: "user", content: prompt }
-            ],
-            response_format: { type: "json_object" }
-        });
+        const responseText = await generateChat(
+            "Tu es un expert data-analyst mode de luxe. Réponds UNIQUEMENT par l'objet JSON.",
+            [{ role: "user", content: prompt }],
+            { model: "gpt-4o-mini", temperature: 0.1 }
+        );
 
-        const result = JSON.parse(response.choices[0].message.content || '{}');
+        const result = JSON.parse(responseText || '{}');
         return NextResponse.json(result);
 
     } catch (error) {

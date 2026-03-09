@@ -5,8 +5,6 @@
  */
 
 const HIGGSFIELD_BASE = 'https://platform.higgsfield.ai';
-const HIGGSFIELD_API_KEY = process.env.HIGGSFIELD_API_KEY;
-const HIGGSFIELD_API_SECRET = process.env.HIGGSFIELD_API_SECRET;
 
 /** Modèle text-to-image recommandé pour mockups produit */
 const DEFAULT_MODEL_ID = 'higgsfield-ai/soul/standard';
@@ -15,14 +13,16 @@ const DEFAULT_MODEL_ID = 'higgsfield-ai/soul/standard';
 const EDIT_MODEL_ID = 'bytedance/seedream/v4/edit';
 
 export function isHiggsfieldConfigured(): boolean {
-  return !!(HIGGSFIELD_API_KEY && HIGGSFIELD_API_SECRET);
+  return !!(process.env.HIGGSFIELD_API_KEY && process.env.HIGGSFIELD_API_SECRET);
 }
 
 function getAuthHeader(): string {
-  if (!HIGGSFIELD_API_KEY || !HIGGSFIELD_API_SECRET) {
+  const key = process.env.HIGGSFIELD_API_KEY;
+  const secret = process.env.HIGGSFIELD_API_SECRET;
+  if (!key || !secret) {
     throw new Error('HIGGSFIELD_API_KEY et HIGGSFIELD_API_SECRET doivent être définis');
   }
-  return `Key ${HIGGSFIELD_API_KEY}:${HIGGSFIELD_API_SECRET}`;
+  return `Key ${key}:${secret}`;
 }
 
 interface SubmitResponse {
