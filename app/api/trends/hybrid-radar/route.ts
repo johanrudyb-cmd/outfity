@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     // Conditions de base
     const where: any = {};
     if (segment) {
-      where.segment = segment;
+      where.segment = { in: [segment, 'unisex', 'UNISEX', ''] };
     }
 
     // Récupération avec select strict pour réduire le payload (~70% plus léger)
@@ -36,6 +36,10 @@ export async function GET(request: Request) {
         segment: true,
         averagePrice: true,
         saturability: true,
+        businessAnalysis: true,
+        productionSafety: true,
+        weatherSignal: true,
+        marketZone: true,
         createdAt: true,
         updatedAt: true,
       },

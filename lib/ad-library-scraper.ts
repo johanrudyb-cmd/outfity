@@ -4,7 +4,8 @@
  * GRATUIT - Scraping des pages publiques
  */
 
-// import puppeteer removed
+import { getBrowser } from './api/browser';
+type Browser = any;
 
 interface AdData {
   platform: 'facebook' | 'tiktok';
@@ -71,10 +72,7 @@ export async function scrapeFacebookAds(
     // URL de Facebook Ad Library
     const adLibraryUrl = `https://www.facebook.com/ads/library/?active_status=all&ad_type=all&country=${country}&q=${encodeURIComponent(brand)}&search_type=page&media_type=all`;
 
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+    browser = await getBrowser();
 
     const page = await browser.newPage();
     await page.setUserAgent(
@@ -93,14 +91,14 @@ export async function scrapeFacebookAds(
     // Extraire les publicités
     const ads = await page.evaluate(() => {
       const adElements: FacebookAd[] = [];
-      
+
       // Sélecteurs pour les publicités Facebook
       // Note: Facebook change souvent sa structure, ces sélecteurs peuvent nécessiter des ajustements
       const adCards = document.querySelectorAll('[data-testid*="ad"], [class*="ad"], [role="article"]');
-      
+
       adCards.forEach((card, index) => {
         if (index >= 10) return; // Limiter à 10 publicités
-        
+
         try {
           // Extraire l'image
           const imageEl = card.querySelector('img');
@@ -173,10 +171,7 @@ export async function scrapeTikTokAds(
     // On peut utiliser une recherche sur TikTok ou scraper les publicités depuis le site
     const tiktokSearchUrl = `https://www.tiktok.com/search?q=${encodeURIComponent(brand)}&t=1`;
 
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+    browser = await getBrowser();
 
     const page = await browser.newPage();
     await page.setUserAgent(
@@ -195,13 +190,13 @@ export async function scrapeTikTokAds(
     // Extraire les publicités/vidéos
     const ads = await page.evaluate(() => {
       const adElements: TikTokAd[] = [];
-      
+
       // Sélecteurs pour TikTok (structure peut varier)
       const videoCards = document.querySelectorAll('[data-e2e*="video"], [class*="video"], article');
-      
+
       videoCards.forEach((card, index) => {
         if (index >= 10) return; // Limiter à 10
-        
+
         try {
           // Extraire l'image/vidéo
           const imageEl = card.querySelector('img');

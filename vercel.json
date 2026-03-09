@@ -10,16 +10,8 @@
       "schedule": "0 3 * * *"
     },
     {
-      "path": "/api/cron/scan-trends",
-      "schedule": "0 6 * * *"
-    },
-    {
-      "path": "/api/cron/refresh-zalando-trends",
-      "schedule": "0 9 * * 1"
-    },
-    {
-      "path": "/api/cron/refresh-all-trends",
-      "schedule": "0 11 * * 2"
+      "path": "/api/trends/scrape",
+      "schedule": "0 7 * * *"
     }
   ]
 }

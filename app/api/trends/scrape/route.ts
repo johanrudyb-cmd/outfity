@@ -29,35 +29,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    // 1. Scraping Radar Hybride (Zalando, ASOS, Zara)
-    console.log('[Trends Scrape] Début du scraping Radar Hybride...');
-    const { refreshAllTrends } = await import('@/lib/refresh-all-trends');
-    const hybridResult = await refreshAllTrends();
+    // 1. Scraping Radar V3 (Google Trends, Zalando, Indie Stores)
+    console.log('[Trends Scrape] Début du scraping Radar V3...');
+    const { runRadarScan, saveRadarTrends } = await import('@/lib/radar');
+    const trends = await runRadarScan();
+    await saveRadarTrends(trends);
 
-    // 2. Enrichissement automatique (IA GPT)
-    console.log('[Trends Scrape] Début de l\'enrichissement IA...');
-    const { enrichTrends } = await import('@/lib/trend-enricher');
-    const enrichResult = await enrichTrends(10); // Enrichir les 10 dernières tendances
-
-    // 3. Notification Admin automatique
-    const { notifyAdmin } = await import('@/lib/admin-notifications');
-    await notifyAdmin({
-      type: 'scrape_success',
-      title: '🕵️ Radar Tendances Mis à jour',
-      message: `Scraping terminé : ${hybridResult.savedCount} nouveaux produits Hybrides. Enrichissement : ${enrichResult.enriched} produits magnifiés.`,
-      emoji: '🕵️',
-      data: {
-        sources: hybridResult.sourcesCount,
-        totalItems: hybridResult.totalItems,
-        errors: hybridResult.errors.length,
-      }
-    });
+    // 2. Alertes Admin
+    // const { notifyAdmin } = await import('@/lib/admin-notifications');
+    // await notifyAdmin({...});
 
     return NextResponse.json({
-      message: 'Processus Radar complet terminé (Scrape + Enrich + Notify)',
+      message: 'Radar V3 terminé avec succès',
       results: {
-        scrape: hybridResult,
-        enrich: enrichResult
+        totalFound: trends.length,
+        topTrends: trends.slice(0, 3).map(t => t.name)
       }
     });
   } catch (error: any) {

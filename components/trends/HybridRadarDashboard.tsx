@@ -25,6 +25,8 @@ interface HybridTrend {
   sourceBrand: string | null;
   isGlobalTrendAlert: boolean;
   businessAnalysis: string | null;
+  weatherSignal?: string;
+  productionSafety?: string;
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -526,12 +528,21 @@ export function HybridRadarDashboard() {
                           <CardContent className="p-6 flex-1 flex flex-col">
                             <div className="mb-4">
                               <h3 className="text-base font-black text-black uppercase tracking-tight leading-tight line-clamp-2">{t.name}</h3>
-                              <div className="flex items-center gap-2 mt-2">
-                                <span className="text-[9px] font-black text-[#007AFF] uppercase tracking-widest">{t.cut || 'REGULAR'}</span>
-                                <div className="w-1 h-1 rounded-full bg-gray-200" />
-                                <span className="text-[9px] font-bold text-gray-400 truncate uppercase">
-                                  {safeDisplayBrand((t as { productBrand?: string | null }).productBrand ?? getProductBrand(t.name, t.sourceBrand))}
+                              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                                <span className={cn(
+                                  "text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-sm",
+                                  t.productionSafety === 'SÛR' ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                                )}>
+                                  PROD: {t.productionSafety || 'INCONNU'}
                                 </span>
+                                {t.weatherSignal && (
+                                  <span className={cn(
+                                    "text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-sm",
+                                    t.weatherSignal.includes('Favorable') ? "bg-blue-100 text-blue-700" : "bg-orange-100 text-orange-700"
+                                  )}>
+                                    {t.weatherSignal.includes('Favorable') ? '☀️ SAISON OK' : '⚠️ HORS-SAISON'}
+                                  </span>
+                                )}
                               </div>
                             </div>
 

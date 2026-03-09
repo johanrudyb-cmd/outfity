@@ -5,7 +5,7 @@ import useSWR from 'swr';
 import Link from 'next/link';
 import { TrendProduct } from '@/types';
 import { useSearchParams } from 'next/navigation';
-import { LucideIcon, Loader2, TrendingUp, Tag, Layers, Sparkles, Shirt, ArrowRight } from 'lucide-react';
+import { LucideIcon, Loader2, TrendingUp, Tag, Layers, Sparkles, Shirt, ArrowRight, Activity, Cloud, Hexagon, Component, Box } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
@@ -22,7 +22,7 @@ const CATEGORY_IMAGES: Record<string, Record<string, string>> = {
     "jeans": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/f6ede387-9faf-4f8f-a151-4ec9e4892617.png"
   },
   femme: {
-    "t-shirts": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/d62090e7-8ee2-411f-b0b7-d4ab1467156d.png",
+    "t-shirts": "/images/femme-tshirt.png",
     "sweats": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/8b393865-f928-4e40-ad7b-b0a6cae924e1.png",
     "vestes": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/33b9ac58-b800-4172-b955-ce8bea09880a.png",
     "pantalons": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/017bca67-2ec5-48aa-8b19-dba5d81ca9a6.png",
@@ -55,7 +55,7 @@ const MAIN_CATEGORIES: CategoryItem[] = [
     id: 'sweats',
     dbId: 'SWEAT',
     label: 'Sweats & Pulls',
-    icon: Tag,
+    icon: Cloud,
     desc: { homme: 'Hoodies, Pulls en Maille & Cardigans', femme: 'Mailles, Cardigans & Hoodies' }
   },
   {
@@ -70,21 +70,21 @@ const MAIN_CATEGORIES: CategoryItem[] = [
     id: 'vestes',
     dbId: 'JACKEX',
     label: 'Vestes & Manteaux',
-    icon: Layers,
+    icon: Activity,
     desc: { homme: 'Bombers, Cuir, Racing & Varsity', femme: 'Blazers, Trenchs & Cuir' }
   },
   {
     id: 'pantalons',
     dbId: 'PANT',
     label: { homme: 'Pantalons', femme: 'Pantalons & Jupes' },
-    icon: Tag,
+    icon: Box,
     desc: { homme: 'Cargo, Large & Jogging', femme: 'Jupes, Cargos & Ensembles' }
   },
   {
     id: 'jeans',
     dbId: 'JEAN',
     label: 'Jeans',
-    icon: Layers,
+    icon: Hexagon,
     desc: { homme: 'Baggy & Droit', femme: 'Wide Leg, Mom & Baggy' }
   },
 ];

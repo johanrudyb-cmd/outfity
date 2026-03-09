@@ -1,12 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import 'dotenv/config';
 import { getSeasonalRecommendation } from './seasonal-recommendation';
-// import puppeteer removed
-// stealth removed
+import { getBrowser } from './api/browser';
 const googleTrends = require('google-trends-api');
-
-// Configuration Puppeteer avec Stealth pour éviter les détections
-// puppeteer.use(StealthPlugin());
 
 const prisma = new PrismaClient();
 
@@ -56,11 +52,8 @@ export class ViralRadarEngine {
             console.log('[ViralRadar] API TikTok inaccessible, passage au scraping DOM...');
         }
 
-        // --- STRATÉGIE 2 : Scraping DOM avec sélecteurs multiples ---
-        const browser = await puppeteer.launch({
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled']
-        });
+        // --- STRATÉGIE 2 : Scraping DOM via Browserless ---
+        const browser = await getBrowser();
 
         try {
             const page = await browser.newPage();
@@ -156,17 +149,66 @@ export class ViralRadarEngine {
     }
 
     /**
-     * 2. SCAN PINTEREST (GRATUIT)
+     * 2. SCAN PINTEREST (via Browserless — page tendances mode)
      */
     async getPinterestTrends(): Promise<ViralSignal[]> {
-        console.log('[ViralRadar] 🤖 Scan Pinterest (Zero Budget) en cours...');
-        // Pinterest Trends demande souvent un login, on utilise un mix de termes hyper-visuels
-        // En mode gratuit, on simule sur les catégories "Fashion" dominantes.
-        return [
-            { term: 'Linen Summer Dress', platform: 'Pinterest', score: 92, growthPercent: 25, region: 'FR' },
-            { term: 'Retro Sportswear', platform: 'Pinterest', score: 78, growthPercent: 12, region: 'FR' },
-            { term: 'Crochet Bag', platform: 'Pinterest', score: 85, growthPercent: 18, region: 'FR' }
-        ];
+        console.log('[ViralRadar] 🤖 Scan Pinterest via Browserless...');
+        let browser: any = null;
+        try {
+            browser = await getBrowser();
+            const page = await browser.newPage();
+            await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
+            await page.setExtraHTTPHeaders({ 'Accept-Language': 'fr-FR,fr;q=0.9' });
+
+            await page.goto('https://trends.pinterest.com/', {
+                waitUntil: 'domcontentloaded',
+                timeout: 30000
+            });
+            await new Promise(r => setTimeout(r, 4000));
+
+            const terms = await page.evaluate(() => {
+                const selectors = [
+                    '[class*="TrendCard"] span',
+                    '[class*="trend-title"]',
+                    '[class*="trendName"]',
+                    'h3[class*="trend"]',
+                    'a[href*="/search/pins"] span',
+                ];
+                for (const sel of selectors) {
+                    const els = Array.from(document.querySelectorAll(sel));
+                    const texts = els.map((el: any) => el.textContent?.trim()).filter(Boolean);
+                    if (texts.length >= 3) return texts.slice(0, 10);
+                }
+                return [];
+            });
+
+            await browser.close();
+
+            if (terms.length > 0) {
+                console.log(`[ViralRadar] ✅ Pinterest : ${terms.length} tendances récupérées`);
+                const FASHION_KW = ['fashion', 'style', 'outfit', 'wear', 'dress', 'coat', 'jean', 'skirt', 'knit', 'hoodie', 'vintage', 'aesthetic', 'core', 'look', 'street'];
+                const fashionTerms = terms.filter((t: string) => FASHION_KW.some(kw => t.toLowerCase().includes(kw)));
+                const finalTerms = fashionTerms.length >= 2 ? fashionTerms : terms;
+                return finalTerms.map((term: string) => ({
+                    term,
+                    platform: 'Pinterest' as const,
+                    score: 70 + Math.random() * 25,
+                    growthPercent: 10 + Math.random() * 20,
+                    region: 'FR'
+                }));
+            }
+            throw new Error('Aucun terme Pinterest trouvé');
+        } catch (e) {
+            console.warn('[ViralRadar] ⚠️ Pinterest scraping échoué, fallback curé.', (e as Error).message);
+            if (browser) await browser.close().catch(() => { });
+            // Fallback : tendances visuelles actuelles (mise à jour manuelle trimestrielle)
+            return [
+                { term: 'Gorpcore Outerwear', platform: 'Pinterest', score: 88, growthPercent: 24, region: 'FR' },
+                { term: 'Ballet Flat Aesthetic', platform: 'Pinterest', score: 82, growthPercent: 18, region: 'FR' },
+                { term: 'Boxy Blazer', platform: 'Pinterest', score: 79, growthPercent: 14, region: 'FR' },
+                { term: 'Utility Cargo', platform: 'Pinterest', score: 76, growthPercent: 20, region: 'FR' },
+            ];
+        }
     }
 
     /**

@@ -7,15 +7,11 @@
 // Tech : Puppeteer Stealth + Attente explicite
 // ============================================================================
 
-// import puppeteer removed
-// stealth removed
+import { getBrowser } from './api/browser';
 type Browser = any; type Page = any;
 import type { HybridRadarSource } from './hybrid-radar-sources';
 
 import { isExcludedProduct } from './trend-filters';
-
-// Initialisation du mode furtif (désactivé)
-// puppeteer.use(StealthPlugin());
 
 export interface HybridScrapedItem {
     name: string;
@@ -40,23 +36,10 @@ export interface HybridScrapedItem {
 }
 
 /**
- * Lance le navigateur en mode furtif
+ * Lance le navigateur via l'utilitaire centralisé
  */
 async function launchStealthBrowser(): Promise<Browser> {
-    console.log('🚀 [Scraper V2] Démarrage du navigateur...');
-    return await puppeteer.launch({
-        headless: false, // On voit le navigateur pour débugger au début
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-infobars',
-            '--window-position=0,0',
-            '--ignore-certifcate-errors',
-            '--ignore-certifcate-errors-spki-list',
-            '--window-size=1280,800',
-        ],
-        defaultViewport: null,
-    });
+    return await getBrowser();
 }
 
 /**
@@ -64,7 +47,7 @@ async function launchStealthBrowser(): Promise<Browser> {
  */
 async function autoScroll(page: Page, maxScrolls: number = 10) {
     console.log(`📜 [Scraper V2] Scroll de la page (${maxScrolls} steps)...`);
-    await page.evaluate(async (maxSteps) => {
+    await page.evaluate(async (maxSteps: number) => {
         await new Promise<void>((resolve) => {
             let totalHeight = 0;
             let distance = 400;
@@ -141,7 +124,7 @@ export async function scrapeHybridSource(source: HybridRadarSource): Promise<Hyb
         // Extraction des données
         console.log(`⛏️ [Scraper V2] Extraction des données via sélecteurs...`);
 
-        const extractedData = await page.evaluate((sourceSelectors, brandName) => {
+        const extractedData = await page.evaluate((sourceSelectors: any, brandName: string) => {
             const items: any[] = [];
 
             // Détection des conteneurs produits
@@ -174,7 +157,7 @@ export async function scrapeHybridSource(source: HybridRadarSource): Promise<Hyb
 
                     // Image URL
                     let imageUrl = null;
-                    if (imgEl) {
+                    if (imgEl && imgEl instanceof HTMLImageElement) {
                         // Gestion srcset (Zalando/Asos)
                         const srcset = imgEl.getAttribute('srcset');
                         if (srcset) {

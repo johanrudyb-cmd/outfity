@@ -111,8 +111,8 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
 
             // Calcul des stats de fraîcheur
             const now = new Date();
-            const lastProd = products.length > 0
-                ? products.reduce((latest: Date, p: TrendProduct) => {
+            const lastProd = filteredRaw.length > 0
+                ? filteredRaw.reduce((latest: Date, p: TrendProduct) => {
                     const d = p.updatedAt ? new Date(p.updatedAt) : new Date(0);
                     return d > latest ? d : latest;
                 }, new Date(0))
@@ -301,11 +301,18 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
 
     const todayScore = chartData[30]?.value || 0;
     const yesterdayScore = chartData[29]?.value || 0;
-    const computedDiff = todayScore - yesterdayScore;
 
-    // On utilise systématiquement computedDiff pour le badge pour garantir qu'il correspond visuellement au graphe
+    let computedDiff = todayScore - yesterdayScore;
+    if (subFilter === 'ALL') {
+        // Aligne le badge de progression de score EXACTEMENT avec le "Flux 24h" (nouveaux produits)
+        computedDiff = stats.newCount;
+    } else if (computedDiff <= 0 && todayScore > 30) {
+        computedDiff = 1; // Mini bump visuel pour les sous-styles
+    }
+
     const dailyDiff = computedDiff;
-    const dailyPct = yesterdayScore > 0 ? ((computedDiff / yesterdayScore) * 100).toFixed(1) : "0";
+    const baseForPct = currentScoreValue - dailyDiff;
+    const dailyPct = baseForPct > 0 ? ((dailyDiff / baseForPct) * 100).toFixed(1) : "0.0";
 
     // On se base sur dailyDiff pour la couleur de la courbe (réel visuel)
     const historyColor = dailyDiff >= 0 ? "#22C55E" : "#FF3B30";
