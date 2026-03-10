@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -199,6 +199,8 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
     const [initialTransition, setInitialTransition] = useState(true);
     const [isThinking, setIsThinking] = useState(false);
 
+    const scrollRef = useRef<HTMLDivElement>(null);
+
     const goNext = useCallback(() => {
         const nextIdx = stepIndex + 1;
         if (nextIdx < STEP_ORDER.length) {
@@ -207,9 +209,13 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                 setTimeout(() => {
                     setIsThinking(false);
                     setStep(STEP_ORDER[nextIdx]);
+                    // Scroll to top of the container
+                    setTimeout(() => scrollRef.current?.scrollTo({ top: 0, behavior: 'instant' }), 50);
                 }, 1500);
             } else {
                 setStep(STEP_ORDER[nextIdx]);
+                // Scroll to top of the container
+                setTimeout(() => scrollRef.current?.scrollTo({ top: 0, behavior: 'instant' }), 50);
             }
         }
     }, [stepIndex, step]);
@@ -257,7 +263,9 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
     };
 
     return (
-        <div className="min-h-screen bg-[#F5F5F7] text-[#1D1D1F] font-sans selection:bg-[#007AFF]/20 selection:text-[#007AFF] overflow-x-hidden">
+        <div
+            className="h-[100dvh] bg-[#F5F5F7] text-[#1D1D1F] font-sans selection:bg-[#007AFF]/20 selection:text-[#007AFF] overflow-x-hidden flex flex-col"
+        >
             {/* PROGRESS BAR */}
             {step !== 'launch' && (
                 <div className="fixed top-0 left-0 w-full h-1.5 bg-white/50 z-50">
@@ -285,7 +293,10 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                 </div>
             )}
 
-            <div className="min-h-screen flex flex-col items-center justify-start sm:justify-center px-4 sm:px-6 relative overflow-x-hidden overflow-y-auto pt-20 sm:pt-6 pb-8 sm:pb-6">
+            <div
+                ref={scrollRef}
+                className="flex-1 overflow-y-auto flex flex-col items-center justify-start sm:justify-center px-4 sm:px-6 relative overflow-x-hidden pt-20 sm:pt-6 pb-8 sm:pb-6"
+            >
                 {/* DYNAMIC BACKGROUND */}
                 <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                     <motion.div
@@ -917,7 +928,7 @@ function LaunchStep({ plan, brandName }: { plan: string; brandName: string }) {
     }, [stepIndex]);
 
     return (
-        <div className="flex flex-col items-center justify-center space-y-12 max-w-md w-full">
+        <div className="flex flex-col items-center justify-center text-center space-y-12 max-w-md w-full px-4">
             <div className="relative">
                 <motion.div
                     className="w-32 h-32 rounded-[38px] bg-white shadow-apple-lg flex items-center justify-center"
