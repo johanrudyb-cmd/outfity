@@ -19,7 +19,7 @@ const AGENTS = [
     {
         name: 'Pharrell',
         role: 'Design & Accompagnement',
-        description: 'Ton mentor créatif perso. Il te guide pour construire ton univers visuel et créer des pieces qui ont une vraie identité, pas juste un logo sur un tee-shirt.',
+        description: "Ton directeur créatif IA. Il t'accompagne dans la création de tes mockups et la construction de ton univers visuel. Un vrai guide pour faire les bons choix esthétiques.",
         image: '/images/agents/pharrell_final.webp',
         color: '#A032FF',
         icon: Palette,
@@ -28,7 +28,7 @@ const AGENTS = [
     {
         name: 'Ada',
         role: 'Sourcing & Collection',
-        description: 'Ada trouve ton usine, négocie ton MOQ et sécurise ta logistique. Elle te évite les arnaques et les fournisseurs qui livrent du mauvais stock 6 mois en retard.',
+        description: "Ton experte en sourcing. Elle t'aide à trouver les bonnes usines, comprendre les MOQ et te guide dans la création de tes tech packs pour la production.",
         image: '/images/agents/ada_final.webp',
         color: '#FF2A5F',
         icon: Factory,
@@ -37,7 +37,7 @@ const AGENTS = [
     {
         name: 'Johan',
         role: 'E-shop & Ventes',
-        description: 'Johan monte ta boutique Shopify de A a Z et la configure pour qu\'elle convertisse. Tu te connectes et tu vends, sans toucher une ligne de code.',
+        description: "Ton conseiller e-commerce. Il t'accompagne dans la structuration de ta boutique Shopify, la rédaction de tes fiches produits et la stratégie de conversion.",
         image: '/images/agents/johan_final.webp',
         color: '#FFAA00',
         icon: ShoppingCart,
