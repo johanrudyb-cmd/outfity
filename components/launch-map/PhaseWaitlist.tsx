@@ -52,7 +52,8 @@ export function PhaseWaitlist({ brandId, brand, onComplete, userPlan }: PhaseWai
         designId: '',
         accentColor: '#007AFF',
         logoUrl: '',
-        goal: 100
+        goal: 100,
+        language: 'fr'
     });
 
     const [showCelebration, setShowCelebration] = useState(false);
@@ -119,7 +120,7 @@ export function PhaseWaitlist({ brandId, brand, onComplete, userPlan }: PhaseWai
         fetchData();
         const interval = setInterval(fetchData, 15000); // Pool every 15s for new leads
         return () => clearInterval(interval);
-    }, [brandId, settings.designId]);
+    }, [brandId]);
 
     const waitlistLink = typeof window !== 'undefined'
         ? `${window.location.origin}/waitlist/${brandId}${settings.designId ? `?design=${settings.designId}` : ''}`
@@ -381,9 +382,6 @@ export function PhaseWaitlist({ brandId, brand, onComplete, userPlan }: PhaseWai
                                                             : "Objectif atteint ! Prêt pour le Tech Pack."}
                                                     </p>
                                                 </div>
-                                                <Button variant="ghost" onClick={simulateLead} className="relative z-10 text-white/40 hover:text-white hover:bg-white/10 text-[10px] uppercase font-black tracking-widest">
-                                                    Simuler 1 fan
-                                                </Button>
                                             </div>
                                         </div>
                                     </div>
@@ -518,6 +516,24 @@ export function PhaseWaitlist({ brandId, brand, onComplete, userPlan }: PhaseWai
                                                             onChange={(e) => setSettings(s => ({ ...s, description: e.target.value }))}
                                                         />
                                                     </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Step 2.5: Language */}
+                                            <div className="space-y-6 pt-10 border-t border-black/5">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 flex items-center justify-center">
+                                                        <Globe className="w-5 h-5 text-indigo-500" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-base font-black text-[#1D1D1F]">Langue</h4>
+                                                        <p className="text-[11px] font-bold text-[#86868B] uppercase tracking-wider">Langue de l'interface publique</p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center gap-4">
+                                                    <button onClick={() => setSettings(s => ({ ...s, language: 'en' }))} className={cn("px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest border-2 transition-all", settings.language === 'en' ? "border-blue-500 bg-blue-50 text-blue-500" : "border-black/5 text-[#86868B] hover:border-black/20")}>Anglais</button>
+                                                    <button onClick={() => setSettings(s => ({ ...s, language: 'fr' }))} className={cn("px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest border-2 transition-all", settings.language === 'fr' ? "border-blue-500 bg-blue-50 text-blue-500" : "border-black/5 text-[#86868B] hover:border-black/20")}>Français</button>
                                                 </div>
                                             </div>
 

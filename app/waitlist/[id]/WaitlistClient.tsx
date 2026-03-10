@@ -22,10 +22,31 @@ export function WaitlistClient({ brand, settings, selectedDesign }: WaitlistClie
 
     const accentColor = settings.accentColor || '#007AFF';
 
+    const isFr = settings.language !== 'en';
+
+    const t = {
+        droppingSoon: isFr ? "Lancement imminent" : "Dropping soon",
+        title: isFr ? "Préparez-vous pour le drop." : "Get ready for the next drop.",
+        desc: isFr ? "Rejoignez la liste pour obtenir un accès anticipé exclusif et être le premier informé de notre lancement." : "Join the list to get exclusive early access and be the first to know when we launch.",
+        placeholder: isFr ? "Entrez votre email" : "Enter your email",
+        join: isFr ? "Rejoindre le drop" : "Join the drop",
+        agreement: isFr ? "En rejoignant, vous acceptez de recevoir des nouveautés." : "By joining, you agree to receive drop updates.",
+        successTitle: isFr ? "Vous êtes sur la liste !" : "You're in the list!",
+        successDesc: isFr ? "Gardez un œil sur votre boite mail. Nous vous enverrons un lien secret 15 minutes avant tout le monde." : "Keep an eye on your inbox. We'll send you a secret link 15 minutes before everyone else.",
+        poweredBy: isFr ? "Propulsé par" : "Powered by",
+        errorInvalidEmail: isFr ? "Veuillez entrer un email valide" : "Please enter a valid email",
+        errorSuccessInfo: isFr ? "Tu es inscrit au drop !" : "You're successfully registered!",
+        errorGeneric: isFr ? "Une erreur est survenue" : "An error occurred",
+        errorConn: isFr ? "Erreur de connexion" : "Connection error",
+        limitedDrop: isFr ? "Série limitée" : "Limited Drop",
+        privacy: isFr ? "Confidentialité" : "Privacy",
+        terms: isFr ? "Conditions" : "Terms"
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!email || !email.includes('@')) {
-            toast.error("Veuillez entrer un email valide");
+            toast.error(t.errorInvalidEmail);
             return;
         }
 
@@ -50,13 +71,13 @@ export function WaitlistClient({ brand, settings, selectedDesign }: WaitlistClie
                     origin: { y: 0.6 },
                     colors: [accentColor, '#ffffff']
                 });
-                toast.success("Tu es inscrit au drop !");
+                toast.success(t.errorSuccessInfo);
             } else {
                 const data = await res.json();
-                toast.error(data.error || "Une erreur est survenue");
+                toast.error(data.error || t.errorGeneric);
             }
         } catch (err) {
-            toast.error("Erreur de connexion");
+            toast.error(t.errorConn);
         } finally {
             setIsSubmitting(false);
         }
@@ -78,7 +99,7 @@ export function WaitlistClient({ brand, settings, selectedDesign }: WaitlistClie
                 </div>
             </header>
 
-            <main className="flex-1 flex flex-col lg:flex-row items-center justify-center p-6 lg:p-24 gap-16 max-w-7xl mx-auto w-full relative">
+            <main className="flex-1 flex flex-col lg:flex-row items-center justify-center p-6 lg:p-24 pb-20 gap-10 lg:gap-16 max-w-7xl mx-auto w-full relative">
                 {/* Background Blobs */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full -z-10 overflow-hidden">
                     <div
@@ -98,9 +119,9 @@ export function WaitlistClient({ brand, settings, selectedDesign }: WaitlistClie
                     transition={{ duration: 0.8, ease: "easeOut" }}
                     className="w-full lg:w-1/2 flex items-center justify-center"
                 >
-                    <div className="relative group">
+                    <div className="relative group w-full max-w-[500px]">
                         <div className="absolute -inset-4 bg-black/5 blur-2xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-700" />
-                        <div className="w-full max-w-[500px] aspect-square bg-[#F5F5F7] rounded-[60px] p-12 flex items-center justify-center relative overflow-hidden shadow-2xl">
+                        <div className="w-full aspect-square bg-[#F5F5F7] rounded-[40px] lg:rounded-[60px] p-8 lg:p-12 flex items-center justify-center relative overflow-hidden shadow-2xl">
                             {selectedDesign?.productImageUrl ? (
                                 <img
                                     src={selectedDesign.productImageUrl}
@@ -112,9 +133,9 @@ export function WaitlistClient({ brand, settings, selectedDesign }: WaitlistClie
                             )}
 
                             {/* Badges */}
-                            <div className="absolute top-8 left-8">
+                            <div className="absolute top-6 left-6 lg:top-8 lg:left-8">
                                 <span className="bg-white/80 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-black/5 shadow-sm">
-                                    Limited Drop
+                                    {t.limitedDrop}
                                 </span>
                             </div>
                         </div>
@@ -122,7 +143,7 @@ export function WaitlistClient({ brand, settings, selectedDesign }: WaitlistClie
                 </motion.div>
 
                 {/* Right Side: Content & Form */}
-                <div className="w-full lg:w-1/2 space-y-12 z-10">
+                <div className="w-full lg:w-1/2 space-y-10 lg:space-y-12 z-10 text-center lg:text-left flex flex-col items-center lg:items-start">
                     <div className="space-y-6">
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
@@ -131,25 +152,25 @@ export function WaitlistClient({ brand, settings, selectedDesign }: WaitlistClie
                             className="inline-flex items-center gap-2 bg-black/5 px-4 py-1.5 rounded-full"
                         >
                             <Sparkles className="w-3.5 h-3.5 text-orange-400" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-black/60">Dropping soon</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-black/60">{t.droppingSoon}</span>
                         </motion.div>
 
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.3 }}
-                            className="text-5xl lg:text-7xl font-black text-[#1D1D1F] leading-[1.05] tracking-tight"
+                            className="text-4xl sm:text-5xl lg:text-7xl font-black text-[#1D1D1F] leading-[1.05] tracking-tight"
                         >
-                            {settings.title || "Get ready for the next drop."}
+                            {settings.title || t.title}
                         </motion.h1>
 
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.4 }}
-                            className="text-lg lg:text-xl text-[#86868B] font-medium leading-relaxed max-w-md"
+                            className="text-base sm:text-lg lg:text-xl text-[#86868B] font-medium leading-relaxed max-w-md mx-auto lg:mx-0"
                         >
-                            {settings.description || "Join the list to get exclusive early access and be the first to know when we launch."}
+                            {settings.description || t.desc}
                         </motion.p>
                     </div>
 
@@ -162,7 +183,7 @@ export function WaitlistClient({ brand, settings, selectedDesign }: WaitlistClie
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 transition={{ delay: 0.5 }}
                                 onSubmit={handleSubmit}
-                                className="space-y-4 max-w-sm"
+                                className="space-y-4 w-full max-w-sm"
                             >
                                 <div className="relative group">
                                     <div className="absolute -inset-2 bg-black/5 rounded-3xl opacity-0 group-focus-within:opacity-100 transition-opacity blur-lg" />
@@ -171,7 +192,7 @@ export function WaitlistClient({ brand, settings, selectedDesign }: WaitlistClie
                                             <Mail className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-black/20" />
                                             <input
                                                 type="email"
-                                                placeholder="Enter your email"
+                                                placeholder={t.placeholder}
                                                 value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
                                                 className="w-full h-16 bg-[#F5F5F7] rounded-[24px] pl-14 pr-6 text-sm font-bold border-2 border-transparent focus:border-black/5 focus:bg-white transition-all outline-none"
@@ -186,7 +207,7 @@ export function WaitlistClient({ brand, settings, selectedDesign }: WaitlistClie
                                                 <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                             ) : (
                                                 <>
-                                                    Join the drop
+                                                    {t.join}
                                                     <ArrowRight className="w-4 h-4 ml-3" />
                                                 </>
                                             )}
@@ -194,7 +215,7 @@ export function WaitlistClient({ brand, settings, selectedDesign }: WaitlistClie
                                     </div>
                                 </div>
                                 <p className="text-[10px] text-[#86868B] font-bold uppercase tracking-widest text-center">
-                                    By joining, you agree to receive drop updates.
+                                    {t.agreement}
                                 </p>
                             </motion.form>
                         ) : (
@@ -202,14 +223,14 @@ export function WaitlistClient({ brand, settings, selectedDesign }: WaitlistClie
                                 key="success"
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="bg-[#1D1D1F] text-white p-10 rounded-[40px] shadow-2xl space-y-4 max-w-sm text-center"
+                                className="bg-[#1D1D1F] text-white p-8 sm:p-10 rounded-[32px] sm:rounded-[40px] shadow-2xl space-y-4 max-w-sm text-center w-full"
                             >
-                                <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-6" style={{ backgroundColor: accentColor }}>
                                     <CheckCircle2 className="w-8 h-8 text-white" />
                                 </div>
-                                <h3 className="text-2xl font-black tracking-tight">You&apos;re in the list!</h3>
+                                <h3 className="text-2xl font-black tracking-tight">{t.successTitle}</h3>
                                 <p className="text-white/60 text-sm font-medium leading-relaxed">
-                                    Keep an eye on your inbox. We&apos;ll send you a secret link 15 minutes before everyone else.
+                                    {t.successDesc}
                                 </p>
                                 <div className="pt-4 flex justify-center gap-4">
                                     <Instagram className="w-5 h-5 opacity-40 hover:opacity-100 cursor-pointer transition-opacity" />
@@ -222,15 +243,15 @@ export function WaitlistClient({ brand, settings, selectedDesign }: WaitlistClie
             </main>
 
             {/* Subtle Footer */}
-            <footer className="px-6 py-12 border-t border-black/5 mt-auto">
-                <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 opacity-30">
+            <footer className="px-6 py-8 sm:py-12 border-t border-black/5 mt-auto">
+                <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 opacity-30 text-center md:text-left">
                     <p className="text-[10px] font-bold uppercase tracking-[0.3em]">&copy; 2026 {brand.name}</p>
-                    <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest">
-                        <a href="#" className="hover:text-black">Privacy</a>
-                        <a href="#" className="hover:text-black">Terms</a>
+                    <div className="flex gap-4 sm:gap-8 text-[10px] font-black uppercase tracking-widest flex-wrap justify-center">
+                        <a href="#" className="hover:text-black">{t.privacy}</a>
+                        <a href="#" className="hover:text-black">{t.terms}</a>
                         <div className="flex items-center gap-2">
-                            <span>Powered by</span>
-                            <span className="text-black">OUTIFTY</span>
+                            <span>{t.poweredBy}</span>
+                            <span className="text-black">OUTFITY</span>
                         </div>
                     </div>
                 </div>
