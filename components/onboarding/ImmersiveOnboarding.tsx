@@ -257,7 +257,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
     };
 
     return (
-        <div className="min-h-screen bg-[#F5F5F7] text-[#1D1D1F] font-sans selection:bg-[#007AFF]/20 selection:text-[#007AFF]">
+        <div className="min-h-screen bg-[#F5F5F7] text-[#1D1D1F] font-sans selection:bg-[#007AFF]/20 selection:text-[#007AFF] overflow-x-hidden">
             {/* PROGRESS BAR */}
             {step !== 'launch' && (
                 <div className="fixed top-0 left-0 w-full h-1.5 bg-white/50 z-50">
@@ -285,7 +285,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                 </div>
             )}
 
-            <div className="min-h-screen flex flex-col items-center justify-start sm:justify-center p-4 sm:p-6 relative overflow-hidden pt-20 sm:pt-6">
+            <div className="min-h-screen flex flex-col items-center justify-start sm:justify-center px-4 sm:px-6 relative overflow-x-hidden overflow-y-auto pt-20 sm:pt-6 pb-8 sm:pb-6">
                 {/* DYNAMIC BACKGROUND */}
                 <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                     <motion.div
@@ -485,7 +485,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                 <p className="text-[#86868B]">Choisis l'univers et le premier produit que tu vas lancer.</p>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
                                 {/* Colonne Univers */}
                                 <div className="space-y-4">
                                     <h3 className="text-sm font-bold text-[#1D1D1F] uppercase tracking-widest">1. L'univers</h3>
@@ -694,12 +694,15 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                             </div>
 
                             {/* Agents : tous si Créateur, uniquement Virgil si Starter */}
-                            <div className={isCreator ? "w-full max-w-6xl px-4 sm:px-6" : "w-full max-w-xs px-4"}>
-                                <div className={isCreator ? "flex flex-wrap justify-center gap-6 sm:gap-8" : "flex justify-center"}>
+                            <div className="w-full max-w-5xl px-2 sm:px-6">
+                                <div className={cn(
+                                    "flex flex-wrap justify-center gap-4 sm:gap-6",
+                                    !isCreator && "justify-center"
+                                )}>
                                     {AGENTS_TEAM
                                         .filter(a => isCreator || a.id === 'virgil')
                                         .map((agent, idx) => (
-                                            <div key={agent.id} className="w-[220px] sm:w-[240px] shrink-0">
+                                            <div key={agent.id} className="w-[150px] sm:w-[200px] md:w-[220px] shrink-0">
                                                 <AgentRevealCard agent={agent} delay={idx * 0.15 + 0.2} />
                                             </div>
                                         ))}
@@ -756,7 +759,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                 <p className="text-[#86868B]">Ensuite, on te révèle les agents IA qui t'accompagnent.</p>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 w-full">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
 
                                 {/* ── STARTER ── */}
                                 <div className="bg-white rounded-[24px] p-6 sm:p-8 border-2 border-[#F2F2F2] flex flex-col hover:border-[#007AFF]/30 transition-all">

@@ -242,13 +242,14 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo, brandId }
                             </div>
 
                             {/* Cartes des 5 agents */}
-                            <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-10 w-full">
+                            <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8 w-full px-2">
                                 {AGENTS_TEAM.map((agent, i) => (
-                                    <AgentRevealCard
-                                        key={agent.id}
-                                        agent={agent}
-                                        delay={i * 0.15}
-                                    />
+                                    <div key={agent.id} className="w-[140px] sm:w-[190px] md:w-[220px] shrink-0">
+                                        <AgentRevealCard
+                                            agent={agent}
+                                            delay={i * 0.15}
+                                        />
+                                    </div>
                                 ))}
                             </div>
 
