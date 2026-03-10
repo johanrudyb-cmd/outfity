@@ -4,10 +4,6 @@
     {
       "path": "/api/trends/scrape",
       "schedule": "0 7 * * *"
-    },
-    {
-      "path": "/api/cron/blog-scraper",
-      "schedule": "0 8 * * *"
     }
   ]
 }
