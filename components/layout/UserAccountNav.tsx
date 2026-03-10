@@ -142,14 +142,7 @@ export function UserAccountNav() {
 
                         {/* Quick Access */}
                         <div className="p-2 bg-gray-50/30">
-                            <Link
-                                href="/usage"
-                                onClick={() => setIsOpen(false)}
-                                className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white hover:shadow-sm transition-all text-[#1D1D1F]/60 hover:text-black group"
-                            >
-                                <Zap className="w-4 h-4 group-hover:text-[#007AFF] transition-colors" />
-                                <span className="text-xs font-bold uppercase tracking-widest">Mes Quotas</span>
-                            </Link>
+
                             <Link
                                 href="/settings"
                                 onClick={() => setIsOpen(false)}

@@ -366,9 +366,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                     style={{ width: `${Math.min(100, (userPlanData.usage.total / userPlanData.usage.limit) * 100)}%` }}
                   />
                 </div>
-                <Link href="/usage" onClick={handleNav} className="block mt-3 text-center text-[9px] font-black uppercase text-[#007AFF] hover:underline">
-                  Détails & Quotas
-                </Link>
+
               </div>
             )}
 
