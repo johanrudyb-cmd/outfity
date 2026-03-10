@@ -93,7 +93,7 @@ export function DashboardLayout({
       />
       <div className="flex-1 flex flex-col min-w-0 pl-0 md:pl-[68px] lg:pl-72 transition-[padding] duration-300 ease-apple overflow-x-hidden">
         <Header onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 relative flex flex-col min-h-0 overflow-y-auto overflow-x-hidden no-scrollbar sm:stylish-scrollbar">
+        <main className="flex-1 relative flex flex-col min-h-0 overflow-y-auto overflow-x-hidden no-scrollbar sm:stylish-scrollbar pb-mobile-nav lg:pb-0">
           <ErrorBoundary>
             <PageTransition className="flex-1 min-h-0 flex flex-col">
               <PaywallGate>{children}</PaywallGate>
