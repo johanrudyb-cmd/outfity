@@ -705,10 +705,13 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                             </div>
 
                             {/* Agents : tous si Créateur, uniquement Virgil si Starter */}
-                            <div className="w-full overflow-x-auto no-scrollbar -mx-4 px-4">
+                            <div className={cn(
+                                "w-full",
+                                isCreator && "overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0"
+                            )}>
                                 <div className={cn(
                                     "flex gap-4 sm:gap-6 sm:flex-wrap sm:justify-center",
-                                    isCreator ? "w-max sm:w-full" : "justify-center w-max sm:w-full"
+                                    isCreator ? "w-max sm:w-full" : "justify-center w-full"
                                 )}>
                                     {AGENTS_TEAM
                                         .filter(a => isCreator || a.id === 'virgil')
