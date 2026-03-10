@@ -95,6 +95,12 @@ export function ChoosePlanClient({ userPlan, onboardingCompleted }: { userPlan?:
   const canceled = searchParams.get('canceled') === 'true';
   const [isVisible, setIsVisible] = useState(false);
 
+  // Si l'utilisateur est déjà en "free" (Starter), on ne lui propose plus le Starter, seulement le Créateur.
+  // Sauf s'il n'a pas fini l'onboarding (cas où l'onboarding utiliserait cette page, mais ici il est déconnecté de l'onboarding immersif)
+  const displayPlans = (userPlan === 'free' && onboardingCompleted)
+    ? plans.filter(p => !p.isFree)
+    : plans;
+
   useEffect(() => {
     setIsVisible(true);
     if (canceled) {
@@ -154,8 +160,11 @@ export function ChoosePlanClient({ userPlan, onboardingCompleted }: { userPlan?:
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-4xl mx-auto">
-          {plans.map((plan, index) => (
+        <div className={cn(
+          "grid gap-4 sm:gap-6 max-w-4xl mx-auto",
+          displayPlans.length === 1 ? "grid-cols-1 max-w-md" : "grid-cols-1 sm:grid-cols-2"
+        )}>
+          {displayPlans.map((plan, index) => (
             <div
               key={index}
               className={cn(
