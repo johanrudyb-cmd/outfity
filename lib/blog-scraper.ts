@@ -109,7 +109,7 @@ export async function processAndCreateBlogPost(article: ScrapedArticle) {
     }
 
     // 2. IA - Réécriture du contenu en Blog Post complet et structuré
-    const systemPrompt = `Tu es le Rédacteur en Chef d'OUTFITY, la plateforme de création streetwear.
+    const systemPrompt = `Tu es le Rédacteur en Chef d'OUTFITY, la plateforme n°1 de création de marque de vêtements.
 Ton but est de réécrire cette actualité mode en un article de blog complet, punchy, expert et en français.
 Format:
 Tu dois impérativement renvoyer un JSON valide avec :
@@ -117,7 +117,7 @@ Tu dois impérativement renvoyer un JSON valide avec :
   "title": "Un titre accrocheur, max 60 char",
   "excerpt": "Une phrase d'accroche punchy, max 160 char",
   "content": "L'article formaté en Markdown. Utilise des H2, des listes, et du gras.",
-  "tags": ["streetwear", "business", ...]
+  "tags": ["mode", "création", "business", "tendance", ...]
 }`;
 
     const promptText = `Réédite cette news venant de ${article.source} pour notre blog:
