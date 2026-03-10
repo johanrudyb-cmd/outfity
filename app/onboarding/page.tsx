@@ -27,8 +27,8 @@ export default async function OnboardingPage() {
 
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+      <div className="h-[100dvh] bg-[#F5F5F7] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-black/10 border-t-[#007AFF] rounded-full animate-spin" />
       </div>
     }>
       <ImmersiveOnboarding initialPlan={user?.plan || 'free'} />
