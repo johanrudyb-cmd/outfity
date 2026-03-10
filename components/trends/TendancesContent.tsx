@@ -15,18 +15,18 @@ import {
 
 const CATEGORY_IMAGES: Record<string, Record<string, string>> = {
   homme: {
-    "t-shirts": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1000&auto=format&fit=crop",
-    "sweats": "https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=1000&auto=format&fit=crop",
-    "vestes": "https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=1000&auto=format&fit=crop",
-    "pantalons": "https://images.unsplash.com/photo-1624378439575-d10cabcca8e8?q=80&w=1000&auto=format&fit=crop",
-    "jeans": "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=1000&auto=format&fit=crop"
+    "t-shirts": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/95c18205-935b-4139-a3f4-2ed7b8a53e4d.png",
+    "sweats": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/c4b723c8-de94-43bd-89b2-fe21f592d636.png",
+    "vestes": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/6428a082-c729-48fe-b525-7bd667c46b59.png",
+    "pantalons": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/13695bb5-a3f2-4593-a664-4ed5ff4e7387.png",
+    "jeans": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/f6ede387-9faf-4f8f-a151-4ec9e4892617.png"
   },
   femme: {
-    "t-shirts": "https://images.unsplash.com/photo-1503341504253-dff4815485f1?q=80&w=1000&auto=format&fit=crop",
-    "sweats": "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=1000&auto=format&fit=crop",
-    "vestes": "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1000&auto=format&fit=crop",
-    "pantalons": "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1000&auto=format&fit=crop",
-    "jeans": "https://images.unsplash.com/photo-1584370848010-d7fe6bc767ec?q=80&w=1000&auto=format&fit=crop",
+    "t-shirts": "/images/femme-tshirt.png",
+    "sweats": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/8b393865-f928-4e40-ad7b-b0a6cae924e1.png",
+    "vestes": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/33b9ac58-b800-4172-b955-ce8bea09880a.png",
+    "pantalons": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/017bca67-2ec5-48aa-8b19-dba5d81ca9a6.png",
+    "jeans": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/d73da759-5240-4515-9091-20eab55469bd.png",
     "robes": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1000&auto=format&fit=crop"
   }
 };
