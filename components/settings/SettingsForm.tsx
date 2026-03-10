@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { User, Mail, Lock, Image as ImageIcon, Save, CheckCircle2, FileText, Download, Loader2, Crown, Sparkles, ArrowRight, CheckCircle, Trash2, AlertTriangle } from 'lucide-react';
 import { isFreePlan, isPaidPlan } from '@/lib/plan-utils';
 import { cn } from '@/lib/utils';
+import { signOut } from 'next-auth/react';
 
 interface SettingsFormProps {
   user: {
@@ -64,8 +65,8 @@ export function SettingsForm({ user: initialUser }: SettingsFormProps) {
         const data = await res.json();
         throw new Error(data.error || 'Erreur lors de la suppression');
       }
-      // Déconnexion immédiate après suppression
-      window.location.href = '/api/auth/signout?callbackUrl=/auth/signin';
+      // Déconnexion immédiate après suppression via next-auth
+      await signOut({ callbackUrl: '/auth/signin' });
     } catch (err: any) {
       setError(err.message || 'Impossible de supprimer le compte');
       setDeleteLoading(false);
