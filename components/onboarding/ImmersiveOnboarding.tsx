@@ -793,8 +793,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                         </div>
                                     </div>
                                     <button
-                                        disabled={isSubmitting}
-                                        onClick={() => { setPlan('starter'); handleComplete('starter'); }}
+                                        onClick={() => { setPlan('starter'); goNext(); }}
                                         className="w-full h-13 py-3.5 rounded-2xl border-2 border-[#E5E5EA] text-[#1D1D1F] font-bold text-sm hover:border-[#007AFF] hover:text-[#007AFF] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                                     >
                                         Démarrer avec Virgil <ArrowRight className="w-4 h-4" />
@@ -843,15 +842,10 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                         </div>
                                     </div>
                                     <button
-                                        disabled={isSubmitting}
-                                        onClick={() => { setPlan('creator'); handleComplete('creator'); }}
-                                        className="relative z-10 w-full py-3.5 rounded-2xl bg-[#007AFF] text-white font-bold text-sm hover:bg-[#0056CC] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 disabled:opacity-70"
+                                        onClick={() => { setPlan('creator'); goNext(); }}
+                                        className="relative z-10 w-full py-3.5 rounded-2xl bg-[#007AFF] text-white font-bold text-sm hover:bg-[#0056CC] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25"
                                     >
-                                        {isSubmitting ? (
-                                            <><Loader2 className="w-4 h-4 animate-spin" /> Redirection...</>
-                                        ) : (
-                                            <>Essai gratuit 3 jours <ArrowRight className="w-4 h-4" /></>
-                                        )}
+                                        <>Essai gratuit 3 jours <ArrowRight className="w-4 h-4" /></>
                                     </button>
                                     <p className="text-[11px] text-[#86868B] text-center mt-2 relative z-10">Annulable à tout moment</p>
                                 </div>
