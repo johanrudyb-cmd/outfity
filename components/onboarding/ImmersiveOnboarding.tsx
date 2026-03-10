@@ -771,10 +771,10 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                         <div className="space-y-3 mb-4">
                                             {[
                                                 { name: 'Virgil', img: '/images/agents/virgil_final.webp', role: 'Je définis ta stratégie', isUnlocked: true },
-                                                { name: 'Pharrell', img: '/images/agents/pharrell_final.webp', role: 'Je conçois ton produit', isUnlocked: false },
-                                                { name: 'Ada', img: '/images/agents/ada_final.webp', role: 'Je trouve ton usine', isUnlocked: false },
+                                                { name: 'Pharrell', img: '/images/agents/pharrell_final.webp', role: "Je t'accompagne sur tes designs", isUnlocked: false },
+                                                { name: 'Ada', img: '/images/agents/ada_final.webp', role: 'Je te guide sur le sourcing', isUnlocked: false },
                                                 { name: 'Joy', img: '/images/agents/joy_final.webp', role: "J'écris tes scripts", isUnlocked: false },
-                                                { name: 'Johan', img: '/images/agents/johan_final.webp', role: 'Je crée ta boutique', isUnlocked: false },
+                                                { name: 'Johan', img: '/images/agents/johan_final.webp', role: "Je t'accompagne sur ta boutique", isUnlocked: false },
                                             ].map(agent => (
                                                 <div key={agent.name} className="flex items-center gap-3">
                                                     <div className="relative shrink-0">
@@ -822,10 +822,10 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                         <div className="space-y-3 mb-4">
                                             {[
                                                 { name: 'Virgil', img: '/images/agents/virgil_final.webp', role: 'Je définis ta stratégie', isUnlocked: true },
-                                                { name: 'Pharrell', img: '/images/agents/pharrell_final.webp', role: 'Je conçois ton produit', isUnlocked: true },
-                                                { name: 'Ada', img: '/images/agents/ada_final.webp', role: 'Je trouve ton usine', isUnlocked: true },
+                                                { name: 'Pharrell', img: '/images/agents/pharrell_final.webp', role: "Je t'accompagne sur tes designs", isUnlocked: true },
+                                                { name: 'Ada', img: '/images/agents/ada_final.webp', role: 'Je te guide sur le sourcing', isUnlocked: true },
                                                 { name: 'Joy', img: '/images/agents/joy_final.webp', role: "J'écris tes scripts", isUnlocked: true },
-                                                { name: 'Johan', img: '/images/agents/johan_final.webp', role: 'Je crée ta boutique', isUnlocked: true },
+                                                { name: 'Johan', img: '/images/agents/johan_final.webp', role: "Je t'accompagne sur ta boutique", isUnlocked: true },
                                             ].map(agent => (
                                                 <div key={agent.name} className="flex items-center gap-3">
                                                     <div className="relative shrink-0">
