@@ -40,7 +40,7 @@ const CREATOR_STEPS = [
     {
         target: 'tour-launch-map',
         title: '🎨 Studio Design & Tech Packs',
-        body: 'Pharrell génère tes mockups, fiches produits et Tech Packs complets. Envois-les directement à ton usine. Entièrement débloqué pour toi.',
+        body: "Pharrell t'assiste pour générer tes mockups, fiches produits et Tech Packs complets. Télécharge-les et envoie-les à ton usine. Entièrement débloqué pour toi.",
         icon: Palette,
         color: 'text-orange-500',
         bg: 'bg-orange-50',

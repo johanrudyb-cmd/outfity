@@ -427,7 +427,7 @@ export function LaunchMapOverview() {
                     <span className="text-[10px] text-white/40 font-bold ml-1">Verrouillés</span>
                   </div>
                   <p className="text-white/50 text-xs leading-relaxed">
-                    Pharrell conçoit tes vêtements. Ada trouve tes usines. Joy écrit tes scripts TikTok. Débloque-les maintenant.
+                    Pharrell t'accompagne sur tes designs. Ada te guide pour trouver tes usines. Joy écrit tes scripts TikTok. Débloque-les maintenant.
                   </p>
                   <Link href="/auth/choose-plan" className="flex items-center justify-center gap-2 w-full bg-[#007AFF] hover:bg-[#0056CC] text-white font-bold rounded-full h-10 text-sm shadow-lg shadow-blue-900/30 transition-all">
                     Essai gratuit 3 jours

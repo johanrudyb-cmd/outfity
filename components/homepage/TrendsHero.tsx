@@ -82,7 +82,7 @@ export function TrendsHero() {
           </h1>
 
           <p className="text-sm sm:text-base lg:text-lg text-[#86868B] font-medium max-w-sm sm:max-w-xl mx-auto leading-relaxed mb-7 sm:mb-8 px-2">
-            Tu n&apos;es plus seul. Virgil lit le marché, Pharrell dessine tes pièces, Ada trouve l&apos;usine, Johan monte ta boutique, Joy remplit ta waitlist.
+            Tu n&apos;es plus seul. Virgil t&apos;aide à lire le marché, Pharrell t&apos;accompagne sur tes designs, Ada te guide sur le sourcing, Johan te conseille pour ta boutique, Joy t&apos;aide à créer ton contenu.
           </p>
 
           {/* CTA */}

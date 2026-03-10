@@ -7,7 +7,7 @@ import { ChevronDown } from 'lucide-react';
 const faqs = [
   {
     question: 'Je n\'ai aucune expérience dans la mode. Est-ce que c\'est pour moi ?',
-    answer: 'Oui, c\'est exactement pour toi. Outfity est conçu pour les gens qui ont une vision mais pas encore les connections ou les connaissances techniques. Les agents IA te guident étape par étape : Pharrell s\'occupe du design, Ada des fournisseurs, Johan de la boutique. Tu n\'as pas besoin de savoir coudre ou coder.',
+    answer: "Oui, c'est exactement pour toi. Outfity est conçu pour les gens qui ont une vision mais pas encore les connections ou les connaissances techniques. Les agents IA te guident étape par étape : Pharrell t'accompagne sur tes designs, Ada te guide sur le sourcing, Johan te conseille pour ta boutique. Tu n'as pas besoin de savoir coudre ou coder.",
   },
   {
     question: 'Combien ça coute vraiment pour lancer une collection avec Outfity ?',

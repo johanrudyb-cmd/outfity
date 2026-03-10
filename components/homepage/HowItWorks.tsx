@@ -22,7 +22,7 @@ const steps = [
         tag: 'Résultat · Semaine 2–3',
         title: '50 pièces fabriquées, sans jamais quitter ta chambre',
         description:
-            'Pharrell conçoit ta collection, Ada trouve ton usine et négocie ton MOQ. Tu reçois un tech pack professionnel prêt à envoyer au fournisseur.',
+            "Pharrell t'accompagne dans tes designs, Ada te guide pour trouver ton usine et négocier ton MOQ. Tu crées ton tech pack professionnel prêt à envoyer au fournisseur.",
         color: '#5856D6',
         bg: 'from-[#5856D6]/8 to-transparent',
         metrics: ['MOQ DÈS 50 PIÈCES', 'TECH PACK PDF', 'USINE VÉRIFIÉE'],
