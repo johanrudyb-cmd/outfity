@@ -42,7 +42,10 @@ export const getCurrentUser = cache(async () => {
         },
       });
 
-      if (!user) return null;
+      if (!user) {
+        console.warn('[getCurrentUser] Session active mais utilisateur introuvable en base (supprimé?)');
+        return { isGhost: true }; // Flag spécial pour forcer la déconnexion
+      }
 
       return {
         id: user.id,

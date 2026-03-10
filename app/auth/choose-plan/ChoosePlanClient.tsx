@@ -88,7 +88,7 @@ const plans = [
   },
 ];
 
-export function ChoosePlanClient({ userPlan }: { userPlan?: string }) {
+export function ChoosePlanClient({ userPlan, onboardingCompleted }: { userPlan?: string, onboardingCompleted?: boolean }) {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -248,7 +248,7 @@ export function ChoosePlanClient({ userPlan }: { userPlan?: string }) {
                 {plan.isFree ? (
                   <>
                     <Link
-                      href="/onboarding"
+                      href={onboardingCompleted ? "/dashboard" : "/onboarding"}
                       className={cn(
                         'flex items-center justify-center gap-2 w-full text-center py-4 rounded-xl text-base font-semibold transition-all duration-200',
                         'bg-white text-[#1D1D1F] border-2 border-[#F2F2F2] hover:border-[#007AFF] hover:text-[#007AFF]'

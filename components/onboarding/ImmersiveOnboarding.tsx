@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Sparkles, Zap, Moon, ShieldCheck, Leaf, ArrowRight,
-    Check, Loader2, CheckCircle2, Crown, Star, TrendingUp, Clock, Rocket
+    Check, Loader2, CheckCircle2, Crown, Star, TrendingUp, Clock, Rocket, Lock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSession } from 'next-auth/react';
@@ -15,7 +15,7 @@ import { isFreePlan, isPaidPlan } from '@/lib/plan-utils';
 // Types & constants
 // ─────────────────────────────────────────────────────────────
 
-type Step = 'welcome' | 'profiling' | 'universe_product' | 'identity_pitch' | 'agents' | 'launch';
+type Step = 'welcome' | 'profiling' | 'universe_product' | 'identity_pitch' | 'agents' | 'plan' | 'launch';
 
 interface OnboardingData {
     howDidYouHear: string;
@@ -102,7 +102,7 @@ const PRODUCTS = [
     { id: 'ensemble', label: 'Ensemble', emoji: '🎽', trend: 94, desc: 'Niche premium rentable' },
 ];
 
-const STEP_ORDER: Step[] = ['welcome', 'profiling', 'universe_product', 'identity_pitch', 'agents', 'launch'];
+const STEP_ORDER: Step[] = ['welcome', 'profiling', 'universe_product', 'identity_pitch', 'agents', 'plan', 'launch'];
 
 const STEP_LABELS: Record<Step, string> = {
     welcome: 'Bienvenue',
@@ -110,6 +110,7 @@ const STEP_LABELS: Record<Step, string> = {
     universe_product: 'Concept',
     identity_pitch: 'Identité',
     agents: 'Équipe IA',
+    plan: 'Abonnement',
     launch: 'Lancement'
 };
 
@@ -192,7 +193,13 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
     const [isThinking, setIsThinking] = useState(false);
 
     const goNext = useCallback(() => {
-        const nextIdx = stepIndex + 1;
+        let nextIdx = stepIndex + 1;
+
+        // On saute l'étape 'plan' si l'utilisateur est déjà payant
+        if (STEP_ORDER[nextIdx] === 'plan' && isCreator) {
+            nextIdx++;
+        }
+
         if (nextIdx < STEP_ORDER.length) {
             if (step === 'identity_pitch') {
                 setIsThinking(true);
@@ -204,35 +211,51 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                 setStep(STEP_ORDER[nextIdx]);
             }
         }
-    }, [stepIndex, step]);
+    }, [stepIndex, step, isCreator]);
 
     const goBack = useCallback(() => {
-        const prevIdx = stepIndex - 1;
+        let prevIdx = stepIndex - 1;
+
+        if (STEP_ORDER[prevIdx] === 'plan' && isCreator) {
+            prevIdx--;
+        }
+
         if (prevIdx >= 0) {
             setStep(STEP_ORDER[prevIdx]);
         }
-    }, [stepIndex]);
+    }, [stepIndex, isCreator]);
 
-    const handleComplete = async () => {
+    const handleComplete = async (selectedPlan: string = plan) => {
         setIsSubmitting(true);
         try {
             const res = await fetch('/api/user/complete-onboarding', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...data, plan: plan }),
+                body: JSON.stringify({ ...data, plan: selectedPlan }),
             });
             const json = await res.json();
             if (!res.ok) {
                 throw new Error(json.error || 'Erreur lors de la sauvegarde');
             }
-            // On utilise le plan renvoyé par le serveur (qui a la protection anti-downgrade)
+            // On met à jour la session localement
             await update({ plan: json.plan });
+
+            if (selectedPlan === 'creator') {
+                // REDIRECT STRIPE
+                const stripeRes = await fetch('/api/stripe/create-subscription-session', { method: 'POST' });
+                const stripeData = await stripeRes.json();
+                if (stripeData.url) {
+                    window.location.href = stripeData.url;
+                    return; // Ne pas enlever isSubmitting, la redirection va s'opérer
+                }
+            }
+
             setStep('launch');
         } catch (err) {
             console.error(err);
             alert('Impossible de finaliser l\'onboarding. Réessayez.');
         } finally {
-            setIsSubmitting(false);
+            setIsSubmitting(false); // On enlève le loading si une erreur s'est produite ou s'il lance le vrai dashboard
         }
     };
 
@@ -692,16 +715,107 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                 </button>
                                 <button
                                     disabled={isSubmitting}
-                                    onClick={handleComplete}
+                                    onClick={goNext}
                                     className="flex-[2] h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-base flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all shadow-lg shadow-blue-500/25 disabled:opacity-50"
                                 >
-                                    {isSubmitting ? (
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                    ) : (
-                                        <>Lancer ! <ArrowRight className="w-4 h-4" /></>
-                                    )}
+                                    Approuver l'équipe <ArrowRight className="w-4 h-4" />
                                 </button>
                             </div>
+                        </motion.div>
+                    )}
+
+                    {/* ── PLAN SELECTION ── */}
+                    {step === 'plan' && (
+                        <motion.div key="plan"
+                            initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }}
+                            transition={{ duration: 0.5 }}
+                            className="w-full max-w-4xl flex flex-col items-center space-y-8"
+                        >
+                            <div className="text-center space-y-2">
+                                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Choisis ton accès</h2>
+                                <p className="text-[#86868B]">Débloque toute la puissance de tes agents IA.</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                                {/* Starter */}
+                                <div className="bg-white rounded-[24px] p-6 sm:p-8 border-2 border-[#E5E5EA] flex flex-col hover:border-[#C7C7CC] transition-all relative overflow-hidden group">
+                                    <div className="mb-6 flex-1 relative z-10">
+                                        <h3 className="text-xl font-bold text-[#1D1D1F] mb-1">Starter</h3>
+                                        <div className="text-3xl font-black text-[#1D1D1F] mb-4">Gratuit</div>
+                                        <p className="text-sm text-[#86868B] mb-6 min-h-[40px]">Virgil t'aide à poser les bases de ta stratégie.</p>
+                                        <ul className="space-y-3">
+                                            {['Virgil (Stratège) débloqué', 'Analyses basiques', '1 design IA par jour'].map((feat, i) => (
+                                                <li key={i} className="flex items-center gap-2 text-sm text-[#1D1D1F]">
+                                                    <Check className="w-4 h-4 text-[#007AFF] shrink-0" /> {feat}
+                                                </li>
+                                            ))}
+                                            <li className="flex items-center gap-2 text-sm text-[#86868B] pt-2">
+                                                <Lock className="w-4 h-4 shrink-0" /> 4 Agents experts verrouillés
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <button
+                                        disabled={isSubmitting}
+                                        onClick={() => {
+                                            setPlan('starter');
+                                            handleComplete('starter');
+                                        }}
+                                        className="relative z-10 w-full h-14 rounded-2xl border-2 border-[#E5E5EA] text-[#1D1D1F] font-bold text-base hover:bg-slate-50 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                    >
+                                        Continuer en Gratuit <ArrowRight className="w-4 h-4" />
+                                    </button>
+                                </div>
+
+                                {/* Creator */}
+                                <div className="bg-white rounded-[24px] p-6 sm:p-8 border-2 border-[#007AFF] shadow-xl shadow-blue-500/10 flex flex-col scale-100 md:scale-105 relative z-10 overflow-hidden group">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                    <div className="absolute top-0 right-4 sm:right-8 -translate-y-[1px] bg-[#FF3B30] text-white text-[10px] font-bold px-3 py-1.5 rounded-b-xl uppercase tracking-wider flex items-center gap-1 shadow-md">
+                                        <Clock className="w-3 h-3" /> Offre limitée
+                                    </div>
+                                    <div className="mb-6 flex-1 relative z-10">
+                                        <h3 className="text-xl font-bold text-[#1D1D1F] mb-1">Créateur</h3>
+                                        <div className="flex items-baseline gap-2 mb-4">
+                                            <div className="text-3xl font-black text-[#1D1D1F]">29€<span className="text-lg text-[#86868B] font-normal">/mois</span></div>
+                                            <div className="text-lg text-[#86868B] line-through decoration-red-500/50">39€</div>
+                                        </div>
+                                        <p className="text-sm text-[#86868B] mb-6 min-h-[40px]">Débloque tous les agents et fonctionnalités expertes de OUTFITY.</p>
+                                        <ul className="space-y-3">
+                                            {['Les 5 Agents IA débloqués', 'Création illimitée de designs', 'Tech Packs PDF Exportables', 'Recherche d\'usines premium'].map((feat, i) => (
+                                                <li key={i} className="flex items-center gap-2 text-sm text-[#1D1D1F] font-medium">
+                                                    <CheckCircle2 className="w-4 h-4 text-[#34C759] shrink-0" /> {feat}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                    <button
+                                        disabled={isSubmitting}
+                                        onClick={() => {
+                                            setPlan('creator');
+                                            handleComplete('creator');
+                                        }}
+                                        className="relative z-10 w-full h-14 rounded-2xl bg-[#007AFF] text-white font-bold text-base hover:bg-[#0056CC] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 disabled:opacity-70"
+                                    >
+                                        {isSubmitting && plan === 'creator' ? (
+                                            <>
+                                                <Loader2 className="w-5 h-5 animate-spin" />
+                                                Redirection Sécurisée...
+                                            </>
+                                        ) : (
+                                            <>
+                                                Essai gratuit de 3 jours <ArrowRight className="w-4 h-4" />
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={goBack}
+                                disabled={isSubmitting}
+                                className="text-sm text-[#86868B] font-semibold hover:text-[#1D1D1F] transition-colors py-2"
+                            >
+                                Retour aux Agents
+                            </button>
                         </motion.div>
                     )}
 

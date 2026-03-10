@@ -2,6 +2,7 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { isPaidPlan } from '@/lib/plan-utils';
+import { prisma } from '@/lib/prisma';
 import { ChoosePlanClient } from './ChoosePlanClient';
 
 export default async function ChoosePlanPage() {
@@ -16,6 +17,12 @@ export default async function ChoosePlanPage() {
   if (isPaidPlan(user.plan)) {
     redirect('/settings?tab=billing');
   }
-  return <ChoosePlanClient userPlan={user.plan} />;
+
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { onboardingCompleted: true }
+  });
+
+  return <ChoosePlanClient userPlan={user.plan} onboardingCompleted={dbUser?.onboardingCompleted ?? false} />;
 }
 

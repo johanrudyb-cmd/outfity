@@ -12,6 +12,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 
 export default async function SettingsPage() {
   const currentUser = await getCurrentUser();
+  if ((currentUser as any)?.isGhost) redirect('/api/auth/signout?callbackUrl=/auth/signin');
   if (!currentUser) {
     redirect('/auth/signin');
   }

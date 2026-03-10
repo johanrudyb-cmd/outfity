@@ -7,6 +7,7 @@ import { ImmersiveOnboarding } from '@/components/onboarding/ImmersiveOnboarding
 
 export default async function OnboardingPage() {
   const authUser = await getCurrentUser();
+  if ((authUser as any)?.isGhost) redirect('/api/auth/signout?callbackUrl=/auth/signin');
   if (!authUser) {
     redirect('/auth/signin?redirect=/onboarding');
   }

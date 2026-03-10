@@ -15,6 +15,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   // Auth check — seul vrai blocage nécessaire côté serveur
   const user = await getCurrentUser();
+  if ((user as any)?.isGhost) redirect('/api/auth/signout?callbackUrl=/auth/signin');
   if (!user) redirect('/auth/signin');
 
   // Vérification onboarding rapide

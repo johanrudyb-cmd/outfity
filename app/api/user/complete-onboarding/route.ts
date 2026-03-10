@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
     const authUser = await getCurrentUser();
-    if (!authUser) {
+    if (!authUser || (authUser as any).isGhost || !authUser.id) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -80,10 +80,10 @@ export async function POST(request: Request) {
 
         console.log('[Onboarding] Plan check - Request body plan:', plan, ' | DB current plan:', currentDbPlan);
 
-        // Déterminer le plan final : Si déjà payant ou si le flux dit payant -> Créateur
-        // Ne JAMAIS rétrograder un plan Créateur vers Starter lors de l'onboarding
+        // Déterminer le plan final : S'ils sont DEJA payants en base de données -> Créateur
+        // On n'écoute plus le `plan` venant du body du front pour éviter de donner un plan gratuit sans paiement Stripe.
         let targetPlan: string;
-        if (isPaidPlan(currentDbPlan) || isPaidPlan(plan)) {
+        if (isPaidPlan(currentDbPlan)) {
             targetPlan = 'creator'; // Unification vers 'creator' pour tous les accès payants
         } else {
             targetPlan = 'starter';
