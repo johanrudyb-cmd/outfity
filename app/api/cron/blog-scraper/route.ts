@@ -36,6 +36,11 @@ export async function GET(req: Request) {
 
         // On traite les articles 1 par 1 pour éviter de surcharger Browserless/GPT
         for (const article of articles) {
+            if (stats.created >= 2) {
+                console.log(`[API Blog Scraper] Limite de 2 articles atteinte pour cette exécution.`);
+                break;
+            }
+
             if (existingUrls.has(article.link)) {
                 console.log(`[API Blog Scraper] 🛑 Doublon détecté, article ignoré: ${article.title}`);
                 stats.skipped++;

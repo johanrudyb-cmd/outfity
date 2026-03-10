@@ -26,15 +26,46 @@ export async function scrapeFashionNewsInput(): Promise<ScrapedArticle[]> {
             await page.goto('https://hypebeast.com/fashion', { waitUntil: 'domcontentloaded', timeout: 30000 });
 
             const hbArticles = await page.evaluate(() => {
-                const posts = Array.from(document.querySelectorAll('.post-box'));
-                return posts.slice(0, 3).map(p => {
-                    const a = p.querySelector('a.title') as HTMLAnchorElement;
-                    return {
-                        title: a?.innerText?.trim() || '',
-                        link: a?.href || '',
-                        source: 'Hypebeast',
-                    };
-                }).filter(a => a.title && a.link);
+                // Focus on the main content area to avoid sidebars or static promo blocks
+                const main = document.querySelector('main') || document.querySelector('.posts') || document.body;
+                const posts = Array.from(main.querySelectorAll('.post-box, article, .post'));
+
+                const results = [];
+                for (const p of posts) {
+                    const a = (p.querySelector('a.title') || p.querySelector('h2 a') || p.querySelector('h3 a')) as HTMLAnchorElement;
+                    if (a && a.href && a.innerText.trim()) {
+                        results.push({
+                            title: a.innerText.trim(),
+                            link: a.href,
+                            source: 'Hypebeast',
+                        });
+                    }
+                }
+
+                // Fallback si structure changée : on cherche les URLs d'articles
+                if (results.length === 0) {
+                    const links = Array.from(main.querySelectorAll('a'));
+                    for (const a of links) {
+                        if (a.href && a.href.includes('/20') && a.innerText.trim().length > 20) {
+                            results.push({
+                                title: a.innerText.trim(),
+                                link: a.href,
+                                source: 'Hypebeast',
+                            });
+                        }
+                    }
+                }
+
+                // Déduplication & limite
+                const uniqueUrls = new Set();
+                const unique = [];
+                for (const item of results) {
+                    if (!uniqueUrls.has(item.link)) {
+                        uniqueUrls.add(item.link);
+                        unique.push(item);
+                    }
+                }
+                return unique.slice(0, 5);
             });
 
             articles.push(...hbArticles);
@@ -48,17 +79,32 @@ export async function scrapeFashionNewsInput(): Promise<ScrapedArticle[]> {
             await page.goto('https://fashionunited.fr/actualite', { waitUntil: 'domcontentloaded', timeout: 30000 });
 
             const fuArticles = await page.evaluate(() => {
-                const links = Array.from(document.querySelectorAll('a'));
-                const validLinks = links.filter(a => a.href && a.href.includes('/actualite/') && a.innerText.trim().length > 30);
+                const main = document.querySelector('main') || document.querySelector('.main-content') || document.body;
+                const links = Array.from(main.querySelectorAll('a'));
 
-                // Déduplication locale par URL
-                const unique = Array.from(new Map(validLinks.map(a => [a.href, a])).values());
+                // Un article d'actu valide a une URL avec /actualite/ et un texte de titre assez long
+                const validLinks = links.filter(a =>
+                    a.href &&
+                    a.href.includes('/actualite/') &&
+                    !a.href.includes('/tags/') && // on évite les pages de tags
+                    a.innerText.trim().length > 30
+                );
 
-                return unique.slice(0, 3).map(a => ({
-                    title: a.innerText.trim(),
-                    link: a.href,
-                    source: 'Fashion United',
-                }));
+                // Déduplication par URL
+                const uniqueUrls = new Set();
+                const unique = [];
+                for (const a of validLinks) {
+                    if (!uniqueUrls.has(a.href)) {
+                        uniqueUrls.add(a.href);
+                        unique.push({
+                            title: a.innerText.trim(),
+                            link: a.href,
+                            source: 'Fashion United',
+                        });
+                    }
+                }
+
+                return unique.slice(0, 5); // On remonte les 5 plus frais
             });
 
             articles.push(...fuArticles);
