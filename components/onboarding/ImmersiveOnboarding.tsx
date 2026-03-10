@@ -102,8 +102,8 @@ const PRODUCTS = [
     { id: 'ensemble', label: 'Ensemble', emoji: '🎽', trend: 94, desc: 'Niche premium rentable' },
 ];
 
-// L'étape 'plan' est retirée de l'onboarding — le choix se fait sur /auth/choose-plan après l'onboarding
-const STEP_ORDER: Step[] = ['welcome', 'profiling', 'universe_product', 'identity_pitch', 'agents', 'launch'];
+// Plan avant les agents : l'utilisateur choisit son plan, puis les agents se révèlent en conséquence
+const STEP_ORDER: Step[] = ['welcome', 'profiling', 'universe_product', 'identity_pitch', 'plan', 'agents', 'launch'];
 
 const STEP_LABELS: Record<Step, string> = {
     welcome: 'Bienvenue',
@@ -195,7 +195,6 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
 
     const goNext = useCallback(() => {
         const nextIdx = stepIndex + 1;
-
         if (nextIdx < STEP_ORDER.length) {
             if (step === 'identity_pitch') {
                 setIsThinking(true);
@@ -679,44 +678,52 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                     <Sparkles className="w-4 h-4" /> Agent Unlocked
                                 </motion.div>
                                 <h2 className="text-4xl sm:text-5xl font-black text-[#1D1D1F] tracking-tight uppercase">
-                                    Ton Équipe Experte
+                                    {isCreator ? 'Ton Équipe Complète' : 'Ton Agent Activé'}
                                 </h2>
                                 <p className="text-base sm:text-lg text-[#86868B] max-w-lg mx-auto px-4">
-                                    Virgil est prêt à guider ta marque {data.brandName ? <strong>{data.brandName}</strong> : 'vers le succès'}.
+                                    {isCreator
+                                        ? <>Tous tes agents IA sont prêts pour <strong>{data.brandName || 'ta marque'}</strong>.</>
+                                        : <>Virgil est prêt à guider <strong>{data.brandName || 'ta marque'}</strong>. Les 4 autres agents se débloquent avec le plan Créateur.</>}
                                 </p>
                             </div>
 
-                            {/* On affiche uniquement Virgil dans l'onboarding — les autres agents sont débloqués avec le plan Créateur */}
-                            <div className="w-full max-w-xs px-4">
-                                <div className="flex justify-center">
-                                    {AGENTS_TEAM.filter(a => a.id === 'virgil').map((agent, idx) => (
-                                        <div key={agent.id} className="w-[220px] sm:w-[240px] shrink-0">
-                                            <AgentRevealCard agent={agent} delay={0.2} />
-                                        </div>
-                                    ))}
+                            {/* Agents : tous si Créateur, uniquement Virgil si Starter */}
+                            <div className={isCreator ? "w-full max-w-6xl px-4 sm:px-6" : "w-full max-w-xs px-4"}>
+                                <div className={isCreator ? "flex flex-wrap justify-center gap-6 sm:gap-8" : "flex justify-center"}>
+                                    {AGENTS_TEAM
+                                        .filter(a => isCreator || a.id === 'virgil')
+                                        .map((agent, idx) => (
+                                            <div key={agent.id} className="w-[220px] sm:w-[240px] shrink-0">
+                                                <AgentRevealCard agent={agent} delay={idx * 0.15 + 0.2} />
+                                            </div>
+                                        ))}
                                 </div>
                             </div>
 
-                            {/* Teaser des agents verrouillés */}
-                            <div className="flex items-center justify-center gap-3 flex-wrap px-4">
-                                <p className="text-xs font-bold uppercase tracking-widest text-[#86868B]">Agents verrouillés :</p>
-                                {AGENTS_TEAM.filter(a => a.id !== 'virgil').map(agent => (
-                                    <div key={agent.id} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-black/5 shadow-sm">
-                                        <img src={agent.image} alt={agent.name} className="w-5 h-5 rounded-full object-cover grayscale opacity-50" />
-                                        <span className="text-xs font-semibold text-[#86868B]">{agent.name}</span>
-                                        <Lock className="w-3 h-3 text-[#C7C7CC]" />
-                                    </div>
-                                ))}
-                            </div>
+                            {/* Teaser agents verrouillés — uniquement pour Starter */}
+                            {!isCreator && (
+                                <div className="flex items-center justify-center gap-3 flex-wrap px-4">
+                                    <p className="text-xs font-bold uppercase tracking-widest text-[#86868B]">Agents verrouillés :</p>
+                                    {AGENTS_TEAM.filter(a => a.id !== 'virgil').map(agent => (
+                                        <div key={agent.id} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-black/5 shadow-sm">
+                                            <img src={agent.image} alt={agent.name} className="w-5 h-5 rounded-full object-cover grayscale opacity-50" />
+                                            <span className="text-xs font-semibold text-[#86868B]">{agent.name}</span>
+                                            <Lock className="w-3 h-3 text-[#C7C7CC]" />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
 
                             <div className="flex flex-col gap-3 w-full max-w-sm px-4">
                                 <button
                                     disabled={isSubmitting}
-                                    onClick={() => handleComplete('starter')}
+                                    onClick={() => handleComplete(plan)}
                                     className="w-full h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-base flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all shadow-lg shadow-blue-500/25 disabled:opacity-50"
                                 >
                                     {isSubmitting ? (
                                         <Loader2 className="w-5 h-5 animate-spin" />
+                                    ) : isCreator ? (
+                                        <>Lancer le studio <ArrowRight className="w-4 h-4" /></>
                                     ) : (
                                         <>Activer Virgil <ArrowRight className="w-4 h-4" /></>
                                     )}
@@ -740,7 +747,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                         >
                             <div className="text-center space-y-2">
                                 <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Choisis ton accès</h2>
-                                <p className="text-[#86868B]">Débloque toute la puissance de tes agents IA.</p>
+                                <p className="text-[#86868B]">Ensuite, on te révèle les agents IA qui t'accompagnent.</p>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
