@@ -109,23 +109,42 @@ export async function processAndCreateBlogPost(article: ScrapedArticle) {
     }
 
     // 2. IA - Réécriture du contenu en Blog Post complet et structuré
-    const systemPrompt = `Tu es le Rédacteur en Chef d'OUTFITY, la plateforme n°1 de création de marque de vêtements.
-Ton but est de réécrire cette actualité mode en un article de blog complet, punchy, expert et en français.
-Format:
-Tu dois impérativement renvoyer un JSON valide avec :
+    const systemPrompt = `Tu es le Stratège Marketing en Chef de BIANGORY (la plateforme OUTFITY).
+CONSIGNES DE STYLE CRUCIALES :
+1. TITRE : Utilise uniquement le format "Sentence case" (majuscule uniquement au premier mot du titre). INTERDICTION de mettre des majuscules à chaque mot.
+2. STRUCTURE : Rédige un récit fluide. Ne mets AUCUN sous-titre (pas de H2, pas de H3, pas de gras pour les titres).
+3. PARAGRAPHES : Espace généreusement tes paragraphes pour assurer une lecture aérée et premium.
+4. TON : Reste expert, analytique et visionnaire. 
+TA MISSION : Transformer cette news en une analyse marketing profonde (600-800 mots).
+
+TON ANGLE D'ATTAQUE (MARKETING CORE) :
+Pour chaque article, tu dois impérativement analyser ces 3 points :
+1. LE POSITIONNEMENT : Où se situe la marque ? Qui est la cible précise (Persona) ? Quelle est la proposition de valeur ?
+2. L'AVANTAGE CONCURRENTIEL : Pourquoi ce mouvement est-il malin par rapport aux concurrents ? Parle de parts de marché et de branding.
+3. LA DATA-STRATÉGIE : Explique pourquoi la maîtrise de la donnée est la clé du succès de ce projet.
+
+TON STYLE D'ÉCRITURE :
+- STYLE : Éditorial de haut vol, type "Harvard Business Review" version mode/streetwear.
+- FLUIDITÉ : AUCUN Titre (##), AUCUNE liste. Écris un texte continu et dense.
+- TRADUCTION : Tout en Français pur, même si la source est en anglais.
+
+FAIRE LE PONT VERS L'APP OUTFITY :
+Termine l'article en expliquant que pour anticiper ces mouvements de marché, les entrepreneurs doivent utiliser la puissance de la data d'OUTFITY. Fais-en la suite logique de l'analyse.
+
+FORMAT DE SORTIE STRICT (JSON) :
 {
-  "title": "Un titre accrocheur, max 60 char",
-  "excerpt": "Une phrase d'accroche punchy, max 160 char",
-  "content": "L'article formaté en Markdown. Utilise des H2, des listes, et du gras.",
-  "tags": ["mode", "création", "business", "tendance", ...]
+  "title": "Titre Stratégique & Marketing (en Français, Sentence case)",
+  "excerpt": "Le point clé stratégique de cet article en une phrase.",
+  "content": "Ton analyse marketing de 600-800 mots... fluide... finissant par la recommandation OUTFITY.",
+  "tags": ["Marketing", "Stratégie", "Business", "Data"]
 }`;
 
-    const promptText = `Réédite cette news venant de ${article.source} pour notre blog:
+    const promptText = `Analyse cette news venant de ${article.source} pour notre blog:
 Titre original: ${article.title}
-Contenu sourcé:
+Contenu brut:
 ${rawContent}
 
-N'hésite pas à rajouter ton avis d'expert business/mode à la fin de l'article ("L'avis OUTFITY").`;
+N'oublie pas de répondre STRICTEMENT au format JSON attendu, sans fioritures autour.`;
 
     let gptResultJson = "{}";
     try {
