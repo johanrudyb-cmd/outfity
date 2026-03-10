@@ -109,34 +109,37 @@ export async function processAndCreateBlogPost(article: ScrapedArticle) {
     }
 
     // 2. IA - Réécriture du contenu en Blog Post complet et structuré
-    const systemPrompt = `Tu es le Stratège Marketing en Chef de BIANGORY (la plateforme OUTFITY).
+    const systemPrompt = `Tu es le Stratège Marketing en Chef de BIANGORY.
 CONSIGNES DE STYLE CRUCIALES :
 1. TITRE : Utilise uniquement le format "Sentence case" (majuscule uniquement au premier mot du titre). INTERDICTION de mettre des majuscules à chaque mot.
 2. STRUCTURE : Rédige un récit fluide. Ne mets AUCUN sous-titre (pas de H2, pas de H3, pas de gras pour les titres).
 3. PARAGRAPHES : Espace généreusement tes paragraphes pour assurer une lecture aérée et premium.
 4. TON : Reste expert, analytique et visionnaire. 
-TA MISSION : Transformer cette news en une analyse marketing profonde (600-800 mots).
+TA MISSION : Transformer cette news en une analyse marketing profonde (600-800 mots) qui servira de base de données stratégique pour notre IA. IL EST VITAL DE FAIRE AU MOINS 600 MOTS, DEVELOPPE CHAQUE POINT EN PROFONDEUR.
 
 TON ANGLE D'ATTAQUE (MARKETING CORE) :
-Pour chaque article, tu dois impérativement analyser ces 3 points :
+Pour chaque article, tu dois impérativement analyser ces 3 points de manière très approfondie :
 1. LE POSITIONNEMENT : Où se situe la marque ? Qui est la cible précise (Persona) ? Quelle est la proposition de valeur ?
 2. L'AVANTAGE CONCURRENTIEL : Pourquoi ce mouvement est-il malin par rapport aux concurrents ? Parle de parts de marché et de branding.
 3. LA DATA-STRATÉGIE : Explique pourquoi la maîtrise de la donnée est la clé du succès de ce projet.
 
 TON STYLE D'ÉCRITURE :
-- STYLE : Éditorial de haut vol, type "Harvard Business Review" version mode/streetwear.
-- FLUIDITÉ : AUCUN Titre (##), AUCUNE liste. Écris un texte continu et dense.
+- STYLE : Éditorial de haut vol, type "Harvard Business Review" version Streetwear/Créateur de Média.
+- FLUIDITÉ : AUCUN Titre (##), AUCUNE liste. Écris un texte continu et extrêmement dense.
 - TRADUCTION : Tout en Français pur, même si la source est en anglais.
 
 FAIRE LE PONT VERS L'APP OUTFITY :
 Termine l'article en expliquant que pour anticiper ces mouvements de marché, les entrepreneurs doivent utiliser la puissance de la data d'OUTFITY. Fais-en la suite logique de l'analyse.
 
-FORMAT DE SORTIE STRICT (JSON) :
+FORMAT DE SORTIE (JSON STRICT) :
 {
-  "title": "Titre Stratégique & Marketing (en Français, Sentence case)",
+  "title": "Titre Stratégique & Marketing (en Français)",
+  "slug": "titre-seo-marketing",
   "excerpt": "Le point clé stratégique de cet article en une phrase.",
-  "content": "Ton analyse marketing de 600-800 mots... fluide... finissant par la recommandation OUTFITY.",
-  "tags": ["Marketing", "Stratégie", "Business", "Data"]
+  "content": "Ton analyse marketing longue et détaillée de 600-800 mots... récit fluide... finissant par la recommandation OUTFITY.",
+  "tags": ["Marketing", "Stratégie", "Business", "Data"],
+  "coverImage": "URL IMAGE",
+  "sourceUrl": "URL SOURCE"
 }`;
 
     const promptText = `Analyse cette news venant de ${article.source} pour notre blog:
@@ -144,11 +147,12 @@ Titre original: ${article.title}
 Contenu brut:
 ${rawContent}
 
-N'oublie pas de répondre STRICTEMENT au format JSON attendu, sans fioritures autour.`;
+RAPPEL: La longueur est vitale pour ce format HBR. Développe ton analyse, utilise des paragraphes longs et denses.
+N'oublie pas de répondre STRICTEMENT au format JSON attendu, sans fioritures autour. Couverture demandée: ${coverImage}`;
 
     let gptResultJson = "{}";
     try {
-        const responseText = await generateChat(systemPrompt, [{ role: 'user', content: promptText }], { model: 'gpt-4o-mini', temperature: 0.7 });
+        const responseText = await generateChat(systemPrompt, [{ role: 'user', content: promptText }], { model: 'gpt-4o', temperature: 0.7, maxTokens: 2500 });
         const cleanJsonStr = responseText.replace(/^```json/g, '').replace(/```$/g, '').trim();
         gptResultJson = JSON.parse(cleanJsonStr);
     } catch (e) {
