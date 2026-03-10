@@ -283,7 +283,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                                         <div className="flex-1">
                                             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 mb-6 backdrop-blur-md">
                                                 <Sparkles className="w-4 h-4 text-white" />
-                                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white">OUTFITY INTELLIGENCE</span>
+                                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white">VIRGIL</span>
                                             </div>
                                             <h3 className="text-2xl sm:text-4xl font-black tracking-tighter mb-4 uppercase">
                                                 Dominez votre marché <br className="hidden sm:block" /> avec la Data.

@@ -54,7 +54,7 @@ export async function POST(req: Request) {
             coverImage,
             published = true,
             tags = [],
-            author = 'OUTFITY Intelligence',
+            author = 'VIRGIL',
             relatedBrands = [],
             sourceUrl
         } = body;
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
 
         // Optionnel: On cherche un utilisateur par défaut pour l'auteur si besoin
         // Ici on laisse authorId à null pour l'instant car le schéma l'autorise
-        // et le post appartient à "OUTFITY Intelligence" par défaut dans l'UI.
+        // et le post appartient à "VIRGIL" par défaut dans l'UI.
 
         try {
             // Anti-doublon : fenêtre élargie à 7 jours

@@ -210,7 +210,7 @@ N'oublie pas de répondre STRICTEMENT au format JSON attendu, sans fioritures au
                 excerpt: output.excerpt || output.title,
                 content: output.content,
                 coverImage,
-                author: 'OUTFITY Intelligence',
+                author: 'VIRGIL',
                 published: true, // Publié directement, ou false si on veut valider à la main
                 publishedAt: new Date(),
                 tags: output.tags || ['news'],

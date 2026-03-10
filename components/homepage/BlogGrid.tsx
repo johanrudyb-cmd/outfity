@@ -38,7 +38,7 @@ export default async function BlogGrid() {
                         </div>
                         <h2 className="text-4xl sm:text-7xl font-black tracking-tighter text-black uppercase leading-[0.9] sm:leading-[0.85] mb-6">
                             Le Radar <br className="hidden sm:block" />
-                            <span className="text-[#007AFF]">OUTFITY Intelligence.</span>
+                            <span className="text-[#007AFF]">VIRGIL.</span>
                         </h2>
                         <p className="text-base sm:text-xl text-gray-500 font-medium leading-relaxed max-w-xl">
                             Analyses de marché et prospectives : l'industrie de la mode sous un angle analytique radical.
