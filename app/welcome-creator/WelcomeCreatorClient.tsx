@@ -221,44 +221,43 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo, brandId }
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.5 }}
-                            className="flex flex-col items-center gap-8 sm:gap-12 max-w-4xl w-full py-8"
+                            className="flex flex-col items-center gap-8 sm:gap-10 max-w-5xl w-full py-8"
                         >
                             <div className="text-center space-y-3 px-2">
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: 0.1 }}
-                                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#ffaa00]/30 bg-[#ffaa00]/10 text-white text-xs font-bold uppercase tracking-widest mb-2"
+                                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#34C759]/30 bg-[#34C759]/10 text-white text-xs font-bold uppercase tracking-widest mb-2"
                                 >
-                                    <Zap className="w-3.5 h-3.5 text-[#ffaa00]" /> Nouveaux Agents Débloqués
+                                    <Zap className="w-3.5 h-3.5 text-[#34C759]" /> 5 Agents Débloqués
                                 </motion.div>
                                 <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight">
-                                    Johan & Joy <br className="hidden sm:block" />
-                                    <span className="bg-gradient-to-r from-[#ffaa00] to-[#AF52DE] bg-clip-text text-transparent">rejoignent l&apos;équipe.</span>
+                                    Ton équipe complète<br className="hidden sm:block" />
+                                    <span className="bg-gradient-to-r from-[#007AFF] to-[#5AC8FA] bg-clip-text text-transparent"> est prête.</span>
                                 </h2>
-                                <p className="text-white/50 text-sm sm:text-base max-w-lg mx-auto leading-relaxed px-4">
-                                    Johan configure ta boutique Shopify étape par étape. Joy t'écrit tes scripts TikTok et ta stratégie de contenu.
+                                <p className="text-white/50 text-sm sm:text-base max-w-xl mx-auto leading-relaxed px-4">
+                                    Virgil, Pharrell, Ada, Joy et Johan — chacun expert dans son domaine — travaillent ensemble pour faire de ta marque une réalité.
                                 </p>
                             </div>
 
-                            {/* Cartes Johan & Joy */}
-                            <div className="flex flex-col sm:flex-row justify-center items-center gap-10 sm:gap-16 w-full">
-                                <AgentRevealCard
-                                    agent={AGENTS_TEAM.find(a => a.id === 'johan')!}
-                                    delay={0}
-                                />
-                                <AgentRevealCard
-                                    agent={AGENTS_TEAM.find(a => a.id === 'joy')!}
-                                    delay={0.3}
-                                />
+                            {/* Cartes des 5 agents */}
+                            <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-10 w-full">
+                                {AGENTS_TEAM.map((agent, i) => (
+                                    <AgentRevealCard
+                                        key={agent.id}
+                                        agent={agent}
+                                        delay={i * 0.15}
+                                    />
+                                ))}
                             </div>
 
                             <motion.button
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 1.5 }}
+                                transition={{ delay: 1.2 }}
                                 onClick={goNext}
-                                className="flex items-center gap-2 px-8 py-4 bg-white text-black rounded-2xl font-bold text-base hover:bg-white/90 active:scale-[0.98] transition-all shadow-xl mt-4"
+                                className="flex items-center gap-2 px-8 py-4 bg-white text-black rounded-2xl font-bold text-base hover:bg-white/90 active:scale-[0.98] transition-all shadow-xl mt-2"
                             >
                                 Voir mes nouveaux outils <ArrowRight className="w-4 h-4" />
                             </motion.button>
