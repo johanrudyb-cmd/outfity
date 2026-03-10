@@ -32,21 +32,21 @@ export const metadata: Metadata = {
     title: 'OUTFITY',
   },
   title: {
-    default: 'CRÉE TA MARQUE DE VÊTEMENT DE A à Z | OUTFITY',
+    default: 'Lance ta Marque de Vêtements sans te Ruiner | OUTFITY',
     template: '%s | OUTFITY',
   },
   description:
-    'La plateforme n°1 pour créer sa marque de vêtement sans faire d\'erreurs. De la recherche de tendance au sourcing usine, on t\'accompagne de A à Z.',
+    'La plateforme complète pour lancer ta marque avec un budget réaliste. Valide la demande avec une waitlist, génère tes designs et contacte les meilleures usines directement.',
   keywords: [
     'OUTFITY',
     'créer sa marque de vêtement',
     'lancer une marque de vêtement',
-    'devenir créateur de mode',
-    'sourcing usine textile',
-    'data mode',
-    'brand strategy mode',
-    'streetwear business',
-    'tech pack pro'
+    'fournisseur vêtement',
+    'usine de production vêtement',
+    'tech pack vêtement',
+    'waitlist lancement',
+    'business mode',
+    'streetwear marque'
   ],
   authors: [{ name: 'OUTFITY', url: 'https://outfity.fr' }],
   creator: 'OUTFITY',
@@ -70,9 +70,9 @@ export const metadata: Metadata = {
     locale: 'fr_FR',
     url: siteUrl,
     siteName: 'OUTFITY',
-    title: 'CRÉE TA MARQUE DE VÊTEMENT DE A à Z | OUTFITY',
+    title: 'Lance ta Marque de Vêtements sans te Ruiner | OUTFITY',
     description:
-      'Ne lance pas ta marque au hasard. OUTFITY t\'accompagne de A à Z : veilles marché, sourcing usines et outils experts pour réussir ton lancement.',
+      'Ne lance pas ta marque à l\'aveugle. OUTFITY t\'apporte l\'infrastructure complète : de ta communauté avant lancement jusqu\'à la mise en relation avec des usines validées.',
     images: [
       {
         url: '/apple-icon.webp',
@@ -84,9 +84,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'CRÉE TA MARQUE DE VÊTEMENT DE A à Z | OUTFITY',
+    title: 'Lance ta Marque de Vêtements sans te Ruiner | OUTFITY',
     description:
-      'Bâtis ta marque avec une vraie veille marché, des designs structurés et les meilleures usines mondiales. On t\'accompagne de A à Z.',
+      'Crée ta communauté, valide tes designs, contacte les usines et lance ton premier drop avec un budget et des objectifs réalistes. Tout est sur OUTFITY.',
     images: ['/apple-icon.webp'],
     creator: '@outfity',
   },
