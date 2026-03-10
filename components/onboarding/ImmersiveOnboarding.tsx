@@ -246,7 +246,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                 }
             }
 
-            // Pour le plan starter : on affiche d'abord le step launch (animation), puis /auth/choose-plan
+            // Toujours : lancer l'animation de lancement → puis dashboard
             setStep('launch');
         } catch (err) {
             console.error(err);
