@@ -45,7 +45,7 @@ export async function GET(req: Request) {
             const post = await processAndCreateBlogPost(article);
             if (post) {
                 stats.created++;
-                results.push({ title: post.title, slug: post.slug, source: post.sourceUrl });
+                results.push({ title: post.title, slug: post.slug, source: post.sourceUrl, imageUrl: post.coverImage });
             } else {
                 stats.failed++;
             }
