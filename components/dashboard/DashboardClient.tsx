@@ -100,7 +100,7 @@ export function DashboardClient() {
     })();
 
     return (
-        <div className="min-h-screen relative bg-[#FAFAFA] pb-12 overflow-x-hidden">
+        <div className="min-h-screen relative bg-[#FAFAFA] pb-mobile-nav overflow-x-hidden">
             {/* Background decoration */}
             <div className="absolute inset-0 bg-[radial-gradient(#c7c7cc_1px,transparent_1px)] [background-size:24px_24px] [mask-image:linear-gradient(to_bottom,black_40%,transparent_100%)] pointer-events-none opacity-40 mix-blend-multiply" />
             <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-500/[0.06] rounded-full blur-[120px] pointer-events-none transform translate-x-1/3 -translate-y-1/4" />

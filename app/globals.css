@@ -267,6 +267,19 @@
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
   }
 
+  /* Padding bas pour compenser la barre de navigation mobile 
+     (Chrome Android = ~56px, Safari iOS = safe-area) */
+  .pb-mobile-nav {
+    padding-bottom: max(env(safe-area-inset-bottom, 0px) + 16px, 80px);
+  }
+
+  @media (min-width: 768px) {
+    .pb-mobile-nav {
+      padding-bottom: 2rem;
+    }
+  }
+
+
   @media (min-width: 768px) {
     .pb-chat-mobile {
       padding-bottom: 0.5rem;
