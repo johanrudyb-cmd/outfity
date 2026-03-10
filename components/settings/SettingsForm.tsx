@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { User, Mail, Lock, Image as ImageIcon, Save, CheckCircle2, FileText, Download, Loader2, Crown, Sparkles, ArrowRight, CheckCircle } from 'lucide-react';
+import { User, Mail, Lock, Image as ImageIcon, Save, CheckCircle2, FileText, Download, Loader2, Crown, Sparkles, ArrowRight, CheckCircle, Trash2, AlertTriangle } from 'lucide-react';
 import { isFreePlan, isPaidPlan } from '@/lib/plan-utils';
 import { cn } from '@/lib/utils';
 
@@ -30,6 +30,9 @@ export function SettingsForm({ user: initialUser }: SettingsFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [invoices, setInvoices] = useState<any[]>([]);
   const [loadingInvoices, setLoadingInvoices] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
   useEffect(() => {
     const fetchInvoices = async () => {
@@ -51,6 +54,24 @@ export function SettingsForm({ user: initialUser }: SettingsFormProps) {
       fetchInvoices();
     }
   }, [user.stripeCustomerId]);
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== 'SUPPRIMER') return;
+    setDeleteLoading(true);
+    try {
+      const res = await fetch('/api/user/delete-account', { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Erreur lors de la suppression');
+      }
+      // Déconnexion immédiate après suppression
+      window.location.href = '/api/auth/signout?callbackUrl=/auth/signin';
+    } catch (err: any) {
+      setError(err.message || 'Impossible de supprimer le compte');
+      setDeleteLoading(false);
+      setShowDeleteModal(false);
+    }
+  };
 
   const [formData, setFormData] = useState({
     name: user.name || '',
@@ -543,6 +564,89 @@ export function SettingsForm({ user: initialUser }: SettingsFormProps) {
         </div>
 
       </form>
+
+      {/* Zone danger ─ Suppression du compte */}
+      <div className="mt-12 border border-red-200 rounded-[24px] p-6 sm:p-8 bg-red-50/50">
+        <div className="flex items-start gap-4">
+          <div className="w-10 h-10 rounded-2xl bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
+            <AlertTriangle className="w-5 h-5 text-red-500" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-[15px] font-bold text-red-700 mb-1">Zone dangereuse</h3>
+            <p className="text-[13px] text-red-600/80 mb-4 leading-relaxed">
+              La suppression du compte est <strong>irréversible</strong>. Toutes tes données (marque, designs, abonnement) seront définitivement effacées. Si tu recrées un compte avec la même adresse, tu repartiras de zéro.
+            </p>
+            <button
+              type="button"
+              onClick={() => { setShowDeleteModal(true); setDeleteConfirmText(''); setError(null); }}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border-2 border-red-200 text-red-600 font-semibold text-sm hover:bg-red-50 hover:border-red-400 transition-all"
+            >
+              <Trash2 className="w-4 h-4" />
+              Supprimer mon compte
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal de confirmation */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-[28px] p-6 sm:p-8 w-full max-w-md shadow-2xl border border-red-100">
+            <div className="flex flex-col items-center text-center gap-4 mb-6">
+              <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+                <Trash2 className="w-8 h-8 text-red-500" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-[#1D1D1F] mb-1">Supprimer le compte ?</h3>
+                <p className="text-sm text-[#86868B] leading-relaxed">
+                  Cette action est <strong>définitive</strong>. Ton abonnement sera annulé, toutes tes données supprimées.
+                </p>
+              </div>
+            </div>
+
+            <div className="mb-5">
+              <label className="block text-xs font-bold text-[#86868B] uppercase tracking-widest mb-2">
+                Tape <span className="text-red-600">SUPPRIMER</span> pour confirmer
+              </label>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={e => setDeleteConfirmText(e.target.value)}
+                placeholder="SUPPRIMER"
+                className="w-full h-12 px-4 rounded-xl border-2 border-[#E5E5EA] focus:border-red-400 focus:outline-none font-semibold text-sm transition-colors"
+                autoFocus
+              />
+            </div>
+
+            {error && (
+              <p className="text-xs text-red-600 font-semibold text-center mb-4">{error}</p>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleteLoading}
+                className="flex-1 h-12 rounded-xl border-2 border-[#E5E5EA] text-[#86868B] font-semibold text-sm hover:bg-slate-50 transition-all disabled:opacity-50"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteAccount}
+                disabled={deleteLoading || deleteConfirmText !== 'SUPPRIMER'}
+                className="flex-1 h-12 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-600 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {deleteLoading ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Suppression...</>
+                ) : (
+                  <><Trash2 className="w-4 h-4" /> Supprimer définitivement</>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
