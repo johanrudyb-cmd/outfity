@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
+import { sendEmail } from '@/lib/resend-mail';
+import { getTemplates } from '@/lib/email-templates';
 
 export const runtime = 'nodejs';
 
@@ -14,7 +16,7 @@ export async function DELETE() {
 
         const user = await prisma.user.findUnique({
             where: { id: authUser.id },
-            select: { id: true, stripeCustomerId: true, email: true },
+            select: { id: true, stripeCustomerId: true, email: true, name: true },
         });
 
         if (!user) {
@@ -68,6 +70,17 @@ export async function DELETE() {
 
         // 5. Supprimer l'utilisateur — toutes les autres tables en cascade grâce à onDelete: Cascade
         await prisma.user.delete({ where: { id: user.id } });
+
+        // 6. Envoyer l'email de confirmation
+        try {
+            await sendEmail({
+                to: user.email,
+                subject: 'Confirmation de suppression du compte',
+                html: getTemplates.accountDeleted(user.name || 'Créateur'),
+            });
+        } catch (mailErr) {
+            console.error('[delete-account] Mail error:', mailErr);
+        }
 
         return NextResponse.json({ success: true });
     } catch (error) {

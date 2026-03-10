@@ -156,5 +156,13 @@ export const getTemplates = {
         buttonText: "Débloquer ma ressource",
         buttonUrl: "https://outfity.fr/communaute",
         footerText: "Pour aller plus loin, rejoins les créateurs qui lancent leur marque avec succès grâce à OUTFITY."
+    }),
+
+    accountDeleted: (name: string) => getBaseTemplate({
+        title: "Compte supprimé",
+        description: `Bonjour ${name},<br><br>Ton compte OUTFITY a bien été supprimé définitivement, ainsi que toutes les données associées (marque, designs, abonnements).<br><br>Si tu décides de relancer ton projet plus tard, tu seras toujours le bienvenu pour recommencer à zéro.`,
+        buttonText: "Visiter OUTFITY",
+        buttonUrl: "https://outfity.fr",
+        footerText: "Ceci est une confirmation automatique. Aucune action n'est requise de ta part."
     })
 };
