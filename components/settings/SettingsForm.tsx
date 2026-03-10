@@ -191,7 +191,7 @@ export function SettingsForm({ user: initialUser }: SettingsFormProps) {
             </div>
           </div>
           <div className="p-5 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-[13px] font-semibold text-[#1D1D1F]">Nom complet</label>
                 <Input
@@ -246,10 +246,10 @@ export function SettingsForm({ user: initialUser }: SettingsFormProps) {
                 value={formData.currentPassword}
                 onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
                 placeholder="Laissez vide pour ne pas changer"
-                className="h-12 max-w-sm bg-[#F5F5F7] border-transparent focus:bg-white focus:border-[#FF3B30]/30 focus:ring-4 focus:ring-[#FF3B30]/10 rounded-xl transition-all"
+                className="h-12 w-full sm:max-w-sm bg-[#F5F5F7] border-transparent focus:bg-white focus:border-[#FF3B30]/30 focus:ring-4 focus:ring-[#FF3B30]/10 rounded-xl transition-all"
               />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-[13px] font-semibold text-[#1D1D1F]">Nouveau mot de passe</label>
                 <Input

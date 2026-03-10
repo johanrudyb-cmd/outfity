@@ -118,7 +118,7 @@ export function TradingDashboard() {
     if (!selectedAsset) return null;
 
     return (
-        <div className="flex flex-col gap-6 h-[900px] mb-12 font-sans relative">
+        <div className="flex flex-col gap-6 min-h-[900px] mb-12 font-sans relative overflow-x-hidden">
 
             {/* OVERLAY DETAIL KPI */}
             <AnimatePresence>
@@ -191,7 +191,7 @@ export function TradingDashboard() {
             </AnimatePresence>
 
             {/* 1. TOP BAR */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
                 <KPICard
                     title="Volume Marché"
                     value="Intense"
@@ -222,10 +222,10 @@ export function TradingDashboard() {
             </div>
 
             {/* 2. MAIN WORKSPACE */}
-            <div className="flex-1 grid grid-cols-12 gap-6 min-h-0">
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 min-h-0">
 
                 {/* COLONNE GAUCHE : LISTE DES PRODUITS (25%) */}
-                <div className="col-span-12 lg:col-span-3 bg-[#F5F5F7] rounded-3xl border border-white/50 p-4 flex flex-col overflow-hidden shadow-sm backdrop-blur-sm">
+                <div className="col-span-1 lg:col-span-3 bg-[#F5F5F7] rounded-3xl border border-white/50 p-4 flex flex-col overflow-hidden shadow-sm backdrop-blur-sm min-h-[200px] lg:h-auto">
                     <div className="px-2 py-3 mb-2 flex items-center justify-between">
                         <div>
                             <h3 className="font-extrabold text-sm text-gray-900 tracking-tight text-nowrap">ANALYSES LIVE</h3>
@@ -285,7 +285,7 @@ export function TradingDashboard() {
                 </div>
 
                 {/* COLONNE CENTRALE : GRAPHIQUE (50%) */}
-                <div className="col-span-12 lg:col-span-6 bg-white rounded-3xl border border-gray-100 flex flex-col shadow-xl shadow-black/5 relative overflow-hidden">
+                <div className="col-span-1 lg:col-span-6 bg-white rounded-3xl border border-gray-100 flex flex-col shadow-xl shadow-black/5 relative overflow-hidden min-h-[400px]">
                     {/* Header */}
                     <div className="p-6 border-b border-gray-50 flex items-center justify-between bg-white/80 backdrop-blur-md z-10 sticky top-0">
                         <div>
@@ -335,7 +335,7 @@ export function TradingDashboard() {
                 </div>
 
                 {/* COLONNE DROITE : DIAGNOSTIC (25%) */}
-                <div className="col-span-12 lg:col-span-3 flex flex-col gap-6 h-full">
+                <div className="col-span-1 lg:col-span-3 flex flex-col gap-6 h-full">
 
                     <div className="flex-1 bg-white rounded-3xl border border-gray-100 p-6 shadow-lg shadow-blue-500/5 overflow-hidden flex flex-col relative group">
                         {/* Background Decor */}

@@ -172,7 +172,7 @@ export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
             <div className="max-w-[1600px] mx-auto p-6 space-y-6">
 
                 {/* 1. TOP KPIs */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                     <TopKpiCard title="SCORE AUJOURD'HUI" value={`${currentScore}/100`} sub="Demande Actuelle" icon={Activity} color="text-blue-500" />
                     <TopKpiCard
                         title="SCORE À LA LIVRAISON"
@@ -191,10 +191,10 @@ export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
                     <TopKpiCard title="VOLUME ANALYSÉ" value={data.products.length} sub="Produits Scannés" icon={Layers} color="text-purple-500" />
                 </div>
 
-                <div className="grid grid-cols-12 gap-6 h-[700px]">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[700px] lg:h-[700px]">
 
                     {/* 2. CENTER : MAIN CHART */}
-                    <div className="col-span-9 bg-[#FAF9F6] rounded-3xl p-8 shadow-sm border border-gray-200/60 relative flex flex-col h-full">
+                    <div className="col-span-1 lg:col-span-9 bg-[#FAF9F6] rounded-3xl p-5 sm:p-8 shadow-sm border border-gray-200/60 relative flex flex-col h-full min-h-[400px]">
                         <div className="flex justify-between items-start mb-4">
                             <div>
                                 <h2 className="text-2xl font-black text-black uppercase tracking-tight mb-2">{data.name.split('(')[0]}</h2>
@@ -252,7 +252,7 @@ export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
                     </div>
 
                     {/* 3. RIGHT : DECISION AID (Gauge & Verdict) */}
-                    <div className="col-span-3 bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col h-full overflow-hidden">
+                    <div className="col-span-1 lg:col-span-3 bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col h-full overflow-hidden">
                         <h3 className="text-xs font-black uppercase tracking-widest text-[#007AFF] mb-4 flex items-center gap-2">
                             <Zap className="w-4 h-4" />
                             ANALYSE STRATÉGIQUE

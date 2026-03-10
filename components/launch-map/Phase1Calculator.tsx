@@ -353,7 +353,7 @@ export function Phase1Calculator({ brandId, brand, initialData, onComplete }: Ph
                   )}
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                   <Field label="Matière"><NumberInput value={costMatiere} onChange={setCostMatiere} suffix="€" /></Field>
                   <Field label="Confection"><NumberInput value={costFabrication} onChange={setCostFabrication} suffix="€" /></Field>
                   <Field label="Accessoires"><NumberInput value={costAccessoires} onChange={setCostAccessoires} suffix="€" /></Field>

@@ -178,7 +178,7 @@ export function OnboardingFlowCreateBrand({ onBack, demoMode = false, userPlan =
 
       {/* Étape UNIVERS (Moodboards) */}
       {step === 'universe' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {FASHION_UNIVERSES.map((u) => (
             <Card
               key={u.id}
@@ -220,7 +220,7 @@ export function OnboardingFlowCreateBrand({ onBack, demoMode = false, userPlan =
 
       {/* Étape IDENTITY & MENTOR TIP */}
       {step === 'identity' && brandId && brandForIdentity && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
           <div className="lg:col-span-2 space-y-6 text-2xl">
             <Card className="border-2 shadow-sm font-bold">
               <CardHeader>

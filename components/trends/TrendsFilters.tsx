@@ -34,7 +34,7 @@ export function TrendsFilters({ filters, onFiltersChange }: TrendsFiltersProps) 
   return (
     <Card>
       <CardContent className="pt-6">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
           {/* Catégorie */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">

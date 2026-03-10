@@ -125,7 +125,7 @@ export function ChoosePlanClient({ userPlan, onboardingCompleted }: { userPlan?:
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center py-12 sm:py-20 bg-white">
+    <div className="min-h-screen flex flex-col items-center py-10 sm:py-20 bg-white overflow-x-hidden">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Bouton retour */}
@@ -140,7 +140,7 @@ export function ChoosePlanClient({ userPlan, onboardingCompleted }: { userPlan?:
         </div>
 
         <div className="mb-10 sm:mb-16 text-center">
-          <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold tracking-tight text-[#000000] mb-3 sm:mb-4 leading-tight">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#000000] mb-3 sm:mb-4 leading-tight">
             Choisissez votre plan
           </h1>
           <p className="text-base sm:text-xl text-[#6e6e73] font-normal max-w-2xl mx-auto">
@@ -154,12 +154,12 @@ export function ChoosePlanClient({ userPlan, onboardingCompleted }: { userPlan?:
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-4xl mx-auto">
           {plans.map((plan, index) => (
             <div
               key={index}
               className={cn(
-                'relative bg-white rounded-[32px] p-10 border flex flex-col',
+                'relative bg-white rounded-[24px] sm:rounded-[32px] p-6 sm:p-10 border flex flex-col',
                 plan.popular
                   ? 'border-[#007AFF] shadow-xl shadow-[#007AFF]/10'
                   : 'border-[#F2F2F2]',

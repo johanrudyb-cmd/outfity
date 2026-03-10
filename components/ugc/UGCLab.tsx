@@ -152,7 +152,7 @@ export function UGCLab({ brandId, brandName, designs = [], brand, userPlan = 'fr
 
       {/* ── Tab Navigation ── */}
       {!isScripts && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-4 shrink-0">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 shrink-0">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
