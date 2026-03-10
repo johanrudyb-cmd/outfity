@@ -31,7 +31,7 @@ export default async function AuthCallbackPage() {
         redirect('/dashboard');
     }
 
-    // 3. Si l'onboarding n'est pas fait et pas de marque, on commence par le choix de plan
-    redirect('/auth/choose-plan');
+    // 3. Si l'onboarding n'est pas fait et pas de marque → on démarre l'onboarding (le choix du plan est dedans)
+    redirect('/onboarding');
 }
 
