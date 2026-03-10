@@ -240,7 +240,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
             // On met à jour la session localement
             await update({ plan: json.plan });
 
-            if (selectedPlan === 'creator') {
+            if (selectedPlan === 'creator' && !isPaidPlan(initialPlan)) {
                 // REDIRECT STRIPE
                 const stripeRes = await fetch('/api/stripe/create-subscription-session', { method: 'POST' });
                 const stripeData = await stripeRes.json();
@@ -715,10 +715,20 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                 </button>
                                 <button
                                     disabled={isSubmitting}
-                                    onClick={goNext}
+                                    onClick={() => {
+                                        if (isCreator) {
+                                            handleComplete(plan);
+                                        } else {
+                                            goNext();
+                                        }
+                                    }}
                                     className="flex-[2] h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-base flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all shadow-lg shadow-blue-500/25 disabled:opacity-50"
                                 >
-                                    Approuver l'équipe <ArrowRight className="w-4 h-4" />
+                                    {isSubmitting && isCreator ? (
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                    ) : (
+                                        <>Approuver l'équipe <ArrowRight className="w-4 h-4" /></>
+                                    )}
                                 </button>
                             </div>
                         </motion.div>
