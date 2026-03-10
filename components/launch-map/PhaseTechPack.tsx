@@ -992,13 +992,13 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
                   {labels.map((lb, idx) => (
                     <div key={`${lb.letter}-${idx}`} className="border-2 rounded-xl p-3 space-y-3 bg-white">
                       {/* En-tête du label */}
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <span className="w-7 h-7 rounded-lg bg-primary/10 text-primary font-black text-xs flex items-center justify-center shrink-0">{lb.letter}</span>
                         <input
                           type="text"
                           value={lb.type}
                           onChange={(e) => setLabels((prev) => prev.map((l, i) => i === idx ? { ...l, type: e.target.value } : l))}
-                          className="flex-1 text-xs font-semibold border-0 bg-transparent focus:outline-none focus:ring-1 focus:ring-primary/30 rounded px-1 py-0.5"
+                          className="flex-auto min-w-[120px] text-xs font-semibold border-0 bg-transparent focus:outline-none focus:ring-1 focus:ring-primary/30 rounded px-1 py-0.5"
                           placeholder="Nom du logo (ex: Logo poitrine)"
                         />
                         <input type="file" accept="image/*" className="hidden" id={`label-${idx}`} onChange={(e) => idx === 0 ? handleLogoUpload(e, 'frontDesign') : handleLogoUpload(e, 'label', idx)} />
@@ -1016,8 +1016,8 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
                         )}
                       </div>
                       {/* Emplacement + Dimensions */}
-                      <div className="grid grid-cols-3 gap-2">
-                        <div className="col-span-3 sm:col-span-1">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <div className="col-span-2 sm:col-span-1">
                           <Label className="text-[10px] text-[#8E8E93] font-bold uppercase mb-1 block">Emplacement</Label>
                           <select value={lb.placement} onChange={(e) => setLabels((prev) => prev.map((l, i) => (i === idx ? { ...l, placement: e.target.value } : l)))} className="w-full rounded-lg border border-input bg-background px-2 py-1 text-[16px] h-8 focus:ring-1 focus:ring-primary">
                             {placementOptions.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
