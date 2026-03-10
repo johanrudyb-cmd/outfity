@@ -2,14 +2,6 @@
   "installCommand": "npm install",
   "crons": [
     {
-      "path": "/api/cron/track-inventory",
-      "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/strategies/auto-update",
-      "schedule": "0 3 * * *"
-    },
-    {
       "path": "/api/trends/scrape",
       "schedule": "0 7 * * *"
     },
