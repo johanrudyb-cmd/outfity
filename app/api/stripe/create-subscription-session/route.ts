@@ -71,7 +71,7 @@ export async function POST() {
         },
       },
       success_url: successUrl,
-      cancel_url: `${origin}/auth/choose-plan?canceled=true`,
+      cancel_url: `${origin}/onboarding?canceled=true`,
       metadata: {
         userId: user.id,
         planId: SUBSCRIPTION_PLAN_ID,
