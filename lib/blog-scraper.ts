@@ -1,4 +1,3 @@
-import { getBrowser } from './api/browser';
 import { generateChat } from './api/chatgpt';
 import { prisma } from './prisma';
 
@@ -6,153 +5,142 @@ interface ScrapedArticle {
     title: string;
     link: string;
     source: string;
+    pubDate?: string;
 }
 
 /**
- * Scrape les derniers articles de presse urbaine/mode (ex: Hypebeast, BoF)
+ * Parse un flux RSS XML et retourne les N premiers items
+ */
+async function parseRssFeed(url: string, sourceName: string, limit = 5): Promise<ScrapedArticle[]> {
+    try {
+        console.log(`🌐 [RSS] Lecture du flux ${sourceName} : ${url}`);
+        const res = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (compatible; OutfityBot/1.0)',
+                'Accept': 'application/rss+xml, application/xml, text/xml, */*',
+            },
+            signal: AbortSignal.timeout(15000),
+        });
+
+        if (!res.ok) {
+            console.error(`❌ [RSS] ${sourceName} a retourné HTTP ${res.status}`);
+            return [];
+        }
+
+        const xml = await res.text();
+
+        // Extraction robuste des <item> par regex (évite de dépendre d'un vrai parser XML)
+        const items: ScrapedArticle[] = [];
+        const itemRegex = /<item[\s>]([\s\S]*?)<\/item>/gi;
+        let match;
+
+        while ((match = itemRegex.exec(xml)) !== null && items.length < limit) {
+            const block = match[1];
+
+            // Titre (decode CDATA)
+            const titleMatch = block.match(/<title[^>]*><!\[CDATA\[([\s\S]*?)\]\]><\/title>/) ||
+                block.match(/<title[^>]*>([\s\S]*?)<\/title>/);
+            // Lien
+            const linkMatch = block.match(/<link[^>]*>([\s\S]*?)<\/link>/) ||
+                block.match(/<link\s+href="([^"]+)"/);
+            // Date
+            const dateMatch = block.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/);
+
+            const title = titleMatch?.[1]?.trim().replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#8217;/g, "'").replace(/&#8211;/g, '–');
+            const link = linkMatch?.[1]?.trim();
+            const pubDate = dateMatch?.[1]?.trim();
+
+            if (title && link && link.startsWith('http')) {
+                items.push({ title, link, source: sourceName, pubDate });
+            }
+        }
+
+        console.log(`✅ [RSS] ${sourceName} : ${items.length} articles récupérés`);
+        return items;
+    } catch (e) {
+        console.error(`❌ [RSS] Erreur sur ${sourceName}:`, e);
+        return [];
+    }
+}
+
+/**
+ * Récupère les derniers articles mode via les flux RSS de Hypebeast + Highsnobiety
+ * — Aucun navigateur nécessaire, 100% fetch natif, ordonné chronologiquement
  */
 export async function scrapeFashionNewsInput(): Promise<ScrapedArticle[]> {
-    console.log('🌐 [Blog Scraper] Lancement de Browserless pour scraper les news...');
-    const browser = await getBrowser();
-    const articles: ScrapedArticle[] = [];
+    console.log('📡 [Blog Scraper] Récupération des flux RSS mode...');
 
-    try {
-        const page = await browser.newPage();
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+    const [hypebeastArticles, highsnobietyArticles] = await Promise.all([
+        parseRssFeed('https://hypebeast.com/feed', 'Hypebeast', 5),
+        parseRssFeed('https://www.highsnobiety.com/feed/', 'Highsnobiety', 5),
+    ]);
 
-        // 1. Scrape Hypebeast Fashion
-        console.log('🌐 [Blog Scraper] Scraping Hypebeast...');
-        try {
-            await page.goto('https://hypebeast.com/fashion', { waitUntil: 'domcontentloaded', timeout: 30000 });
-
-            const hbArticles = await page.evaluate(() => {
-                // Focus on the main content area to avoid sidebars or static promo blocks
-                const main = document.querySelector('main') || document.querySelector('.posts') || document.body;
-                const posts = Array.from(main.querySelectorAll('.post-box, article, .post'));
-
-                const results = [];
-                for (const p of posts) {
-                    const a = (p.querySelector('a.title') || p.querySelector('h2 a') || p.querySelector('h3 a')) as HTMLAnchorElement;
-                    if (a && a.href && a.innerText.trim()) {
-                        results.push({
-                            title: a.innerText.trim(),
-                            link: a.href,
-                            source: 'Hypebeast',
-                        });
-                    }
-                }
-
-                // Fallback si structure changée : on cherche les URLs d'articles
-                if (results.length === 0) {
-                    const links = Array.from(main.querySelectorAll('a'));
-                    for (const a of links) {
-                        if (a.href && a.href.includes('/20') && a.innerText.trim().length > 20) {
-                            results.push({
-                                title: a.innerText.trim(),
-                                link: a.href,
-                                source: 'Hypebeast',
-                            });
-                        }
-                    }
-                }
-
-                // Déduplication & limite
-                const uniqueUrls = new Set();
-                const unique = [];
-                for (const item of results) {
-                    if (!uniqueUrls.has(item.link)) {
-                        uniqueUrls.add(item.link);
-                        unique.push(item);
-                    }
-                }
-                return unique.slice(0, 5);
-            });
-
-            articles.push(...hbArticles);
-        } catch (e) {
-            console.error('❌ Erreur Hypebeast Scrape:', e);
-        }
-
-        // 2. Scrape Fashion United
-        console.log('🌐 [Blog Scraper] Scraping Fashion United...');
-        try {
-            await page.goto('https://fashionunited.fr/actualite', { waitUntil: 'domcontentloaded', timeout: 30000 });
-
-            const fuArticles = await page.evaluate(() => {
-                const main = document.querySelector('main') || document.querySelector('.main-content') || document.body;
-                const links = Array.from(main.querySelectorAll('a'));
-
-                // Un article d'actu valide a une URL avec /actualite/ et un texte de titre assez long
-                const validLinks = links.filter(a =>
-                    a.href &&
-                    a.href.includes('/actualite/') &&
-                    !a.href.includes('/tags/') && // on évite les pages de tags
-                    a.innerText.trim().length > 30
-                );
-
-                // Déduplication par URL
-                const uniqueUrls = new Set();
-                const unique = [];
-                for (const a of validLinks) {
-                    if (!uniqueUrls.has(a.href)) {
-                        uniqueUrls.add(a.href);
-                        unique.push({
-                            title: a.innerText.trim(),
-                            link: a.href,
-                            source: 'Fashion United',
-                        });
-                    }
-                }
-
-                return unique.slice(0, 5); // On remonte les 5 plus frais
-            });
-
-            articles.push(...fuArticles);
-        } catch (e) {
-            console.error('❌ Erreur Fashion United Scrape:', e);
-        }
-
-    } finally {
-        await browser.close();
+    // On mélange les sources, en alternant pour avoir un mix équilibré
+    const merged: ScrapedArticle[] = [];
+    const maxLen = Math.max(hypebeastArticles.length, highsnobietyArticles.length);
+    for (let i = 0; i < maxLen; i++) {
+        if (hypebeastArticles[i]) merged.push(hypebeastArticles[i]);
+        if (highsnobietyArticles[i]) merged.push(highsnobietyArticles[i]);
     }
 
-    console.log(`✅ [Blog Scraper] ${articles.length} articles trouvés.`);
-    return articles;
+    // Déduplication globale par URL
+    const seen = new Set<string>();
+    const unique = merged.filter(a => {
+        if (seen.has(a.link)) return false;
+        seen.add(a.link);
+        return true;
+    });
+
+    console.log(`✅ [Blog Scraper] ${unique.length} articles uniques trouvés (${hypebeastArticles.length} HB + ${highsnobietyArticles.length} HS)`);
+    return unique;
 }
 
 /**
- * Lit l'article, utilise GPT pour le réécrire façon OUTFITY et crée le post
+ * Lit l'article via fetch natif, utilise GPT pour le réécrire façon OUTFITY et crée le post
  */
 export async function processAndCreateBlogPost(article: ScrapedArticle) {
     console.log(`🧠 [Blog Scraper] Réécriture IA de l'article : ${article.title}`);
 
-    // 1. Visiter l'article pour récupérer le texte brut (Optionnel mais recommandé pour un meilleur résumé)
-    const browser = await getBrowser();
+    // 1. Lecture de l'article avec fetch natif (pas besoin de navigateur)
     let rawContent = article.title;
     let coverImage = 'https://images.unsplash.com/photo-1558769132-cb1fac30bc3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'; // Fallback
 
     try {
-        const page = await browser.newPage();
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
-        await page.goto(article.link, { waitUntil: 'domcontentloaded', timeout: 30000 });
-
-        // Scraping basique du corps de texte (très générique)
-        const scraped = await page.evaluate(() => {
-            const paragraphs = Array.from(document.querySelectorAll('p')).map(p => p.innerText).join('\n\n');
-            const img = document.querySelector('meta[property="og:image"]');
-            return {
-                text: paragraphs.substring(0, 3000), // On limite à 3000 char pour le LLM
-                image: img ? img.getAttribute('content') : null
-            };
+        const res = await fetch(article.link, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (compatible; OutfityBot/1.0)',
+                'Accept': 'text/html',
+            },
+            signal: AbortSignal.timeout(15000),
         });
 
-        if (scraped.text.length > 100) rawContent = scraped.text;
-        if (scraped.image) coverImage = scraped.image;
+        if (res.ok) {
+            const html = await res.text();
+
+            // Extraire og:description (résumé de l'article)
+            const descMatch = html.match(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i) ||
+                html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:description["']/i);
+
+            // Extraire og:image (image de couverture)
+            const imgMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
+                html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+
+            // Extraire le texte brut des paragraphes <p> (simple regex)
+            const paragraphs = [...html.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)]
+                .map(m => m[1].replace(/<[^>]+>/g, '').trim())
+                .filter(t => t.length > 40)
+                .join('\n\n')
+                .substring(0, 3000);
+
+            if (paragraphs.length > 100) rawContent = paragraphs;
+            else if (descMatch?.[1]) rawContent = decodeURIComponent(descMatch[1].replace(/&amp;/g, '&').replace(/&#039;/g, "'"));
+
+            if (imgMatch?.[1]) coverImage = imgMatch[1];
+        }
     } catch (e) {
-        console.error(`⚠️ Impossible de scraper le contenu complet de ${article.link}, on utilise que le titre.`, e);
-    } finally {
-        await browser.close();
+        console.error(`⚠️ Impossible de récupérer le contenu de ${article.link}, on utilise uniquement le titre.`, e);
     }
+
 
     // 2. IA - Réécriture du contenu en Blog Post complet et structuré
     const systemPrompt = `Tu es le Stratège Marketing en Chef de BIANGORY.
