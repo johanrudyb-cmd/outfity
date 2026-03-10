@@ -20,6 +20,7 @@ export async function getBrowser() {
 
     console.log('🚀 [Browser] Démarrage du navigateur local...');
     return await puppeteer.launch({
+        channel: 'chrome',
         headless: true,
         args: [
             '--no-sandbox',
