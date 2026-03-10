@@ -705,15 +705,15 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                             </div>
 
                             {/* Agents : tous si Créateur, uniquement Virgil si Starter */}
-                            <div className="w-full max-w-5xl px-2 sm:px-6">
+                            <div className="w-full overflow-x-auto no-scrollbar -mx-4 px-4">
                                 <div className={cn(
-                                    "flex flex-wrap justify-center gap-4 sm:gap-6",
-                                    !isCreator && "justify-center"
+                                    "flex gap-4 sm:gap-6 sm:flex-wrap sm:justify-center",
+                                    isCreator ? "w-max sm:w-full" : "justify-center w-max sm:w-full"
                                 )}>
                                     {AGENTS_TEAM
                                         .filter(a => isCreator || a.id === 'virgil')
                                         .map((agent, idx) => (
-                                            <div key={agent.id} className="w-[150px] sm:w-[200px] md:w-[220px] shrink-0">
+                                            <div key={agent.id} className="w-[155px] sm:w-[200px] md:w-[220px] shrink-0">
                                                 <AgentRevealCard agent={agent} delay={idx * 0.15 + 0.2} />
                                             </div>
                                         ))}

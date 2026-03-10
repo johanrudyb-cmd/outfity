@@ -242,15 +242,17 @@ export function WelcomeCreatorClient({ userName, hasStrategy, hasLogo, brandId }
                             </div>
 
                             {/* Cartes des 5 agents */}
-                            <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8 w-full px-2">
-                                {AGENTS_TEAM.map((agent, i) => (
-                                    <div key={agent.id} className="w-[140px] sm:w-[190px] md:w-[220px] shrink-0">
-                                        <AgentRevealCard
-                                            agent={agent}
-                                            delay={i * 0.15}
-                                        />
-                                    </div>
-                                ))}
+                            <div className="w-full overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+                                <div className="flex gap-4 sm:gap-8 sm:flex-wrap sm:justify-center w-max sm:w-full">
+                                    {AGENTS_TEAM.map((agent, i) => (
+                                        <div key={agent.id} className="w-[155px] sm:w-[190px] md:w-[220px] shrink-0">
+                                            <AgentRevealCard
+                                                agent={agent}
+                                                delay={i * 0.15}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
 
                             <motion.button
