@@ -102,7 +102,8 @@ const PRODUCTS = [
     { id: 'ensemble', label: 'Ensemble', emoji: '🎽', trend: 94, desc: 'Niche premium rentable' },
 ];
 
-const STEP_ORDER: Step[] = ['welcome', 'profiling', 'universe_product', 'identity_pitch', 'agents', 'plan', 'launch'];
+// L'étape 'plan' est retirée de l'onboarding — le choix se fait sur /auth/choose-plan après l'onboarding
+const STEP_ORDER: Step[] = ['welcome', 'profiling', 'universe_product', 'identity_pitch', 'agents', 'launch'];
 
 const STEP_LABELS: Record<Step, string> = {
     welcome: 'Bienvenue',
@@ -193,12 +194,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
     const [isThinking, setIsThinking] = useState(false);
 
     const goNext = useCallback(() => {
-        let nextIdx = stepIndex + 1;
-
-        // On saute l'étape 'plan' si l'utilisateur est déjà payant
-        if (STEP_ORDER[nextIdx] === 'plan' && isCreator) {
-            nextIdx++;
-        }
+        const nextIdx = stepIndex + 1;
 
         if (nextIdx < STEP_ORDER.length) {
             if (step === 'identity_pitch') {
@@ -211,19 +207,14 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                 setStep(STEP_ORDER[nextIdx]);
             }
         }
-    }, [stepIndex, step, isCreator]);
+    }, [stepIndex, step]);
 
     const goBack = useCallback(() => {
-        let prevIdx = stepIndex - 1;
-
-        if (STEP_ORDER[prevIdx] === 'plan' && isCreator) {
-            prevIdx--;
-        }
-
+        const prevIdx = stepIndex - 1;
         if (prevIdx >= 0) {
             setStep(STEP_ORDER[prevIdx]);
         }
-    }, [stepIndex, isCreator]);
+    }, [stepIndex]);
 
     const handleComplete = async (selectedPlan: string = plan) => {
         setIsSubmitting(true);
@@ -246,10 +237,11 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                 const stripeData = await stripeRes.json();
                 if (stripeData.url) {
                     window.location.href = stripeData.url;
-                    return; // Ne pas enlever isSubmitting, la redirection va s'opérer
+                    return;
                 }
             }
 
+            // Pour le plan starter : on affiche d'abord le step launch (animation), puis /auth/choose-plan
             setStep('launch');
         } catch (err) {
             console.error(err);
@@ -275,14 +267,14 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
 
             {/* BACK BUTTON & STEP LABEL */}
             {step !== 'welcome' && step !== 'launch' && (
-                <div className="fixed top-8 left-8 flex items-center gap-4 z-40">
+                <div className="fixed top-4 sm:top-8 left-4 sm:left-8 flex items-center gap-2 sm:gap-4 z-40">
                     <button
                         onClick={goBack}
-                        className="p-3 rounded-full bg-white/50 backdrop-blur-md border border-black/5 hover:bg-white transition-all group"
+                        className="p-2.5 sm:p-3 rounded-full bg-white/50 backdrop-blur-md border border-black/5 hover:bg-white transition-all group"
                     >
-                        <ArrowRight className="w-5 h-5 rotate-180 text-[#86868B] group-hover:text-black" />
+                        <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 rotate-180 text-[#86868B] group-hover:text-black" />
                     </button>
-                    <div className="px-4 py-2 rounded-2xl bg-white/50 backdrop-blur-md border border-black/5 text-xs font-bold uppercase tracking-widest text-[#86868B]">
+                    <div className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl bg-white/50 backdrop-blur-md border border-black/5 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-[#86868B]">
                         {STEP_LABELS[step]}
                     </div>
                 </div>
@@ -376,13 +368,11 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                             </div>
 
                             <div className="space-y-4">
-                                <h1 className="text-4xl sm:text-5xl font-black text-[#1D1D1F] tracking-tight leading-[1.1]">
-                                    {isCreator ? 'Ton Studio Créateur\nest prêt.' : 'Bienvenue dans\nton Studio Starter.'}
+                                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#1D1D1F] tracking-tight leading-[1.15] px-2">
+                                    Bienvenue dans<br />ton Studio.
                                 </h1>
-                                <p className="text-[#86868B] text-lg sm:text-xl font-medium max-w-lg mx-auto leading-relaxed">
-                                    {isCreator
-                                        ? 'Toute ton équipe IA est en ligne. Prêt à lancer ta prochaine collection ?'
-                                        : 'Je suis Virgil, ton stratège. Définissons ensemble les bases de ta future marque.'}
+                                <p className="text-[#86868B] text-base sm:text-lg md:text-xl font-medium max-w-lg mx-auto leading-relaxed px-4">
+                                    Je suis Virgil, ton stratège IA. En 2 minutes, on va poser les bases de ta future marque.
                                 </p>
                             </div>
 
@@ -691,44 +681,51 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                 <h2 className="text-4xl sm:text-5xl font-black text-[#1D1D1F] tracking-tight uppercase">
                                     Ton Équipe Experte
                                 </h2>
-                                <p className="text-lg text-[#86868B] max-w-lg mx-auto">
-                                    Découvre les intelligences artificielles dédiées au succès de {data.brandName || "ta marque"}.
+                                <p className="text-base sm:text-lg text-[#86868B] max-w-lg mx-auto px-4">
+                                    Virgil est prêt à guider ta marque {data.brandName ? <strong>{data.brandName}</strong> : 'vers le succès'}.
                                 </p>
                             </div>
 
-                            <div className="w-full max-w-6xl px-4 sm:px-6">
-                                <div className="flex flex-wrap justify-center gap-6 sm:gap-8">
-                                    {AGENTS_TEAM.filter(a => isPaidPlan(plan) || (a.id !== 'johan' && a.id !== 'joy')).map((agent, idx) => (
-                                        <div key={agent.id} className="w-[240px] shrink-0">
-                                            <AgentRevealCard agent={agent} delay={idx * 0.1 + 0.2} />
+                            {/* On affiche uniquement Virgil dans l'onboarding — les autres agents sont débloqués avec le plan Créateur */}
+                            <div className="w-full max-w-xs px-4">
+                                <div className="flex justify-center">
+                                    {AGENTS_TEAM.filter(a => a.id === 'virgil').map((agent, idx) => (
+                                        <div key={agent.id} className="w-[220px] sm:w-[240px] shrink-0">
+                                            <AgentRevealCard agent={agent} delay={0.2} />
                                         </div>
                                     ))}
                                 </div>
                             </div>
 
-                            <div className="flex gap-3 w-full max-w-sm">
-                                <button
-                                    onClick={goBack}
-                                    className="flex-1 h-14 rounded-2xl border-2 border-[#E5E5EA] text-[#86868B] font-semibold text-base flex items-center justify-center gap-2 hover:bg-white active:scale-[0.98] transition-all"
-                                >
-                                    Retour
-                                </button>
+                            {/* Teaser des agents verrouillés */}
+                            <div className="flex items-center justify-center gap-3 flex-wrap px-4">
+                                <p className="text-xs font-bold uppercase tracking-widest text-[#86868B]">Agents verrouillés :</p>
+                                {AGENTS_TEAM.filter(a => a.id !== 'virgil').map(agent => (
+                                    <div key={agent.id} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-black/5 shadow-sm">
+                                        <img src={agent.image} alt={agent.name} className="w-5 h-5 rounded-full object-cover grayscale opacity-50" />
+                                        <span className="text-xs font-semibold text-[#86868B]">{agent.name}</span>
+                                        <Lock className="w-3 h-3 text-[#C7C7CC]" />
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="flex flex-col gap-3 w-full max-w-sm px-4">
                                 <button
                                     disabled={isSubmitting}
-                                    onClick={() => {
-                                        if (isCreator) {
-                                            handleComplete(plan);
-                                        } else {
-                                            goNext();
-                                        }
-                                    }}
-                                    className="flex-[2] h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-base flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all shadow-lg shadow-blue-500/25 disabled:opacity-50"
+                                    onClick={() => handleComplete('starter')}
+                                    className="w-full h-14 rounded-2xl bg-[#007AFF] text-white font-semibold text-base flex items-center justify-center gap-2 hover:bg-[#0056CC] active:scale-[0.98] transition-all shadow-lg shadow-blue-500/25 disabled:opacity-50"
                                 >
-                                    {isSubmitting && isCreator ? (
+                                    {isSubmitting ? (
                                         <Loader2 className="w-5 h-5 animate-spin" />
                                     ) : (
-                                        <>Approuver l'équipe <ArrowRight className="w-4 h-4" /></>
+                                        <>Activer Virgil <ArrowRight className="w-4 h-4" /></>
                                     )}
+                                </button>
+                                <button
+                                    onClick={goBack}
+                                    className="w-full h-10 text-[#86868B] font-semibold text-sm hover:text-[#1D1D1F] transition-colors"
+                                >
+                                    Retour
                                 </button>
                             </div>
                         </motion.div>
@@ -862,9 +859,12 @@ function LaunchStep({ plan, brandName }: { plan: string; brandName: string }) {
     useEffect(() => {
         setProgress(0);
         if (stepIndex >= STEPS.length) {
-            // Signaler au dashboard d'afficher le tutorial
-            try { localStorage.setItem('show_tutorial_next', '1'); } catch (_) { }
-            window.location.href = '/dashboard?tutorial=1';
+            // Pour les starters : aller choisir le plan. Pour les cr\u00e9ateurs : directement le dashboard.
+            if (isCreator) {
+                window.location.href = '/dashboard?tutorial=1';
+            } else {
+                window.location.href = '/auth/choose-plan';
+            }
             return;
         }
         const step = STEPS[stepIndex];

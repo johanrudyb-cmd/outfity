@@ -125,13 +125,25 @@ export function ChoosePlanClient({ userPlan, onboardingCompleted }: { userPlan?:
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center py-20 bg-white">
+    <div className="min-h-screen flex flex-col items-center py-12 sm:py-20 bg-white">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-16 text-center">
-          <h1 className="text-4xl lg:text-6xl font-bold tracking-tight text-[#000000] mb-4">
+
+        {/* Bouton retour */}
+        <div className="mb-8">
+          <Link
+            href={onboardingCompleted ? '/dashboard' : '/onboarding'}
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#86868B] hover:text-[#1D1D1F] transition-colors"
+          >
+            <ArrowRight className="w-4 h-4 rotate-180" />
+            Retour
+          </Link>
+        </div>
+
+        <div className="mb-10 sm:mb-16 text-center">
+          <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold tracking-tight text-[#000000] mb-3 sm:mb-4 leading-tight">
             Choisissez votre plan
           </h1>
-          <p className="text-xl text-[#6e6e73] font-normal max-w-2xl mx-auto">
+          <p className="text-base sm:text-xl text-[#6e6e73] font-normal max-w-2xl mx-auto">
             Commencez gratuitement, puis évoluez selon votre croissance
           </p>
         </div>
