@@ -146,7 +146,7 @@ export async function checkAIUsageLimit(
   if (featureToQuotaLimit.ugc_scripts === -1) featureToQuotaLimit.ugc_scripts = planQuotas.ugc_scripts_limit;
   if (featureToQuotaLimit.brand_logo === -1 || featureToQuotaLimit.brand_logo === 0) featureToQuotaLimit.brand_logo = planQuotas.brand_logo_limit;
   if (featureToQuotaLimit.trends_hybrid_scan === -1 || featureToQuotaLimit.trends_hybrid_scan === 0) {
-    if (!isFreePlan(plan)) featureToQuotaLimit.trends_hybrid_scan = planQuotas.trends_hybrid_scan_limit;
+    if (!isFreePlan(plan) || plan === 'starter') featureToQuotaLimit.trends_hybrid_scan = planQuotas.trends_hybrid_scan_limit;
   }
 
   // Pack Fashion Launch : quotas par feature (priorité)

@@ -53,7 +53,8 @@ interface HistoryItem {
 
 export function VisualTrendScanner() {
     const { data: session } = useSession();
-    const isFree = isFreePlan((session?.user as { plan?: string })?.plan);
+    const userPlan = (session?.user as { plan?: string })?.plan;
+    const isFree = isFreePlan(userPlan) && userPlan !== 'starter';
     const { toast } = useToast();
 
     const [image, setImage] = useState<string | null>(null);
