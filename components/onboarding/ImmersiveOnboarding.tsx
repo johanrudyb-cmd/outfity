@@ -864,7 +864,7 @@ function LaunchStep({ plan, brandName }: { plan: string; brandName: string }) {
         if (stepIndex >= STEPS.length) {
             // Signaler au dashboard d'afficher le tutorial
             try { localStorage.setItem('show_tutorial_next', '1'); } catch (_) { }
-            router.push('/dashboard?tutorial=1');
+            window.location.href = '/dashboard?tutorial=1';
             return;
         }
         const step = STEPS[stepIndex];
