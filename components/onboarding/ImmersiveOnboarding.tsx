@@ -5,11 +5,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Sparkles, Zap, Moon, ShieldCheck, Leaf, ArrowRight,
-    Check, Loader2, CheckCircle2, Crown, Star, TrendingUp, Clock, Rocket, Lock
+    Check, Loader2, CheckCircle2, Clock, Rocket, Lock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSession } from 'next-auth/react';
-import { isFreePlan, isPaidPlan } from '@/lib/plan-utils';
+import { isPaidPlan } from '@/lib/plan-utils';
 
 // ─────────────────────────────────────────────────────────────
 // Types & constants
