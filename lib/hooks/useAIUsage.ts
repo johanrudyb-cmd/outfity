@@ -36,7 +36,10 @@ export function useAIUsage() {
   }, []);
 
   useEffect(() => {
-    fetchUsage();
+    const timeout = window.setTimeout(() => {
+      void fetchUsage();
+    }, 0);
+    return () => window.clearTimeout(timeout);
   }, [fetchUsage]);
 
   useEffect(() => {

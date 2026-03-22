@@ -1,10 +1,9 @@
-export const dynamic = 'force-dynamic';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { SurplusModalProvider } from '@/components/usage/SurplusModalContext';
 
 import { ErrorBoundary } from '@/components/error/ErrorBoundary';
+import { AppClientShell } from '@/components/layout/AppClientShell';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -103,12 +102,6 @@ export const metadata: Metadata = {
   },
 };
 
-import { Providers } from '@/components/providers/Providers';
-import { ScrollToTop } from '@/components/layout/ScrollToTop';
-import { UpgradeSessionRefresh } from '@/components/dashboard/UpgradeSessionRefresh';
-import { TrackingCleaner } from '@/components/layout/TrackingCleaner';
-import { Suspense } from 'react';
-import NextTopLoader from 'nextjs-toploader';
 import Script from 'next/script';
 
 export default function RootLayout({
@@ -145,26 +138,8 @@ export default function RootLayout({
             }),
           }}
         />
-        <NextTopLoader
-          color="#00AEEF"
-          showSpinner={false}
-          shadow="0 0 10px #00AEEF,0 0 5px #00AEEF"
-          height={3}
-          crawl={true}
-          easing="ease"
-          speed={200}
-        />
         <ErrorBoundary>
-          <Providers>
-            <SurplusModalProvider>{children}</SurplusModalProvider>
-            <Suspense fallback={null}>
-              <UpgradeSessionRefresh />
-            </Suspense>
-            <Suspense fallback={null}>
-              <TrackingCleaner />
-            </Suspense>
-            <ScrollToTop />
-          </Providers>
+          <AppClientShell>{children}</AppClientShell>
         </ErrorBoundary>
       </body>
     </html>

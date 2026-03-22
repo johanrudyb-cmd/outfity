@@ -9,7 +9,12 @@ export const stripe = stripeSecretKey
 /** Packs surplus avec prix en centimes (Stripe) */
 export const SURPLUS_PACKS_STRIPE: Record<
   string,
-  { name: string; amount: number; currency: string; description: string }
+  {
+    name: string;
+    amount: number;
+    currency: 'eur';
+    description: string;
+  }
 > = {
   'logos-plus': {
     name: 'Logos+',

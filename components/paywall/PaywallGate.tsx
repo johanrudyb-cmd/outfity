@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
@@ -55,15 +54,7 @@ export function PaywallGate({ children }: { children: React.ReactNode }) {
   const loading = status === 'loading' || isSWRloading;
   const user = session?.user as any;
   const planToUse = userPlanData?.plan ?? user?.plan;
-
-  const [showPaywall, setShowPaywall] = useState(false);
-
-  useEffect(() => {
-    if (loading) return;
-    const isFree = isFreePlan(planToUse);
-    const isPathPaywalled = isPaywalledPath(pathname || '');
-    setShowPaywall(!!(isFree && isPathPaywalled));
-  }, [loading, planToUse, pathname]);
+  const showPaywall = !loading && isFreePlan(planToUse) && isPaywalledPath(pathname || '');
 
   // Toujours la même structure racine pour éviter hydration mismatch
   if (showPaywall) {

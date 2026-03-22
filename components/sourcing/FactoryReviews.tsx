@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Star, StarHalf } from 'lucide-react';
 
@@ -31,11 +32,7 @@ export function FactoryReviews({ factoryId, factoryName, currentRating }: Factor
   const [totalReviews, setTotalReviews] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchReviews();
-  }, [factoryId]);
-
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     try {
       const response = await fetch(`/api/factories/${factoryId}/reviews`);
       const data = await response.json();
@@ -49,7 +46,11 @@ export function FactoryReviews({ factoryId, factoryName, currentRating }: Factor
     } finally {
       setLoading(false);
     }
-  };
+  }, [factoryId]);
+
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
 
   const renderStars = (rating: number) => {
     const fullStars = Math.floor(rating);
@@ -145,10 +146,12 @@ export function FactoryReviews({ factoryId, factoryName, currentRating }: Factor
                 {review.photos && review.photos.length > 0 && (
                   <div className="flex gap-2 flex-wrap">
                     {review.photos.map((photo, index) => (
-                      <img
+                      <Image
                         key={index}
                         src={photo}
                         alt={`Photo ${index + 1}`}
+                        width={80}
+                        height={80}
                         className="w-20 h-20 object-cover rounded-lg border-2 border-border"
                       />
                     ))}

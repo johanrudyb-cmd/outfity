@@ -17,7 +17,6 @@ export function WelcomeValidationAnimation({ onComplete }: { onComplete?: () => 
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    setProgress(0);
     if (stepIndex >= VALIDATION_STEPS.length) {
       onComplete?.();
       // On redirige vers le dashboard comme avant
@@ -32,6 +31,7 @@ export function WelcomeValidationAnimation({ onComplete }: { onComplete?: () => 
       setProgress(p);
       if (elapsed >= step.duration) {
         clearInterval(interval);
+        setProgress(0);
         setStepIndex((i) => i + 1);
       }
     }, 50);

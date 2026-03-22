@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Copy, Check, Globe, FileText, ArrowLeft, TrendingUp } from 'lucide-react';
@@ -82,7 +83,7 @@ export function TechPackCreator({ preSelectedId }: { preSelectedId?: string | nu
     } finally {
       setLoading(false);
     }
-  }, [segment, sortBy, ageRange]);
+  }, [segment, sortBy, ageRange, preSelectedId]);
 
   useEffect(() => {
     if (preSelectedId && trends.length > 0 && !selectedId) {
@@ -241,7 +242,7 @@ export function TechPackCreator({ preSelectedId }: { preSelectedId?: string | nu
                     >
                       <div className="aspect-[3/4] bg-muted relative">
                         {src ? (
-                          <img src={src} alt={t.name} className="w-full h-full object-cover" />
+                          <Image src={src} alt={t.name} fill sizes="(max-width: 1024px) 40vw, 220px" className="object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                             <Globe className="w-8 h-8 opacity-40" />
@@ -274,8 +275,14 @@ export function TechPackCreator({ preSelectedId }: { preSelectedId?: string | nu
               <div className="space-y-4">
                 {selected.imageUrl && (
                   <div className="flex items-start gap-3 rounded-lg border p-3 bg-muted/30">
-                    <div className="w-20 h-24 shrink-0 rounded overflow-hidden bg-muted">
-                      <img src={productImageSrc(selected.imageUrl) ?? selected.imageUrl} alt={selected.name} className="w-full h-full object-cover" />
+                    <div className="relative w-20 h-24 shrink-0 rounded overflow-hidden bg-muted">
+                      <Image
+                        src={productImageSrc(selected.imageUrl) ?? selected.imageUrl}
+                        alt={selected.name}
+                        fill
+                        sizes="80px"
+                        className="object-cover"
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium text-muted-foreground mb-1">Aperçu image</p>

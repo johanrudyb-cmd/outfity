@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -75,9 +76,11 @@ export function DesignTemplates({ brandId, onSelectTemplate }: DesignTemplatesPr
               >
                 <div className="flex items-start gap-3">
                   {template.flatSketchUrl && (
-                    <img
+                    <Image
                       src={template.flatSketchUrl}
                       alt={template.type}
+                      width={64}
+                      height={64}
                       className="w-16 h-16 object-cover rounded-lg border-2 border-border"
                     />
                   )}

@@ -47,7 +47,7 @@ export function MockupPackSelector({ brandId, brandName, inline, userPlan, typeF
       })
       .catch(() => setCategories([]))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [typeFilter]);
 
   const toggle = (id: string) => {
     setSelected((prev) => {

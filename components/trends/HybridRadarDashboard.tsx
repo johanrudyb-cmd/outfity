@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import useSWR from 'swr';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,6 +41,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
+const proxyImageSrc = (url: string) => `/api/proxy-image?url=${encodeURIComponent(url)}`;
 
 export function HybridRadarDashboard() {
   const [scanning, setScanning] = useState(false);
@@ -332,12 +334,14 @@ export function HybridRadarDashboard() {
                               key={idx}
                               className="rounded-lg border overflow-hidden bg-muted/30 flex flex-col"
                             >
-                              <div className="aspect-square bg-muted relative">
-                                {item.imageUrl ? (
-                                  <img
-                                    src={item.imageUrl}
+                                <div className="aspect-square bg-muted relative">
+                                  {item.imageUrl ? (
+                                  <Image
+                                    src={proxyImageSrc(item.imageUrl)}
                                     alt={item.name}
-                                    className="w-full h-full object-cover"
+                                    fill
+                                    sizes="(max-width: 768px) 45vw, 220px"
+                                    className="object-cover"
                                   />
                                 ) : (
                                   <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
@@ -490,10 +494,12 @@ export function HybridRadarDashboard() {
                         <Card className="overflow-hidden flex flex-col h-full bg-white border-black/[0.03] hover:border-[#007AFF]/30 transition-all duration-700 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] rounded-[32px]">
                           <div className="aspect-[3/4] bg-[#F5F5F7] relative shrink-0 overflow-hidden">
                             {t.imageUrl ? (
-                              <img
-                                src={t.imageUrl}
+                              <Image
+                                src={proxyImageSrc(t.imageUrl)}
                                 alt={t.name}
-                                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                                fill
+                                sizes="(max-width: 1024px) 50vw, 280px"
+                                className="object-cover transition-transform duration-1000 group-hover:scale-110"
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-gray-200">

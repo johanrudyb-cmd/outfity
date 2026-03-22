@@ -64,6 +64,7 @@ export function ProductCard({ product, userId, isFavorite: initialIsFavorite }: 
       <Card className="hover:border-primary/30 transition-colors cursor-pointer group overflow-hidden">
         <div className="relative aspect-square bg-muted rounded-t-lg overflow-hidden">
           {product.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={proxyImageUrl(product.imageUrl) || product.imageUrl || ''}
               alt={product.name}

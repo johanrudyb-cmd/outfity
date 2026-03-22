@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Facebook, Music, ExternalLink, Image as ImageIcon, Video } from 'lucide-react';
@@ -24,6 +25,10 @@ interface AdData {
 
 interface AdLibrarySectionProps {
   adData: AdData | null | undefined;
+}
+
+function proxyImageSrc(url: string): string {
+  return `/api/proxy-image?url=${encodeURIComponent(url)}`;
 }
 
 export function AdLibrarySection({ adData }: AdLibrarySectionProps) {
@@ -60,13 +65,15 @@ export function AdLibrarySection({ adData }: AdLibrarySectionProps) {
                   className="p-3 bg-background/50 rounded-lg border border-border hover:border-primary/50 transition-colors"
                 >
                   {ad.imageUrl && (
-                    <div className="mb-2 rounded overflow-hidden bg-muted">
-                      <img
-                        src={ad.imageUrl}
+                    <div className="relative mb-2 h-32 rounded overflow-hidden bg-muted">
+                      <Image
+                        src={proxyImageSrc(ad.imageUrl)}
                         alt={ad.title || 'Publicité Facebook'}
-                        className="w-full h-32 object-cover"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-cover"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
+                          (e.currentTarget as HTMLImageElement).style.display = 'none';
                         }}
                       />
                     </div>
@@ -115,13 +122,15 @@ export function AdLibrarySection({ adData }: AdLibrarySectionProps) {
                   className="p-3 bg-background/50 rounded-lg border border-border hover:border-primary/50 transition-colors"
                 >
                   {ad.imageUrl && (
-                    <div className="mb-2 rounded overflow-hidden bg-muted">
-                      <img
-                        src={ad.imageUrl}
+                    <div className="relative mb-2 h-32 rounded overflow-hidden bg-muted">
+                      <Image
+                        src={proxyImageSrc(ad.imageUrl)}
                         alt={ad.title || 'Publicité TikTok'}
-                        className="w-full h-32 object-cover"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-cover"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
+                          (e.currentTarget as HTMLImageElement).style.display = 'none';
                         }}
                       />
                     </div>

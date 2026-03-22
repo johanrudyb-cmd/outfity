@@ -3,6 +3,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, TrendingUp, TrendingDown, Layers, Activity, BarChart2, Zap, RefreshCw, Info, ArrowRight, DollarSign, AlertTriangle, LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -97,7 +98,15 @@ export function StyleTradingDashboard({ data }: { data: StyleDetailProps }) {
                                 )}
 
                                 <div className="w-10 h-10 rounded bg-white/5 overflow-hidden flex-shrink-0 relative">
-                                    {product.imageUrl && <img src={product.imageUrl} className="w-full h-full object-cover" />}
+                                    {product.imageUrl && (
+                                        <Image
+                                            src={product.imageUrl}
+                                            alt={product.name || 'Produit'}
+                                            fill
+                                            sizes="40px"
+                                            className="object-cover"
+                                        />
+                                    )}
                                 </div>
                                 <div className="min-w-0 flex-1">
                                     <div className="flex justify-between items-center mb-0.5">

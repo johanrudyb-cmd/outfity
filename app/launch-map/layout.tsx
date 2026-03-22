@@ -70,6 +70,10 @@ export default async function LaunchMapLayout({
     });
   }
 
+  if (!brand) {
+    redirect('/onboarding');
+  }
+
   const hasIdentity = Boolean(brand.name && brand.name.trim().length >= 2);
   const lm = brand.launchMap;
 

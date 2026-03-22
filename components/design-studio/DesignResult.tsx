@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,9 +46,11 @@ export function DesignResult({ design }: DesignResultProps) {
               Flat Sketch (Recto/Verso)
             </h3>
             <div className="border border-stone-200 rounded-lg p-4 bg-stone-50">
-              <img
+              <Image
                 src={design.flatSketchUrl}
                 alt="Flat sketch"
+                width={1200}
+                height={1200}
                 className="w-full h-auto rounded"
               />
             </div>

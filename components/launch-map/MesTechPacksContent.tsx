@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
-import html2canvas from 'html2canvas';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -194,6 +193,7 @@ function MesTechPacksContentInner({ brandId, brandName, brand }: MesTechPacksCon
     if (!downloadDesignToCapture || !downloadCaptureRef.current) return;
     const t = setTimeout(async () => {
       try {
+        const { default: html2canvas } = await import('html2canvas');
         const canvas = await html2canvas(downloadCaptureRef.current!, {
           scale: 2,
           useCORS: true,

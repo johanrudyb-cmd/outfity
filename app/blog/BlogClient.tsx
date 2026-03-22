@@ -1,15 +1,26 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import { ArrowRight, Sparkles, Clock, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 import { ChevronDown } from 'lucide-react';
 
-export function BlogClient({ posts, categories }: { posts: any[], categories: string[] }) {
+type BlogClientPost = {
+    id: string;
+    slug: string;
+    title: string;
+    excerpt: string;
+    coverImage: string | null;
+    publishedAt: Date | string;
+    tags: string[];
+    readingTimeMinutes?: number;
+};
+
+export function BlogClient({ posts, categories }: { posts: BlogClientPost[], categories: string[] }) {
     const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
     const filteredPosts = activeCategory
@@ -21,10 +32,14 @@ export function BlogClient({ posts, categories }: { posts: any[], categories: st
     const gridPosts = filteredPosts.slice(1);
 
     // estimate read time statically for the demo, normally derived from word count
-    const getReadTime = (content: string) => {
-        if (!content) return "2 min de lecture";
-        const mins = Math.max(2, Math.ceil(content.length / 800));
-        return `${mins} min de lecture`;
+    const getReadTime = (readingTimeMinutes?: number) => {
+        if (!readingTimeMinutes) return "2 min de lecture";
+        return `${readingTimeMinutes} min de lecture`;
+    };
+
+    const getOptimizedImageUrl = (url?: string | null) => {
+        if (!url) return null;
+        return `https://wsrv.nl/?url=${encodeURIComponent(url.trim())}&w=960&q=80&output=jpg`;
     };
 
     return (
@@ -47,13 +62,13 @@ export function BlogClient({ posts, categories }: { posts: any[], categories: st
                                 <span className="text-[#86868b]/30 italic font-serif">MAGAZINE</span>
                             </h1>
                             <p className="text-base sm:text-xl text-[#6e6e73] font-medium leading-relaxed mb-6 sm:mb-8">
-                                Décrypte le futur de la mode. Stratégies, analyses data et nouvelles tendances pour lancer la marque de demain.
+                                DÃ©crypte le futur de la mode. StratÃ©gies, analyses data et nouvelles tendances pour lancer la marque de demain.
                             </p>
 
                             {/* Scroll hint or generic call to action */}
                             <div className="hidden lg:flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-[#86868b]">
                                 <ArrowRight className="w-4 h-4 animate-bounce-x" />
-                                Sélection à la une
+                                SÃ©lection Ã  la une
                             </div>
                         </div>
 
@@ -62,17 +77,19 @@ export function BlogClient({ posts, categories }: { posts: any[], categories: st
                             <div className="w-full lg:w-7/12">
                                 <Link href={`/blog/${featuredPost.slug}`} className="group relative block overflow-hidden rounded-[32px] sm:rounded-[40px] bg-black aspect-square sm:aspect-[4/3] lg:aspect-[16/10] w-full shadow-2xl shadow-black/10">
                                     {featuredPost.coverImage && (
-                                        <img
-                                            src={featuredPost.coverImage}
+                                        <Image
+                                            src={getOptimizedImageUrl(featuredPost.coverImage)!}
                                             alt={featuredPost.title}
-                                            className="absolute inset-0 w-full h-full object-cover opacity-60 transition-transform duration-[2000ms] group-hover:scale-105"
+                                            fill
+                                            sizes="(max-width: 1024px) 100vw, 58vw"
+                                            className="object-cover opacity-60 transition-transform duration-[2000ms] group-hover:scale-105"
                                         />
                                     )}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
 
                                     <div className="absolute top-4 left-4 sm:top-8 sm:left-8 z-20">
                                         <span className="px-4 py-2 bg-[#007AFF] shadow-xl shadow-[#007AFF]/20 backdrop-blur-md rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white">
-                                            {featuredPost.tags && featuredPost.tags.length > 0 ? featuredPost.tags[0] : 'À LA UNE'}
+                                            {featuredPost.tags && featuredPost.tags.length > 0 ? featuredPost.tags[0] : 'Ã€ LA UNE'}
                                         </span>
                                     </div>
 
@@ -83,8 +100,8 @@ export function BlogClient({ posts, categories }: { posts: any[], categories: st
                                             </h2>
                                             <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-white/80 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest">
                                                 <span>{new Date(featuredPost.publishedAt).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</span>
-                                                <span className="opacity-40">•</span>
-                                                <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {getReadTime(featuredPost.content)}</span>
+                                                <span className="opacity-40">â€¢</span>
+                                                <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {getReadTime(featuredPost.readingTimeMinutes)}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -100,7 +117,7 @@ export function BlogClient({ posts, categories }: { posts: any[], categories: st
                 <section className="sticky top-14 sm:top-16 lg:top-20 z-40 bg-white/80 backdrop-blur-xl border-b border-[#F2F2F2] py-4 shadow-sm w-full">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
-                        {/* 📱 Version Mobile - Select Natif Stylisé pour max de fluidité iOS/Android */}
+                        {/* ðŸ“± Version Mobile - Select Natif StylisÃ© pour max de fluiditÃ© iOS/Android */}
                         <div className="block sm:hidden relative">
                             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
                                 <span className="text-[10px] font-black uppercase tracking-widest text-[#86868b]">Filtrer</span>
@@ -120,7 +137,7 @@ export function BlogClient({ posts, categories }: { posts: any[], categories: st
                             </div>
                         </div>
 
-                        {/* 💻 Version Desktop & Tablette - Pills Horizontales */}
+                        {/* ðŸ’» Version Desktop & Tablette - Pills Horizontales */}
                         <div className="hidden sm:flex items-center gap-2 lg:gap-4 overflow-x-auto no-scrollbar min-w-max pb-1 sm:pb-0">
                             <button
                                 onClick={() => setActiveCategory(null)}
@@ -155,29 +172,20 @@ export function BlogClient({ posts, categories }: { posts: any[], categories: st
             {/* Article Grid - Bento / Apple Cards Style */}
             <section className="py-24 bg-white min-h-[50vh]">
                 <div className="max-w-7xl mx-auto px-6">
-                    <motion.div
-                        layout
-                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-                    >
-                        <AnimatePresence mode="popLayout">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {gridPosts.map((post) => (
-                                <motion.div
-                                    layout
-                                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                                    exit={{ opacity: 0, scale: 0.95, y: -20 }}
-                                    transition={{ duration: 0.4, ease: "easeOut" }}
-                                    key={post.id}
-                                >
+                                <div key={post.id}>
                                     <Link href={`/blog/${post.slug}`} className="group flex flex-col h-full bg-white border border-[#E5E5E7] rounded-[24px] sm:rounded-[32px] overflow-hidden hover:shadow-xl hover:shadow-black/5 hover:-translate-y-1 transition-all duration-500">
 
                                         {/* Image Cover */}
                                         <div className="relative aspect-[4/3] overflow-hidden bg-[#F5F5F7]">
                                             {post.coverImage ? (
-                                                <img
-                                                    src={post.coverImage}
+                                                <Image
+                                                    src={getOptimizedImageUrl(post.coverImage)!}
                                                     alt={post.title}
-                                                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                                    fill
+                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                                                 />
                                             ) : (
                                                 <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-gray-100 to-gray-200" />
@@ -197,7 +205,7 @@ export function BlogClient({ posts, categories }: { posts: any[], categories: st
                                             <div className="flex items-center gap-3 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-[#86868b] mb-4">
                                                 <span>{new Date(post.publishedAt).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })}</span>
                                                 <span className="w-1 h-1 rounded-full bg-[#E5E5E7]" />
-                                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {getReadTime(post.content)}</span>
+                                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {getReadTime(post.readingTimeMinutes)}</span>
                                             </div>
 
                                             <h3 className="text-xl sm:text-2xl font-black text-[#1D1D1F] tracking-tight leading-tight mb-4 group-hover:text-[#007AFF] transition-colors line-clamp-3">
@@ -209,19 +217,16 @@ export function BlogClient({ posts, categories }: { posts: any[], categories: st
                                             </p>
                                         </div>
                                     </Link>
-                                </motion.div>
+                                </div>
                             ))}
-                        </AnimatePresence>
-                    </motion.div>
+                    </div>
 
                     {gridPosts.length === 0 && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
+                        <div
                             className="text-center py-20 text-[#6e6e73]"
                         >
-                            <p className="text-xl font-medium">Bientôt de nouveaux articles dans cette catégorie.</p>
-                        </motion.div>
+                            <p className="text-xl font-medium">BientÃ´t de nouveaux articles dans cette catÃ©gorie.</p>
+                        </div>
                     )}
                 </div>
             </section>
@@ -234,10 +239,10 @@ export function BlogClient({ posts, categories }: { posts: any[], categories: st
                         <Sparkles className="w-16 h-16 text-[#007AFF] mx-auto opacity-50" />
                         <h2 className="text-3xl sm:text-6xl font-black text-white leading-none tracking-tight">
                             REJOIGNEZ <br />
-                            <span className="text-[#6e6e73]">L'ÉLITE DU SECTEUR</span>
+                            <span className="text-[#6e6e73]">L&apos;Ã‰LITE DU SECTEUR</span>
                         </h2>
                         <p className="text-white/60 text-lg sm:text-xl font-medium pb-2 px-4 sm:px-0">
-                            OUTFITY n'est pas qu'un outil. C'est votre veille stratégique automatisée. Chaque article ici met à jour les algorithmes pour nos membres VIP.
+                            OUTFITY n&apos;est pas qu&apos;un outil. C&apos;est votre veille stratÃ©gique automatisÃ©e. Chaque article ici met Ã  jour les algorithmes pour nos membres VIP.
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-4">
                             <Link href="/auth/signup">

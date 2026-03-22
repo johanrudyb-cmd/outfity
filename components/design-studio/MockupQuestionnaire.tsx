@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import NextImage from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -437,9 +438,11 @@ export function MockupQuestionnaire({ brandId, brandName, onDesignCreated }: Moc
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="rounded-lg overflow-hidden bg-muted aspect-square max-w-md">
-              <img
+              <NextImage
                 src={result.imageUrl}
                 alt="Photo produit"
+                width={1200}
+                height={1200}
                 className="w-full h-full object-contain"
               />
             </div>

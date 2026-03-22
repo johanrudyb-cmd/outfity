@@ -1,7 +1,8 @@
-'use client';
+﻿'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Sparkles, Zap, Moon, ShieldCheck, Leaf, ArrowRight,
@@ -11,9 +12,9 @@ import { cn } from '@/lib/utils';
 import { useSession } from 'next-auth/react';
 import { isPaidPlan } from '@/lib/plan-utils';
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Types & constants
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 type Step = 'welcome' | 'profiling' | 'universe_product' | 'identity_pitch' | 'agents' | 'plan' | 'launch';
 
@@ -34,7 +35,7 @@ const UNIVERSES = [
     {
         id: 'streetwear',
         name: 'Streetwear',
-        emoji: '🔥',
+        emoji: 'ðŸ”¥',
         description: 'Urban, graphique, oversize',
         icon: Zap,
         accent: '#FF6B35',
@@ -46,8 +47,8 @@ const UNIVERSES = [
     {
         id: 'minimalist',
         name: 'Modern Minimal',
-        emoji: '🤍',
-        description: 'Épuré, intemporel, premium',
+        emoji: 'ðŸ¤',
+        description: 'Ã‰purÃ©, intemporel, premium',
         icon: Moon,
         accent: '#1D1D1F',
         bg: 'bg-slate-50',
@@ -58,8 +59,8 @@ const UNIVERSES = [
     {
         id: 'premium',
         name: 'Luxe Accessible',
-        emoji: '✨',
-        description: 'Détails soignés, finitions haut de gamme',
+        emoji: 'âœ¨',
+        description: 'DÃ©tails soignÃ©s, finitions haut de gamme',
         icon: Sparkles,
         accent: '#007AFF',
         bg: 'bg-blue-50',
@@ -70,7 +71,7 @@ const UNIVERSES = [
     {
         id: 'outdoor',
         name: 'Techwear',
-        emoji: '⚡',
+        emoji: 'âš¡',
         description: 'Fonctionnel, technique, futuriste',
         icon: ShieldCheck,
         accent: '#34C759',
@@ -81,63 +82,63 @@ const UNIVERSES = [
     },
     {
         id: 'eco',
-        name: 'Éco-Premium',
-        emoji: '🌿',
-        description: 'Naturel, éthique, durable',
+        name: 'Ã‰co-Premium',
+        emoji: 'ðŸŒ¿',
+        description: 'Naturel, Ã©thique, durable',
         icon: Leaf,
         accent: '#30D158',
         bg: 'bg-emerald-50',
         border: 'border-emerald-300',
         pill: 'bg-emerald-100 text-emerald-700',
-        keywords: ['Lin', 'Coton bio', 'Recyclé'],
+        keywords: ['Lin', 'Coton bio', 'RecyclÃ©'],
     },
 ];
 
 const PRODUCTS = [
-    { id: 'tshirt', label: 'T-Shirt', emoji: '👕', trend: 78, desc: 'Le classique indétrônable' },
-    { id: 'hoodie', label: 'Hoodie', emoji: '🧥', trend: 92, desc: 'Top tendance SS 2026' },
-    { id: 'veste', label: 'Veste', emoji: '🧣', trend: 85, desc: 'Marges élevées' },
-    { id: 'pantalon', label: 'Pantalon', emoji: '👖', trend: 71, desc: 'Forte demande cargo' },
-    { id: 'robe', label: 'Robe', emoji: '👗', trend: 88, desc: 'Viral printemps 2026' },
-    { id: 'ensemble', label: 'Ensemble', emoji: '🎽', trend: 94, desc: 'Niche premium rentable' },
+    { id: 'tshirt', label: 'T-Shirt', emoji: 'ðŸ‘•', trend: 78, desc: 'Le classique indÃ©trÃ´nable' },
+    { id: 'hoodie', label: 'Hoodie', emoji: 'ðŸ§¥', trend: 92, desc: 'Top tendance SS 2026' },
+    { id: 'veste', label: 'Veste', emoji: 'ðŸ§£', trend: 85, desc: 'Marges Ã©levÃ©es' },
+    { id: 'pantalon', label: 'Pantalon', emoji: 'ðŸ‘–', trend: 71, desc: 'Forte demande cargo' },
+    { id: 'robe', label: 'Robe', emoji: 'ðŸ‘—', trend: 88, desc: 'Viral printemps 2026' },
+    { id: 'ensemble', label: 'Ensemble', emoji: 'ðŸŽ½', trend: 94, desc: 'Niche premium rentable' },
 ];
 
-// Plan avant les agents : l'utilisateur choisit son plan, puis les agents se révèlent en conséquence
+// Plan avant les agents : l'utilisateur choisit son plan, puis les agents se rÃ©vÃ¨lent en consÃ©quence
 const STEP_ORDER: Step[] = ['welcome', 'profiling', 'universe_product', 'identity_pitch', 'plan', 'agents', 'launch'];
 
 const STEP_LABELS: Record<Step, string> = {
     welcome: 'Bienvenue',
     profiling: 'Profil',
     universe_product: 'Concept',
-    identity_pitch: 'Identité',
-    agents: 'Équipe IA',
+    identity_pitch: 'IdentitÃ©',
+    agents: 'Ã‰quipe IA',
     plan: 'Abonnement',
     launch: 'Lancement'
 };
 
 const PROFILING_OPTIONS = {
     howDidYouHear: [
-        { id: 'instagram', label: 'Instagram', icon: '📸' },
-        { id: 'tiktok', label: 'TikTok', icon: '📱' },
-        { id: 'linkedin', label: 'LinkedIn', icon: '💼' },
-        { id: 'referral', label: 'Bouche à oreille', icon: '👥' },
-        { id: 'google', label: 'Recherche Google', icon: '🔍' },
-        { id: 'other', label: 'Autre', icon: '✨' },
+        { id: 'instagram', label: 'Instagram', icon: 'ðŸ“¸' },
+        { id: 'tiktok', label: 'TikTok', icon: 'ðŸ“±' },
+        { id: 'linkedin', label: 'LinkedIn', icon: 'ðŸ’¼' },
+        { id: 'referral', label: 'Bouche Ã  oreille', icon: 'ðŸ‘¥' },
+        { id: 'google', label: 'Recherche Google', icon: 'ðŸ”' },
+        { id: 'other', label: 'Autre', icon: 'âœ¨' },
     ],
     reasonForComing: [
-        { id: 'launch', label: 'Lancer ma marque', icon: '🚀' },
-        { id: 'optimize', label: 'Optimiser ma marque existante', icon: '📈' },
-        { id: 'creative', label: 'Besoin d\'outils créatifs IA', icon: '🎨' },
-        { id: 'sourcing', label: 'Trouver des usines', icon: '🏭' },
-        { id: 'trends', label: 'Suivre les tendances', icon: '🔥' },
+        { id: 'launch', label: 'Lancer ma marque', icon: 'ðŸš€' },
+        { id: 'optimize', label: 'Optimiser ma marque existante', icon: 'ðŸ“ˆ' },
+        { id: 'creative', label: 'Besoin d\'outils crÃ©atifs IA', icon: 'ðŸŽ¨' },
+        { id: 'sourcing', label: 'Trouver des usines', icon: 'ðŸ­' },
+        { id: 'trends', label: 'Suivre les tendances', icon: 'ðŸ”¥' },
     ]
 };
 
 import { AgentRevealCard, AGENTS_TEAM } from './AgentRevealCard';
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Main component
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 interface ImmersiveOnboardingProps {
     initialPlan: string;
@@ -181,11 +182,11 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
         const isUpgraded = searchParams.get('upgraded') === 'true' || searchParams.get('subscribed') === 'true';
         const isCanceled = searchParams.get('canceled') === 'true';
         if (isUpgraded) {
-            // Retour de Stripe après paiement → on pointe directement sur l'étape agents
+            // Retour de Stripe aprÃ¨s paiement â†’ on pointe directement sur l'Ã©tape agents
             setPlan('creator');
             setStep('agents');
         } else if (isCanceled) {
-            // Paiement annulé → repasser au choix du plan
+            // Paiement annulÃ© â†’ repasser au choix du plan
             setPlan('starter');
             setStep('plan');
         } else if (searchParams.get('plan')) {
@@ -239,7 +240,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
             if (!res.ok) {
                 throw new Error(json.error || 'Erreur lors de la sauvegarde');
             }
-            // On met à jour la session localement
+            // On met Ã  jour la session localement
             await update({ plan: json.plan });
 
             if (selectedPlan === 'creator' && !isPaidPlan(initialPlan)) {
@@ -252,13 +253,13 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                 }
             }
 
-            // Toujours : lancer l'animation de lancement → puis dashboard
+            // Toujours : lancer l'animation de lancement â†’ puis dashboard
             setStep('launch');
         } catch (err) {
             console.error(err);
-            alert('Impossible de finaliser l\'onboarding. Réessayez.');
+            alert('Impossible de finaliser l\'onboarding. RÃ©essayez.');
         } finally {
-            setIsSubmitting(false); // On enlève le loading si une erreur s'est produite ou s'il lance le vrai dashboard
+            setIsSubmitting(false); // On enlÃ¨ve le loading si une erreur s'est produite ou s'il lance le vrai dashboard
         }
     };
 
@@ -346,12 +347,12 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                             </div>
                             <div className="text-center">
                                 <h3 className="text-2xl font-bold tracking-tight">Virgil analyse ton pitch...</h3>
-                                <p className="text-[#86868B] font-medium mt-2">Préparation de ton équipe d'agents IA</p>
+                                <p className="text-[#86868B] font-medium mt-2">PrÃ©paration de ton Ã©quipe d&apos;agents IA</p>
                             </div>
                         </motion.div>
                     )}
 
-                    {/* ── WELCOME ── */}
+                    {/* â”€â”€ WELCOME â”€â”€ */}
                     {step === 'welcome' && (
                         <motion.div key="welcome"
                             initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }}
@@ -364,8 +365,8 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                     transition={{ delay: 0.2 }}
                                     className="relative z-10"
                                 >
-                                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-[28px] overflow-hidden shadow-2xl border-4 border-white mx-auto mb-6 bg-slate-100">
-                                        <img src="/images/agents/virgil_final.webp" alt="Virgil" className="w-full h-full object-cover" />
+                                    <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-[28px] overflow-hidden shadow-2xl border-4 border-white mx-auto mb-6 bg-slate-100">
+                                        <Image src="/images/agents/virgil_final.webp" alt="Virgil" fill sizes="112px" className="object-cover" />
                                     </div>
                                     <div className="absolute -bottom-2 right-1/2 translate-x-12 w-8 h-8 bg-[#007AFF] rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white">
                                         <Sparkles className="w-4 h-4" />
@@ -378,7 +379,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                     className="absolute -top-6 -right-16 hidden lg:block z-20 pointer-events-none"
                                 >
                                     <div className="bg-white px-5 py-2.5 rounded-2xl rounded-bl-none shadow-apple-lg border border-black/5 text-sm font-bold text-[#007AFF] whitespace-nowrap">
-                                        "Bienvenue à bord !"
+                                        &quot;Bienvenue Ã  bord !&quot;
                                     </div>
                                 </motion.div>
                             </div>
@@ -388,7 +389,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                     Bienvenue dans<br />ton Studio.
                                 </h1>
                                 <p className="text-[#86868B] text-base sm:text-lg md:text-xl font-medium max-w-lg mx-auto leading-relaxed px-4">
-                                    Je suis Virgil, ton stratège IA. En 2 minutes, on va poser les bases de ta future marque.
+                                    Je suis Virgil, ton stratÃ¨ge IA. En 2 minutes, on va poser les bases de ta future marque.
                                 </p>
                             </div>
 
@@ -397,7 +398,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                     onClick={goNext}
                                     className="group w-full max-w-xs h-16 rounded-2xl bg-[#007AFF] text-white font-bold text-xl flex items-center justify-center gap-3 hover:bg-[#0056CC] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-blue-500/30"
                                 >
-                                    C'est parti <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                                    C&apos;est parti <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
                                 </button>
                                 <div className="flex items-center gap-2 text-[#86868B] text-sm font-semibold">
                                     <Clock className="w-4 h-4" />
@@ -408,7 +409,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                     )}
 
 
-                    {/* ── PROFILING ── */}
+                    {/* â”€â”€ PROFILING â”€â”€ */}
                     {step === 'profiling' && (
                         <motion.div key="profiling"
                             initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
@@ -417,7 +418,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                         >
                             <div className="space-y-2 text-center sm:text-left">
                                 <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Faisons connaissance.</h2>
-                                <p className="text-[#86868B]">Aide-moi à personnaliser ton expérience dans le studio.</p>
+                                <p className="text-[#86868B]">Aide-moi Ã  personnaliser ton expÃ©rience dans le studio.</p>
                             </div>
 
                             <div className="space-y-6 overflow-y-auto flex-1 pr-1 no-scrollbar pb-20 sm:pb-0">
@@ -443,7 +444,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                     </div>
                                 </div>
 
-                                {/* Pourquoi es-tu là ? */}
+                                {/* Pourquoi es-tu lÃ  ? */}
                                 <div className="space-y-3">
                                     <p className="text-[10px] font-bold uppercase tracking-widest text-[#86868B] px-1">Quel est ton objectif principal ?</p>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -484,7 +485,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                             </div>
                         </motion.div>
                     )}
-                    {/* ── UNIVERSE & PRODUCT ── */}
+                    {/* â”€â”€ UNIVERSE & PRODUCT â”€â”€ */}
                     {step === 'universe_product' && (
                         <motion.div key="universe_product"
                             initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
@@ -493,13 +494,13 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                         >
                             <div className="space-y-1 text-center sm:text-left">
                                 <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Le concept de ta marque</h2>
-                                <p className="text-[#86868B]">Choisis l'univers et le premier produit que tu vas lancer.</p>
+                                <p className="text-[#86868B]">Choisis l&apos;univers et le premier produit que tu vas lancer.</p>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
                                 {/* Colonne Univers */}
                                 <div className="space-y-4">
-                                    <h3 className="text-sm font-bold text-[#1D1D1F] uppercase tracking-widest">1. L'univers</h3>
+                                    <h3 className="text-sm font-bold text-[#1D1D1F] uppercase tracking-widest">1. L&apos;univers</h3>
                                     <div className="grid grid-cols-1 gap-3">
                                         {UNIVERSES.map(u => (
                                             <button
@@ -580,7 +581,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                         </motion.div>
                     )}
 
-                    {/* ── IDENTITY & PITCH ── */}
+                    {/* â”€â”€ IDENTITY & PITCH â”€â”€ */}
                     {step === 'identity_pitch' && (
                         <motion.div key="identity_pitch"
                             initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
@@ -588,8 +589,8 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                             className="max-w-2xl w-full space-y-8"
                         >
                             <div className="space-y-2">
-                                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Donne vie à ton idée</h2>
-                                <p className="text-[#86868B]">Définit le nom et la mission de ta marque pour guider tes agents IA.</p>
+                                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Donne vie Ã  ton idÃ©e</h2>
+                                <p className="text-[#86868B]">DÃ©finit le nom et la mission de ta marque pour guider tes agents IA.</p>
                             </div>
 
                             <div className="space-y-6">
@@ -629,19 +630,19 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                 <div className="space-y-3">
                                     <h3 className="text-sm font-bold text-[#1D1D1F] uppercase tracking-widest">2. Ta Mission (Pitch)</h3>
                                     <div className="flex flex-col gap-2 mb-3">
-                                        <p className="text-xs text-[#86868B] font-medium">Panne d'inspi ? Choisis un modèle :</p>
+                                        <p className="text-xs text-[#86868B] font-medium">Panne d&apos;inspi ? Choisis un modÃ¨le :</p>
                                         <div className="flex flex-wrap gap-2">
                                             {[
-                                                "Créer des basiques premium éco-responsables pour les urbains exigeants.",
+                                                "CrÃ©er des basiques premium Ã©co-responsables pour les urbains exigeants.",
                                                 "Une marque streetwear audacieuse qui mixe culture skate et luxe accessible.",
-                                                "Des vêtements techniques et fonctionnels conçus pour l'aventure quotidienne."
+                                                "Des vÃªtements techniques et fonctionnels conÃ§us pour l'aventure quotidienne."
                                             ].map((pitchEx, i) => (
                                                 <button
                                                     key={i}
                                                     onClick={() => setData(d => ({ ...d, pitch: pitchEx }))}
                                                     className="px-3 py-1.5 bg-white border border-[#E5E5EA] hover:border-[#007AFF]/50 hover:bg-blue-50/30 rounded-xl text-[11px] text-[#1D1D1F] font-medium text-left transition-colors whitespace-nowrap"
                                                 >
-                                                    "{pitchEx.substring(0, 25)}..."
+                                                    &quot;{pitchEx.substring(0, 25)}...&quot;
                                                 </button>
                                             ))}
                                         </div>
@@ -649,7 +650,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
 
                                     <motion.div className="bg-white rounded-2xl shadow-sm border border-[#E5E5EA] p-2 relative">
                                         <textarea
-                                            placeholder="Rédige ta mission ici..."
+                                            placeholder="RÃ©dige ta mission ici..."
                                             value={data.pitch}
                                             onChange={(e) => setData(d => ({ ...d, pitch: e.target.value }))}
                                             className="w-full min-h-[120px] p-4 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-[#007AFF] transition-all resize-none text-sm font-medium outline-none"
@@ -679,7 +680,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                         </motion.div>
                     )}
 
-                    {/* ── AGENTS REVEAL (FUT PACK) ── */}
+                    {/* â”€â”€ AGENTS REVEAL (FUT PACK) â”€â”€ */}
                     {step === 'agents' && (
                         <motion.div key="agents"
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -695,16 +696,16 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                     <Sparkles className="w-4 h-4" /> Agent Unlocked
                                 </motion.div>
                                 <h2 className="text-4xl sm:text-5xl font-black text-[#1D1D1F] tracking-tight uppercase">
-                                    {isCreator ? 'Ton Équipe Complète' : 'Ton Agent Activé'}
+                                    {isCreator ? 'Ton Ã‰quipe ComplÃ¨te' : 'Ton Agent ActivÃ©'}
                                 </h2>
                                 <p className="text-base sm:text-lg text-[#86868B] max-w-lg mx-auto px-4">
                                     {isCreator
-                                        ? <>Tous tes agents IA sont prêts pour <strong>{data.brandName || 'ta marque'}</strong>.</>
-                                        : <>Virgil est prêt à guider <strong>{data.brandName || 'ta marque'}</strong>. Les 4 autres agents se débloquent avec le plan Créateur.</>}
+                                        ? <>Tous tes agents IA sont prÃªts pour <strong>{data.brandName || 'ta marque'}</strong>.</>
+                                        : <>Virgil est prÃªt Ã  guider <strong>{data.brandName || 'ta marque'}</strong>. Les 4 autres agents se dÃ©bloquent avec le plan CrÃ©ateur.</>}
                                 </p>
                             </div>
 
-                            {/* Agents : tous si Créateur, uniquement Virgil si Starter */}
+                            {/* Agents : tous si CrÃ©ateur, uniquement Virgil si Starter */}
                             <div className={cn(
                                 "w-full",
                                 isCreator && "overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0"
@@ -723,13 +724,13 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                 </div>
                             </div>
 
-                            {/* Teaser agents verrouillés — uniquement pour Starter */}
+                            {/* Teaser agents verrouillÃ©s â€” uniquement pour Starter */}
                             {!isCreator && (
                                 <div className="flex items-center justify-center gap-3 flex-wrap px-4">
-                                    <p className="text-xs font-bold uppercase tracking-widest text-[#86868B]">Agents verrouillés :</p>
+                                    <p className="text-xs font-bold uppercase tracking-widest text-[#86868B]">Agents verrouillÃ©s :</p>
                                     {AGENTS_TEAM.filter(a => a.id !== 'virgil').map(agent => (
                                         <div key={agent.id} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-black/5 shadow-sm">
-                                            <img src={agent.image} alt={agent.name} className="w-5 h-5 rounded-full object-cover grayscale opacity-50" />
+                                            <Image src={agent.image} alt={agent.name} width={20} height={20} className="w-5 h-5 rounded-full object-cover grayscale opacity-50" />
                                             <span className="text-xs font-semibold text-[#86868B]">{agent.name}</span>
                                             <Lock className="w-3 h-3 text-[#C7C7CC]" />
                                         </div>
@@ -761,7 +762,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                         </motion.div>
                     )}
 
-                    {/* ── PLAN SELECTION ── */}
+                    {/* â”€â”€ PLAN SELECTION â”€â”€ */}
                     {step === 'plan' && (
                         <motion.div key="plan"
                             initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }}
@@ -769,30 +770,34 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                             className="w-full max-w-4xl flex flex-col items-center space-y-6 sm:space-y-8 px-4"
                         >
                             <div className="text-center space-y-2">
-                                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Choisis ton accès</h2>
-                                <p className="text-[#86868B]">Ensuite, on te révèle les agents IA qui t'accompagnent.</p>
+                                <h2 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Choisis ton accÃ¨s</h2>
+                                <p className="text-[#86868B]">Ensuite, on te rÃ©vÃ¨le les agents IA qui t&apos;accompagnent.</p>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
 
-                                {/* ── STARTER ── */}
+                                {/* â”€â”€ STARTER â”€â”€ */}
                                 <div className="bg-white rounded-[24px] p-6 sm:p-8 border-2 border-[#F2F2F2] flex flex-col hover:border-[#007AFF]/30 transition-all">
                                     <div className="mb-6 flex-1">
                                         <h3 className="text-xl font-bold text-[#1D1D1F] mb-1">Starter</h3>
-                                        <div className="text-3xl font-black text-[#1D1D1F] mb-1">0€<span className="text-lg font-normal text-[#86868B]">/mois</span></div>
-                                        <p className="text-sm text-[#86868B] mb-5">Virgil t'aide à poser les bases de ta stratégie.</p>
+                                        <div className="text-3xl font-black text-[#1D1D1F] mb-1">0â‚¬<span className="text-lg font-normal text-[#86868B]">/mois</span></div>
+                                        <p className="text-sm text-[#86868B] mb-5">Virgil t&apos;aide Ã  poser les bases de ta stratÃ©gie.</p>
                                         {/* Agents */}
                                         <div className="space-y-3 mb-4">
                                             {[
-                                                { name: 'Virgil', img: '/images/agents/virgil_final.webp', role: 'Je définis ta stratégie', isUnlocked: true },
+                                                { name: 'Virgil', img: '/images/agents/virgil_final.webp', role: 'Je dÃ©finis ta stratÃ©gie', isUnlocked: true },
                                                 { name: 'Pharrell', img: '/images/agents/pharrell_final.webp', role: "Je t'accompagne sur tes designs", isUnlocked: false },
                                                 { name: 'Ada', img: '/images/agents/ada_final.webp', role: 'Je te guide sur le sourcing', isUnlocked: false },
-                                                { name: 'Joy', img: '/images/agents/joy_final.webp', role: "J'écris tes scripts", isUnlocked: false },
+                                                { name: 'Joy', img: '/images/agents/joy_final.webp', role: "J'Ã©cris tes scripts", isUnlocked: false },
                                                 { name: 'Johan', img: '/images/agents/johan_final.webp', role: "Je t'accompagne sur ta boutique", isUnlocked: false },
                                             ].map(agent => (
                                                 <div key={agent.name} className="flex items-center gap-3">
                                                     <div className="relative shrink-0">
-                                                        <img src={agent.img} alt={agent.name}
+                                                        <Image
+                                                            src={agent.img}
+                                                            alt={agent.name}
+                                                            width={36}
+                                                            height={36}
                                                             className={`w-9 h-9 rounded-full object-cover border border-black/10 ${!agent.isUnlocked ? 'grayscale opacity-40' : ''}`}
                                                         />
                                                         <div className="absolute -bottom-0.5 -right-0.5 bg-white rounded-full p-0.5 shadow-sm border border-black/10">
@@ -803,7 +808,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                                     </div>
                                                     <div>
                                                         <p className={`text-xs font-bold ${agent.isUnlocked ? 'text-[#1D1D1F]' : 'text-[#86868B]'}`}>{agent.name}</p>
-                                                        <p className={`text-[11px] ${agent.isUnlocked ? 'text-[#6e6e73]' : 'text-[#86868B] italic'}`}>"{agent.role}"</p>
+                                                        <p className={`text-[11px] ${agent.isUnlocked ? 'text-[#6e6e73]' : 'text-[#86868B] italic'}`}>&quot;{agent.role}&quot;</p>
                                                     </div>
                                                 </div>
                                             ))}
@@ -813,37 +818,41 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                         onClick={() => { setPlan('starter'); goNext(); }}
                                         className="w-full h-13 py-3.5 rounded-2xl border-2 border-[#E5E5EA] text-[#1D1D1F] font-bold text-sm hover:border-[#007AFF] hover:text-[#007AFF] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                                     >
-                                        Démarrer avec Virgil <ArrowRight className="w-4 h-4" />
+                                        DÃ©marrer avec Virgil <ArrowRight className="w-4 h-4" />
                                     </button>
                                     <p className="text-[11px] text-[#86868B] text-center mt-2">Sans carte bancaire</p>
                                 </div>
 
-                                {/* ── CRÉATEUR ── */}
+                                {/* â”€â”€ CRÃ‰ATEUR â”€â”€ */}
                                 <div className="relative bg-white rounded-[24px] p-6 sm:p-8 border-2 border-[#007AFF] shadow-xl shadow-blue-500/10 flex flex-col overflow-hidden group">
                                     <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                     {/* Timer promo */}
                                     <div className="flex items-center gap-1.5 text-[#FF3B30] font-bold text-[11px] mb-3 bg-red-50 border border-red-100 rounded-full px-3 py-1 w-fit">
-                                        <Clock className="w-3 h-3" /> Offre limitée
+                                        <Clock className="w-3 h-3" /> Offre limitÃ©e
                                     </div>
                                     <div className="mb-6 flex-1 relative z-10">
-                                        <h3 className="text-xl font-bold text-[#1D1D1F] mb-1">Créateur</h3>
+                                        <h3 className="text-xl font-bold text-[#1D1D1F] mb-1">CrÃ©ateur</h3>
                                         <div className="flex items-baseline gap-2 mb-1">
-                                            <div className="text-3xl font-black text-[#1D1D1F]">29€<span className="text-lg font-normal text-[#86868B]">/mois</span></div>
-                                            <div className="text-base text-[#86868B] line-through decoration-red-500/50">39€</div>
+                                            <div className="text-3xl font-black text-[#1D1D1F]">29â‚¬<span className="text-lg font-normal text-[#86868B]">/mois</span></div>
+                                            <div className="text-base text-[#86868B] line-through decoration-red-500/50">39â‚¬</div>
                                         </div>
-                                        <p className="text-sm text-[#86868B] mb-5">Offre limitée : 29€/mois à vie. 3 jours d'essai gratuit.</p>
+                                        <p className="text-sm text-[#86868B] mb-5">Offre limitÃ©e : 29â‚¬/mois Ã  vie. 3 jours d&apos;essai gratuit.</p>
                                         {/* Agents */}
                                         <div className="space-y-3 mb-4">
                                             {[
-                                                { name: 'Virgil', img: '/images/agents/virgil_final.webp', role: 'Je définis ta stratégie', isUnlocked: true },
+                                                { name: 'Virgil', img: '/images/agents/virgil_final.webp', role: 'Je dÃ©finis ta stratÃ©gie', isUnlocked: true },
                                                 { name: 'Pharrell', img: '/images/agents/pharrell_final.webp', role: "Je t'accompagne sur tes designs", isUnlocked: true },
                                                 { name: 'Ada', img: '/images/agents/ada_final.webp', role: 'Je te guide sur le sourcing', isUnlocked: true },
-                                                { name: 'Joy', img: '/images/agents/joy_final.webp', role: "J'écris tes scripts", isUnlocked: true },
+                                                { name: 'Joy', img: '/images/agents/joy_final.webp', role: "J'Ã©cris tes scripts", isUnlocked: true },
                                                 { name: 'Johan', img: '/images/agents/johan_final.webp', role: "Je t'accompagne sur ta boutique", isUnlocked: true },
                                             ].map(agent => (
                                                 <div key={agent.name} className="flex items-center gap-3">
                                                     <div className="relative shrink-0">
-                                                        <img src={agent.img} alt={agent.name}
+                                                        <Image
+                                                            src={agent.img}
+                                                            alt={agent.name}
+                                                            width={36}
+                                                            height={36}
                                                             className="w-9 h-9 rounded-full object-cover border border-black/10"
                                                         />
                                                         <div className="absolute -bottom-0.5 -right-0.5 bg-white rounded-full p-0.5 shadow-sm border border-black/10">
@@ -852,7 +861,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                                     </div>
                                                     <div>
                                                         <p className="text-xs font-bold text-[#1D1D1F]">{agent.name}</p>
-                                                        <p className="text-[11px] text-[#6e6e73]">"{agent.role}"</p>
+                                                        <p className="text-[11px] text-[#6e6e73]">&quot;{agent.role}&quot;</p>
                                                     </div>
                                                 </div>
                                             ))}
@@ -864,7 +873,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                     >
                                         <>Essai gratuit 3 jours <ArrowRight className="w-4 h-4" /></>
                                     </button>
-                                    <p className="text-[11px] text-[#86868B] text-center mt-2 relative z-10">Annulable à tout moment</p>
+                                    <p className="text-[11px] text-[#86868B] text-center mt-2 relative z-10">Annulable Ã  tout moment</p>
                                 </div>
                             </div>
 
@@ -878,7 +887,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                         </motion.div>
                     )}
 
-                    {/* ── LAUNCH ── */}
+                    {/* â”€â”€ LAUNCH â”€â”€ */}
                     {step === 'launch' && (
                         <LaunchStep plan={plan} brandName={data.brandName || 'ta marque'} />
                     )}
@@ -889,9 +898,9 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
     );
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Launch step component
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function LaunchStep({ plan, brandName }: { plan: string; brandName: string }) {
     const router = useRouter();
@@ -899,19 +908,21 @@ function LaunchStep({ plan, brandName }: { plan: string; brandName: string }) {
     const [progress, setProgress] = useState(0);
     const [stepIndex, setStepIndex] = useState(0);
 
-    const STEPS = [
-        { label: 'Initialisation du studio...', duration: 250 },
-        { label: 'Connexion aux agents IA...', duration: 300 },
-        { label: 'Analyse des tendances 2026...', duration: 250 },
-        { label: 'Initialisation de ton ADN...', duration: 300 },
-        { label: 'Finalisation du dashboard...', duration: 200 },
-        { label: 'Bienvenue dans OUTFITY !', duration: 250 },
-    ];
+    const STEPS = useMemo(
+        () => [
+            { label: 'Initialisation du studio...', duration: 250 },
+            { label: 'Connexion aux agents IA...', duration: 300 },
+            { label: 'Analyse des tendances 2026...', duration: 250 },
+            { label: 'Initialisation de ton ADN...', duration: 300 },
+            { label: 'Finalisation du dashboard...', duration: 200 },
+            { label: 'Bienvenue dans OUTFITY !', duration: 250 },
+        ],
+        []
+    );
 
     useEffect(() => {
-        setProgress(0);
         if (stepIndex >= STEPS.length) {
-            // Toujours aller au dashboard — le plan a déjà été choisi dans l'onboarding
+            // Toujours aller au dashboard â€” le plan a dÃ©jÃ  Ã©tÃ© choisi dans l'onboarding
             try { localStorage.setItem('show_tutorial_next', '1'); } catch (_) { }
             window.location.href = '/dashboard?tutorial=1';
             return;
@@ -924,11 +935,14 @@ function LaunchStep({ plan, brandName }: { plan: string; brandName: string }) {
             setProgress(p);
             if (p >= 100) {
                 clearInterval(interval);
-                setTimeout(() => setStepIndex(s => s + 1), 200);
+                setTimeout(() => {
+                    setProgress(0);
+                    setStepIndex(s => s + 1);
+                }, 200);
             }
         }, 30);
         return () => clearInterval(interval);
-    }, [stepIndex]);
+    }, [stepIndex, STEPS]);
 
     return (
         <div className="flex flex-col items-center justify-center text-center space-y-12 max-w-md w-full px-4">
@@ -950,8 +964,8 @@ function LaunchStep({ plan, brandName }: { plan: string; brandName: string }) {
 
             <div className="w-full space-y-6 text-center">
                 <div className="space-y-2">
-                    <h2 className="text-3xl font-bold tracking-tight">C'est parti !</h2>
-                    <p className="text-[#86868B] font-medium">On prépare {brandName}...</p>
+                    <h2 className="text-3xl font-bold tracking-tight">C&apos;est parti !</h2>
+                    <p className="text-[#86868B] font-medium">On prÃ©pare {brandName}...</p>
                 </div>
 
                 <div className="space-y-4">
@@ -975,3 +989,4 @@ function LaunchStep({ plan, brandName }: { plan: string; brandName: string }) {
         </div>
     );
 }
+

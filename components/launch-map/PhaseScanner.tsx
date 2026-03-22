@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Upload, ScanLine, CheckCircle2, AlertTriangle, ArrowRight, Loader2, ArrowLeft } from 'lucide-react';
@@ -158,7 +159,13 @@ export function PhaseScanner({ brandId, brand, onComplete, userPlan }: PhaseScan
                     {fileUrl && !scanResult && (
                         <div className="space-y-6">
                             <div className="relative rounded-[32px] overflow-hidden bg-black/5 aspect-square max-w-sm mx-auto p-4 flex items-center justify-center">
-                                <img src={fileUrl} alt="Mockup" className="max-w-full max-h-full object-contain mix-blend-multiply" />
+                                <Image
+                                    src={fileUrl}
+                                    alt="Mockup"
+                                    fill
+                                    sizes="(max-width: 640px) 80vw, 360px"
+                                    className="object-contain mix-blend-multiply p-4"
+                                />
                                 {isScanning && (
                                     <div className="absolute inset-0 bg-primary/20 backdrop-blur-[2px] flex items-center justify-center flex-col gap-4">
                                         <ScanLine className="w-16 h-16 text-primary animate-pulse" />
@@ -182,7 +189,13 @@ export function PhaseScanner({ brandId, brand, onComplete, userPlan }: PhaseScan
                     {scanResult && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <div className="relative rounded-[32px] overflow-hidden bg-black/5 aspect-video max-w-sm mx-auto flex items-center justify-center">
-                                <img src={fileUrl!} alt="Mockup" className="max-w-full max-h-full object-contain mix-blend-multiply opacity-50" />
+                                <Image
+                                    src={fileUrl!}
+                                    alt="Mockup"
+                                    fill
+                                    sizes="(max-width: 640px) 80vw, 360px"
+                                    className="object-contain mix-blend-multiply opacity-50 p-4"
+                                />
                                 <div className="absolute flex flex-col items-center">
                                     <div className="text-6xl font-black text-[#1D1D1F] drop-shadow-lg">{scanResult.score}<span className="text-2xl text-[#86868B]">/100</span></div>
                                     <div className={cn("mt-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest text-white shadow-md", scanResult.passed ? "bg-green-500" : "bg-red-500")}>

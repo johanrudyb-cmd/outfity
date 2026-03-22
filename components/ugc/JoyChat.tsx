@@ -4,6 +4,7 @@ import { Bot, LayoutList, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
+import Image from 'next/image';
 import { BaseAgentChat } from '@/components/launch-map/BaseAgentChat';
 
 interface JoyChatProps {
@@ -85,7 +86,7 @@ export function JoyChat({ brandId, brandName, initialImageUrl, userPlan = 'free'
                 customViews={initialImageUrl ? (
                     <div className="mx-3 sm:mx-6 mt-3 mb-1 px-4 py-3 rounded-2xl bg-white border border-black/5 shadow-sm flex items-center gap-3">
                         <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-black/10 shadow-sm flex items-center justify-center">
-                            <img src={initialImageUrl} alt="Context" className="w-full h-full object-cover" />
+                            <Image src={initialImageUrl} alt="Context" width={48} height={48} className="w-full h-full object-cover" />
                         </div>
                         <div className="flex-1 min-w-0">
                             <p className="text-[10px] font-black uppercase tracking-widest text-[#AF52DE]">Produit en vedette</p>

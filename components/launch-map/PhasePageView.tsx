@@ -61,7 +61,7 @@ export function PhasePageView({
 
   useEffect(() => {
     if (phaseId === 1 && brand?.id) {
-      setStrategyLoading(true);
+      window.setTimeout(() => setStrategyLoading(true), 0);
       fetch(`/api/brands/strategy/history?brandId=${encodeURIComponent(brand?.id || '')}`)
         .then((r) => r.json())
         .then((data) => {

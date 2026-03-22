@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Bell, CheckCircle2, Info, AlertCircle, X, Trash2, CheckCheck } from 'lucide-react';
@@ -23,7 +23,7 @@ export function NotificationsList() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       const params = new URLSearchParams();
       if (filter === 'unread') params.set('read', 'false');
@@ -41,11 +41,11 @@ export function NotificationsList() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
 
   useEffect(() => {
     fetchNotifications();
-  }, [filter]);
+  }, [fetchNotifications]);
 
   const markAsRead = async (id: string) => {
     try {

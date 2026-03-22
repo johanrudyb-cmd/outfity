@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface SearchResult {
@@ -23,27 +23,20 @@ const searchableItems: SearchResult[] = [
 
 export function SearchBar() {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<SearchResult[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    if (query.trim().length > 0) {
-      const filtered = searchableItems.filter(
-        (item) =>
-          item.title.toLowerCase().includes(query.toLowerCase()) ||
-          item.description.toLowerCase().includes(query.toLowerCase())
-      );
-      setResults(filtered.slice(0, 6));
-      setIsOpen(true);
-      setFocusedIndex(-1);
-    } else {
-      setResults([]);
-      setIsOpen(false);
-    }
+  const results = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    if (!normalized) return [];
+
+    return searchableItems.filter((item) =>
+      item.title.toLowerCase().includes(normalized) ||
+      item.description.toLowerCase().includes(normalized)
+    ).slice(0, 6);
   }, [query]);
 
   // Fermer le dropdown quand on clique en dehors
@@ -109,7 +102,12 @@ export function SearchBar() {
           type="search"
           placeholder="Rechercher..."
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            const nextQuery = e.target.value;
+            setQuery(nextQuery);
+            setFocusedIndex(-1);
+            setIsOpen(nextQuery.trim().length > 0);
+          }}
           onFocus={() => query.trim().length > 0 && setIsOpen(true)}
           onKeyDown={handleKeyDown}
           className="w-full pl-3 sm:pl-4 pr-12 sm:pr-10 py-3 text-base bg-white/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-apple focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition-all placeholder:text-[#1D1D1F]/40 min-h-[44px]"

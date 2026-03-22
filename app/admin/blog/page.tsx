@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, Plus, FileText, CheckCircle2, Clock, Globe, ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -101,10 +102,12 @@ export default async function AdminBlogPage() {
                                         {/* Thumbnail avec Image Preview */}
                                         <div className="w-full md:w-48 bg-gray-100 relative shrink-0 overflow-hidden">
                                             {post.coverImage ? (
-                                                <img
+                                                <Image
                                                     src={post.coverImage}
                                                     alt={post.title}
-                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                    fill
+                                                    sizes="(max-width: 768px) 100vw, 192px"
+                                                    className="object-cover transition-transform duration-500 group-hover:scale-110"
                                                 />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center text-[#86868b] bg-gray-50 border-r">

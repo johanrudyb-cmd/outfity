@@ -58,6 +58,7 @@ export async function POST(req: Request) {
         // Force revalidation of public pages
         revalidatePath('/');
         revalidatePath('/blog');
+        revalidatePath(`/blog/${slug}`);
 
         return NextResponse.json(post);
     } catch (error) {

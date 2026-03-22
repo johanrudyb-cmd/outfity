@@ -2,12 +2,11 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileDown, ArrowLeft, Image as ImageIcon, Ruler, Package, Scissors, Loader2, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 import type { TechPackVisual } from '@/lib/mockup-and-techpack-types';
 import { TechPackSheet } from './TechPackSheet';
 import { GenerationCostBadge } from '@/components/ui/generation-cost-badge';
@@ -51,6 +50,7 @@ export function TechPackVisualView({ design }: TechPackVisualViewProps) {
     if (!el) return;
     setIsDownloading(true);
     try {
+      const { default: html2canvas } = await import('html2canvas');
       const canvas = await html2canvas(el, {
         scale: 2,
         useCORS: true,
@@ -74,6 +74,10 @@ export function TechPackVisualView({ design }: TechPackVisualViewProps) {
     if (!el) return;
     setIsDownloadingPdf(true);
     try {
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ]);
       const canvas = await html2canvas(el, {
         scale: 2,
         useCORS: true,
@@ -205,9 +209,11 @@ export function TechPackVisualView({ design }: TechPackVisualViewProps) {
           </CardHeader>
           <CardContent>
             <div className="rounded-lg overflow-hidden bg-muted aspect-square max-w-md">
-              <img
+              <Image
                 src={productImageUrl}
                 alt={`${design.type} - photo produit`}
+                width={1200}
+                height={1200}
                 className="w-full h-full object-contain"
               />
             </div>

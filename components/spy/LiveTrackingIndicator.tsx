@@ -1,6 +1,6 @@
-'use client';
+﻿'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -49,19 +49,7 @@ export function LiveTrackingIndicator({ shopifyUrl, storeName }: LiveTrackingInd
   const [isLoading, setIsLoading] = useState(true);
   const [isToggling, setIsToggling] = useState(false);
 
-  useEffect(() => {
-    fetchTrackingData();
-    // Rafraîchir toutes les 30 secondes si le tracking est actif
-    const interval = setInterval(() => {
-      if (trackingData?.tracking) {
-        fetchTrackingData();
-      }
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [shopifyUrl, trackingData?.tracking]);
-
-  const fetchTrackingData = async () => {
+  const fetchTrackingData = useCallback(async () => {
     try {
       const response = await fetch(`/api/spy/track?url=${encodeURIComponent(shopifyUrl)}`);
       if (response.ok) {
@@ -69,17 +57,29 @@ export function LiveTrackingIndicator({ shopifyUrl, storeName }: LiveTrackingInd
         setTrackingData(data);
       }
     } catch (error) {
-      console.error('Erreur lors de la récupération du tracking:', error);
+      console.error('Erreur lors de la rÃ©cupÃ©ration du tracking:', error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [shopifyUrl]);
+
+  useEffect(() => {
+    fetchTrackingData();
+    // RafraÃ®chir toutes les 30 secondes si le tracking est actif
+    const interval = setInterval(() => {
+      if (trackingData?.tracking) {
+        fetchTrackingData();
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [fetchTrackingData, trackingData?.tracking]);
 
   const toggleTracking = async () => {
     setIsToggling(true);
     try {
       if (trackingData?.tracking) {
-        // Désactiver
+        // DÃ©sactiver
         await fetch(`/api/spy/track?brandId=${trackingData.brand.id}`, {
           method: 'DELETE',
         });
@@ -170,7 +170,7 @@ export function LiveTrackingIndicator({ shopifyUrl, storeName }: LiveTrackingInd
             </div>
             {isTracking && (
               <p className="text-xs text-muted-foreground mt-1">
-                Mise à jour toutes les heures
+                Mise Ã  jour toutes les heures
               </p>
             )}
           </div>
@@ -184,12 +184,12 @@ export function LiveTrackingIndicator({ shopifyUrl, storeName }: LiveTrackingInd
             </div>
             <div className="text-2xl font-bold text-foreground">
               {revenue24h >= 1000 
-                ? `${(revenue24h / 1000).toFixed(1)}K€`
-                : `${revenue24h.toFixed(0)}€`}
+                ? `${(revenue24h / 1000).toFixed(1)}Kâ‚¬`
+                : `${revenue24h.toFixed(0)}â‚¬`}
             </div>
             {isTracking && (
               <p className="text-xs text-muted-foreground mt-1">
-                Estimé depuis les stocks
+                EstimÃ© depuis les stocks
               </p>
             )}
           </div>
@@ -221,7 +221,7 @@ export function LiveTrackingIndicator({ shopifyUrl, storeName }: LiveTrackingInd
                   yAxisId="right" 
                   orientation="right"
                   tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}K€`}
+                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}Kâ‚¬`}
                 />
                 <Tooltip 
                   contentStyle={{ 
@@ -231,7 +231,7 @@ export function LiveTrackingIndicator({ shopifyUrl, storeName }: LiveTrackingInd
                   }}
                   formatter={(value: any, name: any) => {
                     if (name === 'revenue') {
-                      return [`${(value ?? 0).toFixed(2)}€`, 'Revenu'];
+                      return [`${(value ?? 0).toFixed(2)}â‚¬`, 'Revenu'];
                     }
                     return [value ?? 0, 'Ventes'];
                   }}
@@ -253,7 +253,7 @@ export function LiveTrackingIndicator({ shopifyUrl, storeName }: LiveTrackingInd
                   stroke="hsl(var(--success))"
                   strokeWidth={2}
                   dot={{ r: 4 }}
-                  name="Revenu (€)"
+                  name="Revenu (â‚¬)"
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -262,12 +262,13 @@ export function LiveTrackingIndicator({ shopifyUrl, storeName }: LiveTrackingInd
 
         {!isTracking && (
           <div className="text-center py-4 text-sm text-muted-foreground">
-            <p className="font-semibold mb-2">💡 Activez le tracking pour voir les données réelles</p>
-            <p className="text-xs">Le tracking analyse les stocks toutes les heures et calcule les ventes réelles</p>
-            <p className="text-xs mt-1">Sans tracking, les commandes affichées sont des estimations basées sur le trafic estimé</p>
+            <p className="font-semibold mb-2">ðŸ’¡ Activez le tracking pour voir les donnÃ©es rÃ©elles</p>
+            <p className="text-xs">Le tracking analyse les stocks toutes les heures et calcule les ventes rÃ©elles</p>
+            <p className="text-xs mt-1">Sans tracking, les commandes affichÃ©es sont des estimations basÃ©es sur le trafic estimÃ©</p>
           </div>
         )}
       </CardContent>
     </Card>
   );
 }
+

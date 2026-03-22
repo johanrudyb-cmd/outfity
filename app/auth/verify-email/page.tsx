@@ -13,18 +13,20 @@ import { signIn } from 'next-auth/react';
 function VerifyEmailContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-    const [message, setMessage] = useState('Vérification de votre compte...');
-
     const token = searchParams.get('token');
     const email = searchParams.get('email');
+    const hasValidParams = Boolean(token && email);
+    const [status, setStatus] = useState<'loading' | 'success' | 'error'>(() =>
+        hasValidParams ? 'loading' : 'error'
+    );
+    const [message, setMessage] = useState(() =>
+        hasValidParams
+            ? 'Vérification de votre compte...'
+            : 'Lien de vérification invalide ou corrompu.'
+    );
 
     useEffect(() => {
-        if (!token || !email) {
-            setStatus('error');
-            setMessage('Lien de vérification invalide ou corrompu.');
-            return;
-        }
+        if (!hasValidParams || !token || !email) return;
 
         const verify = async () => {
             try {
@@ -66,7 +68,7 @@ function VerifyEmailContent() {
         };
 
         verify();
-    }, [token, email, router]);
+    }, [hasValidParams, token, email, router]);
 
     return (
         <div className="min-h-screen bg-[#F5F5F7] flex flex-col items-center justify-center p-6 sm:p-8">

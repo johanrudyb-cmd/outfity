@@ -42,10 +42,10 @@ export default function TrendsPage() {
           description={
             <div className="space-y-4">
               <p>
-                Bienvenue sur <strong>Viral sur TikTok</strong>. L'erreur numéro 1 des marques est de lancer des collections "à l'aveugle" ou de copier ce qui est <em>déjà</em> viral aujourd'hui (c'est souvent trop tard).
+                Bienvenue sur <strong>Viral sur TikTok</strong>. L&apos;erreur numéro 1 des marques est de lancer des collections &quot;à l&apos;aveugle&quot; ou de copier ce qui est <em>déjà</em> viral aujourd&apos;hui (c&apos;est souvent trop tard).
               </p>
               <p>
-                Cet outil est votre atout secret : il analyse les signaux faibles du marché pour <strong>prédire ce qui va devenir viral demain</strong>, avant même que la mode n'éclate.
+                Cet outil est votre atout secret : il analyse les signaux faibles du marché pour <strong>prédire ce qui va devenir viral demain</strong>, avant même que la mode n&apos;éclate.
               </p>
             </div>
           }

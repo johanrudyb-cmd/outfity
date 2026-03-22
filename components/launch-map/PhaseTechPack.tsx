@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -897,7 +898,13 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
                             selectedDesignId === d.id ? "border-primary bg-primary/5 ring-4 ring-primary/10" : "border-transparent opacity-60 hover:opacity-100"
                           )}
                         >
-                          <img src={d.productImageUrl} className="w-full h-full object-contain mix-blend-multiply" />
+                          <Image
+                            src={d.productImageUrl}
+                            alt="Design produit"
+                            fill
+                            sizes="(max-width: 640px) 22vw, 10vw"
+                            className="object-contain mix-blend-multiply"
+                          />
                           {selectedDesignId === d.id && (
                             <div className="absolute -top-1 -right-1 bg-primary text-white rounded-full p-0.5 shadow-sm">
                               <Check className="w-3 h-3" />
@@ -921,7 +928,13 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
                 >
                   {uploadedMockupUrl ? (
                     <div className="space-y-2">
-                      <img src={uploadedMockupUrl} alt="Mockup" className="max-h-32 mx-auto object-contain rounded shadow-sm" />
+                      <Image
+                        src={uploadedMockupUrl}
+                        alt="Mockup"
+                        width={256}
+                        height={128}
+                        className="max-h-32 w-auto mx-auto object-contain rounded shadow-sm"
+                      />
                       <p className="text-[10px] text-muted-foreground">Cliquez pour modifier</p>
                     </div>
                   ) : (
@@ -1005,7 +1018,9 @@ export function PhaseTechPack({ brandId, brand, onComplete, standalone }: PhaseT
                         <Button type="button" variant="ghost" size="sm" onClick={() => document.getElementById(`label-${idx}`)?.click()} disabled={uploadingLogo === (idx === 0 ? 'frontDesign' : `label-${idx}`)} className="h-7 text-[10px] px-2 border shrink-0">
                           {lb.imageUrl ? 'Changer' : '+ Logo'}
                         </Button>
-                        {lb.imageUrl && <img src={lb.imageUrl} alt="" className="h-7 w-7 object-contain border rounded-lg shrink-0" />}
+                        {lb.imageUrl && (
+                          <Image src={lb.imageUrl} alt="" width={28} height={28} className="h-7 w-7 object-contain border rounded-lg shrink-0" />
+                        )}
                         {labels.length > 1 && (
                           <button
                             type="button"

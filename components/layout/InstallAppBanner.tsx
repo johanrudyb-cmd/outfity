@@ -1,6 +1,6 @@
-'use client';
+﻿'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { X, Share, PlusSquare, Smartphone, MoreVertical, Download, Bell, BellRing, Loader2 } from 'lucide-react';
@@ -10,24 +10,16 @@ import { useWebPush } from '@/lib/hooks/useWebPush';
 
 export function InstallAppBanner() {
     const pathname = usePathname();
-    const [isStandalone, setIsStandalone] = useState(true); // default true to avoid hydration mismatch
     const [showModal, setShowModal] = useState(false);
-    const [platform, setPlatform] = useState<'ios' | 'android' | 'desktop'>('desktop');
-
-    useEffect(() => {
-        // Check if already installed
-        const isMatchMedia = window.matchMedia('(display-mode: standalone)').matches;
-        const isNavigatorStandalone = (window.navigator as any).standalone === true;
-        setIsStandalone(isMatchMedia || isNavigatorStandalone);
-
-        // Detect platform
-        const ua = navigator.userAgent.toLowerCase();
-        if (/iphone|ipad|ipod/.test(ua)) {
-            setPlatform('ios');
-        } else if (/android/.test(ua)) {
-            setPlatform('android');
-        }
-    }, []);
+    const isClient = typeof window !== 'undefined';
+    const isStandalone = isClient
+        ? window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true
+        : true;
+    const platform: 'ios' | 'android' | 'desktop' = isClient
+        ? (/iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase())
+            ? 'ios'
+            : (/android/.test(navigator.userAgent.toLowerCase()) ? 'android' : 'desktop'))
+        : 'desktop';
 
     const { isSupported, isSubscribed, subscribe, loading: pushLoading, testPush } = useWebPush();
 
@@ -68,7 +60,7 @@ export function InstallAppBanner() {
                 className="flex items-center gap-2 h-8 lg:h-9 px-3 lg:px-4 rounded-full bg-[#1D1D1F] hover:bg-black text-white shadow-sm transition-colors duration-200 border-none shrink-0 cursor-pointer"
             >
                 <Download className="w-3.5 h-3.5" />
-                <span className="text-[11px] lg:text-xs font-bold whitespace-nowrap hidden sm:inline-block">Télécharger l'App</span>
+                <span className="text-[11px] lg:text-xs font-bold whitespace-nowrap hidden sm:inline-block">TÃ©lÃ©charger l&apos;App</span>
             </button>
 
             {/* The Modal */}
@@ -103,7 +95,7 @@ export function InstallAppBanner() {
                                 </div>
                                 <h2 className="text-2xl font-black text-[#1D1D1F]">Installer OUTFITY</h2>
                                 <p className="text-sm text-[#86868B] mt-2 font-medium">
-                                    Installez l'application sur votre écran d'accueil pour profiter du mode plein écran et des notifications push.
+                                    Installez l&apos;application sur votre Ã©cran d&apos;accueil pour profiter du mode plein Ã©cran et des notifications push.
                                 </p>
                             </div>
 
@@ -124,7 +116,7 @@ export function InstallAppBanner() {
                                                 <PlusSquare className="w-5 h-5" />
                                             </div>
                                             <p className="text-sm font-medium text-[#1D1D1F]">
-                                                2. Faites défiler et choisissez <strong className="font-bold">Sur l'écran d'accueil</strong>
+                                                2. Faites dÃ©filer et choisissez <strong className="font-bold">Sur l&apos;Ã©cran d&apos;accueil</strong>
                                             </p>
                                         </div>
                                     </>
@@ -145,7 +137,7 @@ export function InstallAppBanner() {
                                                 <Download className="w-5 h-5" />
                                             </div>
                                             <p className="text-sm font-medium text-[#1D1D1F]">
-                                                2. Sélectionnez <strong className="font-bold">Installer l'application</strong> ou <strong className="font-bold">Ajouter à l'écran d'accueil</strong>
+                                                2. SÃ©lectionnez <strong className="font-bold">Installer l&apos;application</strong> ou <strong className="font-bold">Ajouter Ã  l&apos;Ã©cran d&apos;accueil</strong>
                                             </p>
                                         </div>
                                     </>
@@ -158,7 +150,7 @@ export function InstallAppBanner() {
                                                 <Download className="w-5 h-5" />
                                             </div>
                                             <p className="text-sm font-medium text-[#1D1D1F]">
-                                                Sur Chrome / Edge, cliquez sur l'icône <strong className="font-bold">Installer</strong> dans la barre de recherche en haut à droite.
+                                                Sur Chrome / Edge, cliquez sur l&apos;icÃ´ne <strong className="font-bold">Installer</strong> dans la barre de recherche en haut Ã  droite.
                                             </p>
                                         </div>
                                     </>
@@ -170,7 +162,7 @@ export function InstallAppBanner() {
                                     onClick={() => setShowModal(false)}
                                     className="w-full h-12 rounded-xl text-base font-bold bg-black text-white hover:bg-[#1D1D1F]"
                                 >
-                                    J'ai compris
+                                    J&apos;ai compris
                                 </Button>
                             </div>
                         </motion.div>
@@ -180,3 +172,4 @@ export function InstallAppBanner() {
         </>
     );
 }
+

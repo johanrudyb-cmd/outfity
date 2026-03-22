@@ -25,7 +25,6 @@ export function BusinessUnitGrid() {
   const [selectedModel, setSelectedModel] = useState(0);
   const [cost, setCost] = useState(25);
   const [price, setPrice] = useState(79);
-  const [margin, setMargin] = useState(0);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -51,11 +50,7 @@ export function BusinessUnitGrid() {
     };
   }, []);
 
-  useEffect(() => {
-    const calculatedMargin = price - cost;
-    setMargin(calculatedMargin);
-  }, [cost, price]);
-
+  const margin = price - cost;
   const marginPercentage = price > 0 ? Math.round((margin / price) * 100) : 0;
 
   return (

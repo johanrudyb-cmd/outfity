@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { X, TrendingUp, BarChart3, Globe, Sparkles, Loader2, Palette, Mail, ImagePlus } from 'lucide-react';
@@ -62,11 +63,19 @@ export function TrendDetailModal({
 
   const hasStoredAdvice = !!trend.aiAdvice?.trim();
   const displayAdvice = trend.aiAdvice ?? null;
+  const trendCut = trend.cut ?? '';
+  const trendMaterial = trend.material ?? '';
+  const trendColor = trend.color ?? '';
+  const trendStyle = trend.style ?? '';
+  const trendCountry = trend.country ?? '';
+  const trendBrands = trend.brands;
+  const trendAveragePrice = trend.averagePrice;
+  const trendConfirmationScore = trend.confirmationScore;
 
   useEffect(() => {
     setGeneratedImageUrl(trend.generatedImageUrl ?? null);
     setImageError(null);
-  }, [trend.generatedImageUrl, trend.productName, trend.productType, trend.cut ?? '', trend.material ?? '']);
+  }, [trend.generatedImageUrl, trend.productName, trend.productType, trendCut, trendMaterial]);
 
   // Analyse détaillée optionnelle (si pas d'advice stocké ou pour compléter)
   useEffect(() => {
@@ -83,14 +92,14 @@ export function TrendDetailModal({
           body: JSON.stringify({
             productName: trend.productName,
             productType: trend.productType,
-            cut: trend.cut,
-            material: trend.material,
-            color: trend.color,
-            style: trend.style,
-            country: trend.country,
-            brands: trend.brands,
-            averagePrice: trend.averagePrice,
-            confirmationScore: trend.confirmationScore,
+            cut: trendCut || null,
+            material: trendMaterial || null,
+            color: trendColor || null,
+            style: trendStyle || null,
+            country: trendCountry || null,
+            brands: trendBrands,
+            averagePrice: trendAveragePrice,
+            confirmationScore: trendConfirmationScore,
           }),
         });
         const data = await res.json();
@@ -104,7 +113,7 @@ export function TrendDetailModal({
       }
     })();
     return () => { cancelled = true; };
-  }, [hasStoredAdvice, trend.productName, trend.productType, trend.cut ?? '', trend.material ?? '']);
+  }, [hasStoredAdvice, trend.productName, trend.productType, trendCut, trendMaterial, trendColor, trendStyle, trendCountry, trendBrands, trendAveragePrice, trendConfirmationScore]);
 
   const imgSrc = (generatedImageUrl?.startsWith('http') ? generatedImageUrl : null)
     || (trend.generatedImageUrl?.startsWith('http') ? trend.generatedImageUrl : null)
@@ -183,8 +192,8 @@ export function TrendDetailModal({
         <CardContent className="flex-1 overflow-y-auto space-y-6 pt-6">
           <div className="flex flex-col gap-2">
             {imgSrc && (
-              <div className="aspect-[4/3] rounded-lg overflow-hidden bg-muted">
-                <img src={imgSrc} alt={trend.productName} className="w-full h-full object-cover" />
+              <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-muted">
+                <Image src={imgSrc} alt={trend.productName} fill sizes="(max-width: 1024px) 100vw, 560px" className="object-cover" />
               </div>
             )}
             <Button

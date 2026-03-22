@@ -91,13 +91,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
     const [globalDiff, setGlobalDiff] = useState(0);
 
     const isFree = isFreePlan(userPlan);
-
-    // Force 1M leadTime for free users
-    useEffect(() => {
-        if (isFree && leadTime > 30) {
-            setLeadTime(30);
-        }
-    }, [isFree, leadTime]);
+    const effectiveLeadTime = isFree ? 30 : leadTime;
 
     const { data: trendsData, isLoading: loading, mutate } = useSWR(`/api/trends/hybrid-radar?segment=${segment}&limit=150`, fetcher, { keepPreviousData: true });
 
@@ -107,7 +101,8 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
         try {
             const products = trendsData.trends;
             const filteredRaw = products.filter((p: TrendProduct) => p.category === categoryId);
-            setRawProducts(filteredRaw);
+            let nextGlobalScore: number | null = null;
+            let nextGlobalDiff: number | null = null;
 
             // Calcul des stats de fraîcheur
             const now = new Date();
@@ -131,10 +126,10 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                 else lastUpdateStr = "À l'instant";
             }
 
-            setStats({
+            const nextStats = {
                 lastUpdate: lastUpdateStr,
                 newCount: newlyAdded
-            });
+            };
 
             // Aggrégation et mélange avec les signatures populaires de CETTE catégorie
             const aggregated = aggregateProductsToStyles(products, categoryId);
@@ -159,26 +154,37 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                 }
             });
 
-            setStyles(finalStyles);
+            const nextStyles = finalStyles;
 
             // Calcul du Score Global de la catégorie
             if (filteredRaw.length > 0) {
                 const sum = filteredRaw.reduce((acc: number, p: TrendProduct) => acc + (p.trendScore || 50), 0);
                 const avg = sum / filteredRaw.length;
                 const bonus = Math.min(15, Math.floor(filteredRaw.length / 5));
-                setGlobalScore(Math.round(avg + bonus));
+                nextGlobalScore = Math.round(avg + bonus);
 
                 const diff = newlyAdded > 0
                     ? Math.max(1, Math.min(12, Math.floor(newlyAdded / 2)))
                     : -0.2;
 
-                setGlobalDiff(diff);
+                nextGlobalDiff = diff;
             }
+
+            window.refreshCategoryTrends = mutate;
+
+            const timeout = window.setTimeout(() => {
+                setRawProducts(filteredRaw);
+                setStats(nextStats);
+                setStyles(nextStyles);
+                if (nextGlobalScore !== null) setGlobalScore(nextGlobalScore);
+                if (nextGlobalDiff !== null) setGlobalDiff(nextGlobalDiff);
+            }, 0);
+
+            return () => window.clearTimeout(timeout);
         } catch (e) {
             console.error(e);
         }
 
-        window.refreshCategoryTrends = mutate;
     }, [trendsData, segment, categoryId, mutate]);
 
     const filteredStyles = useMemo(() => {
@@ -256,7 +262,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
 
         // 2. PRÉDICTION (Lead Time - AU JOUR LE JOUR)
         let runningScore = baseScore;
-        for (let i = 1; i <= leadTime; i++) {
+        for (let i = 1; i <= effectiveLeadTime; i++) {
             const d = new Date(today);
             d.setDate(d.getDate() + i);
             const month = d.getMonth();
@@ -274,20 +280,20 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
             });
         }
         return data;
-    }, [categoryId, subFilter, leadTime, currentScoreValue, globalDiff]);
+    }, [categoryId, subFilter, effectiveLeadTime, currentScoreValue, globalDiff]);
 
     const futureScore = chartData[chartData.length - 1]?.value || 0;
 
     const isOffSeason = useMemo(() => {
         const releaseDate = new Date();
-        releaseDate.setDate(releaseDate.getDate() + leadTime);
+        releaseDate.setDate(releaseDate.getDate() + effectiveLeadTime);
         const targetMonth = releaseDate.getMonth();
         return getSeasonalTrend(categoryId, targetMonth) < 0;
-    }, [categoryId, leadTime]);
+    }, [categoryId, effectiveLeadTime]);
 
     const reliabilityIndex = useMemo(() => {
         const base = 94.5;
-        const timePenalty = (leadTime / 30) * 1.5;
+        const timePenalty = (effectiveLeadTime / 30) * 1.5;
         const volumeBonus = Math.min(styles.length * 0.1, 2);
 
         // Logique de certitude saisonnière :
@@ -297,7 +303,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
 
         const noise = (getStableNoise(categoryId + (subFilter || ''), 999) + 3) / 2;
         return Math.min(99.9, base - timePenalty + volumeBonus + seasonalCertainty - noise).toFixed(1);
-    }, [leadTime, styles.length, categoryId, subFilter, isOffSeason]);
+    }, [effectiveLeadTime, styles.length, categoryId, subFilter, isOffSeason]);
 
     const todayScore = chartData[30]?.value || 0;
     const yesterdayScore = chartData[29]?.value || 0;
@@ -321,7 +327,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
     const strategicAnalysis = useMemo(() => {
         const styleName = (subFilter === 'ALL' ? categoryLabel.split(' ')[0] : subFilter).toUpperCase();
         const releaseDate = new Date();
-        releaseDate.setDate(releaseDate.getDate() + leadTime);
+        releaseDate.setDate(releaseDate.getDate() + effectiveLeadTime);
         const month = releaseDate.getMonth();
 
         // 1. Contexte Saisonnier
@@ -452,14 +458,14 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
             targetColors,
             targetMonth: capitalizedMonth
         };
-    }, [subFilter, categoryLabel, segment, leadTime, futureScore, isOffSeason, styles, categoryId]);
+    }, [subFilter, categoryLabel, segment, effectiveLeadTime, futureScore, isOffSeason, categoryId]);
 
     const isTrendingUp = futureScore >= todayScore;
     const predictionColor = "#007AFF"; // Retour au neutre (Bleu Branding)
 
     const todayDate = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
     const releaseDateObj = new Date();
-    releaseDateObj.setDate(releaseDateObj.getDate() + leadTime);
+    releaseDateObj.setDate(releaseDateObj.getDate() + effectiveLeadTime);
     const releaseDate = releaseDateObj.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
 
     return (
@@ -467,7 +473,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
             {/* Header Responsive */}
             <div className="bg-white border-b border-gray-100 px-4 md:px-8 py-4 md:py-6 sticky top-0 z-20 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
                 <div className="flex items-center gap-4 md:gap-8">
-                    <Link href="/trends" prefetch={true} className="flex items-center gap-2 text-[10px] md:text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest shrink-0">
+                    <Link href="/trends" prefetch={false} className="flex items-center gap-2 text-[10px] md:text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest shrink-0">
                         <ArrowLeft className="w-3.5 h-3.5 md:w-4 md:h-4" />
                         <span className="hidden xs:inline">Retour Analyse</span>
                         <span className="xs:hidden">Retour</span>
@@ -580,7 +586,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                                                 whileTap={!isDisabled ? { scale: 0.95 } : {}}
                                                 className={cn(
                                                     "flex-1 md:flex-none px-4 md:px-5 py-2.5 rounded-xl text-[9px] md:text-[10px] font-black uppercase transition-all duration-300 relative overflow-hidden",
-                                                    leadTime === days && !isDisabled
+                                                    effectiveLeadTime === days && !isDisabled
                                                         ? "bg-[#007AFF] text-white shadow-[0_4px_12px_rgba(0,122,255,0.3)]"
                                                         : "bg-gray-50 text-gray-400 hover:text-black hover:bg-gray-100",
                                                     isDisabled && "opacity-50 cursor-not-allowed grayscale"
@@ -689,7 +695,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                                                 <span className="text-[8px] md:text-[9px] font-black uppercase text-gray-400">Tendance</span>
                                             </div>
                                             <div className="px-3 py-1 bg-[#007AFF] rounded-full shadow-sm shadow-blue-500/10">
-                                                <span className="text-[9px] md:text-[10px] font-black text-white uppercase">{leadTime / 30} MOIS</span>
+                                                <span className="text-[9px] md:text-[10px] font-black text-white uppercase">{effectiveLeadTime / 30} MOIS</span>
                                             </div>
                                         </div>
 
@@ -713,7 +719,7 @@ export function CategoryAnalysis({ categoryId, categoryLabel, initialSegment = '
                                                 </div>
                                                 <ArrowRight className="w-4 h-4 text-gray-300 mx-2 mb-1" />
                                                 <div className="flex-1 text-right">
-                                                    <p className="text-[8px] font-black text-gray-400 uppercase">Potentiel (J+{leadTime})</p>
+                                                    <p className="text-[8px] font-black text-gray-400 uppercase">Potentiel (J+{effectiveLeadTime})</p>
                                                     <p className={cn("text-xl md:text-2xl font-black", futureScore >= currentScoreValue ? "text-[#34C759]" : "text-[#FF3B30]")}>{futureScore}</p>
                                                 </div>
                                             </div>

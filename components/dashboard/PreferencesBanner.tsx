@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,27 +8,24 @@ import { Settings, X } from 'lucide-react';
 
 export function PreferencesBanner() {
   const [show, setShow] = useState(false);
-  const [hasPreferences, setHasPreferences] = useState(false);
 
   useEffect(() => {
+    const checkPreferences = async () => {
+      try {
+        const response = await fetch('/api/preferences');
+        if (!response.ok) return;
+
+        const prefs = await response.json();
+        // Verifier si les preferences sont completes.
+        const isComplete = Boolean(prefs.preferredCountry) && (prefs.preferredCategories?.length || 0) > 0;
+        setShow(!isComplete); // Afficher si incompletes
+      } catch (error) {
+        console.error('Error checking preferences:', error);
+      }
+    };
+
     checkPreferences();
   }, []);
-
-  const checkPreferences = async () => {
-    try {
-      const response = await fetch('/api/preferences');
-      if (response.ok) {
-        const prefs = await response.json();
-        // Vérifier si les préférences sont complètes
-        const isComplete = prefs.preferredCountry && 
-                          prefs.preferredCategories?.length > 0;
-        setHasPreferences(isComplete);
-        setShow(!isComplete); // Afficher si incomplètes
-      }
-    } catch (error) {
-      console.error('Error checking preferences:', error);
-    }
-  };
 
   if (!show) return null;
 
@@ -40,7 +37,7 @@ export function PreferencesBanner() {
             <Settings className="w-5 h-5 text-primary" />
             <div>
               <p className="text-sm font-medium text-foreground">
-                Configurez vos préférences intelligentes
+                Configurez vos preferences intelligentes
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Personnalisez les tendances et le sourcing selon vos besoins

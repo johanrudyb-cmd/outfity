@@ -1,4 +1,4 @@
-
+﻿
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { getCurrentUser, getIsAdmin } from '@/lib/auth-helpers';
 import { redirect } from 'next/navigation';
@@ -72,7 +72,8 @@ export default async function ProductDetailPage({
   if (!product) redirect('/trends');
 
   // --- KPI Calculation Logic ---
-  const daysInRadar = Math.floor((Date.now() - new Date(product.createdAt).getTime()) / (1000 * 60 * 60 * 24));
+  const now = new Date();
+  const daysInRadar = Math.floor((now.getTime() - new Date(product.createdAt).getTime()) / (1000 * 60 * 60 * 24));
   const recurrenceInCategory = await prisma.trendProduct.count({
     where: { category: product.category, segment: product.segment ?? undefined },
   });
@@ -92,7 +93,7 @@ export default async function ProductDetailPage({
   let signalColorBorder = 'border-gray-200';
 
   if (displayTrendScore >= 80) {
-    signalLabel = 'OPPORTUNITÉ OR';
+    signalLabel = 'OPPORTUNITÃ‰ OR';
     signalColor = 'text-[#FF9F0A] bg-[#FF9F0A]/10';
     signalColorBorder = 'border-[#FF9F0A]/20';
   } else if (displayTrendScore >= 60) {
@@ -100,7 +101,7 @@ export default async function ProductDetailPage({
     signalColor = 'text-[#34C759] bg-[#34C759]/10';
     signalColorBorder = 'border-[#34C759]/20';
   } else if (displayTrendScore >= 40) {
-    signalLabel = 'MODÉRÉ';
+    signalLabel = 'MODÃ‰RÃ‰';
     signalColor = 'text-[#007AFF] bg-[#007AFF]/10';
     signalColorBorder = 'border-[#007AFF]/20';
   }
@@ -227,8 +228,8 @@ export default async function ProductDetailPage({
                       <div className="w-12 h-12 rounded-2xl bg-white/90 backdrop-blur-md flex items-center justify-center mb-4 shadow-apple border border-black/5">
                         <Lock className="w-6 h-6 text-[#007AFF]" />
                       </div>
-                      <p className="text-xs font-black uppercase tracking-widest text-black">Données Premium</p>
-                      <p className="text-sm font-black text-[#007AFF] uppercase tracking-tighter">Plan Créateur requis</p>
+                      <p className="text-xs font-black uppercase tracking-widest text-black">DonnÃ©es Premium</p>
+                      <p className="text-sm font-black text-[#007AFF] uppercase tracking-tighter">Plan CrÃ©ateur requis</p>
                     </div>
                   )}
                 </div>
@@ -239,9 +240,9 @@ export default async function ProductDetailPage({
                     <div className={cn("transition-all duration-500", shouldLockTrend && "blur-[8px] opacity-40 select-none pointer-events-none")}>
                       <div className="flex items-center gap-2 mb-2 text-gray-400">
                         <DollarSign className="w-4 h-4" />
-                        <span className="text-[10px] font-black uppercase tracking-widest">Prix Marché</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest">Prix MarchÃ©</span>
                       </div>
-                      <p className="text-2xl font-black text-black">{product.averagePrice} €</p>
+                      <p className="text-2xl font-black text-black">{product.averagePrice} â‚¬</p>
                     </div>
                     {shouldLockTrend && (
                       <div className="absolute inset-0 flex items-center justify-center">
@@ -271,18 +272,18 @@ export default async function ProductDetailPage({
                     href="/production/start"
                     className="w-full py-5 bg-black text-white rounded-[20px] flex items-center justify-center gap-3 text-sm font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all"
                   >
-                    Lancer la Production 🚀
+                    Lancer la Production ðŸš€
                   </Link>
                 ) : (
                   <div className="w-full py-5 bg-gray-100 text-gray-400 rounded-[20px] flex items-center justify-center gap-3 text-sm font-black uppercase tracking-widest cursor-not-allowed">
                     <Lock className="w-4 h-4" />
-                    Réservé Membres Pro
+                    RÃ©servÃ© Membres Pro
                   </div>
                 )}
 
                 <div className="text-center">
                   <p className="text-[10px] text-gray-400 font-medium">
-                    Estimation délai production: <span className="text-black font-bold">3 semaines</span>
+                    Estimation dÃ©lai production: <span className="text-black font-bold">3 semaines</span>
                   </p>
                 </div>
               </div>
@@ -294,20 +295,20 @@ export default async function ProductDetailPage({
                 <h2 className="text-2xl font-black text-black mb-8">Analyse Technique</h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                   <div className="space-y-4">
-                    <h3 className="text-xs font-black uppercase tracking-widest text-[#007AFF]">Stratégie</h3>
+                    <h3 className="text-xs font-black uppercase tracking-widest text-[#007AFF]">StratÃ©gie</h3>
                     <p className="text-sm font-medium text-gray-600 leading-relaxed">
-                      {product.businessAnalysis || "Aucune analyse stratégique disponible pour le moment. Ce produit a été détecté par nos algorithmes de scrapping visuel."}
+                      {product.businessAnalysis || "Aucune analyse stratÃ©gique disponible pour le moment. Ce produit a Ã©tÃ© dÃ©tectÃ© par nos algorithmes de scrapping visuel."}
                     </p>
                   </div>
                   <div className="space-y-4">
-                    <h3 className="text-xs font-black uppercase tracking-widest text-[#007AFF]">Matière & Entretien</h3>
+                    <h3 className="text-xs font-black uppercase tracking-widest text-[#007AFF]">MatiÃ¨re & Entretien</h3>
                     <p className="text-sm font-medium text-gray-600 leading-relaxed">
-                      {product.material || "Non spécifié"}<br />
+                      {product.material || "Non spÃ©cifiÃ©"}<br />
                       {product.careInstructions || ""}
                     </p>
                   </div>
                   <div className="space-y-4">
-                    <h3 className="text-xs font-black uppercase tracking-widest text-[#007AFF]">Détails Source</h3>
+                    <h3 className="text-xs font-black uppercase tracking-widest text-[#007AFF]">DÃ©tails Source</h3>
                     <p className="text-sm font-medium text-gray-600 leading-relaxed">
                       Source: {product.sourceBrand || "Inconnue"}<br />
                       ID: {product.id.substring(0, 8)}
@@ -340,10 +341,11 @@ export default async function ProductDetailPage({
           </div>
         </div>
         <p className="max-w-7xl mx-auto px-6 text-[10px] text-[#86868B] text-center mt-12 font-medium leading-relaxed">
-          Les analyses et prédictions de tendances sont basées sur des algorithmes de données et constituent un outil d'aide à la décision. <br />
-          Elles ne garantissent pas les ventes futures ni le succès commercial d'un vêtement.
+          Les analyses et prÃ©dictions de tendances sont basÃ©es sur des algorithmes de donnÃ©es et constituent un outil d'aide Ã  la dÃ©cision. <br />
+          Elles ne garantissent pas les ventes futures ni le succÃ¨s commercial d'un vÃªtement.
         </p>
       </ProductDetailEnricher>
     </DashboardLayout>
   );
 }
+

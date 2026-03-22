@@ -20,6 +20,8 @@ export const metadata = {
 };
 
 export default async function AdminMetricsPage() {
+    const now = new Date();
+
     // Récupération des coûts IA agrégés par feature
     const usageByFeature = await prisma.aIUsage.groupBy({
         by: ['feature'],
@@ -37,7 +39,7 @@ export default async function AdminMetricsPage() {
     const totalCost = usageByFeature.reduce((acc: number, curr: any) => acc + (curr._sum.costEur || 0), 0);
 
     // Coût 30 derniers jours
-    const last30Days = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const cost30Days = await prisma.aIUsage.aggregate({
         where: {
             createdAt: { gte: last30Days }

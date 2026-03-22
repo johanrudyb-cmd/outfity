@@ -36,6 +36,10 @@ export async function GET() {
         });
     }
 
+    if (!brand) {
+        return NextResponse.json({ error: 'Brand unavailable' }, { status: 500 });
+    }
+
     const hasIdentity = Boolean(brand.name && brand.name.trim().length >= 2);
 
     const [designCount, quoteCount, ugcCount, quotesWithFactory, favoriteFactories, waitlistLeadCount] = await Promise.all([

@@ -1,23 +1,22 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 export function AnimatedHeader() {
-  const { data: session } = useSession();
-  const isLoggedIn = !!session?.user;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
 
   // Fermer le menu sur changement de route
   useEffect(() => {
-    setIsMenuOpen(false);
-  }, [pathname]);
+    if (!isMenuOpen) return;
+    const timeout = window.setTimeout(() => setIsMenuOpen(false), 0);
+    return () => window.clearTimeout(timeout);
+  }, [pathname, isMenuOpen]);
 
   // Empêcher le scroll quand le menu est ouvert
   useEffect(() => {
@@ -57,7 +56,7 @@ export function AnimatedHeader() {
             </button>
 
             <Link href="/" className="shrink-0">
-              <Image src="/icon.webp" alt="Logo" width={140} height={140} className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 lg:h-28 lg:w-28 xl:h-32 xl:w-32 object-contain bg-transparent" unoptimized priority={true} />
+              <Image src="/icon.webp" alt="Logo" width={140} height={140} className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 lg:h-28 lg:w-28 xl:h-32 xl:w-32 object-contain bg-transparent" priority={true} />
             </Link>
           </div>
 
@@ -92,49 +91,43 @@ export function AnimatedHeader() {
         </div>
 
         {/* Menu Mobile Overlay */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-white/60 backdrop-blur-md z-40 lg:hidden"
-                onClick={() => setIsMenuOpen(false)}
-              />
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: -20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: -20 }}
-                transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
-                className="absolute top-full left-0 w-full z-50 bg-white border-b border-black/5 overflow-hidden lg:hidden"
-              >
-                <div className="px-8 py-12 space-y-8 flex flex-col items-center text-center">
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.name}
-                      href={link.href}
-                      onClick={() => setIsMenuOpen(false)}
-                      className="text-2xl font-black uppercase tracking-tighter text-black hover:text-[#007AFF] transition-colors"
-                    >
-                      {link.name}
-                    </Link>
-                  ))}
-                  <div className="w-full h-[1px] bg-black/5 my-4" />
-                  <div className="w-full">
-                    <Link
-                      href="/auth/signin"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="block w-full py-5 bg-[#007AFF] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest text-center shadow-2xl shadow-[#007AFF]/20"
-                    >
-                      Connexion
-                    </Link>
-                  </div>
-                </div>
-              </motion.div>
-            </>
+        <div
+          className={cn(
+            'fixed inset-0 bg-white/60 backdrop-blur-md z-40 xl:hidden transition-opacity duration-200',
+            isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
           )}
-        </AnimatePresence>
+          onClick={() => setIsMenuOpen(false)}
+        />
+        <div
+          className={cn(
+            'absolute top-full left-0 w-full z-50 bg-white border-b border-black/5 overflow-hidden xl:hidden',
+            'transition-all duration-300 origin-top',
+            isMenuOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
+          )}
+        >
+          <div className="px-8 py-12 space-y-8 flex flex-col items-center text-center">
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                href={link.href}
+                onClick={() => setIsMenuOpen(false)}
+                className="text-2xl font-black uppercase tracking-tighter text-black hover:text-[#007AFF] transition-colors"
+              >
+                {link.name}
+              </Link>
+            ))}
+            <div className="w-full h-[1px] bg-black/5 my-4" />
+            <div className="w-full">
+              <Link
+                href="/auth/signin"
+                onClick={() => setIsMenuOpen(false)}
+                className="block w-full py-5 bg-[#007AFF] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest text-center shadow-2xl shadow-[#007AFF]/20"
+              >
+                Connexion
+              </Link>
+            </div>
+          </div>
+        </div>
       </nav>
     </>
   );

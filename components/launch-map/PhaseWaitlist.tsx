@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -68,10 +69,10 @@ export function PhaseWaitlist({ brandId, brand, onComplete, userPlan }: PhaseWai
             setShowCelebration(true);
             setHasCelebrated(true);
         }
-    }, [emailsCollected, hasCelebrated, loading]);
+    }, [emailsCollected, goal, hasCelebrated, loading]);
 
     // Fetch real stats, settings, and designs
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         if (!brandId) return;
         try {
             const [leadsRes, settingsRes, designsRes] = await Promise.all([
@@ -114,13 +115,13 @@ export function PhaseWaitlist({ brandId, brand, onComplete, userPlan }: PhaseWai
         } finally {
             setLoading(false);
         }
-    };
+    }, [brandId, settings.designId]);
 
     useEffect(() => {
         fetchData();
         const interval = setInterval(fetchData, 15000); // Pool every 15s for new leads
         return () => clearInterval(interval);
-    }, [brandId]);
+    }, [fetchData]);
 
     const waitlistLink = typeof window !== 'undefined'
         ? `${window.location.origin}/waitlist/${brandId}${settings.designId ? `?design=${settings.designId}` : ''}`
@@ -393,7 +394,13 @@ export function PhaseWaitlist({ brandId, brand, onComplete, userPlan }: PhaseWai
                                             <div className="shrink-0">
                                                 <div className="relative">
                                                     <div className="w-48 h-48 bg-[#F5F5F7] rounded-3xl overflow-hidden border border-black/5 shadow-inner flex items-center justify-center p-6">
-                                                        <img src={settings.mockupUrl || '/placeholder.png'} className="w-full h-full object-contain mix-blend-multiply" />
+                                                        <Image
+                                                            src={settings.mockupUrl || '/placeholder.png'}
+                                                            alt="Mockup du produit"
+                                                            width={192}
+                                                            height={192}
+                                                            className="w-full h-full object-contain mix-blend-multiply"
+                                                        />
                                                     </div>
                                                     <div className="absolute -bottom-4 -right-4 bg-white shadow-xl rounded-2xl p-3 border border-black/5 animate-bounce">
                                                         <TrendingUp className="w-6 h-6 text-green-500" />
@@ -450,10 +457,13 @@ export function PhaseWaitlist({ brandId, brand, onComplete, userPlan }: PhaseWai
                                                                     : "border-transparent opacity-60 hover:opacity-100 hover:scale-102"
                                                             )}
                                                         >
-                                                            <img
+                                                            <Image
                                                                 src={d.productImageUrl}
+                                                                alt="Design du produit"
+                                                                fill
+                                                                sizes="(max-width: 640px) 28vw, 12vw"
                                                                 className={cn(
-                                                                    "w-full h-full object-contain mix-blend-multiply transition-transform duration-500",
+                                                                    "object-contain mix-blend-multiply transition-transform duration-500",
                                                                     settings.designId === d.id ? "scale-110" : "group-hover:scale-105"
                                                                 )}
                                                             />
@@ -625,12 +635,15 @@ export function PhaseWaitlist({ brandId, brand, onComplete, userPlan }: PhaseWai
 
                                                 {/* Body */}
                                                 <div className="flex-1 p-8 flex flex-col items-center justify-between text-center gap-10 overflow-y-auto hide-scrollbar scroll-smooth">
-                                                    <div className="w-full aspect-square bg-[#F5F5F7] rounded-[40px] p-6 shadow-inner flex items-center justify-center animate-in zoom-in-50 duration-700">
+                                                    <div className="relative w-full aspect-square bg-[#F5F5F7] rounded-[40px] p-6 shadow-inner flex items-center justify-center animate-in zoom-in-50 duration-700">
                                                         {settings.mockupUrl ? (
-                                                            <img
+                                                            <Image
                                                                 src={settings.mockupUrl}
                                                                 key={settings.mockupUrl}
-                                                                className="w-full h-full object-contain mix-blend-multiply drop-shadow-2xl animate-in fade-in zoom-in duration-500"
+                                                                alt="Aperçu du mockup"
+                                                                fill
+                                                                sizes="(max-width: 768px) 80vw, 420px"
+                                                                className="object-contain mix-blend-multiply drop-shadow-2xl animate-in fade-in zoom-in duration-500"
                                                             />
                                                         ) : (
                                                             <div className="w-12 h-12 bg-black/5 rounded-full animate-pulse" />

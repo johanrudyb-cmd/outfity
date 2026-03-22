@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -129,9 +130,11 @@ export function BrandIdentityStep3({
                     : 'border-border hover:border-primary/50'
                 )}
               >
-                <img
+                <Image
                   src={logo}
                   alt={`Logo option ${index + 1}`}
+                  width={256}
+                  height={128}
                   className="w-full h-32 object-contain"
                 />
                 {selectedLogo === logo && (

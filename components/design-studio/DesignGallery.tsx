@@ -1,9 +1,9 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { FolderPlus, Folder, X } from 'lucide-react';
+import { FolderPlus, Folder } from 'lucide-react';
 
 interface Design {
   id: string;
@@ -32,20 +32,20 @@ export function DesignGallery({ designs, brandId, selectedCollectionId }: Design
   const [assigningTo, setAssigningTo] = useState<string | null>(null);
 
   useEffect(() => {
+    const fetchCollections = async () => {
+      try {
+        const response = await fetch(`/api/collections?brandId=${brandId}`);
+        const data = await response.json();
+        if (response.ok) {
+          setCollections(data.collections || []);
+        }
+      } catch (error) {
+        console.error('Erreur chargement collections:', error);
+      }
+    };
+
     fetchCollections();
   }, [brandId]);
-
-  const fetchCollections = async () => {
-    try {
-      const response = await fetch(`/api/collections?brandId=${brandId}`);
-      const data = await response.json();
-      if (response.ok) {
-        setCollections(data.collections || []);
-      }
-    } catch (error) {
-      console.error('Erreur chargement collections:', error);
-    }
-  };
 
   const handleAssignCollection = async (designId: string, collectionId: string | null) => {
     try {
@@ -57,7 +57,7 @@ export function DesignGallery({ designs, brandId, selectedCollectionId }: Design
 
       if (response.ok) {
         setAssigningTo(null);
-        // Recharger la page pour mettre à jour les designs
+        // Recharger la page pour mettre a jour les designs.
         window.location.reload();
       }
     } catch (error) {
@@ -70,9 +70,9 @@ export function DesignGallery({ designs, brandId, selectedCollectionId }: Design
       <Card className="border-2">
         <CardContent className="pt-6">
           <p className="text-sm text-muted-foreground font-medium text-center py-8">
-            {selectedCollectionId 
-              ? 'Aucun design dans cette collection' 
-              : 'Aucun design généré pour le moment'}
+            {selectedCollectionId
+              ? 'Aucun design dans cette collection'
+              : 'Aucun design genere pour le moment'}
           </p>
         </CardContent>
       </Card>
@@ -83,7 +83,7 @@ export function DesignGallery({ designs, brandId, selectedCollectionId }: Design
     <Card className="border-2">
       <CardContent className="pt-6">
         <h3 className="text-lg font-bold text-foreground mb-4">
-          {selectedCollectionId 
+          {selectedCollectionId
             ? `Designs de la collection (${designs.length})`
             : `Mes designs (${designs.length})`}
         </h3>
@@ -95,9 +95,11 @@ export function DesignGallery({ designs, brandId, selectedCollectionId }: Design
             >
               <div className="flex items-start gap-4">
                 {design.flatSketchUrl && (
-                  <img
+                  <Image
                     src={design.flatSketchUrl}
                     alt={design.type}
+                    width={80}
+                    height={80}
                     className="w-20 h-20 object-cover rounded-lg border-2 border-border"
                   />
                 )}
@@ -122,24 +124,23 @@ export function DesignGallery({ designs, brandId, selectedCollectionId }: Design
                       }`}
                     >
                       {design.status === 'completed'
-                        ? 'Terminé'
+                        ? 'Termine'
                         : design.status === 'processing'
                         ? 'En cours'
                         : 'En attente'}
                     </span>
                   </div>
-                  
-                  {/* Menu assigner à collection */}
+
                   {design.status === 'completed' && (
                     <div className="relative">
                       <button
                         onClick={() => setAssigningTo(assigningTo === design.id ? null : design.id)}
                         className="p-1.5 hover:bg-muted rounded transition-colors"
-                        title="Assigner à un fichier (collection)"
+                        title="Assigner a un fichier (collection)"
                       >
                         <FolderPlus className="w-4 h-4 text-muted-foreground" />
                       </button>
-                      
+
                       {assigningTo === design.id && (
                         <div className="absolute right-0 top-full mt-2 w-48 bg-background border-2 border-border rounded-lg shadow-modern-lg z-10">
                           <div className="p-2">

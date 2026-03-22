@@ -76,17 +76,15 @@ export function DashboardTutorial({ forceShow = false }: { forceShow?: boolean }
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
-  const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     const pendingShow = shouldShowNow();
-    if (forceShow || pendingShow || !getTutorialDone()) {
-      // Consomme le flag immédiatement pour ne pas re-afficher
-      try { localStorage.removeItem(SHOW_NEXT_KEY); } catch (_) { }
-      setIsVisible(true);
-    }
+    if (!(forceShow || pendingShow || !getTutorialDone())) return;
+
+    try { localStorage.removeItem(SHOW_NEXT_KEY); } catch (_) { }
+    const timer = window.setTimeout(() => setIsVisible(true), 0);
+    return () => window.clearTimeout(timer);
   }, [forceShow]);
 
   const currentStep = useMemo(() => TUTORIAL_STEPS[step], [step]);
@@ -109,16 +107,17 @@ export function DashboardTutorial({ forceShow = false }: { forceShow?: boolean }
   }, [currentStep]);
 
   useEffect(() => {
-    if (!mounted || !isVisible) return;
-    updateTargetRect();
+    if (!isVisible) return;
+    const frame = window.requestAnimationFrame(updateTargetRect);
     const handleResize = () => updateTargetRect();
     window.addEventListener('resize', handleResize);
     window.addEventListener('scroll', handleResize, true);
     return () => {
+      window.cancelAnimationFrame(frame);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('scroll', handleResize, true);
     };
-  }, [mounted, isVisible, step, updateTargetRect]);
+  }, [isVisible, step, updateTargetRect]);
 
   const handleNext = () => {
     if (isLast) {
@@ -139,7 +138,7 @@ export function DashboardTutorial({ forceShow = false }: { forceShow?: boolean }
     setTimeout(() => router.replace(url.pathname + (url.search || '')), 500);
   };
 
-  if (!mounted || !isVisible || !currentStep) return null;
+  if (!isVisible || !currentStep) return null;
 
   // On mobile/tablet (<1024px) sidebar is hidden — no target elements visible, so we show modal centered
   const isMobileTablet = typeof window !== 'undefined' && window.innerWidth < 1024;

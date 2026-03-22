@@ -20,21 +20,34 @@ export const metadata = {
   }
 };
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 900;
 
 import { unstable_cache } from 'next/cache';
 
 const getCachedBlogPosts = unstable_cache(
   async () => {
-    return await prisma.blogPost.findMany({
+    const posts = await prisma.blogPost.findMany({
       where: { published: true },
       orderBy: { publishedAt: 'desc' },
-      include: { authorUser: true },
-      take: 100, // Fetch more posts to build accurate category filters
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        excerpt: true,
+        coverImage: true,
+        publishedAt: true,
+        tags: true,
+      },
+      take: 12, // Keep initial payload lean for first paint and hydration
     });
+
+    return posts.map((post) => ({
+      ...post,
+      excerpt: post.excerpt?.slice(0, 180) ?? '',
+      tags: (post.tags || []).slice(0, 3),
+    }));
   },
-  ['blog-page-posts-v4'], // Invalidation manuelle du cache suite au nettoyage
+  ['blog-page-posts-v6'], // Invalidation manuelle du cache suite Ã  optimisation payload
   { revalidate: 3600, tags: ['blog'] }
 );
 

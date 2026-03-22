@@ -5,6 +5,7 @@ import { USAGE_REFRESH_EVENT } from '@/lib/hooks/useAIUsage';
 import { useQuota } from '@/lib/hooks/useQuota';
 import { useSession } from 'next-auth/react';
 import useSWR, { useSWRConfig } from 'swr';
+import NextImage from 'next/image';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 import { GenerationCostBadge } from '@/components/ui/generation-cost-badge';
@@ -653,9 +654,16 @@ export function ShootingPhoto({ brandId, designs: initialDesigns, onSwitchToTryO
                       )}
                       disabled={isGenerating}
                     >
-                      <div className="aspect-square rounded-lg overflow-hidden bg-muted mb-1">
+                      <div className="relative aspect-square rounded-lg overflow-hidden bg-muted mb-1">
                         {imgUrl ? (
-                          <img src={imgUrl} alt={name} className="w-full h-full object-cover" />
+                          <NextImage
+                            src={imgUrl}
+                            alt={name}
+                            fill
+                            unoptimized
+                            sizes="96px"
+                            className="object-cover"
+                          />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
                             <Shirt className="w-8 h-8 text-muted-foreground" />
@@ -807,8 +815,15 @@ export function ShootingPhoto({ brandId, designs: initialDesigns, onSwitchToTryO
                           disabled={isGenerating}
                         >
                           <div className="relative">
-                            <div className="aspect-[3/4] rounded-lg overflow-hidden bg-muted mb-1">
-                              <img src={m.imageUrl} alt={m.name} className="w-full h-full object-cover" />
+                            <div className="relative aspect-[3/4] rounded-lg overflow-hidden bg-muted mb-1">
+                              <NextImage
+                                src={m.imageUrl}
+                                alt={m.name}
+                                fill
+                                unoptimized
+                                sizes="96px"
+                                className="object-cover"
+                              />
                             </div>
                             {selected && (
                               <span className="absolute top-1 right-1 rounded-full bg-primary text-primary-foreground text-xs w-5 h-5 flex items-center justify-center font-bold">
@@ -1217,7 +1232,14 @@ export function ShootingPhoto({ brandId, designs: initialDesigns, onSwitchToTryO
           <CardContent className="space-y-4">
             {result && (
               <div className="rounded-xl overflow-hidden border border-border bg-muted/30 cursor-pointer group relative" onClick={() => { setPreviewModalImageUrl(result); setPreviewModalOpen(true); }}>
-                <img src={result} alt="Shooting mannequin" className="w-full h-auto transition-opacity group-hover:opacity-90" />
+                <NextImage
+                  src={result}
+                  alt="Shooting mannequin"
+                  width={1400}
+                  height={1400}
+                  unoptimized
+                  className="w-full h-auto transition-opacity group-hover:opacity-90"
+                />
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
                   <ZoomIn className="w-10 h-10 text-white drop-shadow-lg" />
                 </div>
@@ -1232,7 +1254,14 @@ export function ShootingPhoto({ brandId, designs: initialDesigns, onSwitchToTryO
                       className="rounded-xl overflow-hidden border border-border bg-muted/30 cursor-pointer group relative"
                       onClick={() => { setPreviewModalImageUrl(url); setPreviewModalOpen(true); }}
                     >
-                      <img src={url} alt={PRODUCT_ANGLE_LABELS[i]} className="w-full h-auto transition-opacity group-hover:opacity-90" />
+                      <NextImage
+                        src={url}
+                        alt={PRODUCT_ANGLE_LABELS[i]}
+                        width={1400}
+                        height={1400}
+                        unoptimized
+                        className="w-full h-auto transition-opacity group-hover:opacity-90"
+                      />
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
                         <ZoomIn className="w-8 h-8 text-white drop-shadow-lg" />
                       </div>
@@ -1333,7 +1362,14 @@ export function ShootingPhoto({ brandId, designs: initialDesigns, onSwitchToTryO
             className="relative max-w-full max-h-full rounded-xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <img src={previewModalImageUrl} alt="Shooting" className="max-h-[90vh] w-auto object-contain rounded-lg" />
+            <NextImage
+              src={previewModalImageUrl}
+              alt="Shooting"
+              width={1600}
+              height={1600}
+              unoptimized
+              className="max-h-[90vh] w-auto object-contain rounded-lg"
+            />
             <Button
               type="button"
               variant="secondary"

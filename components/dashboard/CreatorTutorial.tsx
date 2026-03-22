@@ -63,20 +63,18 @@ export function CreatorTutorial({ forceShow = false }: { forceShow?: boolean }) 
     const router = useRouter();
     const [step, setStep] = useState(0);
     const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
-    const [mounted, setMounted] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
-        setMounted(true);
         const shouldShow = forceShow ||
             localStorage.getItem(SHOW_KEY) === '1' ||
             localStorage.getItem(STORAGE_KEY) !== '1';
 
-        if (shouldShow) {
-            try { localStorage.removeItem(SHOW_KEY); } catch (_) { }
-            // Petit délai pour laisser la page se charger
-            setTimeout(() => setIsVisible(true), 600);
-        }
+        if (!shouldShow) return;
+
+        try { localStorage.removeItem(SHOW_KEY); } catch (_) { }
+        const timer = window.setTimeout(() => setIsVisible(true), 600);
+        return () => window.clearTimeout(timer);
     }, [forceShow]);
 
     const currentStep = useMemo(() => CREATOR_STEPS[step], [step]);
@@ -96,15 +94,16 @@ export function CreatorTutorial({ forceShow = false }: { forceShow?: boolean }) 
     }, [currentStep]);
 
     useEffect(() => {
-        if (!mounted || !isVisible) return;
-        updateTargetRect();
+        if (!isVisible) return;
+        const frame = window.requestAnimationFrame(updateTargetRect);
         window.addEventListener('resize', updateTargetRect);
         window.addEventListener('scroll', updateTargetRect, true);
         return () => {
+            window.cancelAnimationFrame(frame);
             window.removeEventListener('resize', updateTargetRect);
             window.removeEventListener('scroll', updateTargetRect, true);
         };
-    }, [mounted, isVisible, step, updateTargetRect]);
+    }, [isVisible, step, updateTargetRect]);
 
     const handleNext = () => {
         if (isLast) { handleComplete(); return; }
@@ -119,7 +118,7 @@ export function CreatorTutorial({ forceShow = false }: { forceShow?: boolean }) 
         setTimeout(() => router.replace(url.pathname + (url.search || '')), 400);
     };
 
-    if (!mounted || !isVisible || !currentStep) return null;
+    if (!isVisible || !currentStep) return null;
 
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
     const showSpotlight = !isMobile && targetRect !== null;

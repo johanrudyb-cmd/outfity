@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import useSWR from 'swr';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -118,9 +119,11 @@ export function UGCContentHistory({ brandId, contentType, onSelect, onEdit }: UG
               >
                 {contentType === 'virtual_tryon' ? (
                   <div className="space-y-3">
-                    <img
+                    <Image
                       src={content.content}
                       alt="Virtual Try-On"
+                      width={900}
+                      height={480}
                       className="w-full h-48 object-cover rounded-lg border-2 border-border"
                     />
                     <div className="flex items-center justify-between">

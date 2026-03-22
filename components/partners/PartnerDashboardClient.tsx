@@ -63,7 +63,12 @@ export function PartnerDashboardClient({ user, affiliate }: PartnerDashboardClie
         }
     }, []);
 
-    const referralLink = `${baseUrl}/join/creator-initiative-2026?utm_source=partner_network&utm_medium=affiliate_tracking&utm_campaign=exclusive_partner_referral&ref=${affiliate.referralCode}`;
+    const referralLink = `${baseUrl}/?${new URLSearchParams({
+        utm_source: 'partner_network',
+        utm_medium: 'affiliate_tracking',
+        utm_campaign: 'exclusive_partner_referral',
+        v: affiliate.referralCode
+    }).toString()}`;
 
     useEffect(() => {
         const fetchPersonalStats = async () => {

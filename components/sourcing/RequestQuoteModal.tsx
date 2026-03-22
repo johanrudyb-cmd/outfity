@@ -57,7 +57,7 @@ export function RequestQuoteModal({
         }
       })
       .catch(() => setDesigns([]));
-  }, [brandId]);
+  }, [brandId, selectedDesignId]);
 
   useEffect(() => {
     if (preFilledMessage) setMessage(preFilledMessage);

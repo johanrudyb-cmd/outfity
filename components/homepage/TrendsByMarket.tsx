@@ -35,31 +35,30 @@ const PredictionCurve = ({ color }: { color: string }) => (
     </svg>
 );
 
+function calculateTimeUntilNextRefresh() {
+    const now = new Date();
+    const target = new Date();
+    target.setHours(8, 0, 0, 0);
+
+    if (now > target) {
+        target.setDate(target.getDate() + 1);
+    }
+
+    const diff = target.getTime() - now.getTime();
+    const h = Math.floor(diff / (1000 * 60 * 60));
+    const m = Math.floor((diff / (1000 * 60)) % 60);
+    const s = Math.floor((diff / 1000) % 60);
+
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
 export default function TrendsByMarket() {
     const { data: session } = useSession();
     const isFree = isFreePlan((session?.user as any)?.plan);
-    const [countdown, setCountdown] = useState("14:22:05");
+    const [countdown, setCountdown] = useState(calculateTimeUntilNextRefresh);
 
     useEffect(() => {
-        const calculateTimeLeft = () => {
-            const now = new Date();
-            let target = new Date();
-            target.setHours(8, 0, 0, 0);
-
-            if (now > target) {
-                target.setDate(target.getDate() + 1);
-            }
-
-            const diff = target.getTime() - now.getTime();
-            const h = Math.floor(diff / (1000 * 60 * 60));
-            const m = Math.floor((diff / (1000 * 60)) % 60);
-            const s = Math.floor((diff / 1000) % 60);
-
-            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-        };
-
-        setCountdown(calculateTimeLeft());
-        const timer = setInterval(() => setCountdown(calculateTimeLeft()), 1000);
+        const timer = setInterval(() => setCountdown(calculateTimeUntilNextRefresh()), 1000);
         return () => clearInterval(timer);
     }, []);
 

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { prisma } from '@/lib/prisma';
@@ -60,10 +61,12 @@ export default async function BlogGrid() {
                                 <Card className="h-full border-none shadow-apple hover:shadow-apple-lg transition-all duration-500 bg-white overflow-hidden rounded-[32px] hover:-translate-y-2">
                                     {post.coverImage && (
                                         <div className="aspect-[16/10] w-full overflow-hidden bg-muted relative">
-                                            <img
+                                            <Image
                                                 src={post.coverImage}
                                                 alt={post.title}
-                                                className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                                                fill
+                                                sizes="(max-width: 768px) 100vw, 33vw"
+                                                className="object-cover transform group-hover:scale-110 transition-transform duration-700"
                                             />
                                             <div className="absolute top-4 left-4">
                                                 <span className="px-2.5 py-1 rounded-xl bg-white/90 backdrop-blur-md text-black text-[9px] font-black uppercase tracking-widest shadow-apple-sm">

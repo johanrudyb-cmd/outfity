@@ -1,11 +1,10 @@
 'use client';
 
 import { Suspense, useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
-import { DashboardTutorial } from '@/components/dashboard/DashboardTutorial';
-import { CreatorTutorial } from '@/components/dashboard/CreatorTutorial';
 import { PageTransition } from './PageTransition';
 import { PaywallGate } from '@/components/paywall/PaywallGate';
 import { ErrorBoundary } from '@/components/error/ErrorBoundary';
@@ -17,6 +16,16 @@ import useSWR from 'swr';
 import { isFreePlan } from '@/lib/plan-utils';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
+
+const DashboardTutorial = dynamic(
+  () => import('@/components/dashboard/DashboardTutorial').then((mod) => mod.DashboardTutorial),
+  { ssr: false }
+);
+
+const CreatorTutorial = dynamic(
+  () => import('@/components/dashboard/CreatorTutorial').then((mod) => mod.CreatorTutorial),
+  { ssr: false }
+);
 
 function DashboardTutorialGate() {
   const pathname = usePathname();

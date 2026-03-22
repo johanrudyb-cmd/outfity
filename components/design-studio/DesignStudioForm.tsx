@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -296,9 +297,11 @@ export function DesignStudioForm({ brandId, brand, existingDesigns, initialData 
                 </label>
                 {brand.logo && (
                   <div className="flex items-center gap-2">
-                    <img
+                    <Image
                       src={brand.logo}
                       alt="Logo"
+                      width={32}
+                      height={32}
                       className="w-8 h-8 object-contain"
                     />
                     <div className="flex gap-1">

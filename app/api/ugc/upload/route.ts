@@ -8,15 +8,15 @@ import { uploadToSupabaseStorage, isSupabaseStorageConfigured } from '@/lib/supa
 
 export const runtime = 'nodejs';
 
-/** Taille requise pour le logo (carré, adapté partout). */
-export const LOGO_WIDTH = 256;
-export const LOGO_HEIGHT = 256;
+/** Required logo dimensions (square). */
+const LOGO_WIDTH = 256;
+const LOGO_HEIGHT = 256;
 
 export async function POST(request: Request) {
   try {
     const user = await getCurrentUser();
     if (!user) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
     const formData = await request.formData();
@@ -28,47 +28,42 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Aucun fichier fourni' }, { status: 400 });
     }
 
-    // Vérifier le type de fichier
+    // Validate mime type
     if (!file.type.startsWith('image/')) {
-      return NextResponse.json(
-        { error: 'Le fichier doit être une image' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Le fichier doit etre une image' }, { status: 400 });
     }
 
-    // Vérifier la taille (max 10MB)
+    // Validate max size: 10MB
     if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json(
-        { error: 'Le fichier ne doit pas dépasser 10MB' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Le fichier ne doit pas depasser 10MB' }, { status: 400 });
     }
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Pour le logo : vérifier les dimensions (256x256)
+    // For logos, require exact 256x256 dimensions
     if (isLogo) {
       const meta = await sharp(buffer).metadata();
       const w = meta.width ?? 0;
       const h = meta.height ?? 0;
       if (w !== LOGO_WIDTH || h !== LOGO_HEIGHT) {
         return NextResponse.json(
-          { error: `Le logo doit faire exactement ${LOGO_WIDTH}×${LOGO_HEIGHT} pixels. Votre image fait ${w}×${h} px. Redimensionnez-la puis réessayez.` },
+          {
+            error: `Le logo doit faire exactement ${LOGO_WIDTH}x${LOGO_HEIGHT} pixels. Votre image fait ${w}x${h} px. Redimensionnez-la puis reessayez.`,
+          },
           { status: 400 }
         );
       }
     }
 
-    // Générer un nom de fichier unique
+    // Generate unique file name
     const timestamp = Date.now();
     const safeFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
     const filename = `${timestamp}-${safeFilename}`;
 
-    // ---- STRATÉGIE D'UPLOAD ----
-    // 1. Priorité : Supabase Storage (URL publique permanente, accessible par APIs tierces)
-    // 2. Fallback : système de fichiers local (uniquement en développement)
-
+    // Upload strategy:
+    // 1) Supabase storage first (public URL)
+    // 2) Local filesystem fallback (dev only)
     if (isSupabaseStorageConfigured()) {
       try {
         const folder = brandId ? `brands/${brandId}` : 'misc';
@@ -76,28 +71,24 @@ export async function POST(request: Request) {
         return NextResponse.json({ url: publicUrl, filename });
       } catch (storageError: any) {
         console.error('[Upload] Supabase Storage failed, falling back to local:', storageError?.message);
-        // Fall through to local storage
       }
     }
 
-    // Fallback : stockage local (développement uniquement — non persistant sur Vercel)
+    // Local fallback (not persistent on Vercel)
     const uploadsDir = join(process.cwd(), 'public', 'uploads', brandId || 'misc');
     if (!existsSync(uploadsDir)) {
       await mkdir(uploadsDir, { recursive: true });
     }
+
     const filepath = join(uploadsDir, filename);
     await writeFile(filepath, buffer);
 
-    // AVERTISSEMENT : cette URL ne fonctionnera pas avec les APIs tierces en local
     const url = `/uploads/${brandId || 'misc'}/${filename}`;
-    console.warn('[Upload] ⚠️ Fichier sauvegardé localement. Configurez SUPABASE_SERVICE_ROLE_KEY pour un stockage persistant.');
+    console.warn('[Upload] File saved locally. Configure SUPABASE_SERVICE_ROLE_KEY for persistent storage.');
 
     return NextResponse.json({ url, filename });
   } catch (error: any) {
-    console.error('Erreur lors de l\'upload:', error);
-    return NextResponse.json(
-      { error: 'Une erreur est survenue lors de l\'upload' },
-      { status: 500 }
-    );
+    console.error("Erreur lors de l'upload:", error);
+    return NextResponse.json({ error: "Une erreur est survenue lors de l'upload" }, { status: 500 });
   }
 }

@@ -21,11 +21,11 @@ function UsagePageContent() {
   const router = useRouter();
   const openSurplusModal = useSurplusModal();
   const searchParams = useSearchParams();
-  const [showSuccess, setShowSuccess] = useState(false);
+  const isSuccessFromUrl = searchParams.get('success') === 'true';
+  const [showSuccess, setShowSuccess] = useState(isSuccessFromUrl);
 
   useEffect(() => {
-    if (searchParams.get('success') === 'true') {
-      setShowSuccess(true);
+    if (isSuccessFromUrl) {
       // Rafraîchir immédiatement + retries fréquents (webhook Stripe peut être en retard)
       window.dispatchEvent(new CustomEvent(USAGE_REFRESH_EVENT));
       const intervals: NodeJS.Timeout[] = [];
@@ -41,7 +41,7 @@ function UsagePageContent() {
         clearTimeout(t3);
       };
     }
-  }, [searchParams]);
+  }, [isSuccessFromUrl]);
 
   return (
     <div className="px-4 sm:px-6 lg:px-12 py-8 sm:py-12 lg:py-16 max-w-4xl mx-auto space-y-8 sm:space-y-12 lg:space-y-16">

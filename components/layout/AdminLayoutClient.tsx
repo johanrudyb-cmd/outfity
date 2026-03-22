@@ -26,8 +26,10 @@ export function AdminLayoutClient({ children }: AdminLayoutClientProps) {
     const pathname = usePathname();
 
     useEffect(() => {
-        setSidebarOpen(false);
-    }, [pathname]);
+        if (!sidebarOpen) return;
+        const timeout = window.setTimeout(() => setSidebarOpen(false), 0);
+        return () => window.clearTimeout(timeout);
+    }, [pathname, sidebarOpen]);
 
     const navItems = [
         { label: 'Overview', href: '/admin', icon: LayoutDashboard },

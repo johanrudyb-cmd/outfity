@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma';
+﻿import { prisma } from '@/lib/prisma';
 import {
     Table,
     TableBody,
@@ -32,8 +32,9 @@ export const metadata = {
 };
 
 export default async function AdminUsersPage() {
-    const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const last7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const now = new Date();
+    const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const last7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
     const [users, newUsers24hCount, newUsers7dCount, totalUsers] = await Promise.all([
         prisma.user.findMany({
@@ -49,7 +50,7 @@ export default async function AdminUsersPage() {
 
     const stats = [
         { label: 'Total Base', value: totalUsers, sub: 'Inscriptions totales', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
-        { label: 'Nouveaux (24h)', value: newUsers24hCount, sub: 'Dernière rotation', icon: UserPlus, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+        { label: 'Nouveaux (24h)', value: newUsers24hCount, sub: 'DerniÃ¨re rotation', icon: UserPlus, color: 'text-emerald-600', bg: 'bg-emerald-50' },
         { label: 'Croissance (7j)', value: newUsers7dCount, sub: 'Performance hebdo', icon: Activity, color: 'text-orange-600', bg: 'bg-orange-50' },
         { label: 'Premium', value: users.filter(u => isPaidPlan(u.plan)).length, sub: 'Segments payants', icon: Crown, color: 'text-purple-600', bg: 'bg-purple-50' },
     ];
@@ -61,7 +62,7 @@ export default async function AdminUsersPage() {
                 <div>
                     <Badge className="mb-4 bg-black text-white hover:bg-black rounded-full px-4 py-1 text-[10px] font-black tracking-widest uppercase">Database Live</Badge>
                     <h1 className="text-4xl sm:text-6xl font-black text-[#1D1D1F] tracking-tighter uppercase italic leading-none">User <span className="text-[#007AFF]">Intelligence</span></h1>
-                    <p className="text-[#6e6e73] text-lg sm:text-xl font-medium mt-4">Surveillance de l'acquisition et gestion des accès utilisateurs.</p>
+                    <p className="text-[#6e6e73] text-lg sm:text-xl font-medium mt-4">Surveillance de l'acquisition et gestion des accÃ¨s utilisateurs.</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="relative group w-full sm:w-auto">
@@ -95,7 +96,7 @@ export default async function AdminUsersPage() {
                 <div className="flex items-center justify-between">
                     <h2 className="text-sm font-black uppercase tracking-widest text-[#86868b] flex items-center gap-2">
                         <Clock className="w-4 h-4" />
-                        Dernières Inscriptions
+                        DerniÃ¨res Inscriptions
                     </h2>
                     <Button variant="ghost" className="text-[10px] h-auto p-0 font-black uppercase tracking-widest text-[#007AFF] hover:bg-transparent">Voir Flux Live</Button>
                 </div>
@@ -143,8 +144,8 @@ export default async function AdminUsersPage() {
                             <TableRow className="hover:bg-transparent border-gray-50">
                                 <TableHead className="pl-6 sm:pl-8 py-4 sm:py-6 text-[10px] font-black uppercase tracking-widest text-[#86868b]">Profil Pilote</TableHead>
                                 <TableHead className="text-[10px] font-black uppercase tracking-widest text-[#86868b]">Segment Actuel</TableHead>
-                                <TableHead className="text-[10px] font-black uppercase tracking-widest text-[#86868b]">Date d'enrôlement</TableHead>
-                                <TableHead className="text-[10px] font-black uppercase tracking-widest text-[#86868b]">Contrôle Stripe</TableHead>
+                                <TableHead className="text-[10px] font-black uppercase tracking-widest text-[#86868b]">Date d'enrÃ´lement</TableHead>
+                                <TableHead className="text-[10px] font-black uppercase tracking-widest text-[#86868b]">ContrÃ´le Stripe</TableHead>
                                 <TableHead className="pr-8 text-right text-[10px] font-black uppercase tracking-widest text-[#86868b]">Autorisations</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -173,7 +174,7 @@ export default async function AdminUsersPage() {
                                             className={`capitalize font-black text-[9px] tracking-widest px-3 py-1 rounded-full ${isPaidPlan(user.plan) ? 'bg-black text-white' : 'bg-gray-100 text-gray-400'
                                                 }`}
                                         >
-                                            {isPaidPlan(user.plan) ? 'Créateur' : 'Starter'}
+                                            {isPaidPlan(user.plan) ? 'CrÃ©ateur' : 'Starter'}
                                         </Badge>
                                     </TableCell>
                                     <TableCell>
@@ -183,7 +184,7 @@ export default async function AdminUsersPage() {
                                                 {new Date(user.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
                                             </div>
                                             <span className="text-[10px] font-bold text-[#86868b] uppercase mt-1 pl-5">
-                                                Inscrit à {new Date(user.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                                                Inscrit Ã  {new Date(user.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                                             </span>
                                         </div>
                                     </TableCell>
@@ -194,7 +195,7 @@ export default async function AdminUsersPage() {
                                                 <span className="text-[10px] font-mono text-[#1D1D1F] font-bold uppercase group-hover:text-[#007AFF] transition-colors">{user.stripeCustomerId}</span>
                                             </div>
                                         ) : (
-                                            <span className="text-[10px] font-bold text-[#86868b] uppercase tracking-widest opacity-30">— Non Client</span>
+                                            <span className="text-[10px] font-bold text-[#86868b] uppercase tracking-widest opacity-30">â€” Non Client</span>
                                         )}
                                     </TableCell>
                                     <TableCell className="pr-8 text-right">
@@ -209,3 +210,4 @@ export default async function AdminUsersPage() {
         </div>
     );
 }
+

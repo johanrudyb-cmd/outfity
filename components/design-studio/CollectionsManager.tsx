@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,11 +36,7 @@ export function CollectionsManager({
     description: '',
   });
 
-  useEffect(() => {
-    fetchCollections();
-  }, [brandId]);
-
-  const fetchCollections = async () => {
+  const fetchCollections = useCallback(async () => {
     try {
       const response = await fetch(`/api/collections?brandId=${brandId}`);
       const data = await response.json();
@@ -52,7 +48,11 @@ export function CollectionsManager({
     } finally {
       setLoading(false);
     }
-  };
+  }, [brandId]);
+
+  useEffect(() => {
+    fetchCollections();
+  }, [fetchCollections]);
 
   const handleCreate = async () => {
     if (!formData.name.trim()) return;

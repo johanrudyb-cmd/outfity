@@ -124,22 +124,22 @@ export default async function AcademyPage() {
                                     </div>
 
                                     <h3 className="text-lg font-bold text-white mb-4 leading-tight">
-                                        "{script.title}"
+                                        &quot;{script.title}&quot;
                                     </h3>
 
                                     {/* Script Body */}
                                     <div className="space-y-4 mb-6">
                                         <div className="p-3 bg-black/40 rounded-lg border border-white/5">
                                             <span className="text-xs text-purple-400 font-bold uppercase block mb-1">🪝 LE HOOK</span>
-                                            <p className="text-white text-sm font-medium">"{script.hook}"</p>
+                                            <p className="text-white text-sm font-medium">&quot;{script.hook}&quot;</p>
                                         </div>
                                         <div className="p-3 bg-black/40 rounded-lg border border-white/5">
                                             <span className="text-xs text-blue-400 font-bold uppercase block mb-1">🗣️ LE CORPS</span>
-                                            <p className="text-white/80 text-sm leading-relaxed">"{script.body}"</p>
+                                            <p className="text-white/80 text-sm leading-relaxed">&quot;{script.body}&quot;</p>
                                         </div>
                                         <div className="p-3 bg-black/40 rounded-lg border border-white/5">
                                             <span className="text-xs text-green-400 font-bold uppercase block mb-1">⚡️ LE CTA</span>
-                                            <p className="text-white text-sm font-medium">"{script.cta}"</p>
+                                            <p className="text-white text-sm font-medium">&quot;{script.cta}&quot;</p>
                                         </div>
                                     </div>
 

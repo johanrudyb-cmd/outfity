@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   format,
   addDays,
@@ -326,8 +327,8 @@ export function StructuredPostCreator({ brandId, brandName, onSaved, initialImag
                   {/* Connected Workflow : Image context */}
                   {initialImageUrl && (
                     <div className="flex items-center gap-4 p-4 rounded-xl border border-[#007AFF]/20 bg-[#007AFF]/5 mb-6">
-                      <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-black/10">
-                        <img src={initialImageUrl} alt="Context" className="w-full h-full object-cover" />
+                      <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-black/10">
+                        <Image src={initialImageUrl} alt="Context" fill unoptimized sizes="64px" className="object-cover" />
                       </div>
                       <div>
                         <p className="text-[13px] font-bold text-[#1D1D1F] flex items-center gap-1.5"><Sparkles className="w-4 h-4 text-[#007AFF]" /> Image importée avec succès</p>
@@ -473,7 +474,7 @@ export function StructuredPostCreator({ brandId, brandName, onSaved, initialImag
                       <p className="text-xs font-bold text-muted-foreground mb-2 text-center uppercase tracking-wide">Aperçu Reel</p>
                       <div className="w-[200px] h-[355px] bg-black rounded-[24px] border-[5px] border-black overflow-hidden relative shadow-xl mx-auto">
                         {initialImageUrl ? (
-                          <img src={initialImageUrl} alt="Reel bg" className="absolute inset-0 w-full h-full object-cover opacity-90" />
+                          <Image src={initialImageUrl} alt="Reel bg" fill unoptimized sizes="200px" className="object-cover opacity-90" />
                         ) : (
                           <div className="absolute inset-0 bg-zinc-800 flex items-center justify-center">
                             <VideoIcon className="w-8 h-8 text-white/20" />
@@ -496,7 +497,7 @@ export function StructuredPostCreator({ brandId, brandName, onSaved, initialImag
 
                         {/* Background Image / Placeholder */}
                         {initialImageUrl ? (
-                          <img src={initialImageUrl} alt="Reel bg" className="absolute inset-0 w-full h-full object-cover opacity-90" />
+                          <Image src={initialImageUrl} alt="Reel bg" fill unoptimized sizes="280px" className="object-cover opacity-90" />
                         ) : (
                           <div className="absolute inset-0 bg-zinc-800 flex items-center justify-center">
                             <VideoIcon className="w-12 h-12 text-white/20" />

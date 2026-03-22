@@ -5,7 +5,7 @@ import { ArrowLeft, Lock, ChevronRight, Zap } from 'lucide-react';
 import { AnimatedHeader } from '@/components/homepage/AnimatedHeader';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 interface GuideSection {
     heading: string;
@@ -30,35 +30,27 @@ interface GuideData {
     chapters: GuideChapter[];
 }
 
+function getMarketingUnlockedFromStorage(): boolean {
+    if (typeof window === 'undefined') return false;
+
+    try {
+        const current = JSON.parse(localStorage.getItem('unlocked_resources_v2') || '[]');
+        if (current.includes('marketing')) return true;
+
+        const oldItems = JSON.parse(localStorage.getItem('unlocked_resources') || '[]');
+        if (!oldItems.includes('marketing')) return false;
+
+        localStorage.setItem('unlocked_resources_v2', JSON.stringify([...current, 'marketing']));
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 export function MarketingGuideClient({ guideData }: { guideData: GuideData }) {
-    const [isUnlocked, setIsUnlocked] = useState(false);
+    const [isUnlocked] = useState(getMarketingUnlockedFromStorage);
     const [activeChapter, setActiveChapter] = useState(0);
     const [readChapters, setReadChapters] = useState<number[]>([0]);
-
-    useEffect(() => {
-        // Lire la clé actuelle (unlocked_resources_v2)
-        const stored = localStorage.getItem('unlocked_resources_v2');
-        if (stored) {
-            const unlockedItems = JSON.parse(stored);
-            if (unlockedItems.includes('marketing')) {
-                setIsUnlocked(true);
-                return;
-            }
-        }
-        // Migration : ancienne clé (unlocked_resources) → si une session précédente avait déverrouillé
-        const oldStored = localStorage.getItem('unlocked_resources');
-        if (oldStored) {
-            const oldItems = JSON.parse(oldStored);
-            if (oldItems.includes('marketing')) {
-                // Migrer vers la nouvelle clé
-                const current = JSON.parse(localStorage.getItem('unlocked_resources_v2') || '[]');
-                if (!current.includes('marketing')) {
-                    localStorage.setItem('unlocked_resources_v2', JSON.stringify([...current, 'marketing']));
-                }
-                setIsUnlocked(true);
-            }
-        }
-    }, []);
 
     const goToChapter = (idx: number) => {
         setActiveChapter(idx);

@@ -16,7 +16,15 @@ interface StrategyUpdateNotification {
 
 export function StrategyUpdateBanner() {
     const [updates, setUpdates] = useState<StrategyUpdateNotification[]>([]);
-    const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+    const [dismissed, setDismissed] = useState<Set<string>>(() => {
+        if (typeof window === 'undefined') return new Set();
+        try {
+            const dismissedIds = localStorage.getItem('dismissedStrategyUpdates');
+            return new Set(dismissedIds ? JSON.parse(dismissedIds) : []);
+        } catch {
+            return new Set();
+        }
+    });
 
     useEffect(() => {
         // Récupérer les mises à jour récentes depuis l'API
@@ -28,12 +36,6 @@ export function StrategyUpdateBanner() {
                 }
             })
             .catch(console.error);
-
-        // Récupérer les bannières déjà fermées depuis localStorage
-        const dismissedIds = localStorage.getItem('dismissedStrategyUpdates');
-        if (dismissedIds) {
-            setDismissed(new Set(JSON.parse(dismissedIds)));
-        }
     }, []);
 
     const handleDismiss = (updateId: string) => {

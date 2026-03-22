@@ -41,11 +41,14 @@ export function TrendsHero() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    setIsVisible(true);
+    const frame = window.requestAnimationFrame(() => setIsVisible(true));
     const checkMobile = () => setIsMobile(window.innerWidth < 640);
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener('resize', checkMobile);
+    };
   }, []);
 
   return (
@@ -174,7 +177,6 @@ export function TrendsHero() {
               height={1080}
               className="w-full h-auto block"
               priority
-              unoptimized
             />
           </div>
         </div>

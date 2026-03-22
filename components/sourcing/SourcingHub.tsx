@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import useSWR from 'swr';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -65,7 +65,7 @@ export function SourcingHub({ brandId, sentQuotes, favoriteFactoryIds = [], pref
   const [detailFactory, setDetailFactory] = useState<Factory | null>(null);
 
   const { data: factoriesData, isLoading } = useSWR('/api/factories', fetcher, { keepPreviousData: true });
-  const factories: Factory[] = factoriesData?.factories || [];
+  const factories: Factory[] = useMemo(() => factoriesData?.factories || [], [factoriesData]);
   const loading = isLoading;
 
   const { data: favData, mutate: mutateFav } = useSWR(
@@ -117,10 +117,6 @@ export function SourcingHub({ brandId, sentQuotes, favoriteFactoryIds = [], pref
   });
 
   useEffect(() => {
-    applyFilters();
-  }, [filters, factories, autoFilterData]);
-
-  const applyFilters = () => {
     let filtered = [...factories];
 
     // Filtrage automatique par type de produit (si venant d'une tendance)
@@ -164,7 +160,7 @@ export function SourcingHub({ brandId, sentQuotes, favoriteFactoryIds = [], pref
     }
 
     setFilteredFactories(filtered);
-  };
+  }, [filters, factories, autoFilterData]);
 
   const countries = Array.from(new Set(factories.map((f) => f.country))).sort();
   const allSpecialties = Array.from(

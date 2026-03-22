@@ -4,6 +4,7 @@
  * Affichage des images de prévisualisation (designs, logos, mockups).
  * Pas de filigrane : l'image est affichée telle quelle pour une prévisualisation claire.
  */
+/* eslint-disable @next/next/no-img-element */
 
 interface PreviewWatermarkProps {
   src: string;

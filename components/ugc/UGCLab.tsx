@@ -1,10 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
-import { VirtualTryOn } from './VirtualTryOn';
-import { JoyChat } from './JoyChat';
-import { ShootingPhoto } from './ShootingPhoto';
 import {
   LayoutList,
   Image as ImageIcon,
@@ -17,6 +15,42 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { FeatureUsageBadge } from '@/components/usage/FeatureUsageBadge';
 import { isFreePlan } from '@/lib/plan-utils';
+
+const JoyChat = dynamic(
+  () => import('./JoyChat').then((mod) => mod.JoyChat),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-full min-h-[220px] items-center justify-center text-sm text-[#86868B]">
+        Chargement de Joy...
+      </div>
+    ),
+  }
+);
+
+const VirtualTryOn = dynamic(
+  () => import('./VirtualTryOn').then((mod) => mod.VirtualTryOn),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-[220px] items-center justify-center text-sm text-[#86868B]">
+        Chargement du Try-On...
+      </div>
+    ),
+  }
+);
+
+const ShootingPhoto = dynamic(
+  () => import('./ShootingPhoto').then((mod) => mod.ShootingPhoto),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-[220px] items-center justify-center text-sm text-[#86868B]">
+        Chargement du studio photo...
+      </div>
+    ),
+  }
+);
 
 interface Design {
   id: string;

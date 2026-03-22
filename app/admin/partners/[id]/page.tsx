@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
     ChevronLeft,
@@ -35,7 +35,7 @@ export default function PartnerDetailPage() {
     const [data, setData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const fetchPartnerData = async () => {
+    const fetchPartnerData = useCallback(async () => {
         try {
             const response = await fetch(`/api/admin/partners/${id}`);
             const result = await response.json();
@@ -53,11 +53,11 @@ export default function PartnerDetailPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [id, router]);
 
     useEffect(() => {
         fetchPartnerData();
-    }, [id, router]);
+    }, [fetchPartnerData]);
 
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text);

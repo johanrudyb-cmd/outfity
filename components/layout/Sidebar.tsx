@@ -1,15 +1,13 @@
 'use client';
 
-import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { X, Settings, LogOut, LayoutDashboard, TrendingUp, Camera, PenSquare, Calculator, Sparkles, Receipt, ShieldCheck, HelpCircle, Crown, ArrowRight } from 'lucide-react';
+import { X, LayoutDashboard, TrendingUp, Camera, PenSquare, Calculator, Sparkles, Receipt, ShieldCheck, HelpCircle, Crown, ArrowRight } from 'lucide-react';
 import useSWR from 'swr';
 import { useSession } from 'next-auth/react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
@@ -44,8 +42,8 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
 
   const handleNav = () => onClose?.();
 
-  // ── Compact icon sidebar for tablets (md, hidden on lg+) ──────────────────
-  const CompactSidebar = () => (
+  // Compact icon sidebar for tablets (md, hidden on lg+)
+  const compactSidebar = (
     <aside className="hidden md:flex lg:hidden fixed left-0 top-0 bottom-0 w-[68px] bg-white/95 backdrop-blur-xl border-r border-black/5 flex-col z-50 overflow-y-auto py-4 items-center gap-1 shrink-0 overscroll-contain">
       {/* Logo */}
       <Link href="/dashboard" className="flex items-center justify-center w-12 h-12 mb-3 shrink-0" title="Dashboard">
@@ -57,10 +55,10 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
         const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
         const Icon = item.icon;
         return (
-          <motion.div key={item.href} whileTap={{ scale: 0.9 }}>
+          <div key={item.href} className="transition-transform active:scale-95">
             <Link
               href={item.href}
-              prefetch={true}
+              prefetch={false}
               title={item.name}
               className={cn(
                 'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200',
@@ -70,7 +68,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
               <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
               <span className="text-[8px] font-black uppercase tracking-tight leading-none">{item.short}</span>
             </Link>
-          </motion.div>
+          </div>
         );
       })}
 
@@ -96,10 +94,10 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
         }
 
         return (
-          <motion.div key={item.href} whileTap={{ scale: 0.9 }}>
+          <div key={item.href} className="transition-transform active:scale-95">
             <Link
               href={item.href}
-              prefetch={true}
+              prefetch={false}
               title={item.name}
               className={cn(
                 'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200',
@@ -109,7 +107,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
               <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
               <span className="text-[8px] font-black uppercase tracking-tight leading-none">{item.short}</span>
             </Link>
-          </motion.div>
+          </div>
         );
       })}
 
@@ -117,10 +115,10 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
       {isAffiliate && (
         <>
           <div className="w-8 h-px bg-black/8 my-1" />
-          <motion.div whileTap={{ scale: 0.9 }}>
+          <div className="transition-transform active:scale-95">
             <Link
               href="/partners"
-              prefetch={true}
+              prefetch={false}
               title="Mes commissions"
               className={cn(
                 'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200',
@@ -130,7 +128,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
               <Receipt className="w-5 h-5" strokeWidth={pathname === '/partners' ? 2.5 : 2} />
               <span className="text-[8px] font-black uppercase tracking-tight leading-none text-center">Partenariat</span>
             </Link>
-          </motion.div>
+          </div>
         </>
       )}
 
@@ -138,10 +136,10 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
       {isAdmin && (
         <>
           <div className="w-8 h-px bg-black/8 my-1" />
-          <motion.div whileTap={{ scale: 0.9 }}>
+          <div className="transition-transform active:scale-95">
             <Link
               href="/admin/partners"
-              prefetch={true}
+              prefetch={false}
               title="Administration"
               className={cn(
                 'flex flex-col items-center justify-center gap-1 w-12 h-12 rounded-2xl transition-all duration-200',
@@ -151,14 +149,14 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
               <ShieldCheck className="w-5 h-5" strokeWidth={pathname.startsWith('/admin/partners') ? 2.5 : 2} />
               <span className="text-[8px] font-black uppercase tracking-tight leading-none text-center">Admin</span>
             </Link>
-          </motion.div>
+          </div>
         </>
       )}
 
       {/* Bottom Spacer + Help */}
       <div className="mt-auto flex flex-col items-center gap-1">
         <div className="w-8 h-px bg-black/8 my-1" />
-        <motion.div whileTap={{ scale: 0.9 }}>
+        <div className="transition-transform active:scale-95">
           <a
             href="https://instagram.com/biangory"
             target="_blank"
@@ -169,7 +167,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
             <HelpCircle className="w-5 h-5" strokeWidth={2} />
             <span className="text-[8px] font-black uppercase tracking-tight leading-none">Aide</span>
           </a>
-        </motion.div>
+        </div>
       </div>
 
     </aside>
@@ -177,10 +175,10 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
 
   return (
     <>
-      {/* ── Compact sidebar tablet (md only) ── */}
-      <CompactSidebar />
+      {/* Compact sidebar tablet (md only) */}
+      {compactSidebar}
 
-      {/* ── Full sidebar: mobile drawer + desktop fixed ── */}
+      {/* Full sidebar: mobile drawer + desktop fixed */}
       <aside
         className={cn(
           'fixed left-0 top-0 h-[100dvh] lg:h-screen w-72 max-w-[85vw] backdrop-blur-xl bg-white/95 flex flex-col z-[70] overflow-hidden',
@@ -219,10 +217,10 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                 const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
                 const Icon = item.icon;
                 return (
-                  <motion.div key={item.name} whileHover={{ x: 2 }} whileTap={{ scale: 0.98 }}>
+                  <div key={item.name} className="transition-transform hover:translate-x-0.5 active:scale-[0.98]">
                     <Link
                       href={item.href}
-                      prefetch={true}
+                      prefetch={false}
                       data-tour={item.tourId}
                       onClick={handleNav}
                       className={cn(
@@ -241,7 +239,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                         </Badge>
                       )}
                     </Link>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
@@ -272,10 +270,10 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                 }
 
                 return (
-                  <motion.div key={item.name} whileHover={{ x: 2 }} whileTap={{ scale: 0.98 }}>
+                  <div key={item.name} className="transition-transform hover:translate-x-0.5 active:scale-[0.98]">
                     <Link
                       href={item.href}
-                      prefetch={true}
+                      prefetch={false}
                       data-tour={item.tourId}
                       onClick={handleNav}
                       className={cn(
@@ -289,7 +287,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                       <Icon className="w-5 h-5 shrink-0" strokeWidth={isActive ? 2.5 : 2} />
                       <span>{item.name}</span>
                     </Link>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
@@ -302,7 +300,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
               <div className="space-y-0.5">
                 <Link
                   href="/partners"
-                  prefetch={true}
+                  prefetch={false}
                   onClick={handleNav}
                   className={cn(
                     'flex items-center gap-3 min-h-[44px] px-4 py-2.5 rounded-2xl text-[15px] font-medium transition-all duration-200 active:scale-[0.98]',
@@ -325,7 +323,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
               <div className="space-y-0.5">
                 <Link
                   href="/admin/partners"
-                  prefetch={true}
+                  prefetch={false}
                   onClick={handleNav}
                   className={cn(
                     'flex items-center gap-3 min-h-[44px] px-4 py-2.5 rounded-2xl text-[15px] font-medium transition-all duration-200 active:scale-[0.98]',
@@ -422,3 +420,4 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
     </>
   );
 }
+

@@ -78,7 +78,7 @@ export async function POST() {
         affiliateCode: affiliateCode || '',
       },
       client_reference_id: user.id,
-      customer_email: user.email ?? undefined,
+      ...(user.email ? { customer_email: user.email } : {}),
     });
 
     return NextResponse.json({ url: session.url });

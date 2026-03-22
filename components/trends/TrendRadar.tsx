@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import useSWR from 'swr';
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
@@ -394,10 +395,12 @@ export function TrendRadar({ userId }: TrendRadarProps) {
               <Card key={`${trend.productType}-${trend.cut ?? ''}-${trend.material ?? ''}-${index}`} className="overflow-hidden flex flex-col">
                 <div className="aspect-[3/4] bg-muted relative shrink-0">
                   {imgSrc ? (
-                    <img
+                    <Image
                       src={imgSrc}
                       alt={trend.productName}
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="(max-width: 1024px) 50vw, 280px"
+                      className="object-cover"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-muted-foreground">

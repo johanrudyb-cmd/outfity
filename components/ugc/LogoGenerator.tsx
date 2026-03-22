@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -215,9 +216,11 @@ export function LogoGenerator({ brandId }: LogoGeneratorProps) {
                                 <div className="relative group">
                                     {/* Container Image */}
                                     <div className="bg-[#f0f0f0] pattern-grid-lg relative aspect-square flex items-center justify-center overflow-hidden">
-                                        <img
+                                        <Image
                                             src={resultUrl}
                                             alt="Logo généré"
+                                            fill
+                                            sizes="(max-width: 1024px) 100vw, 520px"
                                             className="max-w-full max-h-full object-contain shadow-lg"
                                         />
                                     </div>

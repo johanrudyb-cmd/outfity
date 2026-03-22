@@ -227,7 +227,7 @@ export function BaseAgentChat({
         } finally {
             setIsTyping(false);
         }
-    }, [messages, brandId, isTyping, apiEndpoint, processBotReply]);
+    }, [messages, brandId, isTyping, apiEndpoint, processBotReply, storageKey]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -493,6 +493,7 @@ export function BaseAgentChat({
                         {/* Tech pack image preview */}
                         {allowImageUpload && pendingImage && (
                             <div className="flex items-center gap-2 mb-2 p-2 bg-white rounded-2xl border border-blue-500/20 shadow-sm animate-in slide-in-from-bottom-2 duration-300">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                     src={pendingImage.preview}
                                     alt="Tech pack"

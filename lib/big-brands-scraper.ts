@@ -5,7 +5,7 @@
  * pour détecter les tendances émergentes.
  */
 
-// import puppeteer removed
+import puppeteer, { type Browser } from 'puppeteer-core';
 
 export type BigBrand = 'Zara' | 'ASOS' | 'Zalando' | 'H&M' | 'Uniqlo' | 
   'Mango' | 'Massimo Dutti' | 'COS' | 'Arket' | 'Weekday' |
@@ -32,6 +32,13 @@ type BrandConfig = {
   newInUrl: string;
   bestSellersUrl: string;
   selectors: { products: string; name: string; price: string; image: string };
+};
+
+type RawScrapedProduct = {
+  name: string;
+  price: number;
+  imageUrl: string | null;
+  productUrl: string;
 };
 
 /**
@@ -212,14 +219,14 @@ export async function scrapeBrandSection(
     console.log(`[Big Brands Scraper] Page chargée : ${pageTitle} (${fullUrl})`);
 
     // Debug : Compter les éléments trouvés
-    const elementCount = await page.evaluate((selector) => {
+    const elementCount = await page.evaluate((selector: string) => {
       return document.querySelectorAll(selector).length;
     }, config.selectors.products);
     console.log(`[Big Brands Scraper] Éléments trouvés avec "${config.selectors.products}" : ${elementCount}`);
 
     // Extraire les produits avec plusieurs stratégies de fallback
-    const productsRaw = await page.evaluate(
-      (selectors, brandName, sectionType) => {
+    const productsRaw = (await page.evaluate(
+      (selectors: { products: string; name: string; price: string; image: string }) => {
         // Stratégie 1 : Sélecteur principal
         let productElements = Array.from(document.querySelectorAll(selectors.products));
         let usedSelector = selectors.products;
@@ -256,7 +263,9 @@ export async function scrapeBrandSection(
           return [];
         }
 
-        return productElements.slice(0, 50).map((element) => {
+        return productElements
+        .slice(0, 50)
+        .map((element) => {
           // Nom : Essayer plusieurs stratégies
           let nameEl = element.querySelector(selectors.name);
           if (!nameEl) {
@@ -345,20 +354,19 @@ export async function scrapeBrandSection(
             imageUrl,
             productUrl,
           };
-        }).filter(p => {
+        })
+        .filter((p: RawScrapedProduct) => {
           // Filtrer : nom valide ET (prix > 0 OU image présente)
           return p.name && p.name.length > 3 && (p.price > 0 || p.imageUrl);
         });
       },
-      config.selectors,
-      brand,
-      section
-    );
+      config.selectors
+    )) as RawScrapedProduct[];
     
     console.log(`[Big Brands Scraper] ${productsRaw.length} produits extraits (avant filtrage)`);
 
     // Traiter les produits en dehors du contexte du navigateur
-    const products = productsRaw.map((productRaw) => {
+    const products = productsRaw.map((productRaw: RawScrapedProduct) => {
       // Normaliser le nom pour extraire type, coupe, matériau, couleur
       const normalized = normalizeProductName(productRaw.name);
       
@@ -386,7 +394,7 @@ export async function scrapeBrandSection(
     });
 
     await browser.close();
-    return products.filter(p => p.name && p.price > 0);
+    return products.filter((p: BigBrandProduct) => p.name && p.price > 0);
   } catch (error) {
     if (browser) await browser.close();
     console.error(`[Big Brands Scraper] Erreur pour ${brand} (${section}):`, error);

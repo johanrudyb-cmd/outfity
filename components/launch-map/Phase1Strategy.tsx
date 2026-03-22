@@ -77,13 +77,13 @@ export function Phase1Strategy({
     } catch { return strategyText || null; }
   });
 
-  const setStrategyResult = (val: string | null) => {
+  const setStrategyResult = useCallback((val: string | null) => {
     setStrategyResultState(val);
     try {
       if (val) sessionStorage.setItem(SESSION_KEY, val);
       else sessionStorage.removeItem(SESSION_KEY);
     } catch { }
-  };
+  }, [SESSION_KEY]);
 
   const [strategyLoading, setStrategyLoading] = useState(false);
   const [analyzedBrandsFromDb, setAnalyzedBrandsFromDb] = useState<Array<{ brandName: string; slug: string }>>([]);
@@ -109,7 +109,7 @@ export function Phase1Strategy({
     return [...fromRef, ...extra];
   }, [positioning, analyzedBrandsFromDb]);
 
-  const handleCalquerStrategie = async (slug: string) => {
+  const handleCalquerStrategie = useCallback(async (slug: string) => {
     if (isFreePlan(userPlan)) { router.push('/auth/choose-plan'); return; }
     const templateName = referenceBrands.find(b => b.slug === slug)?.brandName || slug;
     setStrategyLoading(true);
@@ -139,7 +139,7 @@ export function Phase1Strategy({
     } finally {
       setStrategyLoading(false);
     }
-  };
+  }, [brand?.name, brandId, brandName, positioning, referenceBrands, router, setStrategyResult, targetAudience, toast, userPlan]);
 
   useEffect(() => {
     const shouldGenerate = searchParams.get('generate') === 'true';
@@ -151,7 +151,7 @@ export function Phase1Strategy({
         toast({ title: 'Informations manquantes', message: 'Virgil a besoin d\'une marque d\'inspiration pour générer le manifeste.', type: 'info' });
       }
     }
-  }, [searchParams, selectedSlug, brand?.templateBrandSlug, strategyResult]);
+  }, [searchParams, selectedSlug, brand?.templateBrandSlug, strategyResult, handleCalquerStrategie, strategyLoading, toast]);
 
   const handleGenerateLogo = async () => {
     setLogoGenerating(true);

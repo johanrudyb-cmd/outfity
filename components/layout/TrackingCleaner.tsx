@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { useSearchParams, usePathname } from 'next/navigation';
 
 /**
  * Nettoie discrètement l'URL des paramètres de tracking après capture
@@ -10,8 +10,6 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 export function TrackingCleaner() {
     const searchParams = useSearchParams();
     const pathname = usePathname();
-    const router = useRouter();
-
     useEffect(() => {
         const v = searchParams.get('v');
         const ref = searchParams.get('ref');

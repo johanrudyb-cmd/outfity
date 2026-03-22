@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 
 interface BrandLogoProps {
   logoUrl: string | null;
@@ -26,12 +26,9 @@ function getLogoSrc(url: string | null): string | null {
 }
 
 export function BrandLogo({ logoUrl, brandName, className = 'w-12 h-12', objectFit = 'contain' }: BrandLogoProps) {
-  const [failed, setFailed] = useState(false);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const src = useMemo(() => getLogoSrc(logoUrl), [logoUrl]);
-
-  useEffect(() => {
-    setFailed(false);
-  }, [logoUrl]);
+  const failed = !!src && failedSrc === src;
 
   if (!src || failed) {
     return (
@@ -53,6 +50,7 @@ export function BrandLogo({ logoUrl, brandName, className = 'w-12 h-12', objectF
     <div
       className={`rounded-lg bg-muted flex items-center justify-center shrink-0 overflow-hidden aspect-square min-w-0 ${className}`}
     >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
         alt={brandName}
@@ -60,7 +58,7 @@ export function BrandLogo({ logoUrl, brandName, className = 'w-12 h-12', objectF
         loading="lazy"
         decoding="async"
         referrerPolicy="no-referrer"
-        onError={() => setFailed(true)}
+        onError={() => setFailedSrc(src)}
       />
     </div>
   );

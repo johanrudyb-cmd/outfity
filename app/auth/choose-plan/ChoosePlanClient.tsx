@@ -3,38 +3,35 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Check, ArrowRight, Sparkles, Clock, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+const PROMO_END_TIMESTAMP = new Date('2026-04-01T00:00:00').getTime();
+
+function calculatePromoTimeLeft() {
+  const difference = PROMO_END_TIMESTAMP - Date.now();
+
+  if (difference <= 0) {
+    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+  }
+
+  return {
+    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((difference / 1000 / 60) % 60),
+    seconds: Math.floor((difference / 1000) % 60),
+  };
+}
+
 function CountdownTimer() {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [timeLeft, setTimeLeft] = useState(calculatePromoTimeLeft);
 
   useEffect(() => {
-    // On définit une fin de promo fixe : 1er Avril 2026 à Minuit
-    const PROMO_END_DATE = new Date('2026-04-01T00:00:00').getTime();
-
-    const calculateTimeLeft = () => {
-      const difference = PROMO_END_DATE - Date.now();
-
-      if (difference <= 0) {
-        return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-      }
-
-      return {
-        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((difference / 1000 / 60) % 60),
-        seconds: Math.floor((difference / 1000) % 60),
-      };
-    };
-
-    // Initial set
-    setTimeLeft(calculateTimeLeft());
-
     const timer = setInterval(() => {
-      const updated = calculateTimeLeft();
+      const updated = calculatePromoTimeLeft();
       setTimeLeft(updated);
-      if (PROMO_END_DATE - Date.now() <= 0) {
+      if (PROMO_END_TIMESTAMP - Date.now() <= 0) {
         clearInterval(timer);
       }
     }, 1000);
@@ -90,9 +87,11 @@ const plans = [
 
 export function ChoosePlanClient({ userPlan, onboardingCompleted }: { userPlan?: string, onboardingCompleted?: boolean }) {
   const searchParams = useSearchParams();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const canceled = searchParams.get('canceled') === 'true';
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(() =>
+    canceled ? 'Paiement annulé. Vous pouvez réessayer ou continuer en gratuit.' : ''
+  );
   const [isVisible, setIsVisible] = useState(false);
 
   // Si l'utilisateur est déjà en "free" (Starter), on ne lui propose plus le Starter, seulement le Créateur.
@@ -102,11 +101,9 @@ export function ChoosePlanClient({ userPlan, onboardingCompleted }: { userPlan?:
     : plans;
 
   useEffect(() => {
-    setIsVisible(true);
-    if (canceled) {
-      setError('Paiement annulé. Vous pouvez réessayer ou continuer en gratuit.');
-    }
-  }, [canceled]);
+    const frame = window.requestAnimationFrame(() => setIsVisible(true));
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   const handleSubscribe = async () => {
     setError('');
@@ -209,9 +206,11 @@ export function ChoosePlanClient({ userPlan, onboardingCompleted }: { userPlan?:
                   {plan.agents.map((agent) => (
                     <div key={agent.name} className="flex items-center gap-3">
                       <div className="relative">
-                        <img
+                        <Image
                           src={agent.img}
                           alt={agent.name}
+                          width={40}
+                          height={40}
                           className={cn(
                             "w-10 h-10 rounded-full border border-black/10 object-cover",
                             !agent.isUnlocked && "grayscale opacity-40"

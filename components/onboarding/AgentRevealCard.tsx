@@ -1,6 +1,6 @@
-'use client';
+﻿'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import Image from 'next/image';
@@ -13,6 +13,74 @@ export interface AgentProps {
     stats: { label: string; value: number }[];
     color: string;
 }
+
+export const AGENTS_TEAM: AgentProps[] = [
+    {
+        id: 'virgil',
+        name: 'Virgil',
+        role: 'Je definis ta strategie',
+        image: '/images/agents/virgil_final.webp',
+        color: '#007AFF',
+        stats: [
+            { label: 'Vision', value: 96 },
+            { label: 'Positioning', value: 94 },
+            { label: 'Market', value: 92 },
+            { label: 'Speed', value: 90 },
+        ],
+    },
+    {
+        id: 'pharrell',
+        name: 'Pharrell',
+        role: 'Je t accompagne sur tes designs',
+        image: '/images/agents/pharrell_final.webp',
+        color: '#8B5CF6',
+        stats: [
+            { label: 'Design', value: 95 },
+            { label: 'Creativity', value: 97 },
+            { label: 'Product', value: 91 },
+            { label: 'Trend', value: 89 },
+        ],
+    },
+    {
+        id: 'ada',
+        name: 'Ada',
+        role: 'Je te guide sur le sourcing',
+        image: '/images/agents/ada_final.webp',
+        color: '#10B981',
+        stats: [
+            { label: 'Suppliers', value: 94 },
+            { label: 'MOQ', value: 90 },
+            { label: 'Costs', value: 93 },
+            { label: 'Quality', value: 92 },
+        ],
+    },
+    {
+        id: 'joy',
+        name: 'Joy',
+        role: 'J ecris tes scripts',
+        image: '/images/agents/joy_final.webp',
+        color: '#F59E0B',
+        stats: [
+            { label: 'Hooks', value: 95 },
+            { label: 'Ads', value: 93 },
+            { label: 'Stories', value: 92 },
+            { label: 'SEO', value: 88 },
+        ],
+    },
+    {
+        id: 'johan',
+        name: 'Johan',
+        role: 'Je t accompagne sur ta boutique',
+        image: '/images/agents/johan_final.webp',
+        color: '#EF4444',
+        stats: [
+            { label: 'Store', value: 94 },
+            { label: 'Funnel', value: 91 },
+            { label: 'CRO', value: 90 },
+            { label: 'Growth', value: 92 },
+        ],
+    },
+];
 
 export function AgentRevealCard({ agent, delay = 0, onReveal }: { agent: AgentProps, delay?: number, onReveal?: () => void }) {
     const cardRef = useRef<HTMLDivElement>(null);
@@ -35,17 +103,7 @@ export function AgentRevealCard({ agent, delay = 0, onReveal }: { agent: AgentPr
     const glareX = useTransform(smoothX, [0, 1], [100, -100]);
     const glareY = useTransform(smoothY, [0, 1], [100, -100]);
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsRevealed(true);
-            // Small extra delay to ensure the card has started flipping before firing confetti
-            setTimeout(triggerFireworks, 400);
-            if (onReveal) onReveal();
-        }, delay * 1000 + 400);
-        return () => clearTimeout(timer);
-    }, [delay, onReveal]);
-
-    const triggerFireworks = () => {
+    const triggerFireworks = useCallback(() => {
         if (!cardRef.current) return;
         const rect = cardRef.current.getBoundingClientRect();
 
@@ -61,7 +119,17 @@ export function AgentRevealCard({ agent, delay = 0, onReveal }: { agent: AgentPr
             disableForReducedMotion: true,
             zIndex: 100,
         });
-    };
+    }, [agent.color]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsRevealed(true);
+            // Small extra delay to ensure the card has started flipping before firing confetti
+            setTimeout(triggerFireworks, 400);
+            if (onReveal) onReveal();
+        }, delay * 1000 + 400);
+        return () => clearTimeout(timer);
+    }, [delay, onReveal, triggerFireworks]);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         if (!cardRef.current || !isRevealed) return;
@@ -107,7 +175,7 @@ export function AgentRevealCard({ agent, delay = 0, onReveal }: { agent: AgentPr
                     transformStyle: 'preserve-3d',
                     perspective: 1200,
                 }}
-                transition={{ duration: 0.8, type: "spring", stiffness: 50, damping: 20 }}
+                transition={{ duration: 0.8, type: 'spring', stiffness: 50, damping: 20 }}
             >
                 {/* Back of the card (Before Reveal) */}
                 <div
@@ -195,106 +263,23 @@ export function AgentRevealCard({ agent, delay = 0, onReveal }: { agent: AgentPr
                     />
 
                     {/* Shiny Foil effect */}
-                    <div className="pointer-events-none absolute inset-0 z-10 mix-blend-color-dodge opacity-30"
+                    <div
+                        className="pointer-events-none absolute inset-0 z-10 mix-blend-color-dodge opacity-30"
                         style={{
                             backgroundImage: `linear-gradient(125deg, transparent 20%, white 40%, transparent 60%)`,
                             backgroundSize: '200% 200%',
-                            animation: isRevealed ? 'shine 4s infinite linear' : 'none',
+                            animation: isHovered ? 'holo 3s linear infinite' : 'none',
                         }}
                     />
                 </div>
             </motion.div>
 
-            {/* Glowing Name and Role below the card */}
-            <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={isRevealed ? { opacity: 1, y: 0 } : { opacity: 0, y: -10 }}
-                transition={{ duration: 0.5, delay: delay * 0.2 + 0.8 }}
-                className="mt-6 text-center"
-            >
-                <div
-                    className="text-lg sm:text-xl font-black uppercase tracking-widest bg-clip-text text-transparent drop-shadow-lg"
-                    style={{ backgroundImage: `linear-gradient(to right, #666, ${agent.color}, #666)` }}
-                >
-                    {agent.name}
-                </div>
-                <div
-                    className="mt-1 flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold uppercase tracking-wider"
-                    style={{ color: agent.color }}
-                >
-                    <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: agent.color }} />
-                    {agent.role}
-                    <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: agent.color }} />
-                </div>
-            </motion.div>
+            <style jsx>{`
+                @keyframes holo {
+                    0% { background-position: 0% 50%; }
+                    100% { background-position: 200% 50%; }
+                }
+            `}</style>
         </motion.div>
     );
 }
-
-export const AGENTS_TEAM: AgentProps[] = [
-    {
-        id: 'virgil',
-        name: 'Virgil',
-        role: 'Stratégie',
-        image: '/images/agents/virgil_final.webp',
-        color: '#007AFF', // OUTFITY Blue
-        stats: [
-            { label: 'Vision', value: 96 },
-            { label: 'Branding', value: 94 },
-            { label: 'Expertise', value: 92 },
-            { label: 'Conseil', value: 94 }
-        ]
-    },
-    {
-        id: 'pharrell',
-        name: 'Pharrell',
-        role: 'Design & Accompagnement',
-        image: '/images/agents/pharrell_final.webp',
-        color: '#a032ff',
-        stats: [
-            { label: 'Créativité', value: 92 },
-            { label: 'Style', value: 90 },
-            { label: 'Accompagnement', value: 94 },
-            { label: 'Conseil', value: 88 }
-        ]
-    },
-    {
-        id: 'ada',
-        name: 'Ada',
-        role: 'Sourcing & Collection',
-        image: '/images/agents/ada_final.webp',
-        color: '#ff2a5f',
-        stats: [
-            { label: 'Analytique', value: 95 },
-            { label: 'Usines', value: 94 },
-            { label: 'Sourcing', value: 92 },
-            { label: 'Qualité', value: 91 }
-        ]
-    },
-    {
-        id: 'johan',
-        name: 'Johan',
-        role: 'E-shop & Ventes',
-        image: '/images/agents/johan_final.webp',
-        color: '#ffaa00',
-        stats: [
-            { label: 'Shopify', value: 86 },
-            { label: 'Conversion', value: 84 },
-            { label: 'Web Design', value: 82 },
-            { label: 'Support', value: 86 }
-        ]
-    },
-    {
-        id: 'joy',
-        name: 'Joy',
-        role: 'Social Media & DA',
-        image: '/images/agents/joy_final.webp',
-        color: '#AF52DE',
-        stats: [
-            { label: 'Créativité', value: 95 },
-            { label: 'Viralité', value: 92 },
-            { label: 'Engagement', value: 94 },
-            { label: 'Copywriting', value: 88 }
-        ]
-    }
-];

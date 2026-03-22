@@ -1,6 +1,7 @@
 
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, Calendar, User, Clock, ArrowRight, Sparkles } from 'lucide-react';
 import { ShareButton } from '@/components/blog/ShareButton';
 import { prisma } from '@/lib/prisma';
@@ -9,9 +10,9 @@ import { AnimatedHeader } from '@/components/homepage/AnimatedHeader';
 import Footer from '@/components/homepage/Footer';
 import { cn } from '@/lib/utils';
 import { Metadata } from 'next';
+import { unstable_cache } from 'next/cache';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 900;
 
 interface BlogPostPageProps {
     params: Promise<{
@@ -19,17 +20,52 @@ interface BlogPostPageProps {
     }>;
 }
 
+export async function generateStaticParams() {
+    const posts = await prisma.blogPost.findMany({
+        where: { published: true },
+        select: { slug: true },
+    });
+
+    return posts.map((post) => ({ slug: post.slug }));
+}
+
+const getCachedPostBySlug = unstable_cache(
+    async (slug: string) =>
+        prisma.blogPost.findUnique({
+            where: { slug },
+            include: { authorUser: true },
+        }),
+    ['blog-post-by-slug-v1'],
+    { revalidate: 900, tags: ['blog'] }
+);
+
+const getCachedSuggestedPosts = unstable_cache(
+    async (slug: string) =>
+        prisma.blogPost.findMany({
+            where: {
+                published: true,
+                slug: { not: slug },
+            },
+            orderBy: { publishedAt: 'desc' },
+            take: 3,
+        }),
+    ['blog-suggested-posts-v1'],
+    { revalidate: 900, tags: ['blog'] }
+);
+
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
     const { slug } = await params;
-    const post = await prisma.blogPost.findUnique({
-        where: { slug },
-        include: { authorUser: true },
-    });
+    const post = await getCachedPostBySlug(slug);
 
     if (!post) return { title: 'Article non trouvé | OUTFITY' };
 
     const siteUrl = 'https://outfity.fr';
     const authorName = post.author || post.authorUser?.name || 'OUTFITY Team';
+    const publishedDate = post.publishedAt ? new Date(post.publishedAt) : null;
+    const publishedTime =
+        publishedDate && !Number.isNaN(publishedDate.getTime())
+            ? publishedDate.toISOString()
+            : undefined;
 
     return {
         title: `${post.title} | OUTFITY Radar`,
@@ -52,7 +88,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
             ] : [],
             locale: 'fr_FR',
             type: 'article',
-            publishedTime: post.publishedAt.toISOString(),
+            publishedTime,
             authors: [authorName],
         },
         twitter: {
@@ -66,22 +102,12 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
     const { slug } = await params;
-    const post = await prisma.blogPost.findUnique({
-        where: { slug },
-        include: { authorUser: true },
-    });
+    const post = await getCachedPostBySlug(slug);
 
     const isProd = process.env.NODE_ENV === 'production';
     if (!post || (isProd && !post.published)) notFound();
 
-    const suggestedPosts = await prisma.blogPost.findMany({
-        where: {
-            published: true,
-            id: { not: post.id },
-        },
-        orderBy: { publishedAt: 'desc' },
-        take: 3,
-    });
+    const suggestedPosts = await getCachedSuggestedPosts(slug);
 
     const authorName = post.author || post.authorUser?.name || 'OUTFITY Team';
 
@@ -98,7 +124,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                             className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#007AFF] mb-12 hover:gap-4 transition-all"
                         >
                             <ArrowLeft className="w-4 h-4" />
-                            Retour à l'actualité
+                            Retour à l&apos;actualité
                         </Link>
 
                         <div className="flex flex-wrap items-center gap-4 mb-10">
@@ -147,10 +173,12 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                         <div className="aspect-[21/10] w-full relative overflow-hidden bg-[#F5F5F7]">
                             {post.coverImage ? (
                                 <>
-                                    <img
+                                    <Image
                                         src={`https://wsrv.nl/?url=${encodeURIComponent(post.coverImage.trim())}&w=1200&q=80&output=jpg`}
                                         alt={post.title}
-                                        className="w-full h-full object-cover relative z-10"
+                                        fill
+                                        sizes="100vw"
+                                        className="object-cover relative z-10"
                                     />
                                     {/* Fallback qui apparait si l'image est cachée */}
                                     <div className="absolute inset-0 flex items-center justify-center p-12 text-center z-0">
@@ -289,7 +317,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                                                 Dominez votre marché <br className="hidden sm:block" /> avec la Data.
                                             </h3>
                                             <p className="text-white/50 text-base font-medium max-w-lg leading-relaxed">
-                                                L'IA OUTFITY analyse des millions de points de données pour vous donner une longueur d'avance sur vos concurrents.
+                                                L&apos;IA OUTFITY analyse des millions de points de données pour vous donner une longueur d&apos;avance sur vos concurrents.
                                             </p>
                                         </div>
                                         <Link
@@ -313,15 +341,15 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                                 <div>
                                     <h2 className="text-4xl font-black tracking-tight text-black mb-4 uppercase">
                                         Continuer <br className="sm:hidden" />
-                                        <span className="text-[#6e6e73]/40">l'exploration</span>
+                                        <span className="text-[#6e6e73]/40">l&apos;exploration</span>
                                     </h2>
-                                    <p className="text-[#6e6e73] font-medium text-lg">D'autres analyses pour affiner votre radar.</p>
+                                    <p className="text-[#6e6e73] font-medium text-lg">D&apos;autres analyses pour affiner votre radar.</p>
                                 </div>
                                 <Link
                                     href="/blog"
                                     className="group flex items-center gap-3 text-[#007AFF] font-black uppercase tracking-[0.2em] text-[10px]"
                                 >
-                                    Toute l'actualité
+                                    Toute l&apos;actualité
                                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                 </Link>
                             </div>
@@ -332,9 +360,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                                         <article className="flex flex-col h-full bg-white rounded-[40px] overflow-hidden shadow-apple transition-all duration-700 hover:shadow-apple-lg hover:-translate-y-3">
                                             <div className="relative aspect-[16/10] overflow-hidden bg-[#F5F5F7]">
                                                 {suggested.coverImage && (
-                                                    <img
-                                                        src={suggested.coverImage}
+                                                    <Image
+                                                        src={`https://wsrv.nl/?url=${encodeURIComponent(suggested.coverImage.trim())}&w=1200&q=80&output=jpg`}
                                                         alt={suggested.title}
+                                                        fill
+                                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                                                     />
                                                 )}

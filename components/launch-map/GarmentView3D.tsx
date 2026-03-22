@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useMemo, useState } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
@@ -160,8 +160,10 @@ interface ShirtMeshProps {
 }
 
 function ShirtMesh({ designImageUrl, placement, garmentColor = DEFAULT_COLOR, mockupImageUrl = null }: ShirtMeshProps) {
-  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
-  const textureRef = useRef<THREE.CanvasTexture | null>(null);
+  const canvas = useMemo(() => {
+    if (typeof document === 'undefined') return null;
+    return document.createElement('canvas');
+  }, []);
   const imageCacheRef = useRef<HTMLImageElement | null>(null);
 
   useEffect(() => {
@@ -169,10 +171,7 @@ function ShirtMesh({ designImageUrl, placement, garmentColor = DEFAULT_COLOR, mo
   }, [designImageUrl]);
 
   useEffect(() => {
-    const c = document.createElement('canvas');
-    setCanvas(c);
     return () => {
-      textureRef.current = null;
       imageCacheRef.current = null;
     };
   }, []);
@@ -182,17 +181,22 @@ function ShirtMesh({ designImageUrl, placement, garmentColor = DEFAULT_COLOR, mo
     const tex = new THREE.CanvasTexture(canvas);
     tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
     tex.needsUpdate = true;
-    textureRef.current = tex;
     return tex;
   }, [canvas]);
 
   useEffect(() => {
-    if (!canvas || !textureRef.current) return;
+    return () => {
+      texture?.dispose();
+    };
+  }, [texture]);
+
+  useEffect(() => {
+    if (!canvas || !texture) return;
     drawCanvas(canvas, designImageUrl, placement, garmentColor, (loadedImage) => {
       if (loadedImage) imageCacheRef.current = loadedImage;
-      if (textureRef.current) textureRef.current.needsUpdate = true;
+      texture.needsUpdate = true;
     }, imageCacheRef.current, mockupImageUrl ?? null);
-  }, [canvas, designImageUrl, placement, garmentColor, mockupImageUrl]);
+  }, [canvas, texture, designImageUrl, placement, garmentColor, mockupImageUrl]);
 
   const geometry = useMemo(
     () => createWornShirtGeometry(2, 2.4, 48, 48),

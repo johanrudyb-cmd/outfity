@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Check, Sparkles, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -188,9 +189,12 @@ export function PricingSection() {
                     { name: 'Joy', img: '/images/agents/joy_final.webp' }
                   ].map((agent) => (
                     <div key={agent.name} className="relative group/agent">
-                      <img
+                      <Image
                         src={agent.img}
                         alt={agent.name}
+                        width={32}
+                        height={32}
+                        sizes="32px"
                         className="w-8 h-8 rounded-full border-2 border-white shadow-sm object-cover bg-slate-100"
                       />
                       <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover/agent:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">

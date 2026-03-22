@@ -1,8 +1,9 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo } from 'react';
 import useSWR from 'swr';
 import Link from 'next/link';
+import Image from 'next/image';
 import { TrendProduct } from '@/types';
 import { useSearchParams } from 'next/navigation';
 import { LucideIcon, Loader2, TrendingUp, Tag, Layers, Sparkles, Shirt, ArrowRight, Activity, Cloud, Hexagon, Component, Box } from 'lucide-react';
@@ -63,7 +64,7 @@ const MAIN_CATEGORIES: CategoryItem[] = [
     dbId: 'DRESS',
     label: 'Robes',
     icon: Sparkles,
-    desc: { homme: '', femme: 'Mini, Midi, Maxi & Soirée' },
+    desc: { homme: '', femme: 'Mini, Midi, Maxi & SoirÃ©e' },
     onlyFemme: true
   },
   {
@@ -105,7 +106,8 @@ export function TendancesContent({ initialData }: { initialData?: unknown }) {
     if (!trendsData?.trends) return {};
 
     const statsMap: Record<string, { score: number, diff: number, pct: string, newItems: number }> = {};
-    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const now = new Date();
+    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
     MAIN_CATEGORIES.forEach(cat => {
       const catProducts = trendsData.trends.filter((p: TrendProduct) => p.category === cat.dbId);
@@ -166,7 +168,7 @@ export function TendancesContent({ initialData }: { initialData?: unknown }) {
         </div>
       </div>
 
-      {/* 2. Menu de Catégories (Grid) */}
+      {/* 2. Menu de CatÃ©gories (Grid) */}
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {MAIN_CATEGORIES.filter(c => !c.onlyFemme || segment === 'femme').map((cat, idx) => {
@@ -175,7 +177,7 @@ export function TendancesContent({ initialData }: { initialData?: unknown }) {
             const desc = typeof cat.desc === 'string' ? cat.desc : cat.desc[segment as 'homme' | 'femme'];
 
             return (
-              <Link key={cat.id} href={`/trends/category/${cat.id}?segment=${segment}`} prefetch={true}>
+              <Link key={cat.id} href={`/trends/category/${cat.id}?segment=${segment}`} prefetch={false}>
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -195,13 +197,15 @@ export function TendancesContent({ initialData }: { initialData?: unknown }) {
                       </div>
                     </div>
 
-                    <img
+                    <Image
                       src={categoryImage}
+                      alt={label}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 460px"
                       className={cn(
-                        "w-full h-full transition-transform duration-1000",
+                        "transition-transform duration-1000",
                         "object-cover group-hover:scale-110"
                       )}
-                      alt={label}
                     />
                     {/* Overlay Graduel */}
                     <div className={cn(
@@ -249,10 +253,11 @@ export function TendancesContent({ initialData }: { initialData?: unknown }) {
           })}
         </div>
         <p className="max-w-7xl mx-auto px-6 text-[10px] text-[#86868B] text-center mt-8 font-medium leading-relaxed">
-          Les analyses et prédictions de tendances sont basées sur des algorithmes de données et constituent un outil d'aide à la décision. <br />
-          Elles ne garantissent pas les ventes futures ni le succès commercial.
+          Les analyses et prÃ©dictions de tendances sont basÃ©es sur des algorithmes de donnÃ©es et constituent un outil d'aide Ã  la dÃ©cision. <br />
+          Elles ne garantissent pas les ventes futures ni le succÃ¨s commercial.
         </p>
       </div>
     </div>
   );
 }
+

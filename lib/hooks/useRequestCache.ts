@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 /**
  * Cache simple pour les requêtes API
@@ -102,7 +102,7 @@ export function useCachedFetch<T>(
   const cacheKey = url || '';
   const cacheTTL = options?.cacheTTL || 30000;
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!url) {
       setData(null);
       return;
@@ -137,11 +137,11 @@ export function useCachedFetch<T>(
     } finally {
       setLoading(false);
     }
-  };
+  }, [url, options, cacheKey, cacheTTL]);
 
   useEffect(() => {
     fetchData();
-  }, [url]);
+  }, [fetchData]);
 
   return {
     data,

@@ -1,12 +1,8 @@
-export const dynamic = 'force-dynamic';
-
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 // Cache 5 minutes — les tendances ne changent pas à la seconde
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
@@ -60,7 +56,5 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error('API Error:', error);
     return NextResponse.json({ trends: [], error: 'Failed' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
 }

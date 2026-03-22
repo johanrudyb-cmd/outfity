@@ -67,7 +67,7 @@ export function ProductDetailEnricher({ productId, product, children }: ProductD
   useEffect(() => {
     if (hasEnriched.current || !hasMissingFields(product)) return;
     hasEnriched.current = true;
-    setEnriching(true);
+    window.setTimeout(() => setEnriching(true), 0);
     fetch(`/api/trends/products/${productId}/enrich`, { method: 'POST' })
       .then((res) => res.ok ? res.json() : null)
       .then((data) => {

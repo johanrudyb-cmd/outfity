@@ -1,4 +1,4 @@
-// import puppeteer removed
+import puppeteer, { type Browser } from 'puppeteer-core';
 
 export interface SocialSignal {
     platform: 'TikTok' | 'Pinterest';
@@ -12,7 +12,7 @@ export interface SocialSignal {
  */
 export async function fetchSocialSignals(): Promise<SocialSignal[]> {
     const signals: SocialSignal[] = [];
-    let browser;
+    let browser: Browser | null = null;
 
     try {
         browser = await puppeteer.launch({
@@ -31,7 +31,7 @@ export async function fetchSocialSignals(): Promise<SocialSignal[]> {
                 const items = Array.from(document.querySelectorAll('span[class*="CardTitle"]'));
                 return items.slice(0, 10).map(el => el.textContent?.trim() || '');
             });
-            tiktokTrends.forEach(trend => {
+            tiktokTrends.forEach((trend: string) => {
                 if (trend) signals.push({ platform: 'TikTok', trendName: trend });
             });
         } catch (e) {
@@ -48,7 +48,7 @@ export async function fetchSocialSignals(): Promise<SocialSignal[]> {
                 const items = Array.from(document.querySelectorAll('[class*="trend-item-title"]'));
                 return items.slice(0, 10).map(el => el.textContent?.trim() || '');
             });
-            pinterestTrends.forEach(trend => {
+            pinterestTrends.forEach((trend: string) => {
                 if (trend) signals.push({ platform: 'Pinterest', trendName: trend });
             });
         } catch (e) {

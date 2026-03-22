@@ -28,7 +28,6 @@ export function BrandComparison({ userId }: BrandComparisonProps) {
 
   useEffect(() => {
     fetchAnalyses();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const fetchAnalyses = async () => {

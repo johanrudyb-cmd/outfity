@@ -77,7 +77,6 @@ export async function uploadToSupabaseStorage(
     return publicUrlData.publicUrl;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function createBucketIfNotExists(supabase: any) {
     const { error } = await supabase.storage.createBucket(BUCKET_NAME, {
         public: true,

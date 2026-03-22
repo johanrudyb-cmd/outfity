@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import Image from 'next/image';
 import useSWR from 'swr';
 import { USAGE_REFRESH_EVENT } from '@/lib/hooks/useAIUsage';
 import { GenerationCostBadge } from '@/components/ui/generation-cost-badge';
@@ -18,6 +19,7 @@ import {
 } from '@/lib/mannequin-questionnaire-types';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
+const normalizeImageSrc = (url: string) => (url.startsWith('http') ? `/api/proxy-image?url=${encodeURIComponent(url)}` : url);
 
 interface StrategyContext {
   targetAudience?: string | null;
@@ -468,6 +470,7 @@ export function VirtualTryOn({ brandId, designs, onSelectImage, userPlan = 'free
                         </label>
                         {referencePreviewUrl && (
                           <div className="mt-2 w-16 h-16 rounded-md overflow-hidden border border-border">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={referencePreviewUrl} alt="Aperçu" className="w-full h-full object-cover" />
                           </div>
                         )}
@@ -557,8 +560,8 @@ export function VirtualTryOn({ brandId, designs, onSelectImage, userPlan = 'free
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="rounded-lg overflow-hidden bg-muted aspect-[3/4] max-w-sm">
-              <img src={result} alt="Mannequin cible" className="w-full h-full object-cover" />
+            <div className="relative rounded-lg overflow-hidden bg-muted aspect-[3/4] max-w-sm">
+              <Image src={normalizeImageSrc(result)} alt="Mannequin cible" fill sizes="(max-width: 768px) 90vw, 360px" className="object-cover" />
             </div>
             <div className="flex flex-wrap gap-3">
               <Button

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Mail, CheckCircle2, Rocket, ArrowRight, Instagram, Twitter, Globe, Sparkles } from 'lucide-react';
@@ -123,10 +124,12 @@ export function WaitlistClient({ brand, settings, selectedDesign }: WaitlistClie
                         <div className="absolute -inset-4 bg-black/5 blur-2xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-700" />
                         <div className="w-full aspect-square bg-[#F5F5F7] rounded-[40px] lg:rounded-[60px] p-8 lg:p-12 flex items-center justify-center relative overflow-hidden shadow-2xl">
                             {selectedDesign?.productImageUrl ? (
-                                <img
+                                <Image
                                     src={selectedDesign.productImageUrl}
                                     alt="Drop Sneak Peak"
-                                    className="w-full h-full object-contain mix-blend-multiply drop-shadow-[0_35px_35px_rgba(0,0,0,0.15)] transform group-hover:scale-105 transition-transform duration-700 ease-out"
+                                    fill
+                                    sizes="(max-width: 1024px) 90vw, 500px"
+                                    className="object-contain mix-blend-multiply drop-shadow-[0_35px_35px_rgba(0,0,0,0.15)] transform group-hover:scale-105 transition-transform duration-700 ease-out"
                                 />
                             ) : (
                                 <Rocket className="w-24 h-24 text-black/5" />

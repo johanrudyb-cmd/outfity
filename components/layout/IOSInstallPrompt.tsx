@@ -1,30 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { X, Share, PlusSquare, ArrowBigDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 
 export function IOSInstallPrompt() {
-    const [showPrompt, setShowPrompt] = useState(false);
+    const [dismissed, setDismissed] = useState(false);
+    const showPrompt = useMemo(() => {
+        if (dismissed || typeof window === 'undefined') return false;
 
-    useEffect(() => {
-        // Vérifier si c'est iOS
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-
-        // Vérifier si l'app est déjà en mode standalone (déjà "installée")
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
-
-        // Vérifier si l'utilisateur a déjà fermé le prompt (via localStorage)
         const hasSeenPrompt = localStorage.getItem('ios_install_prompt_hidden') === 'true';
 
-        if (isIOS && !isStandalone && !hasSeenPrompt) {
-            setShowPrompt(true);
-        }
-    }, []);
+        return isIOS && !isStandalone && !hasSeenPrompt;
+    }, [dismissed]);
 
     const handleClose = () => {
-        setShowPrompt(false);
+        setDismissed(true);
         localStorage.setItem('ios_install_prompt_hidden', 'true');
     };
 

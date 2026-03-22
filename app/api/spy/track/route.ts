@@ -130,10 +130,10 @@ export async function GET(request: Request) {
     last7Days.setDate(last7Days.getDate() - 7);
 
     const snapshots7Days = brand.snapshots.filter(
-      (s) => s.timestamp >= last7Days
+      (s: { timestamp: Date }) => s.timestamp >= last7Days
     );
 
-    const dailyData = snapshots7Days.reduce((acc: any, snapshot) => {
+    const dailyData = snapshots7Days.reduce((acc: Record<string, { sales: number; revenue: number }>, snapshot: { timestamp: Date; salesDiff: number; revenueDiff: number }) => {
       const date = snapshot.timestamp.toISOString().split('T')[0];
       if (!acc[date]) {
         acc[date] = { sales: 0, revenue: 0 };
@@ -143,7 +143,7 @@ export async function GET(request: Request) {
       return acc;
     }, {});
 
-    const chartData = Object.entries(dailyData).map(([date, data]: [string, any]) => ({
+    const chartData = Object.entries(dailyData).map(([date, data]: [string, { sales: number; revenue: number }]) => ({
       date,
       sales: data.sales,
       revenue: data.revenue,

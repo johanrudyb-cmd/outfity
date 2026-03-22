@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   CheckCircle2,
   Palette,
@@ -237,7 +238,7 @@ export function LaunchMapOverview() {
                     <Link
                       key={p.id}
                       href={href}
-                      prefetch={true}
+                      prefetch={false}
                       className={cn(
                         "group relative flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-[20px] sm:rounded-[24px] border transition-all duration-200 hover:shadow-apple active:scale-[0.98] overflow-hidden",
                         done
@@ -418,7 +419,7 @@ export function LaunchMapOverview() {
                       { name: 'Johan', img: '/images/agents/johan_final.webp' },
                     ].map(a => (
                       <div key={a.name} className="relative group/a">
-                        <img src={a.img} alt={a.name} className="w-9 h-9 rounded-full object-cover border-2 border-white/20 grayscale opacity-60" />
+                        <Image src={a.img} alt={a.name} width={36} height={36} className="w-9 h-9 rounded-full object-cover border-2 border-white/20 grayscale opacity-60" />
                         <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-white text-black text-[9px] font-bold px-2 py-0.5 rounded opacity-0 group-hover/a:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
                           {a.name}
                         </div>

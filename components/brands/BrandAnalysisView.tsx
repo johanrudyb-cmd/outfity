@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -173,7 +173,11 @@ export function BrandAnalysisView({ slug }: BrandAnalysisViewProps) {
   const resolvedSlug = (params?.slug as string) || slug;
   const nameParam = searchParams?.get('name')?.trim();
   const curatedBrand = slugToCuratedBrand(resolvedSlug);
-  const brand = curatedBrand ?? (nameParam ? { brand: nameParam } as CuratedBrand : null);
+  const brand = useMemo(
+    () => curatedBrand ?? (nameParam ? ({ brand: nameParam } as CuratedBrand) : null),
+    [curatedBrand, nameParam]
+  );
+  const brandName = brand?.brand ?? '';
 
   const { data: session } = useSession();
   const user = session?.user;
@@ -211,13 +215,13 @@ export function BrandAnalysisView({ slug }: BrandAnalysisViewProps) {
   const hasAutoTriggeredRef = useRef(false);
 
   useEffect(() => {
-    if (!brand) {
+    if (!brandName) {
       setLoading(false);
       return;
     }
     let cancelled = false;
     setLoading(true);
-    fetch(`/api/brands/analyze?brandName=${encodeURIComponent(brand.brand)}`)
+    fetch(`/api/brands/analyze?brandName=${encodeURIComponent(brandName)}`)
       .then((res) => {
         if (cancelled) return;
         if (res.ok) return res.json();
@@ -238,11 +242,11 @@ export function BrandAnalysisView({ slug }: BrandAnalysisViewProps) {
         if (!cancelled) setLoading(false);
       });
     return () => { cancelled = true; };
-  }, [brand?.brand]);
+  }, [brandName]);
 
   /** Récupère les marques de l'utilisateur une fois l'analyse chargée. */
   useEffect(() => {
-    if (!analysis || !brand) return;
+    if (!analysis || !brandName) return;
     let cancelled = false;
     setUserBrandsLoading(true);
     fetch('/api/brands')
@@ -257,11 +261,11 @@ export function BrandAnalysisView({ slug }: BrandAnalysisViewProps) {
         if (!cancelled) setUserBrandsLoading(false);
       });
     return () => { cancelled = true; };
-  }, [analysis, brand]);
+  }, [analysis, brandName]);
 
   /** Recommandation auto : croiser marque utilisateur + marque tendance dès qu'on a les deux. */
   useEffect(() => {
-    if (!analysis || !brand || userBrandsLoading || hasAutoTriggeredRef.current) return;
+    if (!analysis || !brandName || userBrandsLoading || hasAutoTriggeredRef.current) return;
     const first = userBrands?.length ? userBrands[0] : null;
     if (!first?.name?.trim()) return;
     hasAutoTriggeredRef.current = true;
@@ -275,7 +279,7 @@ export function BrandAnalysisView({ slug }: BrandAnalysisViewProps) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        templateBrandName: brand.brand,
+        templateBrandName: brandName,
         creatorBrandName: creatorName,
         analysisText: analysis,
         creatorBrandContext: creatorBrandContext || undefined,
@@ -290,7 +294,7 @@ export function BrandAnalysisView({ slug }: BrandAnalysisViewProps) {
       })
       .catch((e) => setRecommendationError(e instanceof Error ? e.message : 'Erreur'))
       .finally(() => setRecommendationLoading(false));
-  }, [analysis, brand, userBrands, userBrandsLoading]);
+  }, [analysis, brandName, userBrands, userBrandsLoading]);
 
   const handleLaunchAnalysis = async () => {
     if (!brand) return;

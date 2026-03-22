@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
@@ -52,24 +51,18 @@ export function ScrollToTop() {
     if (!isPublicRoute) return null;
 
     return (
-        <AnimatePresence>
-            {isVisible && (
-                <motion.button
-                    initial={{ opacity: 0, scale: 0.8, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.8, y: 20 }}
-                    onClick={scrollToTop}
-                    className={cn(
-                        "fixed bottom-6 right-6 md:bottom-8 md:right-8 z-[90] p-3 md:p-4 rounded-full",
-                        "bg-white/80 backdrop-blur-md border border-black/5 shadow-apple-lg",
-                        "text-[#1D1D1F] transition-all hover:scale-110 active:scale-95 hover:bg-white",
-                        "flex items-center justify-center"
-                    )}
-                    aria-label="Retour en haut"
-                >
-                    <ArrowUp className="w-5 h-5 md:w-6 md:h-6" />
-                </motion.button>
+        <button
+            onClick={scrollToTop}
+            className={cn(
+                'fixed bottom-6 right-6 md:bottom-8 md:right-8 z-[90] p-3 md:p-4 rounded-full',
+                'bg-white/80 backdrop-blur-md border border-black/5 shadow-apple-lg',
+                'text-[#1D1D1F] transition-all duration-200 hover:scale-110 active:scale-95 hover:bg-white',
+                'flex items-center justify-center',
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3 pointer-events-none'
             )}
-        </AnimatePresence>
+            aria-label="Retour en haut"
+        >
+            <ArrowUp className="w-5 h-5 md:w-6 md:h-6" />
+        </button>
     );
 }

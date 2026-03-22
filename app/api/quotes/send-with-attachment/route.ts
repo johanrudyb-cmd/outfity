@@ -16,9 +16,8 @@ async function getTransporter() {
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
   if (!host || !user || !pass) return null;
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const nodemailer = require('nodemailer');
-  const transporter = nodemailer.createTransport({ host, port, secure: port === 465, auth: { user, pass } });
+  const { createTransport } = await import('nodemailer');
+  const transporter = createTransport({ host, port, secure: port === 465, auth: { user, pass } });
   if (typeof transporter?.sendMail !== 'function') {
     throw new Error('Transporter nodemailer invalide');
   }

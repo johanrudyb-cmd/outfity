@@ -1,36 +1,77 @@
-import { auth } from './auth';
-import { prisma, isDatabaseAvailable } from './prisma';
-
 import { cache } from 'react';
+import { auth } from './auth';
+import { isDatabaseAvailable, prisma } from './prisma';
 
-// Utiliser React.cache pour mémoriser le résultat par requête (Request Memoization)
-// Cela évite de refaire la même requête prisma si getCurrentUser est appelé 
-// plusieurs fois dans différents composants du même arbre (ex: layout + page)
-export const getCurrentUser = cache(async () => {
+export type CurrentUser = {
+  id: string;
+  email: string | null;
+  name: string | null;
+  plan: string;
+  onboardingCompleted: boolean;
+  subscribedAt: Date | null;
+  createdAt: Date;
+};
+
+function isDynamicServerUsageError(error: unknown): boolean {
+  const candidate = error as { digest?: string; message?: string; description?: string } | null;
+  if (!candidate) return false;
+
+  if (candidate.digest === 'DYNAMIC_SERVER_USAGE') {
+    return true;
+  }
+
+  const text = `${candidate.message ?? ''} ${candidate.description ?? ''}`;
+  return text.includes('Dynamic server usage');
+}
+
+function getSessionIdentity(session: unknown): { id: string; email: string | null; name: string | null } | null {
+  const user = (session as { user?: { id?: unknown; email?: unknown; name?: unknown } } | null)?.user;
+  if (!user || typeof user.id !== 'string' || user.id.length === 0) {
+    return null;
+  }
+
+  return {
+    id: user.id,
+    email: typeof user.email === 'string' ? user.email : null,
+    name: typeof user.name === 'string' ? user.name : null,
+  };
+}
+
+// Request-level memoization to avoid duplicate DB hits inside the same tree
+export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   try {
     const session = await auth();
+    const identity = getSessionIdentity(session);
+    if (!identity) return null;
 
-    // 1. EMERGENCY ADMIN CHECK
-    if (session?.user?.id === 'emergency-admin-id') {
+    // Emergency recovery account
+    if (identity.id === 'emergency-admin-id') {
       return {
-        id: 'emergency-admin-id',
-        email: session.user.email || 'johanrudyb@gmail.com',
+        id: identity.id,
+        email: identity.email ?? 'johanrudyb@gmail.com',
         name: 'Admin (Mode Secours)',
         plan: 'enterprise',
+        onboardingCompleted: true,
         subscribedAt: new Date(),
         createdAt: new Date(),
       };
     }
 
-    if (!session?.user?.id || !isDatabaseAvailable()) {
-      return null;
+    if (!isDatabaseAvailable()) {
+      return {
+        id: identity.id,
+        email: identity.email,
+        name: identity.name,
+        plan: 'starter',
+        onboardingCompleted: false,
+        subscribedAt: null,
+        createdAt: new Date(0),
+      };
     }
 
-    // Récupérer les infos essentielles depuis la DB
-    // On ne sélectionne que ce dont on a vraiment besoin pour la navigation/UI
     try {
       const user = await prisma.user.findUnique({
-        where: { id: session.user.id },
+        where: { id: identity.id },
         select: {
           id: true,
           email: true,
@@ -43,42 +84,39 @@ export const getCurrentUser = cache(async () => {
       });
 
       if (!user) {
-        console.warn('[getCurrentUser] Session active mais utilisateur introuvable en base (supprimé?)');
-        return { isGhost: true }; // Flag spécial pour forcer la déconnexion
+        console.warn('[getCurrentUser] Session active mais utilisateur introuvable en base');
+        return null;
       }
 
       return {
         id: user.id,
         email: user.email,
-        name: user.name || session.user.name,
+        name: user.name,
         plan: user.plan,
         onboardingCompleted: user.onboardingCompleted,
         subscribedAt: user.subscribedAt ?? null,
         createdAt: user.createdAt,
       };
     } catch (dbError) {
-      console.error('[getCurrentUser] Database query failed (Circuit Breaker?), falling back to session data.', dbError);
-      // Fallback: Si la session est valide mais qu'on ne peut pas rafraîchir les infos, on utilise
-      // les infos de la session (qui sont dans le cookie).
+      console.error('[getCurrentUser] Database query failed, fallback session.', dbError);
       return {
-        id: session.user.id,
-        email: session.user.email,
-        name: session.user.name,
-        plan: (session.user as any).plan || 'starter', // Fallback plan
-        onboardingCompleted: (session.user as any).onboardingCompleted ?? false,
-        subscribedAt: new Date(), // Simulé
-        createdAt: new Date(), // Simulé
+        id: identity.id,
+        email: identity.email,
+        name: identity.name,
+        plan: 'starter',
+        onboardingCompleted: false,
+        subscribedAt: null,
+        createdAt: new Date(),
       };
     }
   } catch (error) {
-    console.error('[getCurrentUser] Erreur Auth:', error);
+    if (!isDynamicServerUsageError(error)) {
+      console.error('[getCurrentUser] Auth error:', error);
+    }
     return null;
   }
 });
 
-/**
- * Vérifie si l'utilisateur actuel a les droits admin
- */
 export async function getIsAdmin() {
   const user = await getCurrentUser();
   const adminEmails = ['contact@outfity.fr', 'johanrudyb@gmail.com', 'johanrudy.b@gmail.com'];
@@ -88,7 +126,7 @@ export async function getIsAdmin() {
 export async function requireAuth() {
   const user = await getCurrentUser();
   if (!user) {
-    throw new Error('Non authentifié');
+    throw new Error('Non authentifie');
   }
   return user;
 }

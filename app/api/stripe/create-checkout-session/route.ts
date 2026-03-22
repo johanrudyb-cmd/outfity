@@ -49,7 +49,7 @@ export async function POST(request: Request) {
         userId: user.id,
         packId,
       },
-      customer_email: user.email || undefined,
+      ...(user.email ? { customer_email: user.email } : {}),
     });
 
     return NextResponse.json({ url: session.url });

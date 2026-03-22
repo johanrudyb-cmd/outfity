@@ -366,7 +366,14 @@ export function VisualTrendScanner() {
                                     <CardContent className="p-0">
                                         {image ? (
                                             <div className="relative aspect-video lg:aspect-[21/9] group">
-                                                <img src={image} alt="Preview" className="w-full h-full object-cover" />
+                                                <Image
+                                                    src={image}
+                                                    alt="Preview"
+                                                    fill
+                                                    unoptimized
+                                                    sizes="(max-width: 1024px) 100vw, 1200px"
+                                                    className="object-cover"
+                                                />
                                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 backdrop-blur-sm">
                                                     <Button variant="secondary" className="rounded-2xl font-black uppercase text-[10px] tracking-widest px-8" onClick={() => fileInputRef.current?.click()}>Changer</Button>
                                                     <Button variant="destructive" className="rounded-2xl font-black uppercase text-[10px] tracking-widest px-8" onClick={reset}>Supprimer</Button>
@@ -453,9 +460,16 @@ export function VisualTrendScanner() {
                                                     });
                                                 }
                                             }}
-                                            className="w-full aspect-square rounded-[20px] md:rounded-[24px] overflow-hidden border border-black/5 bg-white shadow-sm hover:shadow-md hover:scale-[1.02] transition-all"
+                                            className="relative w-full aspect-square rounded-[20px] md:rounded-[24px] overflow-hidden border border-black/5 bg-white shadow-sm hover:shadow-md hover:scale-[1.02] transition-all"
                                         >
-                                            <img src={item.image} className="w-full h-full object-cover" alt="History item" />
+                                            <Image
+                                                src={item.image}
+                                                alt="History item"
+                                                fill
+                                                unoptimized
+                                                sizes="(max-width: 768px) 33vw, 140px"
+                                                className="object-cover"
+                                            />
                                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
                                                 <span className="text-[9px] font-black text-white uppercase tracking-widest text-center">Voir</span>
                                             </div>
@@ -490,8 +504,15 @@ export function VisualTrendScanner() {
                                 </div>
                             </button>
                             <div className="flex items-center gap-3 md:gap-5">
-                                <div className="w-10 h-10 md:w-14 md:h-14 rounded-2xl overflow-hidden border-2 border-white shadow-apple shrink-0">
-                                    <img src={image!} className="w-full h-full object-cover" alt="Scanned" />
+                                <div className="relative w-10 h-10 md:w-14 md:h-14 rounded-2xl overflow-hidden border-2 border-white shadow-apple shrink-0">
+                                    <Image
+                                        src={image!}
+                                        alt="Scanned"
+                                        fill
+                                        unoptimized
+                                        sizes="56px"
+                                        className="object-cover"
+                                    />
                                 </div>
                                 <div className="min-w-0">
                                     <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tighter text-black line-clamp-2 leading-tight mb-1">{result.category}</h1>
@@ -742,8 +763,14 @@ export function VisualTrendScanner() {
 
                                 <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
                                     <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                                        <div className="w-16 h-16 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/10 overflow-hidden">
-                                            <img src="/images/agents/pharrell_final.webp" alt="Pharrell" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                        <div className="relative w-16 h-16 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/10 overflow-hidden">
+                                            <Image
+                                                src="/images/agents/pharrell_final.webp"
+                                                alt="Pharrell"
+                                                fill
+                                                sizes="64px"
+                                                className="object-cover group-hover:scale-110 transition-transform duration-500"
+                                            />
                                         </div>
                                         <div>
                                             <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight mb-2">Passez à l'action</h3>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -57,11 +57,7 @@ export default function AdminPartnersPage() {
     const [newRate, setNewRate] = useState('0.3');
     const [newCustomMessage, setNewCustomMessage] = useState('');
 
-    useEffect(() => {
-        fetchData();
-    }, [period]);
-
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         setIsLoading(true);
         try {
             const [pRes, sRes] = await Promise.all([
@@ -82,7 +78,11 @@ export default function AdminPartnersPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [period]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     const handleInvite = async (e: React.FormEvent) => {
         e.preventDefault();

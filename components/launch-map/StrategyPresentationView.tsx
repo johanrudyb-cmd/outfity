@@ -288,8 +288,6 @@ export function StrategyPresentationView({
   const { toast } = useToast();
   const [regenerating, setRegenerating] = useState(false);
 
-  if (!isOpen) return null;
-
   const initialVI = useMemo(
     () => ({
       colorPalette: {
@@ -614,6 +612,8 @@ export function StrategyPresentationView({
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [onClose]);
+
+  if (!isOpen) return null;
 
   const content = (
     <div className={cn(

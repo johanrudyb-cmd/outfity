@@ -2,12 +2,25 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Check, Clock } from 'lucide-react';
 
 function CountdownTimer() {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const targetDate = new Date('2026-04-01T00:00:00');
+    const now = new Date();
+    const diff = targetDate.getTime() - now.getTime();
+    if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+
+    return {
+      days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+      hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+      minutes: Math.floor((diff / (1000 * 60)) % 60),
+      seconds: Math.floor((diff / 1000) % 60),
+    };
+  });
 
   useEffect(() => {
     const targetDate = new Date('2026-04-01T00:00:00');
@@ -28,7 +41,6 @@ function CountdownTimer() {
       return { days, hours, minutes, seconds };
     };
 
-    setTimeLeft(calculateTime());
     const timer = setInterval(() => {
       setTimeLeft(calculateTime());
     }, 1000);
@@ -206,7 +218,15 @@ export default function SalesPricing() {
                   </p>
                   <div className="flex -space-x-2 sm:-space-x-3">
                     {['virgil', 'pharrell', 'ada', 'johan', 'joy'].map(a => (
-                      <img key={a} src={`/images/agents/${a}_final.webp`} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-black bg-gray-800" alt={a} />
+                      <Image
+                        key={a}
+                        src={`/images/agents/${a}_final.webp`}
+                        alt={a}
+                        width={40}
+                        height={40}
+                        sizes="(max-width: 640px) 36px, 40px"
+                        className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-black bg-gray-800 object-cover"
+                      />
                     ))}
                   </div>
                 </div>

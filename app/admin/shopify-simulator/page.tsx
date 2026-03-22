@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { redirect } from 'next/navigation';
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, ShoppingBag, Store, ArrowLeft } from 'lucide-react';
@@ -79,9 +80,9 @@ export default async function ShopifySimulatorPage({ searchParams }: { searchPar
                             {mockProducts.map((product) => (
                                 <Card key={product.id} className="rounded-2xl shadow-apple-sm hover:shadow-apple transition-all overflow-hidden border-black/5">
                                     <div className="flex flex-col sm:flex-row">
-                                        <div className="w-full sm:w-32 h-32 bg-muted shrink-0 flex items-center justify-center overflow-hidden">
+                                        <div className="relative w-full sm:w-32 h-32 bg-muted shrink-0 flex items-center justify-center overflow-hidden">
                                             {product.imageUrl ? (
-                                                <img src={product.imageUrl} alt={product.title} className="w-full h-full object-cover" />
+                                                <Image src={product.imageUrl} alt={product.title} fill sizes="128px" className="object-cover" />
                                             ) : (
                                                 <ShoppingBag className="w-8 h-8 text-muted-foreground/30" />
                                             )}

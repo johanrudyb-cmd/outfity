@@ -3,26 +3,33 @@ import path from 'path';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  typescript: {
-    ignoreBuildErrors: true,
+  experimental: {
+    // Workaround for Windows spawn EPERM during Next 16 build worker fork
+    webpackBuildWorker: false,
+    // Keep child_process workers to avoid DataCloneError during static generation
+    workerThreads: false,
+    // Limit worker fan-out on Windows
+    cpus: 1,
   },
-  compress: true, // Activer la compression Gzip/Brotli
-  poweredByHeader: false, // Supprimer l'en-tête X-Powered-By (micro perf + sécu)
-  // Définir explicitement la racine du workspace pour éviter les avertissements sur les lockfiles multiples
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  compress: true, // Enable gzip/brotli compression
+  poweredByHeader: false, // Remove X-Powered-By header
+  // Explicit workspace root to avoid multi-lockfile warnings
   outputFileTracingRoot: path.resolve(process.cwd()),
-  // Ne pas bundler pdfkit au runtime pour éviter ENOENT Helvetica.afm
+  // Avoid bundling pdfkit at runtime to prevent ENOENT Helvetica.afm
   serverExternalPackages: ['pdfkit', 'nodemailer'],
-  // Turbopack désactivé en dev (--webpack) pour éviter "Failed to write app endpoint" sur Windows
+  // Turbopack disabled in dev (--webpack) to avoid Windows endpoint write issues
   // turbopack: { root: path.resolve(process.cwd()) },
-  // Configuration stricte pour sécurité et performance cache
   images: {
     remotePatterns: [
       // Infrastructure
-      { protocol: 'https', hostname: 'd1yei2z3i6k35z.cloudfront.net' }, // CDN Cloudfront (Higgsfield ?)
-      { protocol: 'https', hostname: '**.supabase.co' }, // Supabase Storage
-      { protocol: 'https', hostname: '**.amazonaws.com' }, // S3 AWS
+      { protocol: 'https', hostname: 'd1yei2z3i6k35z.cloudfront.net' },
+      { protocol: 'https', hostname: '**.supabase.co' },
+      { protocol: 'https', hostname: '**.amazonaws.com' },
 
-      // Sources externes scrapées (Zalando, ASOS, etc.)
+      // External scraped sources
       { protocol: 'https', hostname: '**.zalando.**' },
       { protocol: 'https', hostname: '**.asos.com' },
       { protocol: 'https', hostname: '**.zara.com' },
@@ -31,13 +38,14 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'lp2.hm.com' },
       { protocol: 'https', hostname: 'image.uniqlo.com' },
       { protocol: 'https', hostname: 'upload.wikimedia.org' },
-      { protocol: 'https', hostname: 'www.google.com' }, // Pour les favicons via google.com/s2/favicons
+      { protocol: 'https', hostname: 'www.google.com' },
+      { protocol: 'https', hostname: 'wsrv.nl' },
 
-      // Authentification (Avatars)
-      { protocol: 'https', hostname: 'lh3.googleusercontent.com' }, // Google
-      { protocol: 'https', hostname: 'avatars.githubusercontent.com' }, // GitHub
+      // Auth avatars
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+      { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
 
-      // Développement local
+      // Local development + misc
       { protocol: 'http', hostname: 'localhost' },
       { protocol: 'https', hostname: '**.higgsfield.ai' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
@@ -46,11 +54,9 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [{ source: '/favicon.ico', destination: '/apple-icon.webp' }];
   },
-  // Headers de sécurité
   async headers() {
     return [
       {
-        // Headers de sécurité pour toutes les pages
         source: '/:path*',
         headers: [
           { key: 'X-DNS-Prefetch-Control', value: 'on' },
@@ -62,11 +68,8 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Cache agressif pour les assets statiques (images, fonts, JS, CSS)
         source: '/(.*)\.(ico|png|jpg|jpeg|webp|svg|woff|woff2|ttf|otf)',
-        headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-        ],
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
     ];
   },

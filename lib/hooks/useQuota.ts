@@ -53,7 +53,10 @@ export function useQuota(feature?: QuotaFeatureKey): UseQuotaReturn {
   }, []);
 
   useEffect(() => {
-    fetchQuota();
+    const timeout = window.setTimeout(() => {
+      void fetchQuota();
+    }, 0);
+    return () => window.clearTimeout(timeout);
   }, [fetchQuota]);
 
   useEffect(() => {
