@@ -64,7 +64,7 @@ const MAIN_CATEGORIES: CategoryItem[] = [
     dbId: 'DRESS',
     label: 'Robes',
     icon: Sparkles,
-    desc: { homme: '', femme: 'Mini, Midi, Maxi & SoirÃ©e' },
+    desc: { homme: '', femme: 'Mini, Midi, Maxi & Soir?e' },
     onlyFemme: true
   },
   {
@@ -168,7 +168,7 @@ export function TendancesContent({ initialData }: { initialData?: unknown }) {
         </div>
       </div>
 
-      {/* 2. Menu de CatÃ©gories (Grid) */}
+      {/* 2. Menu de Cat?gories (Grid) */}
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {MAIN_CATEGORIES.filter(c => !c.onlyFemme || segment === 'femme').map((cat, idx) => {
@@ -253,8 +253,8 @@ export function TendancesContent({ initialData }: { initialData?: unknown }) {
           })}
         </div>
         <p className="max-w-7xl mx-auto px-6 text-[10px] text-[#86868B] text-center mt-8 font-medium leading-relaxed">
-          Les analyses et prÃ©dictions de tendances sont basÃ©es sur des algorithmes de donnÃ©es et constituent un outil d'aide Ã  la dÃ©cision. <br />
-          Elles ne garantissent pas les ventes futures ni le succÃ¨s commercial.
+          Les analyses et pr?dictions de tendances sont bas?es sur des algorithmes de donn?es et constituent un outil d'aide ? la d?cision. <br />
+          Elles ne garantissent pas les ventes futures ni le succ?s commercial.
         </p>
       </div>
     </div>

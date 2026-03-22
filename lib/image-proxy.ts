@@ -1,35 +1,70 @@
 /**
- * Utilitaire pour proxyfier les URLs d'images externes
- * Évite les problèmes de CORS et de referrer
+ * Utilitaire pour normaliser/proxyfier les URLs d'images externes.
  */
 
+export function normalizeExternalImageUrl(url: string | null | undefined): string | null {
+    if (!url || typeof url !== 'string') return null;
+
+    const raw = url.trim();
+    if (!raw) return null;
+
+    if (raw.startsWith('data:')) return raw;
+    if (raw.startsWith('blob:')) return null;
+
+    // URL protocol-relative: //cdn.site.com/image.jpg
+    if (raw.startsWith('//')) {
+        return `https:${raw}`;
+    }
+
+    // URL absolue
+    if (/^https?:\/\//i.test(raw)) {
+        return raw;
+    }
+
+    // Domaine sans protocole: cdn.site.com/image.jpg
+    if (/^[a-z0-9.-]+\.[a-z]{2,}(\/|$)/i.test(raw)) {
+        return `https://${raw}`;
+    }
+
+    // URL locale
+    if (raw.startsWith('/')) {
+        return raw;
+    }
+
+    return null;
+}
+
 export function proxyImageUrl(url: string | null | undefined): string | null {
-    if (!url) return null;
+    const normalized = normalizeExternalImageUrl(url);
+    if (!normalized) return null;
 
-    // Si l'URL est déjà une URL locale ou un data URI, la retourner telle quelle
-    if (url.startsWith('/') || url.startsWith('data:')) {
-        return url;
+    // URLs locales / data URI: on les garde telles quelles
+    if (normalized.startsWith('/') || normalized.startsWith('data:')) {
+        return normalized;
     }
 
-    // Si l'URL est externe, la proxyfier
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-        return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+    // URLs externes: on passe par le proxy
+    if (normalized.startsWith('http://') || normalized.startsWith('https://')) {
+        return `/api/proxy-image?url=${encodeURIComponent(normalized)}`;
     }
 
-    return url;
+    return normalized;
 }
 
 /**
- * Variante pour Next.js Image component qui nécessite un loader
+ * Variante pour Next.js Image component qui necessite un loader
  */
 export function imageLoader({ src }: { src: string }) {
-    if (src.startsWith('/') || src.startsWith('data:')) {
-        return src;
+    const normalized = normalizeExternalImageUrl(src);
+    if (!normalized) return src;
+
+    if (normalized.startsWith('/') || normalized.startsWith('data:')) {
+        return normalized;
     }
 
-    if (src.startsWith('http://') || src.startsWith('https://')) {
-        return `/api/proxy-image?url=${encodeURIComponent(src)}`;
+    if (normalized.startsWith('http://') || normalized.startsWith('https://')) {
+        return `/api/proxy-image?url=${encodeURIComponent(normalized)}`;
     }
 
-    return src;
+    return normalized;
 }

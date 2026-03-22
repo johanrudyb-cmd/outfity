@@ -100,7 +100,7 @@ export default function PartnerJoinPage() {
                         transition={{ duration: 0.8, delay: 0.1 }}
                     >
                         <h1 className="text-6xl md:text-8xl font-semibold tracking-tighter text-white mb-6 leading-[1.05]">
-                            MonÃ©tisez votre <br />
+                            Monétisez votre <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#007AFF] via-[#4D9EFF] to-[#007AFF] bg-300% animate-gradient">Influence.</span>
                         </h1>
                     </motion.div>
@@ -111,7 +111,7 @@ export default function PartnerJoinPage() {
                         transition={{ duration: 0.8, delay: 0.3 }}
                         className="text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto font-light leading-relaxed tracking-wide"
                     >
-                        Transformez votre audience en revenus rÃ©currents. Recommandez l&apos;outil de crÃ©ation de marque nÂ°1 et touchez <span className="text-white font-medium">30% Ã  vie</span>.
+                        Transformez votre audience en revenus récurrents. Recommandez l&apos;outil de création de marque n°1 et touchez <span className="text-white font-medium">30% à vie</span>.
                     </motion.p>
 
                     <motion.div
@@ -126,7 +126,7 @@ export default function PartnerJoinPage() {
                             </Button>
                         </Link>
                         <Link href="#how-it-works" className="text-[#007AFF] hover:text-[#4D9EFF] font-medium flex items-center gap-2 h-14 px-6 rounded-full hover:bg-[#007AFF]/10 transition-all border border-transparent hover:border-[#007AFF]/20">
-                            DÃ©couvrir le systÃ¨me <ArrowRight className="w-4 h-4" />
+                            Découvrir le système <ArrowRight className="w-4 h-4" />
                         </Link>
                     </motion.div>
                 </div>
@@ -144,8 +144,8 @@ export default function PartnerJoinPage() {
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-500"><DollarSign size={20} /></div>
                             <div>
-                                <div className="text-xs text-gray-400">Commission reÃ§ue</div>
-                                <div className="text-white font-bold">+ 29.70 â‚¬</div>
+                                <div className="text-xs text-gray-400">Commission reçue</div>
+                                <div className="text-white font-bold">+ 29.70 €</div>
                             </div>
                         </div>
                     </div>
@@ -160,8 +160,8 @@ export default function PartnerJoinPage() {
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-500"><Users size={20} /></div>
                             <div>
-                                <div className="text-xs text-gray-400">Nouvel abonnÃ©</div>
-                                <div className="text-white font-bold">Plan CrÃ©ateur</div>
+                                <div className="text-xs text-gray-400">Nouvel abonné</div>
+                                <div className="text-white font-bold">Plan Créateur</div>
                             </div>
                         </div>
                     </div>
@@ -187,7 +187,7 @@ export default function PartnerJoinPage() {
                             <div className="relative z-10">
                                 <TrendingUp className="w-8 h-8 text-[#007AFF] mb-4 opacity-80" />
                                 <div className="text-5xl font-semibold text-white tracking-tight mb-2">30%</div>
-                                <p className="text-gray-400 font-medium">De commission rÃ©currente sur chaque abonnement, Ã  vie.</p>
+                                <p className="text-gray-400 font-medium">De commission récurrente sur chaque abonnement, à vie.</p>
                             </div>
                         </div>
                         <div className="bg-[#0f0f12] rounded-3xl p-8 border border-white/5 hover:border-[#007AFF]/20 transition-all group overflow-hidden relative">
@@ -195,7 +195,7 @@ export default function PartnerJoinPage() {
                             <div className="relative z-10">
                                 <Globe className="w-8 h-8 text-[#007AFF] mb-4 opacity-80" />
                                 <div className="text-5xl font-semibold text-white tracking-tight mb-2">30j</div>
-                                <p className="text-gray-400 font-medium">DurÃ©e de vie du cookie. Vous Ãªtes payÃ© mÃªme s&apos;ils achÃ¨tent plus tard.</p>
+                                <p className="text-gray-400 font-medium">Durée de vie du cookie. Vous êtes payé même s&apos;ils achètent plus tard.</p>
                             </div>
                         </div>
                         <div className="bg-[#0f0f12] rounded-3xl p-8 border border-white/5 hover:border-[#007AFF]/20 transition-all group overflow-hidden relative">
@@ -203,7 +203,7 @@ export default function PartnerJoinPage() {
                             <div className="relative z-10">
                                 <ShieldCheck className="w-8 h-8 text-[#007AFF] mb-4 opacity-80" />
                                 <div className="text-5xl font-semibold text-white tracking-tight mb-2">100%</div>
-                                <p className="text-gray-400 font-medium">Fiable. Paiements automatiques chaque mois dÃ¨s 50â‚¬.</p>
+                                <p className="text-gray-400 font-medium">Fiable. Paiements automatiques chaque mois dès 50€.</p>
                             </div>
                         </div>
                     </div>
@@ -215,9 +215,9 @@ export default function PartnerJoinPage() {
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-20 space-y-4">
                         <h2 className="text-4xl md:text-5xl font-semibold tracking-tight text-white leading-tight">
-                            Un systÃ¨me conÃ§u pour <br />votre rÃ©ussite.
+                            Un système conçu pour <br />votre réussite.
                         </h2>
-                        <p className="text-gray-400 text-lg font-light max-w-2xl mx-auto">Nous avons simplifiÃ© le processus pour que vous puissiez vous concentrer sur ce que vous faites de mieux : crÃ©er du contenu.</p>
+                        <p className="text-gray-400 text-lg font-light max-w-2xl mx-auto">Nous avons simplifié le processus pour que vous puissiez vous concentrer sur ce que vous faites de mieux : créer du contenu.</p>
                     </div>
 
                     <div className="space-y-24">
@@ -225,9 +225,9 @@ export default function PartnerJoinPage() {
                         <div className="flex flex-col md:flex-row items-center gap-10 md:gap-20">
                             <div className="flex-1 space-y-6 text-left order-2 md:order-1">
                                 <div className="w-12 h-12 rounded-2xl bg-[#007AFF] flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-[#007AFF]/30">1</div>
-                                <h3 className="text-3xl font-semibold text-white">AccÃ©dez au Content Cloud.</h3>
+                                <h3 className="text-3xl font-semibold text-white">Accédez au Content Cloud.</h3>
                                 <p className="text-gray-400 text-lg leading-relaxed">
-                                    Plus besoin de tourner. Connectez-vous Ã  votre espace partenaire et tÃ©lÃ©chargez des centaines de vidÃ©os virales, clips, et templates prÃªts Ã  l&apos;emploi.
+                                    Plus besoin de tourner. Connectez-vous à votre espace partenaire et téléchargez des centaines de vidéos virales, clips, et templates prêts à l&apos;emploi.
                                 </p>
                             </div>
                             <div className="flex-1 order-1 md:order-2 bg-[#0f0f12] p-8 rounded-[40px] border border-white/10 aspect-video flex items-center justify-center relative overflow-hidden group">
@@ -246,7 +246,7 @@ export default function PartnerJoinPage() {
                                 <div className="w-12 h-12 rounded-2xl bg-[#007AFF] flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-[#007AFF]/30">2</div>
                                 <h3 className="text-3xl font-semibold text-white">Partagez votre lien unique.</h3>
                                 <p className="text-gray-400 text-lg leading-relaxed">
-                                    Utilisez votre lien de tracking personnalisÃ©. Notre technologie attribue instantanÃ©ment chaque visiteur Ã  votre compte, mÃªme s&apos;il s&apos;inscrit 30 jours plus tard.
+                                    Utilisez votre lien de tracking personnalisé. Notre technologie attribue instantanément chaque visiteur à votre compte, même s&apos;il s&apos;inscrit 30 jours plus tard.
                                 </p>
                             </div>
                         </div>
@@ -257,7 +257,7 @@ export default function PartnerJoinPage() {
                                 <div className="w-12 h-12 rounded-2xl bg-[#007AFF] flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-[#007AFF]/30">3</div>
                                 <h3 className="text-3xl font-semibold text-white">Encaissez chaque mois.</h3>
                                 <p className="text-gray-400 text-lg leading-relaxed">
-                                    Suivez vos gains en temps rÃ©el sur votre dashboard. DÃ¨s que vous atteignez le seuil, vos commissions sont virÃ©es automatiquement. C&apos;est du revenu passif, pour de vrai.
+                                    Suivez vos gains en temps réel sur votre dashboard. Dès que vous atteignez le seuil, vos commissions sont virées automatiquement. C&apos;est du revenu passif, pour de vrai.
                                 </p>
                             </div>
                             <div className="flex-1 order-1 md:order-2 bg-[#0f0f12] p-8 rounded-[40px] border border-white/10 aspect-video flex items-center justify-center relative overflow-hidden group">
@@ -276,36 +276,36 @@ export default function PartnerJoinPage() {
                 <div className="max-w-5xl mx-auto relative z-10">
                     <div className="text-center mb-16 space-y-2">
                         <h2 className="text-3xl md:text-5xl font-semibold text-white tracking-tight">Potentiel de revenus</h2>
-                        <p className="text-xl text-gray-500 font-light">Commissions basÃ©es sur l&apos;abonnement CrÃ©ateur (990â‚¬/an)</p>
+                        <p className="text-xl text-gray-500 font-light">Commissions basées sur l&apos;abonnement Créateur (990€/an)</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {/* Card 1 */}
                         <div className="p-10 bg-[#0A0A0A] border border-white/5 rounded-3xl flex flex-col items-center text-center hover:border-white/10 transition-colors group">
-                            <div className="text-gray-400 mb-6 font-semibold text-xs uppercase tracking-widest px-3 py-1 bg-white/5 rounded-full">DÃ©butant</div>
-                            <div className="text-4xl font-bold text-white mb-2 group-hover:text-[#007AFF] transition-colors">297 â‚¬</div>
+                            <div className="text-gray-400 mb-6 font-semibold text-xs uppercase tracking-widest px-3 py-1 bg-white/5 rounded-full">Débutant</div>
+                            <div className="text-4xl font-bold text-white mb-2 group-hover:text-[#007AFF] transition-colors">297 €</div>
                             <div className="text-sm text-gray-500 mb-8 font-medium">/ mois</div>
                             <div className="w-full h-px bg-white/5 mb-8"></div>
-                            <p className="text-gray-400 text-sm">Avec seulement <strong className="text-white">10 abonnÃ©s</strong> actifs.</p>
+                            <p className="text-gray-400 text-sm">Avec seulement <strong className="text-white">10 abonnés</strong> actifs.</p>
                         </div>
 
                         {/* Card 2 - Featured */}
                         <div className="p-10 bg-[#111111] border border-[#007AFF]/40 rounded-3xl flex flex-col items-center text-center transform md:-translate-y-6 shadow-2xl shadow-[#007AFF]/10 relative overflow-hidden">
                             <div className="absolute top-0 w-full h-1 bg-gradient-to-r from-transparent via-[#007AFF] to-transparent"></div>
                             <div className="text-[#007AFF] mb-6 font-semibold text-xs uppercase tracking-widest px-3 py-1 bg-[#007AFF]/10 rounded-full">Pro</div>
-                            <div className="text-5xl font-bold text-white mb-2">1 485 â‚¬</div>
+                            <div className="text-5xl font-bold text-white mb-2">1 485 €</div>
                             <div className="text-sm text-gray-500 mb-8 font-medium">/ mois</div>
                             <div className="w-full h-px bg-white/5 mb-8"></div>
-                            <p className="text-gray-300 text-sm">Avec <strong className="text-white">50 abonnÃ©s</strong> actifs.</p>
+                            <p className="text-gray-300 text-sm">Avec <strong className="text-white">50 abonnés</strong> actifs.</p>
                         </div>
 
                         {/* Card 3 */}
                         <div className="p-10 bg-[#0A0A0A] border border-white/5 rounded-3xl flex flex-col items-center text-center hover:border-white/10 transition-colors group">
                             <div className="text-gray-400 mb-6 font-semibold text-xs uppercase tracking-widest px-3 py-1 bg-white/5 rounded-full">Influenceur</div>
-                            <div className="text-4xl font-bold text-white mb-2 group-hover:text-[#007AFF] transition-colors">5 940 â‚¬</div>
+                            <div className="text-4xl font-bold text-white mb-2 group-hover:text-[#007AFF] transition-colors">5 940 €</div>
                             <div className="text-sm text-gray-500 mb-8 font-medium">/ mois</div>
                             <div className="w-full h-px bg-white/5 mb-8"></div>
-                            <p className="text-gray-400 text-sm">Avec <strong className="text-white">200 abonnÃ©s</strong> actifs.</p>
+                            <p className="text-gray-400 text-sm">Avec <strong className="text-white">200 abonnés</strong> actifs.</p>
                         </div>
                     </div>
                 </div>
@@ -315,15 +315,15 @@ export default function PartnerJoinPage() {
             <section className="py-32 px-6 text-center border-t border-white/5 bg-black relative">
                 <div className="max-w-4xl mx-auto space-y-10 relative z-10">
                     <h2 className="text-5xl md:text-7xl font-semibold text-white tracking-tighter leading-tight">
-                        PrÃªt Ã  rejoindre l&apos;Ã©lite ?
+                        Prêt à rejoindre l&apos;élite ?
                     </h2>
                     <p className="text-xl text-gray-400 font-light max-w-2xl mx-auto">
-                        L&apos;inscription prend 30 secondes. L&apos;approbation est immÃ©diate.
+                        L&apos;inscription prend 30 secondes. L&apos;approbation est immédiate.
                     </p>
                     <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
                         <Link href="/auth/signup?callbackUrl=/partners">
                             <Button size="lg" className="bg-[#007AFF] text-white hover:bg-[#0062CC] font-semibold h-16 px-12 text-lg rounded-full shadow-[0_0_50px_rgba(0,122,255,0.4)] hover:shadow-[0_0_80px_rgba(0,122,255,0.6)] transition-all duration-300 transform hover:-translate-y-1">
-                                CrÃ©er mon compte partenaire
+                                Créer mon compte partenaire
                             </Button>
                         </Link>
                     </div>
@@ -335,7 +335,7 @@ export default function PartnerJoinPage() {
                 <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-gray-600">
                     <div className="flex items-center gap-2 opacity-60">
                         <Image src="/icon.webp" width={24} height={24} alt="Logo" className="rounded-md grayscale" />
-                        <span>Â© 2026 OUTFITY Partners.</span>
+                        <span>© 2026 OUTFITY Partners.</span>
                     </div>
                     <div className="flex gap-8">
                         <Link href="/" className="hover:text-white transition-colors">Retour au site</Link>

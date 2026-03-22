@@ -28,12 +28,12 @@ export const metadata = {
 };
 
 export default async function AdminDashboardPage() {
-    // Stats rÃ©centes (24h)
+    // Stats récentes (24h)
     const now = new Date();
     const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     const newUsers24h = await prisma.user.count({ where: { createdAt: { gte: last24h } } });
 
-    // RÃ©cupÃ©ration des stats rÃ©elles
+    // Récupération des stats réelles
     const [
         totalUsers,
         totalBrands,
@@ -58,20 +58,20 @@ export default async function AdminDashboardPage() {
         }),
     ]);
 
-    // Pour OUTFITY, le seul plan payant est le CrÃ©ateur Ã  29â‚¬
+    // Pour OUTFITY, le seul plan payant est le Créateur à 29€
     const mmr = totalPremiumUsers * 29;
 
     const totalAffiliateRevenue = affiliateStats._sum.amount || 0;
-    const estimatedSales = totalAffiliateRevenue / 0.15; // Estimation basÃ©e sur 15%
+    const estimatedSales = totalAffiliateRevenue / 0.15; // Estimation basée sur 15%
 
     const stats = [
         { label: 'Utilisateurs', value: totalUsers.toLocaleString(), sub: `+${newUsers24h} (24h)`, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
         { label: 'Subscribers', value: totalPremiumUsers, sub: 'Utilisateurs Payants', icon: CreditCard, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-        { label: 'MMR (Revenus)', value: `${mmr.toLocaleString()}â‚¬`, sub: 'Mensuel RÃ©current', icon: Euro, color: 'text-orange-600', bg: 'bg-orange-50' },
-        { label: 'Partenaires', value: activeAffiliates, sub: 'RÃ©seau actif', icon: Globe, color: 'text-purple-600', bg: 'bg-purple-50' },
+        { label: 'MMR (Revenus)', value: `${mmr.toLocaleString()}€`, sub: 'Mensuel Récurrent', icon: Euro, color: 'text-orange-600', bg: 'bg-orange-50' },
+        { label: 'Partenaires', value: activeAffiliates, sub: 'Réseau actif', icon: Globe, color: 'text-purple-600', bg: 'bg-purple-50' },
     ];
 
-    // RÃ©cupÃ©ration des logs et activitÃ©s
+    // Récupération des logs et activités
     const [rawLogs, latestUsers] = await Promise.all([
         prisma.adminLog.findMany({
             orderBy: { createdAt: 'desc' },
@@ -98,7 +98,7 @@ export default async function AdminDashboardPage() {
             id: `user-${user.id}`,
             action: 'Inscription Pilote',
             details: `${user.name || 'Nouvel utilisateur'} (${user.email}) a rejoint le cockpit.`,
-            status: isPaidPlan(user.plan) ? 'premium' : 'free',
+            status: isPaidPlan(user.plan) ?'premium' : 'free',
             createdAt: user.createdAt,
             type: 'user',
             userId: user.id
@@ -111,7 +111,7 @@ export default async function AdminDashboardPage() {
                 <div className="flex flex-col gap-4 sm:gap-6">
                     <Badge className="w-fit bg-black text-white hover:bg-black rounded-full px-4 py-1.5 text-[10px] sm:text-[11px] font-black tracking-widest uppercase shadow-md shadow-black/10">System Online</Badge>
                     <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-[#1D1D1F] tracking-tighter uppercase italic leading-none">Command <span className="text-[#007AFF]">Center</span></h1>
-                    <p className="text-[#6e6e73] text-base sm:text-xl font-medium">Pilotage stratÃ©gique et surveillance des flux OUTFITY.</p>
+                    <p className="text-[#6e6e73] text-base sm:text-xl font-medium">Pilotage stratégique et surveillance des flux OUTFITY.</p>
                 </div>
                 <div className="flex items-center gap-3 w-full sm:w-auto overflow-x-auto no-scrollbar py-2">
                     <Button className="h-10 sm:h-14 px-5 sm:px-8 rounded-2xl bg-white text-black border border-black/5 font-black uppercase text-[9px] sm:text-[10px] tracking-widest shadow-sm hover:bg-gray-50 flex-1 sm:flex-none">
@@ -155,11 +155,11 @@ export default async function AdminDashboardPage() {
                                         <Users className="w-24 sm:w-32 h-24 sm:h-32 rotate-12" />
                                     </div>
                                     <div className="relative z-10">
-                                        <Badge className="bg-white/20 text-white mb-6 border-none text-[9px] sm:text-[10px] font-black uppercase tracking-widest px-3 py-1">Nouveau SystÃ¨me</Badge>
+                                        <Badge className="bg-white/20 text-white mb-6 border-none text-[9px] sm:text-[10px] font-black uppercase tracking-widest px-3 py-1">Nouveau Système</Badge>
                                         <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black mb-4 italic uppercase tracking-tight leading-tight">Intelligence <span className="text-[#007AFF]">Partenaires</span></h3>
-                                        <p className="text-white/60 font-medium text-sm sm:text-lg leading-relaxed max-w-[280px]">GÃ©rez vos influenceurs, suivez les conversions et automatisez les commissions.</p>
+                                        <p className="text-white/60 font-medium text-sm sm:text-lg leading-relaxed max-w-[280px]">Gérez vos influenceurs, suivez les conversions et automatisez les commissions.</p>
                                         <div className="mt-8 sm:mt-10 flex items-center gap-3 font-black text-[9px] sm:text-[10px] uppercase tracking-widest text-[#007AFF] hover:text-white transition-colors">
-                                            AccÃ©der au Control Center <ArrowUpRight className="w-4 h-4" />
+                                            Accéder au Control Center <ArrowUpRight className="w-4 h-4" />
                                         </div>
                                     </div>
                                 </CardContent>
@@ -189,7 +189,7 @@ export default async function AdminDashboardPage() {
                                         </div>
                                         <div>
                                             <h4 className="font-black text-sm sm:text-lg text-[#1D1D1F] uppercase italic leading-tight">Pilotes</h4>
-                                            <p className="text-[8px] sm:text-xs text-[#86868b] font-bold uppercase tracking-tight mt-1 truncate">AccÃ¨s & Support</p>
+                                            <p className="text-[8px] sm:text-xs text-[#86868b] font-bold uppercase tracking-tight mt-1 truncate">Accès & Support</p>
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -218,7 +218,7 @@ export default async function AdminDashboardPage() {
                                         <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6" />
                                     </div>
                                     <div>
-                                        <h4 className="font-black text-sm sm:text-lg text-[#1D1D1F] uppercase italic leading-tight">MÃ©triques</h4>
+                                        <h4 className="font-black text-sm sm:text-lg text-[#1D1D1F] uppercase italic leading-tight">Métriques</h4>
                                         <p className="text-[8px] sm:text-xs text-[#86868b] font-bold uppercase tracking-tight mt-1 truncate">Analytics Perf</p>
                                     </div>
                                 </CardContent>
@@ -241,10 +241,10 @@ export default async function AdminDashboardPage() {
                     </CardHeader>
                     <CardContent className="p-0">
                         <div className="divide-y divide-gray-50">
-                            {unifiedActivity.length === 0 ? (
+                            {unifiedActivity.length === 0 ?(
                                 <div className="p-12 text-center">
                                     <Activity className="w-8 h-8 text-gray-200 mx-auto mb-4" />
-                                    <p className="text-xs text-[#86868b] font-bold uppercase tracking-tight italic">Silence Radio / Aucun flux dÃ©tectÃ©</p>
+                                    <p className="text-xs text-[#86868b] font-bold uppercase tracking-tight italic">Silence Radio / Aucun flux détecté</p>
                                 </div>
                             ) : (
                                 unifiedActivity.map((log: any) => {
@@ -264,9 +264,9 @@ export default async function AdminDashboardPage() {
                                     return (
                                         <div key={log.id} className="p-6 hover:bg-gray-50/80 transition-all duration-300 group">
                                             <div className="flex gap-4">
-                                                <div className={`mt-1 h-8 w-8 rounded-xl flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110 ${isError ? 'bg-red-50 text-red-500' :
-                                                    isWarning ? 'bg-orange-50 text-orange-500' :
-                                                        isUser ? 'bg-emerald-50 text-emerald-600' :
+                                                <div className={`mt-1 h-8 w-8 rounded-xl flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110 ${isError ?'bg-red-50 text-red-500' :
+                                                    isWarning ?'bg-orange-50 text-orange-500' :
+                                                        isUser ?'bg-emerald-50 text-emerald-600' :
                                                             'bg-blue-50 text-[#007AFF]'
                                                     }`}>
                                                     {getActionIcon()}
@@ -283,20 +283,20 @@ export default async function AdminDashboardPage() {
                                                         </span>
                                                     </div>
                                                     <p className="text-[10px] text-[#6e6e73] font-bold line-clamp-2 leading-relaxed mb-3">
-                                                        {typeof log.details === 'string' ? log.details :
+                                                        {typeof log.details === 'string' ?log.details :
                                                             log.details && typeof log.details === 'object' ?
                                                                 Object.entries(log.details).map(([k, v]) => `${k}: ${v}`).join(' | ') :
-                                                                'DÃ©tails de navigation / SystÃ¨me'}
+                                                                'Détails de navigation / Système'}
                                                     </p>
                                                     <div className="flex items-center gap-3">
                                                         <div className="flex items-center gap-1.5 grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all">
-                                                            <div className={`w-1.5 h-1.5 rounded-full ${isError ? 'bg-red-500 animate-pulse' :
-                                                                isWarning ? 'bg-orange-500 animate-pulse' :
-                                                                    isUser ? 'bg-emerald-500 animate-pulse' :
+                                                            <div className={`w-1.5 h-1.5 rounded-full ${isError ?'bg-red-500 animate-pulse' :
+                                                                isWarning ?'bg-orange-500 animate-pulse' :
+                                                                    isUser ?'bg-emerald-500 animate-pulse' :
                                                                         'bg-[#007AFF]'
                                                                 }`} />
                                                             <span className="text-[8px] font-black uppercase tracking-widest text-[#86868b]">
-                                                                {isUser ? 'Base de donnÃ©e' : `Type: ${log.status || 'System'}`}
+                                                                {isUser ?'Base de donnée' : `Type: ${log.status || 'System'}`}
                                                             </span>
                                                         </div>
                                                     </div>

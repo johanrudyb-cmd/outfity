@@ -34,19 +34,19 @@ export interface StyleDetailProps {
 }
 
 export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
-    const [leadTime, setLeadTime] = useState(60); // 60 jours par dÃ©faut
+    const [leadTime, setLeadTime] = useState(60); // 60 jours par d?faut
     const [viewMode, setViewMode] = useState<'1S' | '1M'>('1M');
 
     const currentScore = data.avgScore || 50;
 
     // --- MOTEUR INTELLIGENT V4 : SAISONNALITÃ‰ ---
 
-    // 1. DÃ©tection du Type de Produit (Hiver vs Ã‰tÃ©)
+    // 1. D?tection du Type de Produit (Hiver vs Ã‰t?)
     const getSeasonType = (name: string) => {
         const n = name.toLowerCase();
         if (n.includes('manteau') || n.includes('veste') || n.includes('doudoune') || n.includes('parka') || n.includes('cuir') || n.includes('laine') || n.includes('pull') || n.includes('sweat') || n.includes('hoodie')) return 'WINTER';
         if (n.includes('short') || n.includes('lin') || n.includes('maillot') || n.includes('sandale') || n.includes('debardeur') || n.includes('top')) return 'SUMMER';
-        if (n.includes('t-shirt') || n.includes('chemise')) return 'MID_SUMMER'; // T-shirt se vend un peu tout le temps mais mieux en Ã©tÃ©
+        if (n.includes('t-shirt') || n.includes('chemise')) return 'MID_SUMMER'; // T-shirt se vend un peu tout le temps mais mieux en ?t?
         return 'NEUTRAL'; // Jean, Pantalon, Basket, Accessoire
     };
 
@@ -58,23 +58,23 @@ export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
     deliveryDate.setDate(today.getDate() + leadTime);
     const deliveryMonth = deliveryDate.getMonth(); // 0 = Janvier, 5 = Juin
 
-    // 3. Calcul de l'Impact MÃ©tÃ©o sur le Score
+    // 3. Calcul de l'Impact M?t?o sur le Score
     const getWeatherImpact = (type: string, month: number) => {
-        // Hiver (Nov-FÃ©v) : Mois 10, 11, 0, 1
-        // Ã‰tÃ© (Juin-AoÃ»t) : Mois 5, 6, 7
+        // Hiver (Nov-F?v) : Mois 10, 11, 0, 1
+        // Ã‰t? (Juin-Ao?t) : Mois 5, 6, 7
 
         if (type === 'WINTER') {
-            if (month >= 4 && month <= 8) return -60; // Mai Ã  Septembre -> CATASTROPHE pour un manteau
-            if (month >= 9 || month <= 2) return +20; // Octobre Ã  Mars -> TOP
+            if (month >= 4 && month <= 8) return -60; // Mai ? Septembre -> CATASTROPHE pour un manteau
+            if (month >= 9 || month <= 2) return +20; // Octobre ? Mars -> TOP
             return -10; // Avril/Octobre -> Bof
         }
         if (type === 'SUMMER') {
-            if (month >= 9 || month <= 2) return -50; // Octobre Ã  Mars -> CATASTROPHE pour un short
-            if (month >= 4 && month <= 7) return +30; // Mai Ã  AoÃ»t -> TOP
+            if (month >= 9 || month <= 2) return -50; // Octobre ? Mars -> CATASTROPHE pour un short
+            if (month >= 4 && month <= 7) return +30; // Mai ? Ao?t -> TOP
             return 0;
         }
         if (type === 'MID_SUMMER') {
-            if (month >= 4 && month <= 8) return +15; // Mieux en Ã©tÃ©
+            if (month >= 4 && month <= 8) return +15; // Mieux en ?t?
             return -5; // Un peu moins bien en hiver
         }
         return 0; // Neutre
@@ -82,14 +82,14 @@ export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
 
     const weatherImpact = getWeatherImpact(seasonType, deliveryMonth);
 
-    // 4. VÃ©locitÃ© naturelle (La tendance monte ou descend hors mÃ©tÃ©o)
+    // 4. V?locit? naturelle (La tendance monte ou descend hors m?t?o)
     const baseVelocity = currentScore < 50 ? 0.2 : -0.1; // Logique simple: ce qui est bas monte, ce qui est haut stagne
 
     // 5. SCORE FINAL PRÃ‰DICTIF
-    // Formule : Score Actuel + (Temps * VÃ©locitÃ©) + IMPACT SAISON
+    // Formule : Score Actuel + (Temps * V?locit?) + IMPACT SAISON
     let rawFutureScore = currentScore + (baseVelocity * leadTime) + weatherImpact;
 
-    // Si l'impact mÃ©tÃ©o est violent, il Ã©crase tout le reste
+    // Si l'impact m?t?o est violent, il ?crase tout le reste
     if (weatherImpact < -40) rawFutureScore = Math.min(30, rawFutureScore);
 
     const futureScore = Math.min(100, Math.max(10, rawFutureScore));
@@ -107,20 +107,20 @@ export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
         const noise = ((Math.sin((i + 1) * 12.9898 + currentScore * 0.31) + 1) / 2) * 5;
         chartData.push({
             date: d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
-            value: Math.round(Math.min(100, Math.max(0, currentScore - (baseVelocity * i) + noise))), // On inverse la vÃ©locitÃ© pour le passÃ©
+            value: Math.round(Math.min(100, Math.max(0, currentScore - (baseVelocity * i) + noise))), // On inverse la v?locit? pour le pass?
             isFuture: false
         });
     }
 
-    // B. Futur (PrÃ©diction lissÃ©e vers le score cible)
+    // B. Futur (Pr?diction liss?e vers le score cible)
     const futureSteps = leadTime;
-    const futureRes = Math.max(1, Math.round(leadTime / 15)); // RÃ©solution points
+    const futureRes = Math.max(1, Math.round(leadTime / 15)); // R?solution points
 
     for (let i = 1; i <= futureSteps; i += futureRes) {
         const d = new Date(today);
         d.setDate(d.getDate() + i);
 
-        // Interpolation linÃ©aire vers le futureScore qui contient l'impact mÃ©tÃ©o
+        // Interpolation lin?aire vers le futureScore qui contient l'impact m?t?o
         const progress = i / futureSteps;
         const val = currentScore + ((futureScore - currentScore) * progress);
 
@@ -137,7 +137,7 @@ export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
     return (
         <div className="min-h-screen bg-[#FDFBF7] font-sans text-[#1a1a1a] pb-12">
 
-            {/* Header Navigation SimplifiÃ©e */}
+            {/* Header Navigation Simplifi?e */}
             <div className="bg-white border-b border-gray-100 px-6 py-4 sticky top-0 z-20 shadow-sm flex items-center justify-between">
                 <Link href="/trends" className="flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-black transition-colors">
                     <ArrowLeft className="w-4 h-4" />
@@ -146,7 +146,7 @@ export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
                 <div className="flex flex-col items-center">
                     <h1 className="text-sm font-black uppercase tracking-widest text-[#007AFF]">{data.name}</h1>
                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                        {seasonType === 'WINTER' ? 'â„ï¸ Article Hiver' : seasonType === 'SUMMER' ? 'â˜€ï¸ Article Ã‰tÃ©' : 'ðŸ”„ Article 4 Saisons'}
+                        {seasonType === 'WINTER' ? '❄️ Article Hiver' : seasonType === 'SUMMER' ? '☀️ Article Été' : '🔄 Article 4 Saisons'}
                     </span>
                 </div>
 
@@ -176,7 +176,7 @@ export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
                 <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                     <TopKpiCard title="SCORE AUJOURD'HUI" value={`${currentScore}/100`} sub="Demande Actuelle" icon={Activity} color="text-blue-500" />
                     <TopKpiCard
-                        title="SCORE Ã€ LA LIVRAISON"
+                        title="SCORE À LA LIVRAISON"
                         value={`${Math.round(futureScore)}/100`}
                         sub={`Le ${lastPoint?.date || '...'}`}
                         icon={isOpportunity ? TrendingUp : TrendingDown}
@@ -185,11 +185,11 @@ export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
                     />
                     <TopKpiCard title="IMPACT SAISON"
                         value={weatherImpact > 0 ? `+${weatherImpact} pts` : weatherImpact < 0 ? `${weatherImpact} pts` : "Neutre"}
-                        sub={seasonType === 'WINTER' ? "Hiver" : seasonType === 'SUMMER' ? "Ã‰tÃ©" : "Intemporel"}
+                        sub={seasonType === 'WINTER' ? "Hiver" : seasonType === 'SUMMER' ? "Été" : "Intemporel"}
                         icon={seasonType === 'WINTER' ? Snowflake : seasonType === 'SUMMER' ? ThermometerSun : Calendar}
                         color={weatherImpact > 0 ? "text-green-500" : weatherImpact < 0 ? "text-red-500" : "text-gray-400"}
                     />
-                    <TopKpiCard title="VOLUME ANALYSÃ‰" value={data.products.length} sub="Produits ScannÃ©s" icon={Layers} color="text-purple-500" />
+                    <TopKpiCard title="VOLUME ANALYSÉ" value={data.products.length} sub="Produits Scannés" icon={Layers} color="text-purple-500" />
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[700px] lg:h-[700px]">
@@ -200,7 +200,7 @@ export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
                             <div>
                                 <h2 className="text-2xl font-black text-black uppercase tracking-tight mb-2">{data.name.split('(')[0]}</h2>
                                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                                    Simulation PrÃ©dictive (Tendances + MÃ©tÃ©o)
+                                    Simulation Pr?dictive (Tendances + M?t?o)
                                 </p>
                             </div>
                             <div className="flex gap-2">
@@ -222,7 +222,7 @@ export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
                         </div>
 
                         <div className="flex-1 w-full relative">
-                            {/* Le Graphique PrÃ©dictif */}
+                            {/* Le Graphique Pr?dictif */}
                             <PredictiveChart
                                 data={chartData}
                                 color={isOpportunity ? "#22C55E" : "#EF4444"}
@@ -238,14 +238,14 @@ export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
                                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
                                     className="bg-[#007AFF] text-white px-4 py-3 rounded-lg shadow-lg shadow-blue-500/30 text-xs font-bold text-center mb-2 flex flex-col items-center backdrop-blur-md border border-white/20"
                                 >
-                                    <span className="text-[9px] uppercase tracking-widest opacity-90 mb-1 font-medium">Ã‰tat marchÃ© livraison</span>
+                                    <span className="text-[9px] uppercase tracking-widest opacity-90 mb-1 font-medium">État marché livraison</span>
                                     <div className="flex items-baseline gap-2 mb-1">
                                         <span className="text-2xl font-black leading-none">{Math.round(futureScore)}</span>
                                         <span className="text-[10px] opacity-80">/ 100</span>
                                     </div>
                                     <div className="w-full h-[1px] bg-white/20 my-2"></div>
                                     <span className="text-xs font-bold flex items-center gap-1">
-                                        ðŸ“† PrÃ©vu le {lastPoint?.date}
+                                        📆 Prévu le {lastPoint?.date}
                                     </span>
                                 </motion.div>
                             </div>
@@ -256,7 +256,7 @@ export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
                     <div className="col-span-1 lg:col-span-3 bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col h-full overflow-hidden">
                         <h3 className="text-xs font-black uppercase tracking-widest text-[#007AFF] mb-4 flex items-center gap-2">
                             <Zap className="w-4 h-4" />
-                            ANALYSE STRATÃ‰GIQUE
+                            ANALYSE STRATÉGIQUE
                         </h3>
 
                         {/* PHOTO ARTICLE (Contexte Visuel) */}
@@ -277,7 +277,7 @@ export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
                             {/* Score Budget Overlay */}
                             <div className="absolute bottom-2 right-2 bg-white/90 backdrop-blur px-3 py-1 rounded-lg text-[10px] font-black shadow-sm flex items-center gap-1">
                                 <DollarSign className="w-3 h-3 text-green-600" />
-                                {data.avgPrice} â‚¬
+                                {data.avgPrice} ?
                             </div>
                         </div>
 
@@ -322,18 +322,18 @@ export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
                                 </div>
                             </div>
 
-                            {/* ARGUMENT PHARE (SaisonnalitÃ© First) */}
+                            {/* ARGUMENT PHARE (Saisonnalit? First) */}
                             {weatherImpact < -30 ? (
                                 <div className="px-4 py-3 rounded-xl w-full border text-left mb-2 bg-red-50 border-red-100 relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 bg-white/50 px-2 py-0.5 rounded-bl-lg text-[8px] font-black uppercase tracking-widest opacity-50">Impact MÃ©tÃ©o</div>
+                                    <div className="absolute top-0 right-0 bg-white/50 px-2 py-0.5 rounded-bl-lg text-[8px] font-black uppercase tracking-widest opacity-50">Impact M?t?o</div>
                                     <div className="flex items-center gap-2 mb-1">
                                         <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div>
-                                        <div className="text-xs font-black text-red-600 uppercase">CALENDRIER RISQUÃ‰</div>
+                                        <div className="text-xs font-black text-red-600 uppercase">CALENDRIER RISQUÉ</div>
                                     </div>
                                     <div className="flex items-start gap-2 bg-white/60 p-2 rounded-lg mt-2">
                                         <AlertTriangle className="w-3 h-3 text-red-600 mt-0.5 shrink-0" />
                                         <span className="text-[10px] font-bold text-red-800 leading-tight">
-                                            &quot;Livraison &apos;Hiver&apos; prÃ©vue en {deliveryDate.toLocaleDateString('fr-FR', { month: 'long' })}. La demande sera nulle.&quot;
+                                            &quot;Livraison &apos;Hiver&apos; pr?vue en {deliveryDate.toLocaleDateString('fr-FR', { month: 'long' })}. La demande sera nulle.&quot;
                                         </span>
                                     </div>
                                 </div>
@@ -347,7 +347,7 @@ export function StyleLightDashboard({ data }: { data: StyleDetailProps }) {
                                     <div className="flex items-start gap-2 bg-white/60 p-2 rounded-lg mt-2">
                                         <TrendingUp className="w-3 h-3 text-green-600 mt-0.5 shrink-0" />
                                         <span className="text-[10px] font-bold text-green-800 leading-tight">
-                                            &quot;Volume en hausse + PÃ©nurie chez les concurrents. Le marchÃ© demande ce produit.&quot;
+                                            &quot;Volume en hausse + P?nurie chez les concurrents. Le march? demande ce produit.&quot;
                                         </span>
                                     </div>
                                 </div>

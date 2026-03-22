@@ -57,7 +57,7 @@ export function LiveTrackingIndicator({ shopifyUrl, storeName }: LiveTrackingInd
         setTrackingData(data);
       }
     } catch (error) {
-      console.error('Erreur lors de la rÃ©cupÃ©ration du tracking:', error);
+      console.error('Erreur lors de la r?cup?ration du tracking:', error);
     } finally {
       setIsLoading(false);
     }
@@ -65,7 +65,7 @@ export function LiveTrackingIndicator({ shopifyUrl, storeName }: LiveTrackingInd
 
   useEffect(() => {
     fetchTrackingData();
-    // RafraÃ®chir toutes les 30 secondes si le tracking est actif
+    // Rafra?chir toutes les 30 secondes si le tracking est actif
     const interval = setInterval(() => {
       if (trackingData?.tracking) {
         fetchTrackingData();
@@ -79,7 +79,7 @@ export function LiveTrackingIndicator({ shopifyUrl, storeName }: LiveTrackingInd
     setIsToggling(true);
     try {
       if (trackingData?.tracking) {
-        // DÃ©sactiver
+        // D?sactiver
         await fetch(`/api/spy/track?brandId=${trackingData.brand.id}`, {
           method: 'DELETE',
         });
@@ -170,7 +170,7 @@ export function LiveTrackingIndicator({ shopifyUrl, storeName }: LiveTrackingInd
             </div>
             {isTracking && (
               <p className="text-xs text-muted-foreground mt-1">
-                Mise Ã  jour toutes les heures
+                Mise ? jour toutes les heures
               </p>
             )}
           </div>
@@ -184,12 +184,12 @@ export function LiveTrackingIndicator({ shopifyUrl, storeName }: LiveTrackingInd
             </div>
             <div className="text-2xl font-bold text-foreground">
               {revenue24h >= 1000 
-                ? `${(revenue24h / 1000).toFixed(1)}Kâ‚¬`
-                : `${revenue24h.toFixed(0)}â‚¬`}
+                ? `${(revenue24h / 1000).toFixed(1)}K?`
+                : `${revenue24h.toFixed(0)}?`}
             </div>
             {isTracking && (
               <p className="text-xs text-muted-foreground mt-1">
-                EstimÃ© depuis les stocks
+                Estim? depuis les stocks
               </p>
             )}
           </div>
@@ -221,7 +221,7 @@ export function LiveTrackingIndicator({ shopifyUrl, storeName }: LiveTrackingInd
                   yAxisId="right" 
                   orientation="right"
                   tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}Kâ‚¬`}
+                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}K?`}
                 />
                 <Tooltip 
                   contentStyle={{ 
@@ -231,7 +231,7 @@ export function LiveTrackingIndicator({ shopifyUrl, storeName }: LiveTrackingInd
                   }}
                   formatter={(value: any, name: any) => {
                     if (name === 'revenue') {
-                      return [`${(value ?? 0).toFixed(2)}â‚¬`, 'Revenu'];
+                      return [`${(value ?? 0).toFixed(2)}?`, 'Revenu'];
                     }
                     return [value ?? 0, 'Ventes'];
                   }}
@@ -253,7 +253,7 @@ export function LiveTrackingIndicator({ shopifyUrl, storeName }: LiveTrackingInd
                   stroke="hsl(var(--success))"
                   strokeWidth={2}
                   dot={{ r: 4 }}
-                  name="Revenu (â‚¬)"
+                  name="Revenu (?)"
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -262,9 +262,9 @@ export function LiveTrackingIndicator({ shopifyUrl, storeName }: LiveTrackingInd
 
         {!isTracking && (
           <div className="text-center py-4 text-sm text-muted-foreground">
-            <p className="font-semibold mb-2">ðŸ’¡ Activez le tracking pour voir les donnÃ©es rÃ©elles</p>
-            <p className="text-xs">Le tracking analyse les stocks toutes les heures et calcule les ventes rÃ©elles</p>
-            <p className="text-xs mt-1">Sans tracking, les commandes affichÃ©es sont des estimations basÃ©es sur le trafic estimÃ©</p>
+            <p className="font-semibold mb-2">ðŸ’¡ Activez le tracking pour voir les donn?es r?elles</p>
+            <p className="text-xs">Le tracking analyse les stocks toutes les heures et calcule les ventes r?elles</p>
+            <p className="text-xs mt-1">Sans tracking, les commandes affich?es sont des estimations bas?es sur le trafic estim?</p>
           </div>
         )}
       </CardContent>

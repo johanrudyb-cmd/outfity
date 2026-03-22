@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Facebook, Music, ExternalLink, Image as ImageIcon, Video } from 'lucide-react';
+import { proxyImageUrl } from '@/lib/image-proxy';
 
 interface AdData {
   facebook: Array<{
@@ -25,10 +26,6 @@ interface AdData {
 
 interface AdLibrarySectionProps {
   adData: AdData | null | undefined;
-}
-
-function proxyImageSrc(url: string): string {
-  return `/api/proxy-image?url=${encodeURIComponent(url)}`;
 }
 
 export function AdLibrarySection({ adData }: AdLibrarySectionProps) {
@@ -67,7 +64,7 @@ export function AdLibrarySection({ adData }: AdLibrarySectionProps) {
                   {ad.imageUrl && (
                     <div className="relative mb-2 h-32 rounded overflow-hidden bg-muted">
                       <Image
-                        src={proxyImageSrc(ad.imageUrl)}
+                        src={proxyImageUrl(ad.imageUrl) || ad.imageUrl || ''}
                         alt={ad.title || 'Publicité Facebook'}
                         fill
                         sizes="(max-width: 768px) 100vw, 50vw"
@@ -124,7 +121,7 @@ export function AdLibrarySection({ adData }: AdLibrarySectionProps) {
                   {ad.imageUrl && (
                     <div className="relative mb-2 h-32 rounded overflow-hidden bg-muted">
                       <Image
-                        src={proxyImageSrc(ad.imageUrl)}
+                        src={proxyImageUrl(ad.imageUrl) || ad.imageUrl || ''}
                         alt={ad.title || 'Publicité TikTok'}
                         fill
                         sizes="(max-width: 768px) 100vw, 50vw"

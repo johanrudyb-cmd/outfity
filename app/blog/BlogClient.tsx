@@ -62,13 +62,13 @@ export function BlogClient({ posts, categories }: { posts: BlogClientPost[], cat
                                 <span className="text-[#86868b]/30 italic font-serif">MAGAZINE</span>
                             </h1>
                             <p className="text-base sm:text-xl text-[#6e6e73] font-medium leading-relaxed mb-6 sm:mb-8">
-                                DÃ©crypte le futur de la mode. StratÃ©gies, analyses data et nouvelles tendances pour lancer la marque de demain.
+                                D?crypte le futur de la mode. Strat?gies, analyses data et nouvelles tendances pour lancer la marque de demain.
                             </p>
 
                             {/* Scroll hint or generic call to action */}
                             <div className="hidden lg:flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-[#86868b]">
                                 <ArrowRight className="w-4 h-4 animate-bounce-x" />
-                                SÃ©lection Ã  la une
+                                S?lection ? la une
                             </div>
                         </div>
 
@@ -117,7 +117,7 @@ export function BlogClient({ posts, categories }: { posts: BlogClientPost[], cat
                 <section className="sticky top-14 sm:top-16 lg:top-20 z-40 bg-white/80 backdrop-blur-xl border-b border-[#F2F2F2] py-4 shadow-sm w-full">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
-                        {/* ðŸ“± Version Mobile - Select Natif StylisÃ© pour max de fluiditÃ© iOS/Android */}
+                        {/* ðŸ“± Version Mobile - Select Natif Stylis? pour max de fluidit? iOS/Android */}
                         <div className="block sm:hidden relative">
                             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
                                 <span className="text-[10px] font-black uppercase tracking-widest text-[#86868b]">Filtrer</span>
@@ -225,7 +225,7 @@ export function BlogClient({ posts, categories }: { posts: BlogClientPost[], cat
                         <div
                             className="text-center py-20 text-[#6e6e73]"
                         >
-                            <p className="text-xl font-medium">BientÃ´t de nouveaux articles dans cette catÃ©gorie.</p>
+                            <p className="text-xl font-medium">Bient?t de nouveaux articles dans cette cat?gorie.</p>
                         </div>
                     )}
                 </div>
@@ -242,7 +242,7 @@ export function BlogClient({ posts, categories }: { posts: BlogClientPost[], cat
                             <span className="text-[#6e6e73]">L&apos;Ã‰LITE DU SECTEUR</span>
                         </h2>
                         <p className="text-white/60 text-lg sm:text-xl font-medium pb-2 px-4 sm:px-0">
-                            OUTFITY n&apos;est pas qu&apos;un outil. C&apos;est votre veille stratÃ©gique automatisÃ©e. Chaque article ici met Ã  jour les algorithmes pour nos membres VIP.
+                            OUTFITY n&apos;est pas qu&apos;un outil. C&apos;est votre veille strat?gique automatis?e. Chaque article ici met ? jour les algorithmes pour nos membres VIP.
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-4">
                             <Link href="/auth/signup">

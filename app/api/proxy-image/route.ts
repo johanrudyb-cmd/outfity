@@ -1,84 +1,110 @@
 /**
- * Proxy pour afficher des images externes (ex. tendances Zalando/ASOS) sans blocage referrer/CORS.
+ * Proxy pour afficher des images externes (ex. tendances Zalando/ASOS/TikTok)
+ * sans blocage referrer/CORS.
  * GET /api/proxy-image?url=https://...
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { normalizeExternalImageUrl } from '@/lib/image-proxy';
 
-const ALLOWED_ORIGINS = ['https://', 'http://'];
-
-function isAllowedUrl(url: string): boolean {
+function isHttpImageUrl(url: string): boolean {
   try {
-    const u = new URL(url);
-    return u.protocol === 'https:' || u.protocol === 'http:';
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:';
   } catch {
     return false;
   }
 }
 
-export async function GET(request: NextRequest) {
-  const url = request.nextUrl.searchParams.get('url');
+function buildReferer(targetUrl: URL): string | undefined {
+  const host = targetUrl.hostname.toLowerCase();
 
-  if (!url || !isAllowedUrl(url)) {
+  // ASOS tolere souvent mieux sans referer
+  if (host.includes('asos')) return undefined;
+
+  // TikTok/CDN lies a TikTok peuvent bloquer sans referer plausible
+  if (
+    host.includes('tiktok') ||
+    host.includes('tiktokcdn') ||
+    host.includes('byteimg') ||
+    host.includes('ibyteimg')
+  ) {
+    return 'https://www.tiktok.com/';
+  }
+
+  return `${targetUrl.origin}/`;
+}
+
+async function toImageResponse(res: Response): Promise<NextResponse> {
+  const contentType = (res.headers.get('content-type') || 'image/jpeg').split(';')[0].trim();
+  const buffer = await res.arrayBuffer();
+
+  return new NextResponse(buffer, {
+    status: 200,
+    headers: {
+      'Content-Type': contentType,
+      'Cache-Control': 'public, max-age=21600, stale-while-revalidate=43200',
+      'Access-Control-Allow-Origin': '*',
+    },
+  });
+}
+
+export async function GET(request: NextRequest) {
+  const rawUrl = request.nextUrl.searchParams.get('url');
+  const normalized = normalizeExternalImageUrl(rawUrl);
+
+  if (!normalized || !isHttpImageUrl(normalized)) {
     return NextResponse.json({ error: 'URL invalide' }, { status: 400 });
   }
 
   try {
-    const targetUrl = new URL(url);
-    const origin = targetUrl.origin;
+    const targetUrl = new URL(normalized);
+    const referer = buildReferer(targetUrl);
 
-    // Logique de Referer intelligent
-    let referer: string | undefined = origin + '/';
-
-    if (url.includes('asos')) {
-      // Pour ASOS, l'absence de Referer passe mieux que le spoofing qui timeout/bloque
-      referer = undefined;
-    } else if (url.includes('zalando')) {
-      referer = origin + '/';
-    }
-
-    const fetchHeaders: HeadersInit = {
+    const primaryHeaders: HeadersInit = {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+      Accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
       'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
       'Cache-Control': 'no-cache',
-      'Pragma': 'no-cache',
-      'Sec-Fetch-Dest': 'image',
-      'Sec-Fetch-Mode': 'no-cors',
-      'Sec-Fetch-Site': 'cross-site',
+      Pragma: 'no-cache',
     };
 
     if (referer) {
-      (fetchHeaders as any)['Referer'] = referer;
+      (primaryHeaders as Record<string, string>).Referer = referer;
     }
 
-    const res = await fetch(url, {
-      headers: fetchHeaders,
+    let res = await fetch(targetUrl.toString(), {
+      headers: primaryHeaders,
+      redirect: 'follow',
       cache: 'force-cache',
       next: { revalidate: 86400 },
     });
 
-    if (!res.ok) {
-      console.warn(`[proxy-image] Échec fetch: ${res.status} pour ${url}`);
-      // Fallback ultime : retry sans aucun header spécifique (juste UA)
-      if (res.status === 403 || res.status === 404) {
-        return fetch(url, {
-          headers: { 'User-Agent': 'Mozilla/5.0' }
-        });
+    const contentType = (res.headers.get('content-type') || '').toLowerCase();
+    const isImagePayload = contentType.startsWith('image/');
+
+    // Retry plus permissif sur erreurs frequentes des CDNs/anti-bot
+    if (!res.ok || !isImagePayload) {
+      if (!res.ok) {
+        console.warn(`[proxy-image] Fetch primaire KO: ${res.status} pour ${targetUrl}`);
       }
+
+      res = await fetch(targetUrl.toString(), {
+        headers: {
+          'User-Agent': 'Mozilla/5.0',
+          Accept: 'image/*,*/*;q=0.8',
+        },
+        redirect: 'follow',
+        cache: 'no-store',
+      });
+    }
+
+    if (!res.ok) {
+      console.warn(`[proxy-image] Fetch fallback KO: ${res.status} pour ${targetUrl}`);
       return new NextResponse(null, { status: res.status });
     }
 
-    const contentType = res.headers.get('content-type') || 'image/jpeg';
-    const buffer = await res.arrayBuffer();
-
-    return new NextResponse(buffer, {
-      headers: {
-        'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=86400, stale-while-revalidate=43200',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+    return toImageResponse(res);
   } catch (e) {
     console.error('[proxy-image] Erreur critique:', e);
     return new NextResponse(null, { status: 502 });

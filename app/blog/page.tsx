@@ -47,7 +47,7 @@ const getCachedBlogPosts = unstable_cache(
       tags: (post.tags || []).slice(0, 3),
     }));
   },
-  ['blog-page-posts-v6'], // Invalidation manuelle du cache suite Ã  optimisation payload
+  ['blog-page-posts-v6'], // Invalidation manuelle du cache suite ? optimisation payload
   { revalidate: 3600, tags: ['blog'] }
 );
 

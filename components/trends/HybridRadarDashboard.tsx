@@ -14,6 +14,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { SectionHeader } from '@/components/ui/section-header';
 import { getProductBrand } from '@/lib/brand-utils';
 import { safeDisplayBrand } from '@/lib/constants/retailer-exclusion';
+import { proxyImageUrl } from '@/lib/image-proxy';
 
 interface HybridTrend {
   id: string;
@@ -41,7 +42,6 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
-const proxyImageSrc = (url: string) => `/api/proxy-image?url=${encodeURIComponent(url)}`;
 
 export function HybridRadarDashboard() {
   const [scanning, setScanning] = useState(false);
@@ -337,7 +337,7 @@ export function HybridRadarDashboard() {
                                 <div className="aspect-square bg-muted relative">
                                   {item.imageUrl ? (
                                   <Image
-                                    src={proxyImageSrc(item.imageUrl)}
+                                    src={proxyImageUrl(item.imageUrl) || item.imageUrl || ''}
                                     alt={item.name}
                                     fill
                                     sizes="(max-width: 768px) 45vw, 220px"
@@ -495,7 +495,7 @@ export function HybridRadarDashboard() {
                           <div className="aspect-[3/4] bg-[#F5F5F7] relative shrink-0 overflow-hidden">
                             {t.imageUrl ? (
                               <Image
-                                src={proxyImageSrc(t.imageUrl)}
+                                src={proxyImageUrl(t.imageUrl) || t.imageUrl || ''}
                                 alt={t.name}
                                 fill
                                 sizes="(max-width: 1024px) 50vw, 280px"

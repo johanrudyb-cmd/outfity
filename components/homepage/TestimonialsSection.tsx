@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
@@ -7,7 +7,7 @@ import { Star, Quote } from 'lucide-react';
 const testimonials = [
   {
     name: 'Karim S.',
-    role: 'Fondateur @KRS Studio · Streetwear Paris',
+    role: 'Fondateur · Streetwear Paris',
     rating: 5,
     avatar: 'K',
     color: '#007AFF',
@@ -16,7 +16,7 @@ const testimonials = [
   },
   {
     name: 'Léa M.',
-    role: 'Créatrice @LéaLabel · Mode féminine Lyon',
+    role: 'Créatrice · Mode féminine Lyon',
     rating: 5,
     avatar: 'L',
     color: '#A032FF',
@@ -25,7 +25,7 @@ const testimonials = [
   },
   {
     name: 'Nabil T.',
-    role: 'Designer @NTwear · Workwear Bordeaux',
+    role: 'Designer · Workwear Bordeaux',
     rating: 5,
     avatar: 'N',
     color: '#30D158',
@@ -34,7 +34,7 @@ const testimonials = [
   },
   {
     name: 'Sarah B.',
-    role: 'Fondatrice @SB Basics · Essentials Nantes',
+    role: 'Fondatrice · Essentials Nantes',
     rating: 5,
     avatar: 'S',
     color: '#FF9500',
@@ -43,7 +43,7 @@ const testimonials = [
   },
   {
     name: 'Theo R.',
-    role: 'Créateur @TheoDenim · Denim Custom Lille',
+    role: 'Créateur · Denim Custom Lille',
     rating: 5,
     avatar: 'T',
     color: '#FF2A5F',
@@ -52,7 +52,7 @@ const testimonials = [
   },
   {
     name: 'Imane D.',
-    role: 'Designer @IMN Studio · Modestfashion',
+    role: 'Designer · Modestfashion',
     rating: 5,
     avatar: 'I',
     color: '#5856D6',
@@ -166,3 +166,4 @@ export default function TestimonialsSection() {
     </section>
   );
 }
+
