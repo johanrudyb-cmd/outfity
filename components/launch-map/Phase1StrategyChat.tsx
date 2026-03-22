@@ -27,15 +27,15 @@ interface Phase1StrategyChatProps {
 export function Phase1StrategyChat({ brandId, brand, onComplete, canComplete = true, userPlan = 'free', onShowClassic, onShowManifeste, inspirationBrandName, inspirationBrandSlug, changesRemaining = 3 }: Phase1StrategyChatProps) {
     const renderMessageContent = (content: string, isUser: boolean) => {
         return (
-            <div className="leading-relaxed text-[15px] prose prose-sm max-w-none">
+            <div className="leading-relaxed text-[15px] max-w-none text-inherit">
                 <ReactMarkdown
                     components={{
-                        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                        strong: ({ children }) => <strong className="font-bold">{children}</strong>,
-                        em: ({ children }) => <em className="italic">{children}</em>,
-                        ul: ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>,
-                        ol: ({ children }) => <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>,
-                        li: ({ children }) => <li className="text-[14px]">{children}</li>,
+                        p: ({ children }) => <p className="mb-2 last:mb-0 text-inherit">{children}</p>,
+                        strong: ({ children }) => <strong className="font-bold text-inherit">{children}</strong>,
+                        em: ({ children }) => <em className="italic text-inherit">{children}</em>,
+                        ul: ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-1 text-inherit">{children}</ul>,
+                        ol: ({ children }) => <ol className="list-decimal pl-4 mb-2 space-y-1 text-inherit">{children}</ol>,
+                        li: ({ children }) => <li className="text-[14px] text-inherit">{children}</li>,
                         a: ({ href, children }) => {
                             if (href === '/launch-map/phase/1') {
                                 return (

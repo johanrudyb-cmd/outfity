@@ -209,8 +209,8 @@ export function PhaseWaitlist({ brandId, brand, onComplete, userPlan }: PhaseWai
     return (
         <div className="flex flex-col h-full bg-[#FAFAFA] relative overflow-hidden">
             {/* Navigation Header */}
-            <div className="px-6 py-4 flex items-center justify-between border-b border-black/5 bg-white z-20">
-                <div className="flex items-center gap-6">
+            <div className="px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-3 border-b border-black/5 bg-white z-20">
+                <div className="flex items-center gap-3 sm:gap-6 min-w-0">
                     <Link href="/launch-map" className="p-2 hover:bg-black/5 rounded-full transition-colors">
                         <ArrowLeft className="w-5 h-5 text-[#86868B]" />
                     </Link>
@@ -221,11 +221,11 @@ export function PhaseWaitlist({ brandId, brand, onComplete, userPlan }: PhaseWai
                     </div>
                 </div>
 
-                <div className="flex bg-[#F5F5F7] p-1 rounded-full border border-black/5">
+                <div className="order-3 sm:order-none w-full sm:w-auto flex overflow-x-auto no-scrollbar bg-[#F5F5F7] p-1 rounded-full border border-black/5">
                     <button
                         onClick={() => setActiveTab('dashboard')}
                         className={cn(
-                            "px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest transition-all gap-2 flex items-center",
+                            "px-3 sm:px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest transition-all gap-2 flex items-center whitespace-nowrap",
                             activeTab === 'dashboard' ? "bg-white text-[#007AFF] shadow-apple-sm" : "text-[#86868B] hover:text-[#1D1D1F]"
                         )}
                     >
@@ -235,7 +235,7 @@ export function PhaseWaitlist({ brandId, brand, onComplete, userPlan }: PhaseWai
                     <button
                         onClick={() => setActiveTab('customize')}
                         className={cn(
-                            "px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest transition-all gap-2 flex items-center",
+                            "px-3 sm:px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest transition-all gap-2 flex items-center whitespace-nowrap",
                             activeTab === 'customize' ? "bg-white text-[#007AFF] shadow-apple-sm" : "text-[#86868B] hover:text-[#1D1D1F]"
                         )}
                     >
@@ -245,7 +245,7 @@ export function PhaseWaitlist({ brandId, brand, onComplete, userPlan }: PhaseWai
                     <button
                         onClick={() => setActiveTab('leads')}
                         className={cn(
-                            "px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest transition-all gap-2 flex items-center",
+                            "px-3 sm:px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest transition-all gap-2 flex items-center whitespace-nowrap",
                             activeTab === 'leads' ? "bg-white text-[#007AFF] shadow-apple-sm" : "text-[#86868B] hover:text-[#1D1D1F]"
                         )}
                     >
@@ -254,12 +254,12 @@ export function PhaseWaitlist({ brandId, brand, onComplete, userPlan }: PhaseWai
                     </button>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
                     {activeTab === 'customize' ? (
                         <Button
                             onClick={saveAndDeploy}
                             disabled={isDeploying}
-                            className="bg-[#007AFF] hover:bg-[#0056CC] text-white font-black uppercase text-[11px] tracking-widest h-9 rounded-full px-6 shadow-apple"
+                            className="bg-[#007AFF] hover:bg-[#0056CC] text-white font-black uppercase text-[10px] sm:text-[11px] tracking-widest h-8 sm:h-9 rounded-full px-4 sm:px-6 shadow-apple"
                         >
                             {isDeploying ? 'Déploiement...' : 'Déployer les modifs'}
                         </Button>
@@ -268,7 +268,7 @@ export function PhaseWaitlist({ brandId, brand, onComplete, userPlan }: PhaseWai
                             onClick={onComplete}
                             disabled={emailsCollected < goal}
                             className={cn(
-                                "h-9 rounded-full px-6 font-black uppercase text-[11px] tracking-widest gap-2 shadow-apple transition-all",
+                                "h-8 sm:h-9 rounded-full px-4 sm:px-6 font-black uppercase text-[10px] sm:text-[11px] tracking-widest gap-1.5 sm:gap-2 shadow-apple transition-all",
                                 emailsCollected >= goal ? "bg-[#1D1D1F] text-white hover:bg-black" : "bg-black/5 text-black/30 border border-black/5 cursor-not-allowed"
                             )}
                         >
@@ -280,22 +280,22 @@ export function PhaseWaitlist({ brandId, brand, onComplete, userPlan }: PhaseWai
             </div>
 
             {!isDeployed && activeTab !== 'customize' ? (
-                <div className="flex-1 flex items-center justify-center p-6">
-                    <Card className="max-w-xl w-full border-none shadow-apple-2xl rounded-[40px] overflow-hidden bg-white/80 backdrop-blur-xl">
-                        <CardContent className="p-12 text-center space-y-8">
-                            <div className="w-24 h-24 bg-gradient-to-tr from-blue-500 to-cyan-400 rounded-3xl mx-auto flex items-center justify-center shadow-xl shadow-blue-500/20 rotate-6 group hover:rotate-0 transition-transform duration-500">
-                                <Rocket className="w-12 h-12 text-white" />
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6 pb-24 sm:pb-6">
+                    <Card className="max-w-xl w-full mx-auto border-none shadow-apple-2xl rounded-[28px] sm:rounded-[40px] overflow-hidden bg-white/80 backdrop-blur-xl">
+                        <CardContent className="p-7 sm:p-12 text-center space-y-6 sm:space-y-8">
+                            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-tr from-blue-500 to-cyan-400 rounded-3xl mx-auto flex items-center justify-center shadow-xl shadow-blue-500/20 rotate-6 group hover:rotate-0 transition-transform duration-500">
+                                <Rocket className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
                             </div>
                             <div className="space-y-4">
-                                <h3 className="text-3xl font-black text-[#1D1D1F] tracking-tight">Active ton Radar Marché</h3>
-                                <p className="text-[#86868B] text-lg font-medium leading-relaxed">
+                                <h3 className="text-2xl sm:text-3xl font-black text-[#1D1D1F] tracking-tight leading-[1.05]">Active ton Radar Marché</h3>
+                                <p className="text-[#86868B] text-base sm:text-lg font-medium leading-relaxed">
                                     Avant de dépenser en production, prouve que tes clients sont prêts. On déploie ta Landing Page optimisée TikTok en un éclair.
                                 </p>
                             </div>
                             <Button
                                 size="lg"
                                 onClick={() => setActiveTab('customize')}
-                                className="w-full h-16 text-base font-black shadow-apple-lg bg-[#007AFF] hover:bg-[#0056CC] rounded-2xl group transition-all"
+                                className="w-full h-14 sm:h-16 text-sm sm:text-base font-black shadow-apple-lg bg-[#007AFF] hover:bg-[#0056CC] rounded-2xl group transition-all"
                             >
                                 Commencer le Studio
                                 <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
@@ -307,7 +307,7 @@ export function PhaseWaitlist({ brandId, brand, onComplete, userPlan }: PhaseWai
                 <div className="flex-1 flex overflow-hidden">
                     {/* Main Content Area */}
                     <div className="flex-1 overflow-y-auto stylish-scrollbar bg-[#F5F5F7]">
-                        <div className="p-8 sm:p-12 max-w-5xl mx-auto">
+                        <div className="p-4 sm:p-8 lg:p-12 max-w-5xl mx-auto">
                             {activeTab === 'dashboard' && (
                                 <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                     {/* Stats Grid */}
