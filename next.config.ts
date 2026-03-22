@@ -25,7 +25,7 @@ const nextConfig: NextConfig = {
   images: {
     localPatterns: [
       // Autorise les sources proxifiées en local: /api/proxy-image?url=...
-      { pathname: '/api/proxy-image' },
+      { pathname: '/**' },
     ],
     remotePatterns: [
       // Infrastructure
