@@ -23,6 +23,10 @@ const nextConfig: NextConfig = {
   // Turbopack disabled in dev (--webpack) to avoid Windows endpoint write issues
   // turbopack: { root: path.resolve(process.cwd()) },
   images: {
+    localPatterns: [
+      // Autorise les sources proxifiées en local: /api/proxy-image?url=...
+      { pathname: '/api/proxy-image' },
+    ],
     remotePatterns: [
       // Infrastructure
       { protocol: 'https', hostname: 'd1yei2z3i6k35z.cloudfront.net' },

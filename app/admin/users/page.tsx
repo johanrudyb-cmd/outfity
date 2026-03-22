@@ -195,7 +195,7 @@ export default async function AdminUsersPage() {
                                                 <span className="text-[10px] font-mono text-[#1D1D1F] font-bold uppercase group-hover:text-[#007AFF] transition-colors">{user.stripeCustomerId}</span>
                                             </div>
                                         ) : (
-                                            <span className="text-[10px] font-bold text-[#86868b] uppercase tracking-widest opacity-30">â€” Non Client</span>
+                                            <span className="text-[10px] font-bold text-[#86868b] uppercase tracking-widest opacity-30">— Non Client</span>
                                         )}
                                     </TableCell>
                                     <TableCell className="pr-8 text-right">

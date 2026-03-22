@@ -101,6 +101,9 @@ export function BaseAgentChat({
     const hasInitialized = useRef(false);
 
     const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const getMaxTextareaHeight = () => (
+        typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches ? 96 : 120
+    );
 
     useEffect(() => { scrollToBottom(); }, [messages, isTyping, customViews]);
 
@@ -165,6 +168,9 @@ export function BaseAgentChat({
         const updatedMessages = [...messages, userMsg];
         setMessages(updatedMessages);
         setInput('');
+        requestAnimationFrame(() => {
+            if (inputRef.current) inputRef.current.style.height = 'auto';
+        });
         setSuggestions([]);
         setIsTyping(true);
         setPendingImage(null);
@@ -463,7 +469,7 @@ export function BaseAgentChat({
             )}
 
             {/* ── Input Box (Gemini-style) ── */}
-            <div className="w-full shrink-0 pt-2 bg-[#F5F5F7]/95 backdrop-blur z-50 border-t border-black/[0.05] px-3 sm:px-6 pb-chat-mobile sticky bottom-0">
+            <div className="w-full shrink-0 pt-1.5 sm:pt-2 bg-[#F5F5F7]/95 backdrop-blur z-50 border-t border-black/[0.05] px-3 sm:px-6 pb-chat-mobile sticky bottom-0">
                 {isFreeLimitReached ? (
                     <div className="p-4 sm:p-5 flex flex-col items-center justify-center text-center space-y-3">
                         <p className="text-[13px] sm:text-[14px] text-[#1D1D1F] font-medium leading-relaxed max-w-sm mx-auto">
@@ -513,7 +519,7 @@ export function BaseAgentChat({
                         )}
 
                         <div className="pb-3 sm:pb-6">
-                            <form onSubmit={handleSubmit} className="relative flex items-end gap-2 bg-white border border-black/[0.08] rounded-[28px] shadow-apple-lg p-1.5 transition-all focus-within:ring-4 focus-within:ring-opacity-10 z-30">
+                            <form onSubmit={handleSubmit} className="relative flex items-end gap-1.5 sm:gap-2 bg-white border border-black/[0.08] rounded-[24px] sm:rounded-[28px] shadow-apple-lg p-1 sm:p-1.5 transition-all focus-within:ring-4 focus-within:ring-opacity-10 z-30">
                                 {allowImageUpload && (
                                     <div className="flex items-center pl-2">
                                         <input
@@ -526,10 +532,10 @@ export function BaseAgentChat({
                                         <button
                                             type="button"
                                             onClick={() => fileInputRef.current?.click()}
-                                            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5 transition-apple active:scale-95 text-[#86868B]"
+                                            className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full hover:bg-black/5 transition-apple active:scale-95 text-[#86868B]"
                                             title="Joindre un fichier"
                                         >
-                                            <Paperclip className="w-5 h-5" />
+                                            <Paperclip className="w-4 h-4 sm:w-5 sm:h-5" />
                                         </button>
                                     </div>
                                 )}
@@ -539,7 +545,7 @@ export function BaseAgentChat({
                                     onChange={e => {
                                         setInput(e.target.value);
                                         e.target.style.height = 'auto';
-                                        e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+                                        e.target.style.height = Math.min(e.target.scrollHeight, getMaxTextareaHeight()) + 'px';
                                     }}
                                     onKeyDown={e => {
                                         if (e.key === 'Enter' && !e.shiftKey) {
@@ -548,16 +554,16 @@ export function BaseAgentChat({
                                         }
                                     }}
                                     placeholder={`Parler à ${agentName}...`}
-                                    className="flex-1 bg-transparent max-h-[120px] min-h-[44px] px-4 py-3 text-[16px] text-[#1D1D1F] placeholder:text-[#86868B] focus:outline-none resize-none leading-relaxed"
+                                    className="flex-1 bg-transparent max-h-[96px] sm:max-h-[120px] min-h-[40px] sm:min-h-[44px] px-3 sm:px-4 py-2.5 sm:py-3 text-[16px] text-[#1D1D1F] placeholder:text-[#86868B] focus:outline-none resize-none leading-[1.35] sm:leading-relaxed"
                                     disabled={isTyping}
                                     rows={1}
                                 />
                                 <button
                                     type="submit"
                                     disabled={isTyping || (!input.trim() && !(allowImageUpload && pendingImage))}
-                                    className={cn("w-11 h-11 shrink-0 rounded-[22px] disabled:opacity-30 text-white flex items-center justify-center transition-apple m-0.5 shadow-md active:scale-95", themeColor, themeHoverColor)}
+                                    className={cn("w-10 h-10 sm:w-11 sm:h-11 shrink-0 rounded-[20px] sm:rounded-[22px] disabled:opacity-30 text-white flex items-center justify-center transition-apple m-0.5 shadow-md active:scale-95", themeColor, themeHoverColor)}
                                 >
-                                    {isTyping ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 ml-0.5" />}
+                                    {isTyping ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Send className="w-4 h-4 sm:w-5 sm:h-5 ml-0.5" />}
                                 </button>
                             </form>
                             <p className="text-[10px] text-[#86868B] text-center mt-2 font-medium">

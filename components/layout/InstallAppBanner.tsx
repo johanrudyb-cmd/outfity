@@ -60,7 +60,7 @@ export function InstallAppBanner() {
                 className="flex items-center gap-2 h-8 lg:h-9 px-3 lg:px-4 rounded-full bg-[#1D1D1F] hover:bg-black text-white shadow-sm transition-colors duration-200 border-none shrink-0 cursor-pointer"
             >
                 <Download className="w-3.5 h-3.5" />
-                <span className="text-[11px] lg:text-xs font-bold whitespace-nowrap hidden sm:inline-block">T?l?charger l&apos;App</span>
+                <span className="text-[11px] lg:text-xs font-bold whitespace-nowrap hidden sm:inline-block">Télécharger l&apos;App</span>
             </button>
 
             {/* The Modal */}
@@ -95,7 +95,7 @@ export function InstallAppBanner() {
                                 </div>
                                 <h2 className="text-2xl font-black text-[#1D1D1F]">Installer OUTFITY</h2>
                                 <p className="text-sm text-[#86868B] mt-2 font-medium">
-                                    Installez l&apos;application sur votre ?cran d&apos;accueil pour profiter du mode plein ?cran et des notifications push.
+                                    Installez l&apos;application sur votre écran d&apos;accueil pour profiter du mode plein écran et des notifications push.
                                 </p>
                             </div>
 
@@ -116,7 +116,7 @@ export function InstallAppBanner() {
                                                 <PlusSquare className="w-5 h-5" />
                                             </div>
                                             <p className="text-sm font-medium text-[#1D1D1F]">
-                                                2. Faites d?filer et choisissez <strong className="font-bold">Sur l&apos;?cran d&apos;accueil</strong>
+                                                2. Faites défiler et choisissez <strong className="font-bold">Sur l&apos;écran d&apos;accueil</strong>
                                             </p>
                                         </div>
                                     </>
@@ -137,7 +137,7 @@ export function InstallAppBanner() {
                                                 <Download className="w-5 h-5" />
                                             </div>
                                             <p className="text-sm font-medium text-[#1D1D1F]">
-                                                2. S?lectionnez <strong className="font-bold">Installer l&apos;application</strong> ou <strong className="font-bold">Ajouter ? l&apos;?cran d&apos;accueil</strong>
+                                                2. Sélectionnez <strong className="font-bold">Installer l&apos;application</strong> ou <strong className="font-bold">Ajouter à l&apos;écran d&apos;accueil</strong>
                                             </p>
                                         </div>
                                     </>
@@ -150,7 +150,7 @@ export function InstallAppBanner() {
                                                 <Download className="w-5 h-5" />
                                             </div>
                                             <p className="text-sm font-medium text-[#1D1D1F]">
-                                                Sur Chrome / Edge, cliquez sur l&apos;ic?ne <strong className="font-bold">Installer</strong> dans la barre de recherche en haut ? droite.
+                                                Sur Chrome / Edge, cliquez sur l&apos;icône <strong className="font-bold">Installer</strong> dans la barre de recherche en haut à droite.
                                             </p>
                                         </div>
                                     </>

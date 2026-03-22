@@ -62,13 +62,13 @@ export function BlogClient({ posts, categories }: { posts: BlogClientPost[], cat
                                 <span className="text-[#86868b]/30 italic font-serif">MAGAZINE</span>
                             </h1>
                             <p className="text-base sm:text-xl text-[#6e6e73] font-medium leading-relaxed mb-6 sm:mb-8">
-                                D?crypte le futur de la mode. Strat?gies, analyses data et nouvelles tendances pour lancer la marque de demain.
+                                Décrypte le futur de la mode. Stratégies, analyses data et nouvelles tendances pour lancer la marque de demain.
                             </p>
 
                             {/* Scroll hint or generic call to action */}
                             <div className="hidden lg:flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-[#86868b]">
                                 <ArrowRight className="w-4 h-4 animate-bounce-x" />
-                                S?lection ? la une
+                                Sélection à la une
                             </div>
                         </div>
 
@@ -89,7 +89,7 @@ export function BlogClient({ posts, categories }: { posts: BlogClientPost[], cat
 
                                     <div className="absolute top-4 left-4 sm:top-8 sm:left-8 z-20">
                                         <span className="px-4 py-2 bg-[#007AFF] shadow-xl shadow-[#007AFF]/20 backdrop-blur-md rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white">
-                                            {featuredPost.tags && featuredPost.tags.length > 0 ? featuredPost.tags[0] : 'Ã€ LA UNE'}
+                                            {featuredPost.tags && featuredPost.tags.length > 0 ? featuredPost.tags[0] : 'À LA UNE'}
                                         </span>
                                     </div>
 
@@ -100,7 +100,7 @@ export function BlogClient({ posts, categories }: { posts: BlogClientPost[], cat
                                             </h2>
                                             <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-white/80 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest">
                                                 <span>{new Date(featuredPost.publishedAt).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</span>
-                                                <span className="opacity-40">â€¢</span>
+                                                <span className="opacity-40">•</span>
                                                 <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {getReadTime(featuredPost.readingTimeMinutes)}</span>
                                             </div>
                                         </div>
@@ -117,7 +117,7 @@ export function BlogClient({ posts, categories }: { posts: BlogClientPost[], cat
                 <section className="sticky top-14 sm:top-16 lg:top-20 z-40 bg-white/80 backdrop-blur-xl border-b border-[#F2F2F2] py-4 shadow-sm w-full">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
-                        {/* ðŸ“± Version Mobile - Select Natif Stylis? pour max de fluidit? iOS/Android */}
+                        {/* 📱 Version Mobile - Select natif stylisé pour max de fluidité iOS/Android */}
                         <div className="block sm:hidden relative">
                             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
                                 <span className="text-[10px] font-black uppercase tracking-widest text-[#86868b]">Filtrer</span>
@@ -137,7 +137,7 @@ export function BlogClient({ posts, categories }: { posts: BlogClientPost[], cat
                             </div>
                         </div>
 
-                        {/* ðŸ’» Version Desktop & Tablette - Pills Horizontales */}
+                        {/* 💻 Version Desktop & Tablette - Pills horizontales */}
                         <div className="hidden sm:flex items-center gap-2 lg:gap-4 overflow-x-auto no-scrollbar min-w-max pb-1 sm:pb-0">
                             <button
                                 onClick={() => setActiveCategory(null)}
@@ -225,7 +225,7 @@ export function BlogClient({ posts, categories }: { posts: BlogClientPost[], cat
                         <div
                             className="text-center py-20 text-[#6e6e73]"
                         >
-                            <p className="text-xl font-medium">Bient?t de nouveaux articles dans cette cat?gorie.</p>
+                            <p className="text-xl font-medium">Bientôt de nouveaux articles dans cette catégorie.</p>
                         </div>
                     )}
                 </div>
@@ -239,10 +239,10 @@ export function BlogClient({ posts, categories }: { posts: BlogClientPost[], cat
                         <Sparkles className="w-16 h-16 text-[#007AFF] mx-auto opacity-50" />
                         <h2 className="text-3xl sm:text-6xl font-black text-white leading-none tracking-tight">
                             REJOIGNEZ <br />
-                            <span className="text-[#6e6e73]">L&apos;Ã‰LITE DU SECTEUR</span>
+                            <span className="text-[#6e6e73]">L&apos;ÉLITE DU SECTEUR</span>
                         </h2>
                         <p className="text-white/60 text-lg sm:text-xl font-medium pb-2 px-4 sm:px-0">
-                            OUTFITY n&apos;est pas qu&apos;un outil. C&apos;est votre veille strat?gique automatis?e. Chaque article ici met ? jour les algorithmes pour nos membres VIP.
+                            OUTFITY n&apos;est pas qu&apos;un outil. C&apos;est votre veille stratégique automatisée. Chaque article ici met à jour les algorithmes pour nos membres VIP.
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-4">
                             <Link href="/auth/signup">

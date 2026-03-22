@@ -89,17 +89,16 @@ export function LaunchMapOverview() {
   const completedCount = Object.values(phaseProgress).filter(Boolean).length;
   const total = LAUNCH_MAP_PHASES.length;
 
-  const isLocked = (phaseId: number) => {
+  const getLockType = (phaseId: number): 'plan' | 'market' | null => {
     // Plan lock
-    if (isFreePlan(userPlan) && ![0, 1].includes(phaseId)) return true;
+    if (isFreePlan(userPlan) && ![0, 1].includes(phaseId)) return 'plan';
 
     // Market lock (Prerequisite)
     const waitlistGoal = 100;
     const waitlistMet = waitlistLeadCount >= waitlistGoal || phaseProgress.phase5;
+    if ([6, 7, 8].includes(phaseId) && !waitlistMet) return 'market';
 
-    if ([6, 7, 8].includes(phaseId) && !waitlistMet) return true;
-
-    return false;
+    return null;
   };
 
   const nextPhase = LAUNCH_MAP_PHASES.find(p => !phaseProgress[`phase${p.id}`]);
@@ -229,10 +228,15 @@ export function LaunchMapOverview() {
                 {LAUNCH_MAP_PHASES.map((p, index) => {
                   const Icon = PHASE_ICONS[p.id] ?? Palette;
                   const done = phaseProgress[`phase${p.id}`];
-                  const locked = isLocked(p.id);
+                  const lockType = getLockType(p.id);
+                  const locked = lockType !== null;
                   const isNext = nextPhase?.id === p.id;
                   const color = PHASE_COLOR[p.id];
-                  const href = locked ? '/auth/choose-plan' : PHASE_HREF[p.id];
+                  const href = lockType === 'plan'
+                    ? '/auth/choose-plan'
+                    : lockType === 'market'
+                      ? '/launch-map/phase/5'
+                      : PHASE_HREF[p.id];
 
                   return (
                     <Link
@@ -288,7 +292,7 @@ export function LaunchMapOverview() {
                           {locked && (
                             <div className="flex items-center gap-1">
                               <Lock className="w-3 h-3 text-amber-500" />
-                              {([6, 7, 8].includes(p.id) && waitlistLeadCount < 100) && (
+                              {lockType === 'market' && (
                                 <span className="text-[8px] font-black text-amber-600 uppercase tracking-tighter">Market Lock</span>
                               )}
                             </div>

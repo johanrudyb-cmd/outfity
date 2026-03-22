@@ -9,6 +9,7 @@ import { useSearchParams } from 'next/navigation';
 import { LucideIcon, Loader2, TrendingUp, Tag, Layers, Sparkles, Shirt, ArrowRight, Activity, Cloud, Hexagon, Component, Box } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { proxyImageUrl } from '@/lib/image-proxy';
 
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell
@@ -64,7 +65,7 @@ const MAIN_CATEGORIES: CategoryItem[] = [
     dbId: 'DRESS',
     label: 'Robes',
     icon: Sparkles,
-    desc: { homme: '', femme: 'Mini, Midi, Maxi & Soir?e' },
+    desc: { homme: '', femme: 'Mini, Midi, Maxi & Soirée' },
     onlyFemme: true
   },
   {
@@ -168,11 +169,12 @@ export function TendancesContent({ initialData }: { initialData?: unknown }) {
         </div>
       </div>
 
-      {/* 2. Menu de Cat?gories (Grid) */}
+      {/* 2. Menu de Catégories (Grid) */}
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {MAIN_CATEGORIES.filter(c => !c.onlyFemme || segment === 'femme').map((cat, idx) => {
             const categoryImage = CATEGORY_IMAGES[segment]?.[cat.id] || '';
+            const categoryImageSrc = proxyImageUrl(categoryImage) || categoryImage;
             const label = typeof cat.label === 'string' ? cat.label : cat.label[segment as 'homme' | 'femme'];
             const desc = typeof cat.desc === 'string' ? cat.desc : cat.desc[segment as 'homme' | 'femme'];
 
@@ -198,7 +200,7 @@ export function TendancesContent({ initialData }: { initialData?: unknown }) {
                     </div>
 
                     <Image
-                      src={categoryImage}
+                      src={categoryImageSrc}
                       alt={label}
                       fill
                       sizes="(max-width: 1024px) 100vw, 460px"
@@ -253,8 +255,8 @@ export function TendancesContent({ initialData }: { initialData?: unknown }) {
           })}
         </div>
         <p className="max-w-7xl mx-auto px-6 text-[10px] text-[#86868B] text-center mt-8 font-medium leading-relaxed">
-          Les analyses et pr?dictions de tendances sont bas?es sur des algorithmes de donn?es et constituent un outil d'aide ? la d?cision. <br />
-          Elles ne garantissent pas les ventes futures ni le succ?s commercial.
+          Les analyses et prédictions de tendances sont basées sur des algorithmes de données et constituent un outil d'aide à la décision. <br />
+          Elles ne garantissent pas les ventes futures ni le succès commercial.
         </p>
       </div>
     </div>

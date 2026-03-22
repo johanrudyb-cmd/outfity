@@ -12,9 +12,9 @@ import { cn } from '@/lib/utils';
 import { useSession } from 'next-auth/react';
 import { isPaidPlan } from '@/lib/plan-utils';
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -------------------------------------------------------------------------
 // Types & constants
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -------------------------------------------------------------------------
 
 type Step = 'welcome' | 'profiling' | 'universe_product' | 'identity_pitch' | 'agents' | 'plan' | 'launch';
 
@@ -59,7 +59,7 @@ const UNIVERSES = [
     {
         id: 'premium',
         name: 'Luxe Accessible',
-        emoji: 'âœ¨',
+        emoji: '✨',
         description: 'Détails soignés, finitions haut de gamme',
         icon: Sparkles,
         accent: '#007AFF',
@@ -71,7 +71,7 @@ const UNIVERSES = [
     {
         id: 'outdoor',
         name: 'Techwear',
-        emoji: 'âš¡',
+        emoji: '⚡',
         description: 'Fonctionnel, technique, futuriste',
         icon: ShieldCheck,
         accent: '#34C759',
@@ -136,9 +136,9 @@ const PROFILING_OPTIONS = {
 
 import { AgentRevealCard, AGENTS_TEAM } from './AgentRevealCard';
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -------------------------------------------------------------------------
 // Main component
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -------------------------------------------------------------------------
 
 interface ImmersiveOnboardingProps {
     initialPlan: string;
@@ -182,11 +182,11 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
         const isUpgraded = searchParams.get('upgraded') === 'true' || searchParams.get('subscribed') === 'true';
         const isCanceled = searchParams.get('canceled') === 'true';
         if (isUpgraded) {
-            // Retour de Stripe apr?s paiement â†’ on pointe directement sur l'?tape agents
+            // Retour de Stripe après paiement → on pointe directement sur l'étape agents
             setPlan('creator');
             setStep('agents');
         } else if (isCanceled) {
-            // Paiement annul? â†’ repasser au choix du plan
+            // Paiement annulé → repasser au choix du plan
             setPlan('starter');
             setStep('plan');
         } else if (searchParams.get('plan')) {
@@ -253,7 +253,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                 }
             }
 
-            // Toujours : lancer l'animation de lancement â†’ puis dashboard
+            // Toujours : lancer l'animation de lancement → puis dashboard
             setStep('launch');
         } catch (err) {
             console.error(err);
@@ -352,7 +352,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                         </motion.div>
                     )}
 
-                    {/* â”€â”€ WELCOME â”€â”€ */}
+                    {/* -- WELCOME -- */}
                     {step === 'welcome' && (
                         <motion.div key="welcome"
                             initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }}
@@ -409,7 +409,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                     )}
 
 
-                    {/* â”€â”€ PROFILING â”€â”€ */}
+                    {/* -- PROFILING -- */}
                     {step === 'profiling' && (
                         <motion.div key="profiling"
                             initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
@@ -485,7 +485,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                             </div>
                         </motion.div>
                     )}
-                    {/* â”€â”€ UNIVERSE & PRODUCT â”€â”€ */}
+                    {/* -- UNIVERSE & PRODUCT -- */}
                     {step === 'universe_product' && (
                         <motion.div key="universe_product"
                             initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
@@ -581,7 +581,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                         </motion.div>
                     )}
 
-                    {/* â”€â”€ IDENTITY & PITCH â”€â”€ */}
+                    {/* -- IDENTITY & PITCH -- */}
                     {step === 'identity_pitch' && (
                         <motion.div key="identity_pitch"
                             initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
@@ -630,7 +630,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                 <div className="space-y-3">
                                     <h3 className="text-sm font-bold text-[#1D1D1F] uppercase tracking-widest">2. Ta Mission (Pitch)</h3>
                                     <div className="flex flex-col gap-2 mb-3">
-                                        <p className="text-xs text-[#86868B] font-medium">Panne d&apos;inspi ?Choisis un modèle :</p>
+                                        <p className="text-xs text-[#86868B] font-medium">Panne d&apos;inspi ? Choisis un modèle :</p>
                                         <div className="flex flex-wrap gap-2">
                                             {[
                                                 "Créer des basiques premium éco-responsables pour les urbains exigeants.",
@@ -680,7 +680,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                         </motion.div>
                     )}
 
-                    {/* â”€â”€ AGENTS REVEAL (FUT PACK) â”€â”€ */}
+                    {/* -- AGENTS REVEAL (FUT PACK) -- */}
                     {step === 'agents' && (
                         <motion.div key="agents"
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -724,7 +724,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                 </div>
                             </div>
 
-                            {/* Teaser agents verrouill?s â€” uniquement pour Starter */}
+                            {/* Teaser agents verrouillés — uniquement pour Starter */}
                             {!isCreator && (
                                 <div className="flex items-center justify-center gap-3 flex-wrap px-4">
                                     <p className="text-xs font-bold uppercase tracking-widest text-[#86868B]">Agents verrouillés :</p>
@@ -762,7 +762,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                         </motion.div>
                     )}
 
-                    {/* â”€â”€ PLAN SELECTION â”€â”€ */}
+                    {/* -- PLAN SELECTION -- */}
                     {step === 'plan' && (
                         <motion.div key="plan"
                             initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }}
@@ -776,11 +776,11 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
 
-                                {/* â”€â”€ STARTER â”€â”€ */}
+                                {/* -- STARTER -- */}
                                 <div className="bg-white rounded-[24px] p-6 sm:p-8 border-2 border-[#F2F2F2] flex flex-col hover:border-[#007AFF]/30 transition-all">
                                     <div className="mb-6 flex-1">
                                         <h3 className="text-xl font-bold text-[#1D1D1F] mb-1">Starter</h3>
-                                        <div className="text-3xl font-black text-[#1D1D1F] mb-1">0?<span className="text-lg font-normal text-[#86868B]">/mois</span></div>
+                                        <div className="text-3xl font-black text-[#1D1D1F] mb-1">0€<span className="text-lg font-normal text-[#86868B]">/mois</span></div>
                                         <p className="text-sm text-[#86868B] mb-5">Virgil t&apos;aide à poser les bases de ta stratégie.</p>
                                         {/* Agents */}
                                         <div className="space-y-3 mb-4">
@@ -823,7 +823,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                     <p className="text-[11px] text-[#86868B] text-center mt-2">Sans carte bancaire</p>
                                 </div>
 
-                                {/* â”€â”€ CRÃ‰ATEUR â”€â”€ */}
+                                {/* -- CRÉATEUR -- */}
                                 <div className="relative bg-white rounded-[24px] p-6 sm:p-8 border-2 border-[#007AFF] shadow-xl shadow-blue-500/10 flex flex-col overflow-hidden group">
                                     <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                     {/* Timer promo */}
@@ -833,10 +833,10 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                                     <div className="mb-6 flex-1 relative z-10">
                                         <h3 className="text-xl font-bold text-[#1D1D1F] mb-1">Créateur</h3>
                                         <div className="flex items-baseline gap-2 mb-1">
-                                            <div className="text-3xl font-black text-[#1D1D1F]">29?<span className="text-lg font-normal text-[#86868B]">/mois</span></div>
-                                            <div className="text-base text-[#86868B] line-through decoration-red-500/50">39?</div>
+                                            <div className="text-3xl font-black text-[#1D1D1F]">29€<span className="text-lg font-normal text-[#86868B]">/mois</span></div>
+                                            <div className="text-base text-[#86868B] line-through decoration-red-500/50">39€</div>
                                         </div>
-                                        <p className="text-sm text-[#86868B] mb-5">Offre limit?e : 29?/mois ? vie. 3 jours d&apos;essai gratuit.</p>
+                                        <p className="text-sm text-[#86868B] mb-5">Offre limitée : 29€/mois à vie. 3 jours d&apos;essai gratuit.</p>
                                         {/* Agents */}
                                         <div className="space-y-3 mb-4">
                                             {[
@@ -887,7 +887,7 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
                         </motion.div>
                     )}
 
-                    {/* â”€â”€ LAUNCH â”€â”€ */}
+                    {/* -- LAUNCH -- */}
                     {step === 'launch' && (
                         <LaunchStep plan={plan} brandName={data.brandName || 'ta marque'} />
                     )}
@@ -898,9 +898,9 @@ export function ImmersiveOnboarding({ initialPlan }: ImmersiveOnboardingProps) {
     );
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -------------------------------------------------------------------------
 // Launch step component
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -------------------------------------------------------------------------
 
 function LaunchStep({ plan, brandName }: { plan: string; brandName: string }) {
     const router = useRouter();
