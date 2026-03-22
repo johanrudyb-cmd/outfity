@@ -11,12 +11,10 @@ export function AnimatedHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
 
-  // Fermer le menu sur changement de route
+  // Fermer le menu uniquement quand la route change
   useEffect(() => {
-    if (!isMenuOpen) return;
-    const timeout = window.setTimeout(() => setIsMenuOpen(false), 0);
-    return () => window.clearTimeout(timeout);
-  }, [pathname, isMenuOpen]);
+    setIsMenuOpen(false);
+  }, [pathname]);
 
   // Empêcher le scroll quand le menu est ouvert
   useEffect(() => {
