@@ -5,7 +5,6 @@ import useSWR from 'swr';
 import Link from 'next/link';
 import Image from 'next/image';
 import { TrendProduct } from '@/types';
-import { useSearchParams } from 'next/navigation';
 import { LucideIcon, Loader2, TrendingUp, Tag, Layers, Sparkles, Shirt, ArrowRight, Activity, Cloud, Hexagon, Component, Box } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -15,23 +14,25 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell
 } from 'recharts';
 
-const CATEGORY_IMAGES: Record<string, Record<string, string>> = {
+const CATEGORY_IMAGES_FALLBACK: Record<string, Record<string, string>> = {
   homme: {
-    "t-shirts": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/95c18205-935b-4139-a3f4-2ed7b8a53e4d.png",
-    "sweats": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/c4b723c8-de94-43bd-89b2-fe21f592d636.png",
-    "vestes": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/6428a082-c729-48fe-b525-7bd667c46b59.png",
-    "pantalons": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/13695bb5-a3f2-4593-a664-4ed5ff4e7387.png",
-    "jeans": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/f6ede387-9faf-4f8f-a151-4ec9e4892617.png"
+    "t-shirts": "/style-previews/homme-t-shirts.webp",
+    "sweats": "/style-previews/homme-sweats.webp",
+    "vestes": "/style-previews/homme-vestes.webp",
+    "pantalons": "/style-previews/homme-pantalons.webp",
+    "jeans": "/style-previews/homme-jeans.webp"
   },
   femme: {
-    "t-shirts": "/images/femme-tshirt.png",
-    "sweats": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/8b393865-f928-4e40-ad7b-b0a6cae924e1.png",
-    "vestes": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/33b9ac58-b800-4172-b955-ce8bea09880a.png",
-    "pantalons": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/017bca67-2ec5-48aa-8b19-dba5d81ca9a6.png",
-    "jeans": "https://d3u0tzju9qaucj.cloudfront.net/e2403014-df89-46b9-ad7a-dab42cadbcbe/d73da759-5240-4515-9091-20eab55469bd.png",
-    "robes": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1000&auto=format&fit=crop"
+    "t-shirts": "/style-previews/femme-t-shirts.webp",
+    "sweats": "/style-previews/femme-sweats.webp",
+    "vestes": "/style-previews/femme-vestes.webp",
+    "pantalons": "/style-previews/femme-pantalons.webp",
+    "jeans": "/style-previews/femme-jeans.webp",
+    "robes": "/style-previews/femme-robes.webp"
   }
 };
+
+type PreviewMap = Record<'homme' | 'femme', Record<string, string>>;
 
 type CategoryDesc = string | { homme: string; femme: string };
 type CategoryLabel = string | { homme: string; femme: string };
@@ -127,6 +128,13 @@ export function TendancesContent({ initialData }: { initialData?: unknown }) {
     return statsMap;
   }, [trendsData]);
 
+  const previewMap = useMemo<PreviewMap | null>(() => {
+    if (!previews || typeof previews !== 'object') return null;
+    const casted = previews as Partial<PreviewMap>;
+    if (!casted.homme || !casted.femme) return null;
+    return casted as PreviewMap;
+  }, [previews]);
+
   return (
     <div className="min-h-screen pb-32 font-sans transition-colors duration-1000 bg-[#F5F5F7]">
       {/* 1. Static Header */}
@@ -173,7 +181,11 @@ export function TendancesContent({ initialData }: { initialData?: unknown }) {
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {MAIN_CATEGORIES.filter(c => !c.onlyFemme || segment === 'femme').map((cat, idx) => {
-            const categoryImage = CATEGORY_IMAGES[segment]?.[cat.id] || '';
+            const segmentKey = segment as 'homme' | 'femme';
+            const categoryImage =
+              previewMap?.[segmentKey]?.[cat.id]
+              || CATEGORY_IMAGES_FALLBACK[segment]?.[cat.id]
+              || '';
             const categoryImageSrc = proxyImageUrl(categoryImage) || categoryImage;
             const label = typeof cat.label === 'string' ? cat.label : cat.label[segment as 'homme' | 'femme'];
             const desc = typeof cat.desc === 'string' ? cat.desc : cat.desc[segment as 'homme' | 'femme'];

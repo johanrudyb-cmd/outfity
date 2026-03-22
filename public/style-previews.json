@@ -1,16 +1,17 @@
 {
     "homme": {
-        "t-shirts": "/style-previews/homme-t-shirts.png",
-        "sweats": "/style-previews/homme-sweats.png",
-        "vestes": "/style-previews/homme-vestes.png",
-        "pantalons": "/style-previews/homme-pantalons.png",
-        "jeans": "/style-previews/homme-jeans.png"
+        "t-shirts": "/style-previews/homme-t-shirts.webp",
+        "sweats": "/style-previews/homme-sweats.webp",
+        "vestes": "/style-previews/homme-vestes.webp",
+        "pantalons": "/style-previews/homme-pantalons.webp",
+        "jeans": "/style-previews/homme-jeans.webp"
     },
     "femme": {
-        "t-shirts": "/style-previews/femme-t-shirts.png",
-        "sweats": "/style-previews/femme-sweats.png",
-        "vestes": "/style-previews/femme-vestes.png",
-        "pantalons": "/style-previews/femme-pantalons.png",
-        "jeans": "/style-previews/femme-jeans.png"
+        "t-shirts": "/style-previews/femme-t-shirts.webp",
+        "sweats": "/style-previews/femme-sweats.webp",
+        "vestes": "/style-previews/femme-vestes.webp",
+        "pantalons": "/style-previews/femme-pantalons.webp",
+        "jeans": "/style-previews/femme-jeans.webp",
+        "robes": "/style-previews/femme-robes.webp"
     }
 }
