@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 function SignInContent() {
@@ -21,6 +21,7 @@ function SignInContent() {
 
   const callbackUrl = searchParams.get('callbackUrl') || '/auth/callback';
   const isPartnerFlow = callbackUrl.includes('/partners');
+  const maintenanceMessage = "Maintenance en cours: certaines fonctionnalités peuvent être temporairement indisponibles pendant la mise à jour.";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,6 +85,20 @@ function SignInContent() {
           </h1>
           <p className={`${isPartnerFlow ? 'text-gray-400' : 'text-gray-600'}`}>
             {isPartnerFlow ? 'Connectez-vous pour accéder à votre dashboard affilié.' : 'Entrez vos identifiants pour accéder à votre compte.'}
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.05 }}
+          className={`rounded-2xl border px-4 py-3 flex items-start gap-3 text-left ${isPartnerFlow
+            ? 'bg-amber-500/10 border-amber-500/20 text-amber-200'
+            : 'bg-amber-50 border-amber-200 text-amber-900'}`}
+        >
+          <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+          <p className="text-xs sm:text-sm font-medium leading-relaxed">
+            {maintenanceMessage}
           </p>
         </motion.div>
 
