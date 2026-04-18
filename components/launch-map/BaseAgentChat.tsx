@@ -76,7 +76,7 @@ export function BaseAgentChat({
     welcomeDescription,
     welcomePrompts,
     welcomeIcons,
-    maxFreeMessages = 10,
+    maxFreeMessages = 15,
     upgradeLinkText = 'Débloquer Pro',
     renderMessageContent,
     headerActions,

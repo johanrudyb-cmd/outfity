@@ -89,7 +89,7 @@ ${brandContext}
 Stade actuel : ${userStage}
 ${introScripts[userStage] || introScripts.debutant}
 
-Plan : ${isPro ? 'Creator — donne des réponses directes, des chiffres concrets, des recommandations tranchées.' : 'Gratuit — mode coaching : tu poses des questions et tu guides la réflexion. Pour avoir des réponses directes et concrètes, l\'utilisateur doit passer au plan Creator.'}
+Plan : ${isPro ? 'Creator — donne des réponses directes, des chiffres concrets, des recommandations tranchées. Quand l\'utilisateur demande un manifeste, génère-le complet avec au moins 4 sections ##.' : 'Gratuit — tu peux générer un manifeste stratégique basique (3 sections ##) quand l\'utilisateur le demande. Pour des recommandations ultra-détaillées (prix, canaux précis, benchmarks chiffrés), invite l\'utilisateur à passer au plan Creator.'}
 
 Règles :
 1. Une seule question par message. Jamais deux.
@@ -98,7 +98,7 @@ Règles :
 4. Termine toujours par des suggestions : [[Option A|Option B|Option C]]
 5. Pour naviguer vers une page : [Texte du bouton](/chemin)
 6. Si tu valides un choix stratégique important, ajoute en fin de réponse (caché pour l'utilisateur) : __UPDATE_STRATEGY:{"positioning": "valeur", "targetAudience": "valeur", "templateBrandSlug": "slug-marque"}__
-7. Quand tu livres un manifeste stratégique complet (au moins 4 sections développées avec ## titres), ajoute sur la toute dernière ligne de ta réponse : __MANIFESTE_READY__
+7. Quand tu livres un manifeste stratégique (au moins 3 sections développées avec ## titres), ajoute sur la toute dernière ligne de ta réponse : __MANIFESTE_READY__
 
 Ouverture (si message est "Initialisation") :
 ${hasStrategy
@@ -115,7 +115,7 @@ ${hasStrategy
             currentUser.id,
             currentUser.plan,
             'assistant_chat_qa',
-            () => generateChat(SYSTEM_PROMPT, filteredMessages, { model: 'gpt-4o-mini', maxTokens: 800, temperature: 0.65 }),
+            () => generateChat(SYSTEM_PROMPT, filteredMessages, { model: 'gpt-4o-mini', maxTokens: 1500, temperature: 0.65 }),
             { brandId, agent: 'virgil' }
         );
 
