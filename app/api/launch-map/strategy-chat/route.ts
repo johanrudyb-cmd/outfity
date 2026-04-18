@@ -98,6 +98,7 @@ Règles :
 4. Termine toujours par des suggestions : [[Option A|Option B|Option C]]
 5. Pour naviguer vers une page : [Texte du bouton](/chemin)
 6. Si tu valides un choix stratégique important, ajoute en fin de réponse (caché pour l'utilisateur) : __UPDATE_STRATEGY:{"positioning": "valeur", "targetAudience": "valeur", "templateBrandSlug": "slug-marque"}__
+7. Quand tu livres un manifeste stratégique complet (au moins 4 sections développées avec ## titres), ajoute sur la toute dernière ligne de ta réponse : __MANIFESTE_READY__
 
 Ouverture (si message est "Initialisation") :
 ${hasStrategy
@@ -118,7 +119,10 @@ ${hasStrategy
             { brandId, agent: 'virgil' }
         );
 
-        const displayReply = reply.replace(/__UPDATE_STRATEGY:[\s\S]*?__/g, '').trim();
+        const displayReply = reply
+            .replace(/__UPDATE_STRATEGY:[\s\S]*?__/g, '')
+            .replace(/__MANIFESTE_READY__/g, '')
+            .trim();
 
         try {
             const lastUserMessage = messages[messages.length - 1];
@@ -148,7 +152,48 @@ ${hasStrategy
             console.warn('[Virgil] Save error:', e);
         }
 
-        return NextResponse.json({ reply: displayReply });
+        // Détecter si Virgil a généré un manifeste complet et le sauvegarder
+        const manifesteReady = reply.includes('__MANIFESTE_READY__');
+        let savedStrategyText: string | null = null;
+
+        if (manifesteReady && displayReply.length > 50) {
+            try {
+                const strategyMatch = reply.match(/__UPDATE_STRATEGY:([\s\S]*?)__/);
+                const updateData = (() => {
+                    try { return strategyMatch ? JSON.parse(strategyMatch[1]) : {}; }
+                    catch { return {}; }
+                })();
+
+                const tSlug = (updateData.templateBrandSlug as string)
+                    || (brand.styleGuide as Record<string, unknown>)?.templateBrandSlug as string
+                    || brand.templateBrandSlug
+                    || 'custom';
+                const tName = String(
+                    updateData.templateBrandName
+                    || (brand.styleGuide as Record<string, unknown>)?.templateBrandName
+                    || tSlug
+                );
+
+                await prisma.strategyGeneration.create({
+                    data: {
+                        brandId,
+                        templateBrandSlug: tSlug,
+                        templateBrandName: tName,
+                        strategyText: displayReply,
+                        positioning: String(updateData.positioning || latestStrategy?.positioning || ''),
+                        targetAudience: String(updateData.targetAudience || latestStrategy?.targetAudience || ''),
+                    },
+                });
+                savedStrategyText = displayReply;
+            } catch (e) {
+                console.warn('[Virgil] Manifeste save error:', e);
+            }
+        }
+
+        return NextResponse.json({
+            reply: displayReply,
+            ...(savedStrategyText ? { strategyText: savedStrategyText, manifestSaved: true } : {}),
+        });
     } catch (error: any) {
         console.error('[strategy-chat] Error:', error);
         const isQuota = (error.message || '').includes('Quota') || (error.message || '').includes('Limite');

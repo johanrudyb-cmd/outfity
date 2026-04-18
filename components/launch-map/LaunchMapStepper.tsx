@@ -121,6 +121,11 @@ export function LaunchMapStepper({
   }, [focusedPhase, hasIdentity, launchMap]);
 
   const [currentPhase, setCurrentPhase] = useState(initialPhase);
+  const [localStrategyText, setLocalStrategyText] = useState<string | null>(strategyText ?? null);
+
+  useEffect(() => {
+    if (strategyText) setLocalStrategyText(strategyText);
+  }, [strategyText]);
 
   const phaseToRender = useMemo(() => {
     if (typeof focusedPhase === 'number') {
@@ -327,8 +332,9 @@ export function LaunchMapStepper({
                 brandName={brand?.name ?? ''}
                 onComplete={() => handlePhaseComplete(1)}
                 userPlan={userPlan}
-                strategyText={strategyText}
-                canComplete={Boolean(strategyText && strategyText.length > 50)}
+                strategyText={localStrategyText}
+                canComplete={Boolean(localStrategyText && localStrategyText.length > 50)}
+                onStrategyReady={(text) => setLocalStrategyText(text)}
               />
             </div>
           )}

@@ -22,9 +22,10 @@ interface Phase1StrategyChatProps {
     inspirationBrandName?: string | null;  // nom de la marque d'inspiration
     inspirationBrandSlug?: string | null;  // slug pour le logo
     changesRemaining?: number;             // combien de changements restants ce mois
+    onStrategyReady?: (strategyText: string) => void;
 }
 
-export function Phase1StrategyChat({ brandId, brand, onComplete, canComplete = true, userPlan = 'free', onShowClassic, onShowManifeste, inspirationBrandName, inspirationBrandSlug, changesRemaining = 3 }: Phase1StrategyChatProps) {
+export function Phase1StrategyChat({ brandId, brand, onComplete, canComplete = true, userPlan = 'free', onShowClassic, onShowManifeste, inspirationBrandName, inspirationBrandSlug, changesRemaining = 3, onStrategyReady }: Phase1StrategyChatProps) {
     const renderMessageContent = (content: string, isUser: boolean) => {
         return (
             <div className="leading-relaxed text-[15px] max-w-none text-inherit">
@@ -144,6 +145,7 @@ export function Phase1StrategyChat({ brandId, brand, onComplete, canComplete = t
             headerActions={headerActions}
             onComplete={onComplete}
             canComplete={canComplete}
+            onStrategyReady={onStrategyReady}
             upgradeLinkText="Débloquer Mon Atelier"
             customViews={inspirationBanner}
             backHref="/launch-map"

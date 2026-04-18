@@ -36,6 +36,7 @@ interface Phase1StrategyProps {
   userPlan?: string;
   strategyText?: string | null;
   canComplete?: boolean;
+  onStrategyReady?: (strategyText: string) => void;
 }
 
 function styleGuideField(sg: Record<string, unknown> | null | undefined, key: string): string {
@@ -52,7 +53,8 @@ export function Phase1Strategy({
   demoMode = false,
   userPlan = 'free',
   strategyText,
-  canComplete = true
+  canComplete = true,
+  onStrategyReady,
 }: Phase1StrategyProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -280,6 +282,10 @@ export function Phase1Strategy({
         inspirationBrandName={inspirName}
         inspirationBrandSlug={selectedSlug || brand?.templateBrandSlug || null}
         changesRemaining={changesRemaining}
+        onStrategyReady={(text) => {
+          setStrategyResult(text);
+          onStrategyReady?.(text);
+        }}
       />
     );
   }

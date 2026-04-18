@@ -51,6 +51,7 @@ export interface BaseAgentChatProps {
     onComplete?: () => void;
     canComplete?: boolean;
     allowImageUpload?: boolean;
+    onStrategyReady?: (strategyText: string) => void;
 
     processBotReply?: (rawContent: string) => { cleanedContent: string; newSuggestions: string[] };
     containerClassName?: string;
@@ -84,6 +85,7 @@ export function BaseAgentChat({
     onComplete,
     canComplete = true,
     allowImageUpload,
+    onStrategyReady,
     processBotReply,
     containerClassName,
     onBack,
@@ -198,6 +200,11 @@ export function BaseAgentChat({
             }
 
             const data = await res.json();
+
+            if (data.strategyText && data.manifestSaved && onStrategyReady) {
+                onStrategyReady(data.strategyText);
+            }
+
             const rawContent = data.reply || data.error || 'Je rencontre un souci technique. Réessaie dans un instant.';
 
             let finalContent = rawContent;
