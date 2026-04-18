@@ -202,7 +202,10 @@ export function BaseAgentChat({
             const data = await res.json();
 
             if (data.strategyText && data.manifestSaved && onStrategyReady) {
+                console.log('[BaseAgentChat] Strategy ready, calling onStrategyReady:', data.strategyText.slice(0, 100));
                 onStrategyReady(data.strategyText);
+            } else if (data.strategyText) {
+                console.log('[BaseAgentChat] Strategy text received but manifestSaved is false:', data.manifestSaved);
             }
 
             const rawContent = data.reply || data.error || 'Je rencontre un souci technique. Réessaie dans un instant.';

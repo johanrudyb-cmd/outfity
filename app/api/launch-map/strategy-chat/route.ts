@@ -152,9 +152,13 @@ ${hasStrategy
             console.warn('[Virgil] Save error:', e);
         }
 
-        // Détecter si Virgil a généré un manifeste complet et le sauvegarder
-        const manifesteReady = reply.includes('__MANIFESTE_READY__');
+        // Détecter si Virgil a généré un manifeste (critères: marker OU au moins 3 sections ##)
+        const hasMarker = reply.includes('__MANIFESTE_READY__');
+        const sectionCount = (displayReply.match(/^## /gm) || []).length;
+        const manifesteReady = hasMarker || sectionCount >= 3;
         let savedStrategyText: string | null = null;
+
+        console.log(`[Virgil] manifesteReady=${manifesteReady} (marker=${hasMarker}, sections=${sectionCount})`);
 
         if (manifesteReady && displayReply.length > 50) {
             try {
